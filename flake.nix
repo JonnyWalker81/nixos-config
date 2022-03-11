@@ -9,18 +9,25 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = {self,  home-manager, nixpkgs, ... }@inputs:
-  let
-   mkVM = import ./lib/mkvm.nix; 
+ # inputs = {
+ #  nixpkgs = { url = "github:nixos/nixpkgs/nixos-unstable"; };
+ #  nur = { url = "github:nix-community/NUR"; };
+ #};
 
-   overlays = [
-   ];
+outputs = { self, nixpkgs, home-manager, ... }@inputs: let
+    mkVM = import ./lib/mkvm.nix;
+
+    # Overlays is the list of overlays we want to apply from flake inputs.
+    overlays = [
+          ];
   in {
     nixosConfigurations.vm-aarch64 = mkVM "vm-aarch64" rec {
       inherit overlays nixpkgs home-manager;
       system = "aarch64-linux";
-      user = "cipher";
+      user   = "mitchellh";
     };
-  };
-}
+
+    };
+
+ }
 
