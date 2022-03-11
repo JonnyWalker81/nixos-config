@@ -15,7 +15,7 @@
    overlays = [
    ];
   in {
-    nixosConfiguration.dev = mkVM "dev" rec {
+    nixosConfigurations.vm-aarch64 = mkVM "vm-aarch64" rec {
       inherit overlays nixpkgs home-manager;
       system = "aarch64-linux";
       user = "cipher";
