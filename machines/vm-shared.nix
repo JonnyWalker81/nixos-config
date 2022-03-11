@@ -123,7 +123,6 @@
     vimHugeX
 
     alacritty
-    chromium
     dmenu
     xorg.xrandr
     haskellPackages.libmpd
