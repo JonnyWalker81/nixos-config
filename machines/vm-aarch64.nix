@@ -1,6 +1,6 @@
 { config, pkgs, ... }: {
   imports = [
-    ./vmware-guest.nix
+    ../modules/vmware-guest.nix
     ./vm-shared.nix
   ];
 

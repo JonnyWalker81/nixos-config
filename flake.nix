@@ -24,7 +24,7 @@ outputs = { self, nixpkgs, home-manager, ... }@inputs: let
     nixosConfigurations.vm-aarch64 = mkVM "vm-aarch64" rec {
       inherit overlays nixpkgs home-manager;
       system = "aarch64-linux";
-      user   = "mitchellh";
+      user   = "cipher";
     };
 
     };

@@ -39,12 +39,15 @@
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
 
+  services.picom = {
+    enable = true;
+  };
+
   # setup windowing environment
   services.xserver = {
     enable = true;
     layout = "us";
-    # dpi = 220;
-
+    dpi = 120;
 
     #desktopManager = {
     #  xterm.enable = false;
@@ -78,9 +81,16 @@
      # '';
     };
 
-    windowManager = {
+    windowManager.xmonad = {
     #  i3.enable = true;
-      xmonad.enable = true;
+      enable = true;
+      enableContribAndExtras = true;
+
+      extraPackages = hpkgs: [
+        hpkgs.xmonad-contrib
+	hpkgs.xmonad-extras
+	hpkgs.xmonad
+      ];
     };
   };
 
@@ -102,11 +112,23 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    firefox
+    neovim
     gnumake
     killall
     niv
     rxvt_unicode
+    xsel
     xclip
+    vimHugeX
+
+    alacritty
+    chromium
+    dmenu
+    xorg.xrandr
+    haskellPackages.libmpd
+    haskellPackages.xmobar
+    haskellPackages.xmonad
 
     # This is needed for the vmware user tools clipboard to work.
     # You can test if you don't need this by deleting this and seeing
