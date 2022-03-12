@@ -123,6 +123,8 @@
     xclip
     vimHugeX
 
+    gitAndTools.gitFull
+
     alacritty
     dmenu
     xorg.xrandr

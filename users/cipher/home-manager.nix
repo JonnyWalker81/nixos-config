@@ -97,7 +97,7 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
       pull.rebase = true;
       init.defaultBranch = "main";
       color.ui = true;
-      credential.helper = "store";
+      credential.helper = "libsecret";
     };
    };
 
