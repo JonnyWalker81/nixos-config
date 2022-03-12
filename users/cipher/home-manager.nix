@@ -97,9 +97,7 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
       pull.rebase = true;
       init.defaultBranch = "main";
       color.ui = true;
-      credential.helper = "${
-          pkgs.git.override { withLibsecret = true; }
-        }/bin/git-credential-libsecret";
+      credential.helper = "store";
     };
    };
 
