@@ -106,6 +106,7 @@
       fira-code
       fira-code-symbols
       nerdfonts
+      jetbrains-mono
     ];
   };
 

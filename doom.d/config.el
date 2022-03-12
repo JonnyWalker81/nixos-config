@@ -4,7 +4,7 @@
 ;; Add personal doom config directory to load-path
 (add-to-list 'load-path "~/.doom.")
 (add-to-list 'load-path "~/.elisp")
-(add-to-list 'load-path "~/.elisp/lin")
+;; (add-to-list 'load-path "~/.elisp/lin")
 ;; (add-to-list 'load-path "~/Dropbox/dotfiles/doom/elisp/sunrise-commander")
 (add-to-list 'exec-path "~/.cargo/bin")
 (add-to-list 'load-path "~/Repositories/org-reveal")
@@ -35,25 +35,25 @@
 (add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
 
 
-(require 'lin)
-(global-hl-line-mode 1)
-(lin-add-to-many-modes)
+;; (require 'lin)
+;; (global-hl-line-mode 1)
+;; (lin-add-to-many-modes)
 
-(defun my-lin--macos-mode-color (light dark)
-  "Use LIGHT or DARK color value, depending on macOS mode."
-  (if (eq ns-system-appearance 'light)
-      light
-    dark))
+;; (defun my-lin--macos-mode-color (light dark)
+;;   "Use LIGHT or DARK color value, depending on macOS mode."
+;;   (if (eq ns-system-appearance 'light)
+;;       light
+;;     dark))
 
-(defun my-lin-custom-faces ()
-  (when (memq window-system '(mac ns))
-    (let ((bg (my-lin--macos-mode-color "selectedContentBackgroundColor" "#2a40b8"))
-          (fg (my-lin--macos-mode-color "alternateSelectedControlTextColor" "#ffffff")))
-      (set-face-attribute 'lin-hl nil :background bg)
-      (set-face-attribute 'lin-hl-override-fg nil :background bg :foreground fg))))
+;; (defun my-lin-custom-faces ()
+;;   (when (memq window-system '(mac ns))
+;;     (let ((bg (my-lin--macos-mode-color "selectedContentBackgroundColor" "#2a40b8"))
+;;           (fg (my-lin--macos-mode-color "alternateSelectedControlTextColor" "#ffffff")))
+;;       (set-face-attribute 'lin-hl nil :background bg)
+;;       (set-face-attribute 'lin-hl-override-fg nil :background bg :foreground fg))))
 
-(when (memq window-system '(mac ns))
-  (add-hook 'ns-system-appearance-change-functions #'my-lin-custom-faces))
+;; (when (memq window-system '(mac ns))
+;;   (add-hook 'ns-system-appearance-change-functions #'my-lin-custom-faces))
 
 ;; (set-face-attribute 'lin-hl nil
 ;;                     :background (modus-themes-color 'green-subtle-bg)

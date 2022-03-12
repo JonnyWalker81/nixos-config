@@ -91,6 +91,16 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
 
    programs.git = {
      enable = true;
+     userName = "Jonathan Rothberg";
+     userEmail = "jon@geneva.com";
+     extraConfig = {
+      pull.rebase = true;
+      init.defaultBranch = "main";
+      color.ui = true;
+      credential.helper = "${
+          pkgs.git.override { withLibsecret = true; }
+        }/bin/git-credential-libsecret";
+    };
    };
 
    programs.zsh = {
