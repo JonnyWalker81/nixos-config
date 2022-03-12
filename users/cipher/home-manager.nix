@@ -1,5 +1,80 @@
-{ config, lib, pkgs, ... }: 
-{
+args@{ config, lib, pkgs, nix-doom-emacs, ... }: 
+
+ 
+ # myEmacs
+ {
+  # imports = [
+ #   nix-doom-emacs.hmModule
+ # ];
+#  unstable = import (fetchTarball
+#    "https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz") {
+#      overlays = [
+#        (import (builtins.fetchTarball {
+#          url = https://github.com/nix-community/emacs-overlay/archive/610d85782bcf71a7821a2019055e7b411e28caec.tar.gz;
+#          sha256 = "610d85782bcf71a7821a2019055e7b411e28caec";
+#        }))
+#      ];
+#    };
+
+# services.emacs.package = pkgs.emacsGcc;
+# 
+# nixpkgs.overlays = [
+#  (import (builtins.fetchTarball {
+#    # url = https://github.com/nix-community/emacs-overlay/archive/610d85782bcf71a7821a2019055e7b411e28caec.tar.gz;
+#    url = https://github.com/nix-community/emacs-overlay/archive/master.tar.gz;
+#  }))
+# ];
+# services.emacs.enable = true;
+  home.file.".doom.d" = {
+      source = ../../doom.d;
+      # target = "~/.doom.d";
+      recursive = true;
+      # onChange = "doom upgrade";
+    };
+
+    home.file.".elisp" = {
+      source = ../../elisp;
+      recursive = true;
+    };
+
+   # home.file.emacs-config = {
+   #   source = ../../../Repositories/doom-emacs;
+   #   target = ".config/emacs";
+   #   recursive = true;
+   # };
+
+  programs.emacs = {
+    enable = true;
+    package = pkgs.emacsGcc;
+    extraPackages = (epkgs: [ epkgs.vterm ] );
+   # doomPrivateDir = ../../doom.d;
+   #  emacsPackagesOverlay = self: super: {
+   #     # fixes https://github.com/vlaci/nix-doom-emacs/issues/394
+   #     gitignore-mode = pkgs.emacsPackages.git-modes;
+   #     gitconfig-mode = pkgs.emacsPackages.git-modes;
+   #   };
+  };
+
+ # environment.defaultPackages = with pkgs; [
+ #   emacsGcc
+ # ];
+ 
+#  services.emacs.package = pkgs.emacsPgtkGcc;
+# 
+#  nixpkgs.overlays = [
+#    (import (builtins.fetchTarball {
+#      url = https://github.com/nix-community/emacs-overlay/archive/master.tar.gz;
+#    }))
+#  ];
+
+ # environment.defaultPackages = with pkgs; [
+ #   emacsGit
+ # ];
+
+# programs.emacs = {
+#   enable = true;
+#   package = pkgs.emacsGcc;
+# };
 
    home.packages =  [
      pkgs.fd
@@ -8,6 +83,11 @@
      pkgs.rustup
      pkgs.clang
    ];
+
+  # programs.emacs = {
+  #   enable = true;
+  #   version = "29.0.50";
+  # };
 
    programs.git = {
      enable = true;

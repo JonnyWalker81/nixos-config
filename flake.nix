@@ -7,6 +7,12 @@
     # home-manager.url = "github:nix-community/home-manager/release-21.11";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+   # nix-doom-emacs.url = "github:he-la/nix-doom-emacs/develop";
+   # nix-doom-emacs.inputs.doom-emacs.follows = "doom-emacs";
+   # nix-doom-emacs.inputs.nixpkgs.follows = "nixpkgs";
+   # nix-doom-emacs.inputs.emacs-overlay.follows = "emacs-overlay";
+    emacs-overlay.url = "github:nix-community/emacs-overlay";
+    nix-doom-emacs.url = "github:vlaci/nix-doom-emacs/";
   };
 
  # inputs = {
@@ -14,15 +20,16 @@
  #  nur = { url = "github:nix-community/NUR"; };
  #};
 
-outputs = { self, nixpkgs, home-manager, ... }@inputs: let
+outputs = { self, nixpkgs, home-manager, nix-doom-emacs, ... }@inputs: let
     mkVM = import ./lib/mkvm.nix;
 
     # Overlays is the list of overlays we want to apply from flake inputs.
     overlays = [
+      inputs.emacs-overlay.overlay
           ];
   in {
     nixosConfigurations.vm-aarch64 = mkVM "vm-aarch64" rec {
-      inherit overlays nixpkgs home-manager;
+      inherit overlays nixpkgs home-manager nix-doom-emacs;
       system = "aarch64-linux";
       user   = "cipher";
     };

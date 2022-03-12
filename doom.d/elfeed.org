@@ -1,0 +1,12 @@
+#+TITLE: Elfeed
+
+* Blogs                                                              :elfeed:
+** Software Development :dev:
+*** Emacs                                                    :emacs:mustread:
+**** http://www.terminally-incoherent.com/blog/feed
+**** http://nullprogram.com/feed
+**** entry-title: \(emacs\|org-mode\)
+**** http://planet.emacsen.org/atom.xml
+**** https://hnrss.org/frontpage
+**** https://daringfireball.net/feeds/articles
+**** https://lobste.rs/t/programming.rss
