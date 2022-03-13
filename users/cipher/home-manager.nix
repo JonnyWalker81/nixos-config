@@ -32,10 +32,14 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
       # onChange = "doom upgrade";
     };
 
-    home.file.".elisp" = {
+  home.file.".elisp" = {
       source = ../../elisp;
       recursive = true;
     };
+
+  home.file.".xmonad/xmonad.hs" = {
+    source = ./xmonad/xmonad.hs;
+  };
 
    # home.file.emacs-config = {
    #   source = ../../../Repositories/doom-emacs;
@@ -78,10 +82,15 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
 
    home.packages =  [
      pkgs.fd
-     pkgs.go
+     pkgs.go_1_17
      pkgs.gopls
      pkgs.rustup
      pkgs.clang
+     pkgs.just
+     pkgs.docker-compose
+     pkgs.awscli
+     pkgs.postgresql_14
+     pkgs.jq
    ];
 
   # programs.emacs = {
@@ -136,6 +145,13 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
    programs.neovim.viAlias = true;
    programs.neovim.vimAlias = true;
 
+
+   programs.direnv = {
+     enable = true;
+     nix-direnv = {
+       enable = true;
+     };
+   };
 
   programs.starship = {
     enable = true;

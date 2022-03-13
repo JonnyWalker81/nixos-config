@@ -47,16 +47,16 @@
   services.xserver = {
     enable = true;
     layout = "us";
-    dpi = 120;
+    dpi = 220;
 
     #desktopManager = {
     #  xterm.enable = false;
    #  wallpaper.mode = "scale";
    #};
 
-    resolutions = [
-      { x = 2560; y = 1440;}
-    ];
+    # resolutions = [
+    #   { x = 2560; y = 1440;}
+    # ];
 
     displayManager = {
 
@@ -75,10 +75,10 @@
     #  Xcursor.size: 64
     # EOF
     # '';
-     # sessionCommands = ''
-     #   ${pkgs.xorg.xset}/bin/xset r rate 200 40
-     #   ${pkgs.xorg.xrandr}/bin/xrandr -s '1800x1169' 
-     # '';
+     sessionCommands = ''
+       ${pkgs.xorg.xset}/bin/xset r rate 200 40
+       ${pkgs.xorg.xrandr}/bin/xrandr -s '2880x1800'
+     '';
     };
 
     windowManager.xmonad = {
@@ -88,8 +88,8 @@
 
       extraPackages = hpkgs: [
         hpkgs.xmonad-contrib
-	hpkgs.xmonad-extras
-	hpkgs.xmonad
+        hpkgs.xmonad-extras
+        hpkgs.xmonad
       ];
     };
   };
