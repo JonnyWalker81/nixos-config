@@ -41,6 +41,10 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
     source = ./xmonad/xmonad.hs;
   };
 
+  home.file.".config/xmobar/.xmobarrc" = {
+    source = ./xmobar/.xmobarrc;
+  };
+
    # home.file.emacs-config = {
    #   source = ../../../Repositories/doom-emacs;
    #   target = ".config/emacs";
