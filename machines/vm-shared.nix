@@ -47,16 +47,16 @@
   services.xserver = {
     enable = true;
     layout = "us";
-    dpi = 220;
+    dpi = 120;
 
     #desktopManager = {
     #  xterm.enable = false;
    #  wallpaper.mode = "scale";
    #};
 
-    # resolutions = [
-    #   { x = 2560; y = 1440;}
-    # ];
+     resolutions = [
+       { x = 2560; y = 1600;}
+     ];
 
     displayManager = {
 
@@ -75,11 +75,11 @@
     #  Xcursor.size: 64
     # EOF
     # '';
-     sessionCommands = ''
-       ${pkgs.xorg.xset}/bin/xset r rate 200 40
-       ${pkgs.xorg.xrandr}/bin/xrandr -s '2880x1800'
-     '';
-    };
+   # sessionCommands = ''
+   #   ${pkgs.xorg.xset}/bin/xset r rate 200 40
+   #   ${pkgs.xorg.xrandr}/bin/xrandr -s '2880x1800'
+   # '';
+   };
 
     windowManager.xmonad = {
     #  i3.enable = true;

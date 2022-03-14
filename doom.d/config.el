@@ -34,6 +34,8 @@
 
 (add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
 
+(require 'nix-shell)
+
 
 ;; (require 'lin)
 ;; (global-hl-line-mode 1)
@@ -88,7 +90,6 @@
 
 (setq visual-fill-column-width 80)
 
-(set-face-attribute 'blamer-face nil :height 1.0)
 
 (use-package! blamer
   :bind (("s-i" . blamer-show-commit-info))
@@ -99,10 +100,13 @@
   :custom-face
   (blamer-face ((t :foreground "#7a88cf"
                     :background nil
-                    :height 80
+                    :height 1.0
                     :italic t)))
   :config
+  (set-face-attribute 'blamer-face nil :height 1.0)
   (global-blamer-mode 1))
+
+
 
 ;; (setq rustic-lsp-server 'rust-analyzer)
 ;; (setq lsp-rust-server 'rust-analyzer)
