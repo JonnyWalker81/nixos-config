@@ -1,4 +1,4 @@
-Config { font = "xft:Fira Code:size=15:antialias=rue"
+Config { font = "xft:Fira Code:size=12:antialias=rue"
        , borderColor = "green"
        , border = TopB
        , bgColor = "black"

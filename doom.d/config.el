@@ -2,7 +2,7 @@
 ;; ~/.doom.d/config.el -*- lexical-binding: t; -*-
 
 ;; Add personal doom config directory to load-path
-(add-to-list 'load-path "~/.doom.")
+(add-to-list 'load-path "~/.doom.d")
 (add-to-list 'load-path "~/.elisp")
 ;; (add-to-list 'load-path "~/.elisp/lin")
 ;; (add-to-list 'load-path "~/Dropbox/dotfiles/doom/elisp/sunrise-commander")
@@ -21,6 +21,15 @@
    (exec-path-from-shell-copy-env "GOPATH")
   (exec-path-from-shell-copy-env "RUST_SRC_PATH")
  )
+
+(if (eq system-type 'linux)
+                                        ;; something for OS X if true
+                                        ;; optional something if not
+   (exec-path-from-shell-copy-env "GOPATH")
+  (exec-path-from-shell-copy-env "RUST_SRC_PATH")
+ )
+
+
 
 (load! "config-misc")
 (load! "config-font")
@@ -274,7 +283,7 @@
                                  ;; (add-to-list 'tree-sitter-major-mode-language-alist '(terraform-mode . hcl))
                             ;; (jr-setup-dev-env)
                             (set-fill-column 120)
-                              (tree-sitter-hl-mode)
+                              ;; (tree-sitter-hl-mode)
                             ;; (smartparens-global-mode -1)
                 ;; (smartparens-mode -1)
                 ;; (turn-off-smartparens-mode)
@@ -368,6 +377,7 @@
                                 (format-all-mode t)
                                 ))
 (add-hook 'go-mode-hook (lambda ()
+                          (lsp-deferred)
       (setq gofmt-command "goimports")
       (add-hook 'before-save-hook 'gofmt-before-save)
                           ;; (add-hook 'before-save-hook 'gofmt-before-save)

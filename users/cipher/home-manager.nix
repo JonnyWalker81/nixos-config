@@ -1,20 +1,22 @@
-args@{ config, lib, pkgs, nix-doom-emacs, ... }: 
+args@{ config, lib, pkgs, nix-doom-emacs, ... }:
 
- 
+#let
+#  unstable = import <nixos-unstable>{};
+#in
  # myEmacs
  {
   # imports = [
  #   nix-doom-emacs.hmModule
  # ];
-#  unstable = import (fetchTarball
-#    "https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz") {
+  # unstable = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz")
+    # {
 #      overlays = [
 #        (import (builtins.fetchTarball {
 #          url = https://github.com/nix-community/emacs-overlay/archive/610d85782bcf71a7821a2019055e7b411e28caec.tar.gz;
 #          sha256 = "610d85782bcf71a7821a2019055e7b411e28caec";
 #        }))
 #      ];
-#    };
+   # };
 
 # services.emacs.package = pkgs.emacsGcc;
 # 
@@ -88,6 +90,7 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
      pkgs.fd
      pkgs.go_1_17
      pkgs.gopls
+     pkgs.goimports
      pkgs.rustup
      pkgs.clang
      pkgs.just
@@ -95,6 +98,8 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
      pkgs.awscli
      pkgs.postgresql_14
      pkgs.jq
+     pkgs.exa
+     pkgs.thefuck
    ];
 
   # programs.emacs = {
@@ -117,7 +122,7 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
    programs.zsh = {
      enable = true;
      shellAliases = {
-       ll = "ls -l";
+       ll = "exa -la";
        update = "sudo nixos-rebuild switch --flake .#vm-aarch64";
      };
 
@@ -132,10 +137,14 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
           ZSH_TMUX_AUTOCONNECT = "true";
      };
 
-     oh-my-zsh = {
+    initExtra = ''
+        source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+      '';
+
+    oh-my-zsh = {
 	    enable = true;
-	    plugins = [ "git" "thefuck"];
-	    theme = "robbyrussell";
+	    plugins = [ "git" "thefuck" ];
+	    theme = "jonathan";
     };
 
      history = {

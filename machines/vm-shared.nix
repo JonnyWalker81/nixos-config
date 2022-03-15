@@ -55,7 +55,8 @@
    #};
 
      resolutions = [
-       { x = 2560; y = 1600;}
+       # { x = 2560; y = 1600;}
+       { x = 2880; y = 1800;}
      ];
 
     displayManager = {
@@ -150,6 +151,11 @@
       xrandr -s 2880x1800
     '')
   ];
+
+  environment.sessionVariables = {
+    GDK_SCALE="2";
+    CGO_ENABLED = "0";
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.

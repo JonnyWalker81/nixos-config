@@ -20,7 +20,7 @@
  #  nur = { url = "github:nix-community/NUR"; };
  #};
 
-outputs = { self, nixpkgs, home-manager, nix-doom-emacs, ... }@inputs: let
+    outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, nix-doom-emacs, ... }@inputs: let
     mkVM = import ./lib/mkvm.nix;
 
     # Overlays is the list of overlays we want to apply from flake inputs.
@@ -29,7 +29,7 @@ outputs = { self, nixpkgs, home-manager, nix-doom-emacs, ... }@inputs: let
           ];
   in {
     nixosConfigurations.vm-aarch64 = mkVM "vm-aarch64" rec {
-      inherit overlays nixpkgs home-manager nix-doom-emacs;
+      inherit overlays nixpkgs nixpkgs-unstable home-manager nix-doom-emacs;
       system = "aarch64-linux";
       user   = "cipher";
     };
