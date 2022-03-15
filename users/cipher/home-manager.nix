@@ -144,7 +144,7 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
     oh-my-zsh = {
 	    enable = true;
 	    plugins = [ "git" "thefuck" ];
-	    theme = "jonathan";
+	    theme = "robbyrussell";
     };
 
      history = {
