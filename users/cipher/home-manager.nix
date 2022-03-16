@@ -51,6 +51,10 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
     source = ./kitty/kitty.conf;
   };
 
+  home.file.".config/rofi/config.rofi" = {
+    source = ./rofi/config.rasi;
+  };
+
    # home.file.emacs-config = {
    #   source = ../../../Repositories/doom-emacs;
    #   target = ".config/emacs";
@@ -109,6 +113,7 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
      pkgs.xplr
      pkgs.kitty
      pkgs.pcmanfm
+     pkgs.rofi
    ];
 
   # programs.emacs = {
