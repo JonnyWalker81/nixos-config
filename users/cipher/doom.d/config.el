@@ -505,7 +505,7 @@
  ;; (setq doom-font (font-spec :family "DejaVu Sans Mono" :size 19))
  ;; (setq doom-font (font-spec :family "Fantasque Sans Mono" :size 19))
  ;; (setq doom-font (font-spec :family "Cascadia Code" :size 16))
- (setq doom-font (font-spec :family "JetBrains Mono Medium" :size 14))
+ (setq doom-font (font-spec :family "JetBrains Mono Medium" :size 18))
 ;; (setq doom-font (font-spec :family "JetBrains Mono Medium" :size 16))
  ;; (setq doom-font (font-spec :family "JetBrains Mono SemiLight" :size 21)) 
 ;; (setq doom-font (font-spec :family "Victor Mono" :size 21)) 

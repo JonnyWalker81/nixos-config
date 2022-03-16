@@ -14,6 +14,9 @@
 
   # We expect to run the VM on hidpi machines.
   hardware.video.hidpi.enable = true;
+  hardware.opengl = {
+    enable = true;
+  };
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -56,7 +59,8 @@
 
      resolutions = [
        # { x = 2560; y = 1600;}
-       { x = 2880; y = 1800;}
+       # { x = 2880; y = 1800;}
+       { x = 3840; y = 2160;}
      ];
 
     displayManager = {
@@ -148,13 +152,15 @@
       xrandr -s 6016x3384_60.00
     '')
     (writeShellScriptBin "xrandr-mbp" ''
-      xrandr -s 2880x1800
+      xrandr -s 3840x2160
     '')
   ];
 
+      # xrandr -s 2880x1800
   environment.sessionVariables = {
     GDK_SCALE="2";
     CGO_ENABLED = "0";
+    WINIT_HIDPI_FACTOR="1";
   };
 
   # Some programs need SUID wrappers, can be configured further or are

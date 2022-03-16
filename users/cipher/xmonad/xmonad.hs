@@ -18,9 +18,13 @@ import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.EwmhDesktops
 
+import XMonad.Layout.Spacing
+import XMonad.Layout.Gaps
 import XMonad.Layout.NoBorders
+import XMonad.Layout.Grid
 
 import XMonad.Util.Run(spawnPipe)
+import XMonad.Util.SpawnOnce(spawnOnce)
 import XMonad.Hooks.ManageDocks
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
@@ -28,7 +32,8 @@ import qualified Data.Map        as M
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
-myTerminal      = "alacritty"
+-- myTerminal      = "alacritty"
+myTerminal      = "kitty"
 
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse :: Bool
@@ -58,12 +63,13 @@ myModMask       = mod1Mask
 --
 -- > workspaces = ["web", "irc", "code" ] ++ map show [4..9]
 --
-myWorkspaces    = ["1","2","3","4","5","6","7","8","9"]
+-- myWorkspaces    = ["1","2","3","4","5","6","7","8","9"]
+myWorkspaces    = ["emacs", "firfox", "services", "misc"] ++ map show ["5","6","7","8","9"]
 
 -- Border colors for unfocused and focused windows, respectively.
 --
-myNormalBorderColor  = "#dddddd"
-myFocusedBorderColor = "#ff0000"
+myNormalBorderColor  = "#E0E0E2"
+myFocusedBorderColor = "#567568"
 
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
@@ -193,10 +199,11 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 -- The available layouts.  Note that each layout is separated by |||,
 -- which denotes layout choice.
 
-myLayout = tiled ||| Mirror tiled ||| Full
+myLayout = tiled ||| Mirror tiled ||| Full |||  grid
   where
      -- default tiling algorithm partitions the screen into two panes
-     tiled   = smartBorders $ Tall nmaster delta ratio
+     -- tiled   = gaps [(U,5), (D,5), (L,5), (R,5)] $ smartBorders $ Tall nmaster delta ratio
+     tiled   = spacing 5 $ smartBorders $ Tall nmaster delta ratio
 
      -- The default number of windows in the master pane
      nmaster = 1
@@ -206,6 +213,8 @@ myLayout = tiled ||| Mirror tiled ||| Full
 
      -- Percent of screen to increment by when resizing panes
      delta   = 3/100
+
+     grid = spacing 5 $ Grid
 
 ------------------------------------------------------------------------
 -- Window rules:
@@ -274,9 +283,11 @@ myLogHook h = dynamicLogWithPP $ def
 -- Perform an arbitrary action each time xmonad starts or is restarted
 -- with mod-q.  Used by, e.g., XMonad.Layout.PerWorkspace to initialize
 -- per-workspace layout choices.
---
 -- By default, do nothing.
-myStartupHook = return ()
+
+myStartupHook = do
+  spawnOnce "feh --bg-scale ~/Downloads/wallpaper/GRDZSqf-most-popular-computer-wallpaper.jpg &"
+  spawnOnce "picom &"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.

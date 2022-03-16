@@ -28,14 +28,14 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
 # ];
 # services.emacs.enable = true;
   home.file.".doom.d" = {
-      source = ../../doom.d;
+      source = ./doom.d;
       # target = "~/.doom.d";
       recursive = true;
       # onChange = "doom upgrade";
     };
 
   home.file.".elisp" = {
-      source = ../../elisp;
+      source = ./elisp;
       recursive = true;
     };
 
@@ -45,6 +45,10 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
 
   home.file.".config/xmobar/.xmobarrc" = {
     source = ./xmobar/.xmobarrc;
+  };
+
+  home.file.".config/kitty/kitty.conf" = {
+    source = ./kitty/kitty.conf;
   };
 
    # home.file.emacs-config = {
@@ -88,6 +92,7 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
 
    home.packages =  [
      pkgs.fd
+     pkgs.ripgrep
      pkgs.go_1_17
      pkgs.gopls
      pkgs.goimports
@@ -100,6 +105,10 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
      pkgs.jq
      pkgs.exa
      pkgs.thefuck
+     pkgs.feh
+     pkgs.xplr
+     pkgs.kitty
+     pkgs.pcmanfm
    ];
 
   # programs.emacs = {
@@ -122,8 +131,9 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }:
    programs.zsh = {
      enable = true;
      shellAliases = {
-       ll = "exa -la";
-       update = "sudo nixos-rebuild switch --flake .#vm-aarch64";
+       ll = "exa -l";
+       l = "exa -la";
+       rebuild = "sudo nixos-rebuild switch --flake .#vm-aarch64";
      };
 
      enableAutosuggestions = true;
