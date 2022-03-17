@@ -10,13 +10,11 @@
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
-   };
+  };
 
   # We expect to run the VM on hidpi machines.
   hardware.video.hidpi.enable = true;
-  hardware.opengl = {
-    enable = true;
-  };
+  hardware.opengl = { enable = true; };
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -42,9 +40,7 @@
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
 
-  services.picom = {
-    enable = true;
-  };
+  services.picom = { enable = true; };
 
   # setup windowing environment
   services.xserver = {
@@ -54,40 +50,43 @@
 
     #desktopManager = {
     #  xterm.enable = false;
-   #  wallpaper.mode = "scale";
-   #};
+    #  wallpaper.mode = "scale";
+    #};
 
-     resolutions = [
-       # { x = 2560; y = 1600;}
-       # { x = 2880; y = 1800;}
-       { x = 3840; y = 2160;}
-     ];
+    resolutions = [
+      # { x = 2560; y = 1600;}
+      # { x = 2880; y = 1800;}
+      {
+        x = 3840;
+        y = 2160;
+      }
+    ];
 
     displayManager = {
 
-    # sddm.enable = true;
-    # sddm.enableHidpi = true;
+      # sddm.enable = true;
+      # sddm.enableHidpi = true;
       # defaultSession = "none+i3";
       # lightdm.enable = true;
 
       # AARCH64: For now, on Apple Silicon, we must manually set the
       # display resolution. This is a known issue with VMware Fusion.
 
-    # sessionCommands = ''
-    # ${pkgs.xorg.xrdb}/bin/xrdb -merge <<EOF
-    #  xft.dpi: 192
-    #  Xcursor.theme: Adwaita
-    #  Xcursor.size: 64
-    # EOF
-    # '';
-   # sessionCommands = ''
-   #   ${pkgs.xorg.xset}/bin/xset r rate 200 40
-   #   ${pkgs.xorg.xrandr}/bin/xrandr -s '2880x1800'
-   # '';
-   };
+      # sessionCommands = ''
+      # ${pkgs.xorg.xrdb}/bin/xrdb -merge <<EOF
+      #  xft.dpi: 192
+      #  Xcursor.theme: Adwaita
+      #  Xcursor.size: 64
+      # EOF
+      # '';
+      # sessionCommands = ''
+      #   ${pkgs.xorg.xset}/bin/xset r rate 200 40
+      #   ${pkgs.xorg.xrandr}/bin/xrandr -s '2880x1800'
+      # '';
+    };
 
     windowManager.xmonad = {
-    #  i3.enable = true;
+      #  i3.enable = true;
       enable = true;
       enableContribAndExtras = true;
 
@@ -107,12 +106,7 @@
   fonts = {
     fontDir.enable = true;
 
-    fonts = with pkgs; [
-      fira-code
-      fira-code-symbols
-      nerdfonts
-      jetbrains-mono
-    ];
+    fonts = with pkgs; [ fira-code fira-code-symbols nerdfonts jetbrains-mono ];
   };
 
   # List packages installed in system profile. To search, run:
@@ -127,6 +121,7 @@
     xsel
     xclip
     vimHugeX
+    nixfmt
 
     gitAndTools.gitFull
 
@@ -156,11 +151,11 @@
     '')
   ];
 
-      # xrandr -s 2880x1800
+  # xrandr -s 2880x1800
   environment.sessionVariables = {
-    GDK_SCALE="2";
+    GDK_SCALE = "2";
     CGO_ENABLED = "0";
-    WINIT_HIDPI_FACTOR="1";
+    WINIT_HIDPI_FACTOR = "1";
   };
 
   # Some programs need SUID wrappers, can be configured further or are

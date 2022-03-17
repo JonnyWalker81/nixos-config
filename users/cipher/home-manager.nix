@@ -1,198 +1,117 @@
-args@{ config, lib, pkgs, nix-doom-emacs, ... }:
-
-#let
-#  unstable = import <nixos-unstable>{};
-#in
- # myEmacs
- {
-  # imports = [
- #   nix-doom-emacs.hmModule
- # ];
-  # unstable = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz")
-    # {
-#      overlays = [
-#        (import (builtins.fetchTarball {
-#          url = https://github.com/nix-community/emacs-overlay/archive/610d85782bcf71a7821a2019055e7b411e28caec.tar.gz;
-#          sha256 = "610d85782bcf71a7821a2019055e7b411e28caec";
-#        }))
-#      ];
-   # };
-
-# services.emacs.package = pkgs.emacsGcc;
-# 
-# nixpkgs.overlays = [
-#  (import (builtins.fetchTarball {
-#    # url = https://github.com/nix-community/emacs-overlay/archive/610d85782bcf71a7821a2019055e7b411e28caec.tar.gz;
-#    url = https://github.com/nix-community/emacs-overlay/archive/master.tar.gz;
-#  }))
-# ];
-# services.emacs.enable = true;
+args@{ config, lib, pkgs, nix-doom-emacs, ... }: {
   home.file.".doom.d" = {
-      source = ./doom.d;
-      # target = "~/.doom.d";
-      recursive = true;
-      # onChange = "doom upgrade";
-    };
+    source = ./doom.d;
+    recursive = true;
+  };
 
   home.file.".elisp" = {
-      source = ./elisp;
-      recursive = true;
-    };
-
-  home.file.".xmonad/xmonad.hs" = {
-    source = ./xmonad/xmonad.hs;
+    source = ./elisp;
+    recursive = true;
   };
 
-  home.file.".config/xmobar/.xmobarrc" = {
-    source = ./xmobar/.xmobarrc;
-  };
+  home.file.".xmonad/xmonad.hs" = { source = ./xmonad/xmonad.hs; };
 
-  home.file.".config/kitty/kitty.conf" = {
-    source = ./kitty/kitty.conf;
-  };
+  home.file.".config/xmobar/.xmobarrc" = { source = ./xmobar/.xmobarrc; };
 
-  home.file.".config/rofi/config.rofi" = {
-    source = ./rofi/config.rasi;
-  };
+  home.file.".config/kitty/kitty.conf" = { source = ./kitty/kitty.conf; };
 
-   # home.file.emacs-config = {
-   #   source = ../../../Repositories/doom-emacs;
-   #   target = ".config/emacs";
-   #   recursive = true;
-   # };
+  home.file.".config/rofi/config.rasi" = { source = ./rofi/config.rasi; };
 
   programs.emacs = {
     enable = true;
     package = pkgs.emacsGcc;
-    extraPackages = (epkgs: [ epkgs.vterm ] );
-   # doomPrivateDir = ../../doom.d;
-   #  emacsPackagesOverlay = self: super: {
-   #     # fixes https://github.com/vlaci/nix-doom-emacs/issues/394
-   #     gitignore-mode = pkgs.emacsPackages.git-modes;
-   #     gitconfig-mode = pkgs.emacsPackages.git-modes;
-   #   };
+    extraPackages = (epkgs: [ epkgs.vterm ]);
   };
 
- # environment.defaultPackages = with pkgs; [
- #   emacsGcc
- # ];
- 
-#  services.emacs.package = pkgs.emacsPgtkGcc;
-# 
-#  nixpkgs.overlays = [
-#    (import (builtins.fetchTarball {
-#      url = https://github.com/nix-community/emacs-overlay/archive/master.tar.gz;
-#    }))
-#  ];
+  home.packages = [
+    pkgs.fd
+    pkgs.ripgrep
+    pkgs.go_1_17
+    pkgs.gopls
+    pkgs.goimports
+    pkgs.rustup
+    pkgs.clang
+    pkgs.just
+    pkgs.docker-compose
+    pkgs.awscli
+    pkgs.postgresql_14
+    pkgs.jq
+    pkgs.exa
+    pkgs.thefuck
+    pkgs.feh
+    pkgs.xplr
+    pkgs.kitty
+    pkgs.pcmanfm
+    pkgs.rofi
+    pkgs.font-awesome
+  ];
 
- # environment.defaultPackages = with pkgs; [
- #   emacsGit
- # ];
-
-# programs.emacs = {
-#   enable = true;
-#   package = pkgs.emacsGcc;
-# };
-
-   home.packages =  [
-     pkgs.fd
-     pkgs.ripgrep
-     pkgs.go_1_17
-     pkgs.gopls
-     pkgs.goimports
-     pkgs.rustup
-     pkgs.clang
-     pkgs.just
-     pkgs.docker-compose
-     pkgs.awscli
-     pkgs.postgresql_14
-     pkgs.jq
-     pkgs.exa
-     pkgs.thefuck
-     pkgs.feh
-     pkgs.xplr
-     pkgs.kitty
-     pkgs.pcmanfm
-     pkgs.rofi
-   ];
-
-  # programs.emacs = {
-  #   enable = true;
-  #   version = "29.0.50";
-  # };
-
-   programs.git = {
-     enable = true;
-     userName = "Jonathan Rothberg";
-     userEmail = "jon@geneva.com";
-     extraConfig = {
+  programs.git = {
+    enable = true;
+    userName = "Jonathan Rothberg";
+    userEmail = "jon@geneva.com";
+    extraConfig = {
       pull.rebase = true;
       init.defaultBranch = "main";
       color.ui = true;
-      credential.helper = "libsecret";
+      credential.helper = "store";
     };
-   };
+  };
 
-   programs.zsh = {
-     enable = true;
-     shellAliases = {
-       ll = "exa -l";
-       l = "exa -la";
-       rebuild = "sudo nixos-rebuild switch --flake .#vm-aarch64";
-     };
+  programs.zsh = {
+    enable = true;
+    shellAliases = {
+      ll = "exa -l";
+      l = "exa -la";
+      rebuild = "sudo nixos-rebuild switch --flake .#vm-aarch64";
+    };
 
-     enableAutosuggestions = true;
-     sessionVariables = {
-          LC_ALL = "en_US.utf8";
-          LIBVIRT_DEFAULT_URI = "qemu:///system";
-          GOPATH = "\${HOME}";
-          PATH = "\${PATH}:\${HOME}/bin:\${HOME}/.cargo/bin";
+    enableAutosuggestions = true;
+    sessionVariables = {
+      LC_ALL = "en_US.utf8";
+      LIBVIRT_DEFAULT_URI = "qemu:///system";
+      GOPATH = "\${HOME}";
+      PATH = "\${PATH}:\${HOME}/bin:\${HOME}/.cargo/bin";
 
-          ZSH_TMUX_AUTOSTART = "true";
-          ZSH_TMUX_AUTOCONNECT = "true";
-     };
+      ZSH_TMUX_AUTOSTART = "true";
+      ZSH_TMUX_AUTOCONNECT = "true";
+    };
 
     initExtra = ''
-        source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
-      '';
+      source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+    '';
 
     oh-my-zsh = {
-	    enable = true;
-	    plugins = [ "git" "thefuck" ];
-	    theme = "robbyrussell";
+      enable = true;
+      plugins = [ "git" "thefuck" ];
+      theme = "robbyrussell";
     };
 
-     history = {
-       size = 100000;
-       path = "${config.xdg.dataHome}/zsh/history";
-     };
-   };
+    history = {
+      size = 100000;
+      path = "${config.xdg.dataHome}/zsh/history";
+    };
+  };
 
+  programs.neovim.enable = true;
+  programs.neovim.viAlias = true;
+  programs.neovim.vimAlias = true;
 
-   programs.neovim.enable = true;
-   programs.neovim.viAlias = true;
-   programs.neovim.vimAlias = true;
-
-
-   programs.direnv = {
-     enable = true;
-     nix-direnv = {
-       enable = true;
-     };
-   };
+  programs.direnv = {
+    enable = true;
+    nix-direnv = { enable = true; };
+  };
 
   programs.starship = {
     enable = true;
     # Configuration written to ~/.config/starship.toml
     settings = {
-       add_newline = true;
+      add_newline = true;
 
-       character = {
-         success_symbol = "[➜](bold green)";
-         error_symbol = "[➜](bold red)";
-       };
-
-      # package.disabled = true;
+      character = {
+        success_symbol = "[➜](bold green)";
+        error_symbol = "[➜](bold red)";
+      };
     };
   };
 }

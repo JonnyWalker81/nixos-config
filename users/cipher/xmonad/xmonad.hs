@@ -18,10 +18,32 @@ import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.EwmhDesktops
 
-import XMonad.Layout.Spacing
-import XMonad.Layout.Gaps
-import XMonad.Layout.NoBorders
+import qualified XMonad.StackSet as SS
+import XMonad.Layout.MultiToggle as MT
+import XMonad.Layout.SimpleFloat
+import XMonad.Layout.WindowArranger
+import XMonad.Layout.Named
+import XMonad.Layout.Magnifier
 import XMonad.Layout.Grid
+import XMonad.Layout.BoringWindows hiding (Merge)
+import XMonad.Layout.Spacing
+import XMonad.Layout.Column
+import XMonad.Layout.ComboP
+import XMonad.Layout.LayoutModifier
+import XMonad.Layout.MouseResizableTile
+import XMonad.Layout.PerWorkspace
+import XMonad.Layout.Simplest
+import XMonad.Layout.SubLayouts
+import XMonad.Layout.ToggleLayouts
+import XMonad.Layout.Tabbed
+import XMonad.Layout.Circle
+import XMonad.Layout.IM
+import XMonad.Layout.Reflect
+import XMonad.Layout.ComboP
+import XMonad.Layout.TwoPane
+import XMonad.Layout.ThreeColumns
+import XMonad.Layout.LayoutCombinators hiding ( (|||) )
+import XMonad.Layout.WindowNavigation
 
 import XMonad.Util.Run(spawnPipe)
 import XMonad.Util.SpawnOnce(spawnOnce)
@@ -64,7 +86,7 @@ myModMask       = mod1Mask
 -- > workspaces = ["web", "irc", "code" ] ++ map show [4..9]
 --
 -- myWorkspaces    = ["1","2","3","4","5","6","7","8","9"]
-myWorkspaces    = ["emacs", "firfox", "services", "misc"] ++ map show ["5","6","7","8","9"]
+myWorkspaces    = ["emacs", "web", "services", "misc"] ++ map show ["5","6","7","8","9"]
 
 -- Border colors for unfocused and focused windows, respectively.
 --
@@ -82,6 +104,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- launch dmenu
     -- , ((modm,               xK_p     ), spawn "dmenu_run")
     , ((modm,               xK_p     ), spawn "rofi -show run")
+    , ((modm,               xK_w     ), spawn "rofi -show window")
 
     -- launch gmrun
     , ((modm .|. shiftMask, xK_p     ), spawn "gmrun")
@@ -191,6 +214,15 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 
 ------------------------------------------------------------------------
 -- Layouts:
+-- Layouts:
+myTabTheme = defaultTheme { decoHeight = 28
+                   , activeColor = "#333333"
+                   , inactiveColor = "#151515"
+                   , activeBorderColor = "#4B5054"
+                   , inactiveBorderColor = "#4B5054"
+                   , activeTextColor = "#ebac54"
+                   , inactiveTextColor = "#666666"
+                   }
 
 -- You can specify and transform your layouts by modifying these values.
 -- If you change layout bindings be sure to use 'mod-shift-space' after
@@ -200,22 +232,77 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 -- The available layouts.  Note that each layout is separated by |||,
 -- which denotes layout choice.
 
-myLayout = tiled ||| Mirror tiled ||| Full |||  grid
+-- myLayout = servicesLayout $ (tiled ||| Mirror tiled ||| Full |||  grid)
+--   where
+--      -- default tiling algorithm partitions the screen into two panes
+--      -- tiled   = gaps [(U,5), (D,5), (L,5), (R,5)] $ smartBorders $ Tall nmaster delta ratio
+--      tiled   = spacing 5 $ smartBorders $ Tall nmaster delta ratio
+
+--      -- The default number of windows in the master pane
+--      nmaster = 1
+
+--      -- Default proportion of screen occupied by master pane
+--      ratio   = 1/2
+
+--      -- Percent of screen to increment by when resizing panes
+--      delta   = 3/100
+
+--      grid = spacing 5 $ Grid
+
+--      servicesLayout = spacing 5 $ onWorkspace "services" Grid
+
+
+myLayout = avoidStruts
+    -- $ onWorkspace "Programming" layout_toggle_emacs
+    -- $ onWorkspace "Browsering" layout_toggle_browse
+    -- $ onWorkspace "Temporary" layout_magnify_circle
+    $ onWorkspace "emacs" layout_full
+    $ onWorkspace "web" layout_full
+    $ onWorkspace "services" layout_grid
+    $ layout_toggle
   where
-     -- default tiling algorithm partitions the screen into two panes
-     -- tiled   = gaps [(U,5), (D,5), (L,5), (R,5)] $ smartBorders $ Tall nmaster delta ratio
-     tiled   = spacing 5 $ smartBorders $ Tall nmaster delta ratio
 
-     -- The default number of windows in the master pane
-     nmaster = 1
+  -- layout specific variables
 
-     -- Default proportion of screen occupied by master pane
-     ratio   = 1/2
+    -- basic information
+    goldenRatio = 233 / 377
+    magStep = toRational (1+goldenRatio)
+    ratio12 = 1 / 2
+    ratio45 = 4 / 5
+    delta = 3 / 100
+    nmaster = 1
 
-     -- Percent of screen to increment by when resizing panes
-     delta   = 3/100
+    -- basic layouts
+    layout_grid = spacing 5 $ Grid
+    layout_tall = spacing 5 $ Tall nmaster delta ratio12
+    layout_mirror_tall = spacing 3 $ Mirror $ Tall nmaster delta ratio12
+    layout_circle = Circle
+    layout_full = Full
+    layout_tabup = tabbed shrinkText myTabTheme
+    layout_tabs = (layout_tabup *//* layout_tabup)
+    layout_magnify_grid = spacing 5 $ windowArrange $ magnifiercz' magStep $ MT.mkToggle (REFLECTX ?? EOT) $ MT.mkToggle (REFLECTY ?? EOT) $ Grid
+    layout_magnify_circle = spacing 5 $ windowArrange $ magnifiercz' magStep $ MT.mkToggle (REFLECTX ?? EOT) $ MT.mkToggle (REFLECTY ?? EOT) $ Circle
 
-     grid = spacing 5 $ Grid
+
+    -- cominbation layouts
+    -- layout_trinity_www = spacing 3 $combineTwoP (TwoPane delta goldenRatio) (Full) (layout_tabs) (ClassName "Google-chrome")
+    -- layout_trinity_emacs = spacing 3 $ combineTwoP (TwoPane delta goldenRatio) (Full) (layout_tabs) (ClassName "Emacs")
+    -- layout_trinity_term = spacing 3 $ combineTwoP (TwoPane delta goldenRatio) (Full) (layout_tabs) (ClassName "URxvt")
+    layout_trinity_col = spacing 5 $ ThreeColMid nmaster delta ratio12
+    -- layout_toggle_trinity = toggleLayouts Full (layout_trinity_col ||| layout_trinity_www ||| layout_trinity_term ||| layout_trinity_emacs ||| Full)
+
+    -- workspace layouts
+    layout_emacs = spacing 5 $ Mirror $ Tall nmaster delta ratio45
+    layout_browse = spacing 5 $ Tall nmaster delta ratio45
+    layout_toggle_emacs = toggleLayouts Full (layout_emacs ||| layout_magnify_grid ||| layout_tall)
+    layout_toggle_browse = toggleLayouts Full (layout_browse ||| layout_magnify_grid ||| layout_tall)
+
+    -- toggle layouts
+    layout_toggle1 = toggleLayouts Full (layout_grid ||| layout_magnify_grid ||| layout_mirror_tall)
+    layout_toggle2 = toggleLayouts Full (layout_mirror_tall||| layout_grid ||| layout_magnify_grid)
+
+    layout_toggle = toggleLayouts layout_tall (layout_tall  ||| layout_full ||| layout_tabup ||| layout_circle ||| layout_grid ||| layout_mirror_tall ||| layout_magnify_circle ||| layout_magnify_grid ||| layout_trinity_col ||| simpleFloat)
+
 
 ------------------------------------------------------------------------
 -- Window rules:
