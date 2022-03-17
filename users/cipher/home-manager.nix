@@ -17,6 +17,8 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }: {
 
   home.file.".config/rofi/config.rasi" = { source = ./rofi/config.rasi; };
 
+  home.file.".config/greenclip.toml" = { source = ./greenclip/greenclip.toml; };
+
   programs.emacs = {
     enable = true;
     package = pkgs.emacsGcc;

@@ -376,6 +376,7 @@ myLogHook h = dynamicLogWithPP $ def
 myStartupHook = do
   spawnOnce "feh --bg-scale ~/Downloads/wallpaper/GRDZSqf-most-popular-computer-wallpaper.jpg &"
   spawnOnce "picom &"
+  spawnOnce "greenclip daemon &"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
