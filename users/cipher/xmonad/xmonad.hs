@@ -93,9 +93,12 @@ myWorkspaces    = ["coding", "web", "services", "misc"] ++ map show ["5","6","7"
 myNormalBorderColor  = "#E0E0E2"
 myFocusedBorderColor = "#567568"
 
+mySpacing = 12
+
 clipboardy :: MonadIO m => m () -- Don't question it
 -- clipboardy = spawn "rofi -modi \"\63053 :greenclip print\" -show \"\63053 \" -run-command '{cmd}'"
 clipboardy = spawn "rofi -modi \"clipboard:greenclip print\" -show clipboard -run-command '{cmd}'"
+-- clipboardy = spawn "clipcat-menu"
 
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
@@ -168,7 +171,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Use this binding with avoidStruts from Hooks.ManageDocks.
     -- See also the statusBar function from Hooks.DynamicLog.
     --
-    -- , ((modm              , xK_b     ), sendMessage ToggleStruts)
+    , ((modm              , xK_b     ), sendMessage ToggleStruts)
 
     -- Quit xmonad
     , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
@@ -189,15 +192,15 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [((m .|. modm, k), windows $ f i)
         | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9]
         , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]]
-    ++
+    -- ++
 
     --
     -- mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3
     -- mod-shift-{w,e,r}, Move client to screen 1, 2, or 3
     --
-    [((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
-        | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
-        , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
+    -- [((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
+    --     | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
+    --     , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
 
 
 ------------------------------------------------------------------------
@@ -280,27 +283,27 @@ myLayout = avoidStruts
     nmaster = 1
 
     -- basic layouts
-    layout_grid = spacing 5 $ Grid
-    layout_tall = spacing 5 $ Tall nmaster delta ratio12
+    layout_grid = spacing mySpacing $ Grid
+    layout_tall = spacing mySpacing $ Tall nmaster delta ratio12
     layout_mirror_tall = spacing 3 $ Mirror $ Tall nmaster delta ratio12
     layout_circle = Circle
     layout_full = Full
     layout_tabup = tabbed shrinkText myTabTheme
     layout_tabs = (layout_tabup *//* layout_tabup)
-    layout_magnify_grid = spacing 5 $ windowArrange $ magnifiercz' magStep $ MT.mkToggle (REFLECTX ?? EOT) $ MT.mkToggle (REFLECTY ?? EOT) $ Grid
-    layout_magnify_circle = spacing 5 $ windowArrange $ magnifiercz' magStep $ MT.mkToggle (REFLECTX ?? EOT) $ MT.mkToggle (REFLECTY ?? EOT) $ Circle
+    layout_magnify_grid = spacing mySpacing $ windowArrange $ magnifiercz' magStep $ MT.mkToggle (REFLECTX ?? EOT) $ MT.mkToggle (REFLECTY ?? EOT) $ Grid
+    layout_magnify_circle = spacing mySpacing $ windowArrange $ magnifiercz' magStep $ MT.mkToggle (REFLECTX ?? EOT) $ MT.mkToggle (REFLECTY ?? EOT) $ Circle
 
 
     -- cominbation layouts
     -- layout_trinity_www = spacing 3 $combineTwoP (TwoPane delta goldenRatio) (Full) (layout_tabs) (ClassName "Google-chrome")
     -- layout_trinity_emacs = spacing 3 $ combineTwoP (TwoPane delta goldenRatio) (Full) (layout_tabs) (ClassName "Emacs")
     -- layout_trinity_term = spacing 3 $ combineTwoP (TwoPane delta goldenRatio) (Full) (layout_tabs) (ClassName "URxvt")
-    layout_trinity_col = spacing 5 $ ThreeColMid nmaster delta ratio12
+    layout_trinity_col = spacing mySpacing $ ThreeColMid nmaster delta ratio12
     -- layout_toggle_trinity = toggleLayouts Full (layout_trinity_col ||| layout_trinity_www ||| layout_trinity_term ||| layout_trinity_emacs ||| Full)
 
     -- workspace layouts
-    layout_emacs = spacing 5 $ Mirror $ Tall nmaster delta ratio45
-    layout_browse = spacing 5 $ Tall nmaster delta ratio45
+    layout_emacs = spacing mySpacing $ Mirror $ Tall nmaster delta ratio45
+    layout_browse = spacing mySpacing $ Tall nmaster delta ratio45
     layout_toggle_emacs = toggleLayouts Full (layout_emacs ||| layout_magnify_grid ||| layout_tall)
     layout_toggle_browse = toggleLayouts Full (layout_browse ||| layout_magnify_grid ||| layout_tall)
 
@@ -382,8 +385,9 @@ myLogHook h = dynamicLogWithPP $ def
 
 myStartupHook = do
   spawnOnce "feh --bg-scale ~/Downloads/wallpaper/GRDZSqf-most-popular-computer-wallpaper.jpg &"
-  spawnOnce "picom &"
-  spawnOnce "greenclip daemon"
+  spawnOnce "picom --experimental-backends &"
+  spawnOnce "greenclip daemon &"
+  spawnOnce "clipcatd &"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
