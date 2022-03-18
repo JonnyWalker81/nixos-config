@@ -86,12 +86,16 @@ myModMask       = mod1Mask
 -- > workspaces = ["web", "irc", "code" ] ++ map show [4..9]
 --
 -- myWorkspaces    = ["1","2","3","4","5","6","7","8","9"]
-myWorkspaces    = ["emacs", "web", "services", "misc"] ++ map show ["5","6","7","8","9"]
+myWorkspaces    = ["coding", "web", "services", "misc"] ++ map show ["5","6","7","8","9"]
 
 -- Border colors for unfocused and focused windows, respectively.
 --
 myNormalBorderColor  = "#E0E0E2"
 myFocusedBorderColor = "#567568"
+
+clipboardy :: MonadIO m => m () -- Don't question it
+-- clipboardy = spawn "rofi -modi \"\63053 :greenclip print\" -show \"\63053 \" -run-command '{cmd}'"
+clipboardy = spawn "rofi -modi \"clipboard:greenclip print\" -show clipboard -run-command '{cmd}'"
 
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
@@ -105,6 +109,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- , ((modm,               xK_p     ), spawn "dmenu_run")
     , ((modm,               xK_p     ), spawn "rofi -show run")
     , ((modm,               xK_w     ), spawn "rofi -show window")
+
+    -- , ((modm,               xK_r), spawn "rofi -modi \"clipboard:greenclip print\" -show clipboard -run-command '{cmd}'")
+    , ((modm,               xK_r), clipboardy)
 
     -- launch gmrun
     , ((modm .|. shiftMask, xK_p     ), spawn "gmrun")
@@ -376,7 +383,7 @@ myLogHook h = dynamicLogWithPP $ def
 myStartupHook = do
   spawnOnce "feh --bg-scale ~/Downloads/wallpaper/GRDZSqf-most-popular-computer-wallpaper.jpg &"
   spawnOnce "picom &"
-  spawnOnce "greenclip daemon &"
+  spawnOnce "greenclip daemon"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.

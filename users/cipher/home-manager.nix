@@ -19,6 +19,18 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }: {
 
   home.file.".config/greenclip.toml" = { source = ./greenclip/greenclip.toml; };
 
+  home.file.".config/clipcat/clipcatd.toml" = {
+    source = ./clipcat/clipcatd.toml;
+  };
+
+  home.file.".config/clipcat/clipcatctl.toml" = {
+    source = ./clipcat/clipcatctl.toml;
+  };
+
+  home.file.".config/clipcat/clipcat-menu.toml" = {
+    source = ./clipcat/clipcat-menu.toml;
+  };
+
   programs.emacs = {
     enable = true;
     package = pkgs.emacsGcc;
@@ -46,7 +58,17 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }: {
     pkgs.pcmanfm
     pkgs.rofi
     pkgs.font-awesome
+    pkgs.powerline-fonts
+    pkgs.powerline-symbols
+    pkgs.clipcat
   ];
+
+  programs.mcfly = {
+    enable = true;
+    enableZshIntegration = false;
+    enableFuzzySearch = true;
+    keyScheme = "vim";
+  };
 
   programs.git = {
     enable = true;
