@@ -39,6 +39,11 @@ in {
     source = ./clipcat/clipcat-menu.toml;
   };
 
+  home.file."scripts" = {
+    source = ./scripts;
+    recursive = true;
+  };
+
   programs.emacs = {
     enable = true;
     package = pkgs.emacsGcc;
