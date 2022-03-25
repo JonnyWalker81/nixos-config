@@ -24,8 +24,13 @@ import XMonad.Layout.SimpleFloat
 import XMonad.Layout.WindowArranger
 import XMonad.Layout.Named
 import XMonad.Layout.Magnifier
-import XMonad.Layout.Grid
-import XMonad.Layout.BoringWindows hiding (Merge)
+-- import XMonad.Layout.Grid
+import XMonad.Layout.GridVariants (Grid(Grid))
+import XMonad.Layout.ZoomRow (zoomRow, zoomIn, zoomOut, zoomReset, ZoomMessage(ZoomFullToggle))
+import XMonad.Layout.SimplestFloat
+import XMonad.Layout.OneBig
+-- import XMonad.Layout.BoringWindows hiding (Merge)
+import XMonad.Layout.ResizableTile
 import XMonad.Layout.Spacing
 import XMonad.Layout.Column
 import XMonad.Layout.ComboP
@@ -43,7 +48,13 @@ import XMonad.Layout.ComboP
 import XMonad.Layout.TwoPane
 import XMonad.Layout.ThreeColumns
 import XMonad.Layout.LayoutCombinators hiding ( (|||) )
+import XMonad.Layout.MultiToggle.Instances (StdTransformers(NBFULL, MIRROR, NOBORDERS))
+import XMonad.Layout.NoBorders
+import XMonad.Layout.LimitWindows (limitWindows, increaseLimit, decreaseLimit)
+import XMonad.Layout.Renamed (renamed, Rename(CutWordsLeft, Replace))
 import XMonad.Layout.WindowNavigation
+
+import XMonad.Actions.MouseResize
 
 import XMonad.Util.Run(spawnPipe)
 import XMonad.Util.SpawnOnce(spawnOnce)
@@ -86,14 +97,15 @@ myModMask       = mod1Mask
 -- > workspaces = ["web", "irc", "code" ] ++ map show [4..9]
 --
 -- myWorkspaces    = ["1","2","3","4","5","6","7","8","9"]
-myWorkspaces    = ["coding", "web", "services", "misc"] ++ map show ["5","6","7","8","9"]
+myWorkspaces    = ["coding", "web", "services", "work"] ++ map show ["5","6","7","8","9"]
 
 -- Border colors for unfocused and focused windows, respectively.
 --
-myNormalBorderColor  = "#E0E0E2"
+myNormalBorderColor  = "#6A657C"
 myFocusedBorderColor = "#567568"
 
-mySpacing = 12
+mySpace :: Integer
+mySpace = 20
 
 clipboardy :: MonadIO m => m () -- Don't question it
 -- clipboardy = spawn "rofi -modi \"\63053 :greenclip print\" -show \"\63053 \" -run-command '{cmd}'"
@@ -127,6 +139,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     --  Reset the layouts on the current workspace to default
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
+
+    , ((modm .|. shiftMask, xK_d), decWindowSpacing 1)
+    , ((modm .|. shiftMask, xK_i), incWindowSpacing 1)
 
     -- Resize viewed windows to the correct size
     , ((modm,               xK_n     ), refresh)
@@ -225,6 +240,14 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 ------------------------------------------------------------------------
 -- Layouts:
 -- Layouts:
+
+mySpacing :: Integer -> l a -> XMonad.Layout.LayoutModifier.ModifiedLayout Spacing l a
+mySpacing i = spacingRaw False (Border i 0 i 0) True (Border 0 i 0 i) True
+
+mySpacing' :: Integer -> l a -> XMonad.Layout.LayoutModifier.ModifiedLayout Spacing l a
+mySpacing' i = spacingRaw True (Border i 0 i 0) True (Border 0 i 0 i) True
+
+
 myTabTheme = defaultTheme { decoHeight = 28
                    , activeColor = "#333333"
                    , inactiveColor = "#151515"
@@ -260,58 +283,75 @@ myTabTheme = defaultTheme { decoHeight = 28
 --      grid = spacing 5 $ Grid
 
 --      servicesLayout = spacing 5 $ onWorkspace "services" Grid
-
-
 myLayout = avoidStruts
-    -- $ onWorkspace "Programming" layout_toggle_emacs
-    -- $ onWorkspace "Browsering" layout_toggle_browse
-    -- $ onWorkspace "Temporary" layout_magnify_circle
-    $ onWorkspace "emacs" layout_full
-    $ onWorkspace "web" layout_full
-    $ onWorkspace "services" layout_grid
-    $ layout_toggle
-  where
-
-  -- layout specific variables
-
-    -- basic information
-    goldenRatio = 233 / 377
-    magStep = toRational (1+goldenRatio)
-    ratio12 = 1 / 2
-    ratio45 = 4 / 5
-    delta = 3 / 100
-    nmaster = 1
-
-    -- basic layouts
-    layout_grid = spacing mySpacing $ Grid
-    layout_tall = spacing mySpacing $ Tall nmaster delta ratio12
-    layout_mirror_tall = spacing 3 $ Mirror $ Tall nmaster delta ratio12
-    layout_circle = Circle
-    layout_full = Full
-    layout_tabup = tabbed shrinkText myTabTheme
-    layout_tabs = (layout_tabup *//* layout_tabup)
-    layout_magnify_grid = spacing mySpacing $ windowArrange $ magnifiercz' magStep $ MT.mkToggle (REFLECTX ?? EOT) $ MT.mkToggle (REFLECTY ?? EOT) $ Grid
-    layout_magnify_circle = spacing mySpacing $ windowArrange $ magnifiercz' magStep $ MT.mkToggle (REFLECTX ?? EOT) $ MT.mkToggle (REFLECTY ?? EOT) $ Circle
+  $ onWorkspace "coding" monocle
+  $ onWorkspace "web" monocle
+  $ onWorkspace "services" grid
+  $ mouseResize $ windowArrange $ toggleLayouts floats $
+               mkToggle (NBFULL ?? NOBORDERS ?? EOT) $ myDefaultLayout
+             where
+                 myDefaultLayout = tall ||| grid ||| threeCol ||| threeRow ||| oneBig ||| noBorders monocle ||| space ||| floats
 
 
-    -- cominbation layouts
-    -- layout_trinity_www = spacing 3 $combineTwoP (TwoPane delta goldenRatio) (Full) (layout_tabs) (ClassName "Google-chrome")
-    -- layout_trinity_emacs = spacing 3 $ combineTwoP (TwoPane delta goldenRatio) (Full) (layout_tabs) (ClassName "Emacs")
-    -- layout_trinity_term = spacing 3 $ combineTwoP (TwoPane delta goldenRatio) (Full) (layout_tabs) (ClassName "URxvt")
-    layout_trinity_col = spacing mySpacing $ ThreeColMid nmaster delta ratio12
-    -- layout_toggle_trinity = toggleLayouts Full (layout_trinity_col ||| layout_trinity_www ||| layout_trinity_term ||| layout_trinity_emacs ||| Full)
+tall       = renamed [Replace "tall"]     $ spacing 30 $ ResizableTall 1 (3/100) (1/2) []
+grid       = renamed [Replace "grid"]     $ spacing 30 $ mkToggle (single MIRROR) $ Grid (16/10)
+threeCol   = renamed [Replace "threeCol"] $ limitWindows 3  $ ThreeCol 1 (3/100) (1/2)
+threeRow   = renamed [Replace "threeRow"] $ limitWindows 3  $ Mirror $ mkToggle (single MIRROR) zoomRow
+oneBig     = renamed [Replace "oneBig"]   $ limitWindows 6  $ Mirror $ mkToggle (single MIRROR) $ mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $ OneBig (5/9) (8/12)
+monocle    = renamed [Replace "monocle"]  $ limitWindows 20 $ Full
+space      = renamed [Replace "space"]    $ limitWindows 4  $ spacing 12 $ Mirror $ mkToggle (single MIRROR) $ mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $ OneBig (2/3) (2/3)
+floats     = renamed [Replace "floats"]   $ limitWindows 20 $ simplestFloat
 
-    -- workspace layouts
-    layout_emacs = spacing mySpacing $ Mirror $ Tall nmaster delta ratio45
-    layout_browse = spacing mySpacing $ Tall nmaster delta ratio45
-    layout_toggle_emacs = toggleLayouts Full (layout_emacs ||| layout_magnify_grid ||| layout_tall)
-    layout_toggle_browse = toggleLayouts Full (layout_browse ||| layout_magnify_grid ||| layout_tall)
+-- myLayout = avoidStruts
+--     -- $ onWorkspace "Programming" layout_toggle_emacs
+--     -- $ onWorkspace "Browsering" layout_toggle_browse
+--     -- $ onWorkspace "Temporary" layout_magnify_circle
+--     $ onWorkspace "emacs" layout_full
+--     $ onWorkspace "web" layout_full
+--     $ onWorkspace "services" layout_grid
+--     $ layout_toggle
+--   where
 
-    -- toggle layouts
-    layout_toggle1 = toggleLayouts Full (layout_grid ||| layout_magnify_grid ||| layout_mirror_tall)
-    layout_toggle2 = toggleLayouts Full (layout_mirror_tall||| layout_grid ||| layout_magnify_grid)
+--   -- layout specific variables
 
-    layout_toggle = toggleLayouts layout_tall (layout_tall  ||| layout_full ||| layout_tabup ||| layout_circle ||| layout_grid ||| layout_mirror_tall ||| layout_magnify_circle ||| layout_magnify_grid ||| layout_trinity_col ||| simpleFloat)
+--     -- basic information
+--     goldenRatio = 233 / 377
+--     magStep = toRational (1+goldenRatio)
+--     ratio12 = 1 / 2
+--     ratio45 = 4 / 5
+--     delta = 3 / 100
+--     nmaster = 1
+
+--     -- basic layouts
+--     layout_grid = spacing 20 $ Grid
+--     layout_tall = mySpacing' 20 $ Tall nmaster delta ratio12
+--     layout_mirror_tall = spacing 10 $ Mirror $ Tall nmaster delta ratio12
+--     layout_circle = Circle
+--     layout_full = Full
+--     layout_tabup = tabbed shrinkText myTabTheme
+--     layout_tabs = (layout_tabup *//* layout_tabup)
+--     layout_magnify_grid = spacing 10 $ windowArrange $ magnifiercz' magStep $ MT.mkToggle (REFLECTX ?? EOT) $ MT.mkToggle (REFLECTY ?? EOT) $ Grid
+--     layout_magnify_circle = spacing 10 $ windowArrange $ magnifiercz' magStep $ MT.mkToggle (REFLECTX ?? EOT) $ MT.mkToggle (REFLECTY ?? EOT) $ Circle
+
+
+--     -- cominbation layouts
+--     -- layout_trinity_www = spacing 3 $combineTwoP (TwoPane delta goldenRatio) (Full) (layout_tabs) (ClassName "Google-chrome")
+--     -- layout_trinity_emacs = spacing 3 $ combineTwoP (TwoPane delta goldenRatio) (Full) (layout_tabs) (ClassName "Emacs")
+--     -- layout_trinity_term = spacing 3 $ combineTwoP (TwoPane delta goldenRatio) (Full) (layout_tabs) (ClassName "URxvt")
+--     layout_trinity_col = spacing 10 $ ThreeColMid nmaster delta ratio12
+--     -- layout_toggle_trinity = toggleLayouts Full (layout_trinity_col ||| layout_trinity_www ||| layout_trinity_term ||| layout_trinity_emacs ||| Full)
+
+--     -- workspace layouts
+--     layout_emacs = spacing 10 $ Mirror $ Tall nmaster delta ratio45
+--     layout_browse = spacing 10 $ Tall nmaster delta ratio45
+--     layout_toggle_emacs = toggleLayouts Full (layout_emacs ||| layout_magnify_grid ||| layout_tall)
+--     layout_toggle_browse = toggleLayouts Full (layout_browse ||| layout_magnify_grid ||| layout_tall)
+
+--     -- toggle layouts
+--     layout_toggle1 = toggleLayouts Full (layout_grid ||| layout_magnify_grid ||| layout_mirror_tall)
+--     layout_toggle2 = toggleLayouts Full (layout_mirror_tall||| layout_grid ||| layout_magnify_grid)
+
+--     layout_toggle = toggleLayouts layout_tall (layout_tall  ||| layout_full ||| layout_tabup ||| layout_circle ||| layout_grid ||| layout_mirror_tall ||| layout_magnify_circle ||| layout_magnify_grid ||| layout_trinity_col ||| simpleFloat)
 
 
 ------------------------------------------------------------------------
@@ -388,6 +428,7 @@ myStartupHook = do
   spawnOnce "picom --experimental-backends &"
   spawnOnce "greenclip daemon &"
   spawnOnce "clipcatd &"
+  spawnOnce "emacs --daemon" -- emacs daemon for the emacsclient
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.

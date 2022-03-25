@@ -75,7 +75,8 @@
 
        :checkers
        syntax
-       spell
+       (spell
+        +hunspell)
 
        :tools
        eval              ; run code, run (also, repls)

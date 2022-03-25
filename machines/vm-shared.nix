@@ -21,7 +21,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Define your hostname.
-  networking.hostName = "foo";
+  networking.hostName = "cipher";
 
   # Set your time zone.
   time.timeZone = "America/Los_Angeles";
@@ -123,15 +123,14 @@
     vimHugeX
     nixfmt
 
-    gitAndTools.gitFull
+    # gitAndTools.gitFull
 
-    alacritty
     dmenu
     xorg.xrandr
-    haskellPackages.libmpd
-    haskellPackages.xmobar
-    haskellPackages.xmonad
-    haskellPackages.greenclip
+    # haskellPackages.libmpd
+    # haskellPackages.xmobar
+    # haskellPackages.xmonad
+    # haskellPackages.greenclip
 
     # This is needed for the vmware user tools clipboard to work.
     # You can test if you don't need this by deleting this and seeing
@@ -157,6 +156,7 @@
     GDK_SCALE = "2";
     CGO_ENABLED = "0";
     WINIT_HIDPI_FACTOR = "1";
+    TERM = "xterm-256color";
   };
 
   # Some programs need SUID wrappers, can be configured further or are

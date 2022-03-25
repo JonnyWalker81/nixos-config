@@ -1,4 +1,12 @@
-args@{ config, lib, pkgs, nix-doom-emacs, ... }: {
+args@{ config, lib, pkgs, nix-doom-emacs, ... }:
+let
+  zoxide = pkgs.zoxide;
+  zoxideBin = zoxide + "/bin/zoxide";
+
+  mcfly = pkgs.mcfly;
+  mcflyBin = mcfly + "/bin/mcfly";
+
+in {
   home.file.".doom.d" = {
     source = ./doom.d;
     recursive = true;
@@ -61,6 +69,21 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }: {
     pkgs.powerline-fonts
     pkgs.powerline-symbols
     pkgs.clipcat
+    pkgs.zoxide
+    pkgs.fzf
+    pkgs.openssl
+    pkgs.lsof
+    pkgs.gnupg
+    pkgs.hunspell
+    pkgs.bat
+    pkgs.delta
+    pkgs.acpi
+
+    pkgs.haskellPackages.libmpd
+    pkgs.haskellPackages.xmobar
+    pkgs.haskellPackages.xmonad
+    pkgs.haskellPackages.greenclip
+    zoxide
   ];
 
   programs.mcfly = {
@@ -78,7 +101,18 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }: {
       pull.rebase = true;
       init.defaultBranch = "main";
       color.ui = true;
-      credential.helper = "store";
+      credential.helper = "store --file ~/.git-credentials";
+    };
+
+    delta = {
+      enable = true;
+      options = {
+        syntax-theme = "1337";
+        plus-color = "#32473d";
+        minus-color = "#643632";
+        features = "line-numbers";
+        whitespace-error-style = "22 reverse";
+      };
     };
   };
 
@@ -88,6 +122,11 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }: {
       ll = "exa -l";
       l = "exa -la";
       rebuild = "sudo nixos-rebuild switch --flake .#vm-aarch64";
+      mf = "mcfly search";
+      bc = "git branch | grep '*' | awk '{print $2}' | pbcopy";
+
+      pbcopy = "xclip";
+      pbpaste = "xclip -o";
     };
 
     enableAutosuggestions = true;
@@ -96,13 +135,22 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }: {
       LIBVIRT_DEFAULT_URI = "qemu:///system";
       GOPATH = "\${HOME}";
       PATH = "\${PATH}:\${HOME}/bin:\${HOME}/.cargo/bin";
+      PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
 
       ZSH_TMUX_AUTOSTART = "true";
       ZSH_TMUX_AUTOCONNECT = "true";
+      TERM = "xterm-256color";
+      EDITOR = "emacsclient -t -a ''"; # $EDITOR use Emacs in terminal
+      VISUAL = "emacsclient -c -a emacs"; # $VISUAL use Emacs in GUI mode
+
     };
 
+    # eval "$(${mcflyBin} init zsh)"
     initExtra = ''
       source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+      eval "$(${zoxideBin} init zsh)"
+      eval "$(${mcflyBin} init zsh)"
+      eval "$(ssh-agent -s)"
     '';
 
     oh-my-zsh = {
@@ -136,6 +184,51 @@ args@{ config, lib, pkgs, nix-doom-emacs, ... }: {
         success_symbol = "[➜](bold green)";
         error_symbol = "[➜](bold red)";
       };
+    };
+  };
+
+  programs.home-manager.enable = true;
+
+  programs.ssh = { enable = true; };
+
+  programs.alacritty = {
+    enable = true;
+
+    settings = {
+      env.TERM = "xterm-256color";
+
+      key_bindings = [
+        {
+          key = "K";
+          mods = "Command";
+          chars = "ClearHistory";
+        }
+        {
+          key = "V";
+          mods = "Command";
+          action = "Paste";
+        }
+        {
+          key = "C";
+          mods = "Command";
+          action = "Copy";
+        }
+        {
+          key = "Key0";
+          mods = "Command";
+          action = "ResetFontSize";
+        }
+        {
+          key = "Equals";
+          mods = "Command";
+          action = "IncreaseFontSize";
+        }
+        {
+          key = "Subtract";
+          mods = "Command";
+          action = "DecreaseFontSize";
+        }
+      ];
     };
   };
 }

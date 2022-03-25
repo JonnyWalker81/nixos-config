@@ -46,6 +46,9 @@
 (require 'nix-shell)
 
 
+(setq auth-sources '("~/.authinfo"))
+
+
 ;; (require 'lin)
 ;; (global-hl-line-mode 1)
 ;; (lin-add-to-many-modes)
@@ -99,6 +102,8 @@
 
 (setq visual-fill-column-width 80)
 
+(setq user-full-name "Jonathan Rothberg"
+      user-mail-address "jon@geneva.com")
 
 (use-package! blamer
   :bind (("s-i" . blamer-show-commit-info))
