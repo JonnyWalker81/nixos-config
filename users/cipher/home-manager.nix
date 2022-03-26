@@ -89,6 +89,7 @@ in {
     pkgs.haskellPackages.xmonad
     pkgs.haskellPackages.greenclip
     zoxide
+    pkgs.diskonaut
   ];
 
   programs.mcfly = {
@@ -134,7 +135,12 @@ in {
       pbpaste = "xclip -o";
     };
 
+    interactiveShellInit = "test";
+    # interactiveShellInit = lib.strings.concatStrings
+    #   (lib.strings.intersperse "\n" [ (builtins.readFile ./config.zsh) ]);
+
     enableAutosuggestions = true;
+    enableSyntaxHighlighting = true;
     sessionVariables = {
       LC_ALL = "en_US.utf8";
       LIBVIRT_DEFAULT_URI = "qemu:///system";
