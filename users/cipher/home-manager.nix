@@ -39,6 +39,8 @@ in {
     source = ./clipcat/clipcat-menu.toml;
   };
 
+  home.file.".config/picom/picom.conf" = { source = ./picom/picom.conf; };
+
   home.file."scripts" = {
     source = ./scripts;
     recursive = true;
@@ -83,6 +85,8 @@ in {
     pkgs.bat
     pkgs.delta
     pkgs.acpi
+    pkgs.croc
+    pkgs.zig-master
 
     pkgs.haskellPackages.libmpd
     pkgs.haskellPackages.xmobar
@@ -110,6 +114,11 @@ in {
       credential.helper = "store --file ~/.git-credentials";
     };
 
+    aliases = {
+      bump =
+        "!git checkout $1; git pull origin $1; git rebase \${2:-'main'}; git push origin; git checkout \${2:-'main'}";
+    };
+
     delta = {
       enable = true;
       options = {
@@ -135,7 +144,6 @@ in {
       pbpaste = "xclip -o";
     };
 
-    interactiveShellInit = "test";
     # interactiveShellInit = lib.strings.concatStrings
     #   (lib.strings.intersperse "\n" [ (builtins.readFile ./config.zsh) ]);
 

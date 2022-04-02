@@ -159,7 +159,7 @@
       ;qt                ; the 'cutest' gui framework ever
       rest              ; Emacs as a REST client
       ;ruby              ; 1.step do {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
-      rust               ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+      (rust +lsp)               ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
       ;; (rust
       ;;  +lsp)
       ;scala             ; java, but good

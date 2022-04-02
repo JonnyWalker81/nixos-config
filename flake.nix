@@ -13,6 +13,7 @@
     # nix-doom-emacs.inputs.emacs-overlay.follows = "emacs-overlay";
     emacs-overlay.url = "github:nix-community/emacs-overlay";
     nix-doom-emacs.url = "github:vlaci/nix-doom-emacs/";
+    zig.url = "github:arqv/zig-overlay";
   };
 
   # inputs = {
@@ -22,11 +23,23 @@
 
   outputs = { self, nixpkgs, home-manager, nix-doom-emacs, ... }@inputs:
     let
+      picom_overlay = (self: super: {
+        picom = super.picom.overrideAttrs (prev: {
+          version = "git";
+          src = super.fetchFromGitHub {
+            owner = "jonaburg";
+            repo = "picom";
+            rev = "e3c19cd7d1108d114552267f302548c113278d45";
+            sha256 = "VBnIzisg/7Xetd/AWVHlnaWXlxX+wqeYTpstO6+T5cE=";
+          };
+        });
+      });
       mkVM = import ./lib/mkvm.nix;
 
       # Overlays is the list of overlays we want to apply from flake inputs.
       overlays = [
         inputs.emacs-overlay.overlay
+        picom_overlay
         (final: prev: {
           # Zig doesn't export an overlay so we do it here
           zig-master = inputs.zig.packages.${prev.system}.master.latest;
@@ -36,6 +49,7 @@
 
           xmobar = inputs.nixpkga-unstable.legacyPackages.${prev.system}.xmobar;
         })
+        # (import (fetchGit { url = "https://github.com/jonaburg/picom"; }))
       ];
     in {
       nixosConfigurations.vm-aarch64 = mkVM "vm-aarch64" rec {

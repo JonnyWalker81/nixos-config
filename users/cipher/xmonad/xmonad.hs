@@ -78,7 +78,7 @@ myClickJustFocuses = False
 
 -- Width of the window border in pixels.
 --
-myBorderWidth   = 2
+myBorderWidth   = 3
 
 -- modMask lets you specify which modkey you want to use. The default
 -- is mod1Mask ("left alt").  You may also consider using mod3Mask
@@ -97,12 +97,12 @@ myModMask       = mod1Mask
 -- > workspaces = ["web", "irc", "code" ] ++ map show [4..9]
 --
 -- myWorkspaces    = ["1","2","3","4","5","6","7","8","9"]
-myWorkspaces    = ["coding", "web", "services", "work"] ++ map show ["5","6","7","8","9"]
+myWorkspaces    = ["coding", "web", "services", "work", "misc"] ++ map show ["6","7","8","9"]
 
 -- Border colors for unfocused and focused windows, respectively.
 --
-myNormalBorderColor  = "#6A657C"
-myFocusedBorderColor = "#567568"
+myNormalBorderColor  = "#2c698d" -- "#56b6c2"  -- "#6A657C"
+myFocusedBorderColor = "#98c379"  -- "#567568"
 
 mySpace :: Integer
 mySpace = 20
@@ -284,23 +284,26 @@ myTabTheme = defaultTheme { decoHeight = 28
 
 --      servicesLayout = spacing 5 $ onWorkspace "services" Grid
 myLayout = avoidStruts
-  $ onWorkspace "coding" monocle
-  $ onWorkspace "web" monocle
-  $ onWorkspace "services" grid
+  -- $ onWorkspace "coding" monocle
+  -- $ onWorkspace "web" monocle
+  -- $ onWorkspace "services" grid
+  -- $ onWorkspace "work" grid
+  -- $ onWorkspace "misc" threeColMid
   $ mouseResize $ windowArrange $ toggleLayouts floats $
-               mkToggle (NBFULL ?? NOBORDERS ?? EOT) $ myDefaultLayout
+               mkToggle (NBFULL ?? NOBORDERS ?? EOT)  myDefaultLayout
              where
-                 myDefaultLayout = tall ||| grid ||| threeCol ||| threeRow ||| oneBig ||| noBorders monocle ||| space ||| floats
+                 myDefaultLayout = tall ||| grid ||| threeCol ||| threeColMid ||| threeRow ||| oneBig ||| noBorders monocle ||| space ||| floats
 
 
-tall       = renamed [Replace "tall"]     $ spacing 30 $ ResizableTall 1 (3/100) (1/2) []
-grid       = renamed [Replace "grid"]     $ spacing 30 $ mkToggle (single MIRROR) $ Grid (16/10)
-threeCol   = renamed [Replace "threeCol"] $ limitWindows 3  $ ThreeCol 1 (3/100) (1/2)
-threeRow   = renamed [Replace "threeRow"] $ limitWindows 3  $ Mirror $ mkToggle (single MIRROR) zoomRow
-oneBig     = renamed [Replace "oneBig"]   $ limitWindows 6  $ Mirror $ mkToggle (single MIRROR) $ mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $ OneBig (5/9) (8/12)
-monocle    = renamed [Replace "monocle"]  $ limitWindows 20 $ Full
-space      = renamed [Replace "space"]    $ limitWindows 4  $ spacing 12 $ Mirror $ mkToggle (single MIRROR) $ mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $ OneBig (2/3) (2/3)
-floats     = renamed [Replace "floats"]   $ limitWindows 20 $ simplestFloat
+tall          = renamed [Replace "tall"]     $ spacing 10 $ ResizableTall 1 (3/100) (1/2) []
+grid          = renamed [Replace "grid"]     $ spacing 10 $ mkToggle (single MIRROR) $ Grid (16/10)
+threeCol      = renamed [Replace "threeCol"] $ spacing 20 $ ThreeCol 1 (3/100) (1/2)
+threeColMid   = renamed [Replace "threeColMid"]  $ spacing 10 $ ThreeColMid 1 (3/100) (1/2)
+threeRow      = renamed [Replace "threeRow"] $ limitWindows 3  $ Mirror $ mkToggle (single MIRROR) zoomRow
+oneBig        = renamed [Replace "oneBig"]   $ limitWindows 6  $ Mirror $ mkToggle (single MIRROR) $ mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $ OneBig (5/9) (8/12)
+monocle       = renamed [Replace "monocle"]  $ limitWindows 20 $ Full
+space         = renamed [Replace "space"]    $ limitWindows 4  $ spacing 12 $ Mirror $ mkToggle (single MIRROR) $ mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $ OneBig (2/3) (2/3)
+floats        = renamed [Replace "floats"]   $ limitWindows 20 $ simplestFloat
 
 -- myLayout = avoidStruts
 --     -- $ onWorkspace "Programming" layout_toggle_emacs
@@ -424,7 +427,8 @@ myLogHook h = dynamicLogWithPP $ def
 -- By default, do nothing.
 
 myStartupHook = do
-  spawnOnce "feh --bg-scale ~/Downloads/wallpaper/GRDZSqf-most-popular-computer-wallpaper.jpg &"
+  -- spawnOnce "feh --bg-scale ~/Downloads/wallpaper/GRDZSqf-most-popular-computer-wallpaper.jpg &"
+  spawnOnce "feh --bg-scale ~/Downloads/wallpaper/7316.jpg &"
   spawnOnce "picom --experimental-backends &"
   spawnOnce "greenclip daemon &"
   spawnOnce "clipcatd &"

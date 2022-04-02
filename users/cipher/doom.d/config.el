@@ -191,7 +191,7 @@
 (require 'prettier-js)
 
 (add-to-list 'auto-mode-alist '("\\.proto$" . protobuf-mode))
- (add-to-list 'auto-mode-alist '("\\.rs$" . rustic-mode))
+ ;; (add-to-list 'auto-mode-alist '("\\.rs$" . rustic-mode))
  ;; ;; Enable custom neotree theme (all-the-icons must be installed!)
  ;; (doom-themes-neotree-config)
  ;; ;; or for treemacs users
@@ -334,7 +334,7 @@
   :init
   (setq company-backends '(
                            company-files
-                           company-capf
+                           ;; company-capf
                            company-keywords
                            company-semantic
                            company-etags
@@ -413,6 +413,8 @@
 
 ;; (add-hook 'rustic-mode-hook 'eglot-ensure)
 (add-hook 'rustic-mode-hook (lambda ()
+                              (lsp)
+                              ;; (lsp-mode)
   ;; (company-mode -1) (flycheck-mode -1) (remove-hook 'rustic-mode-hook
   ;; 'flycheck-mode) (flycheck-mode -1) (add-hook 'before-save-hook (lambda ()
   ;; (rustic-format-buffer) (message "formatting rust buffer...")
@@ -602,6 +604,14 @@
 (require 'keychain-environment)
 (keychain-refresh-environment)
 
+(use-package! vertico
+  :custom
+  (vertico-cycle t)
+  :custom-face
+  (vertico-current ((t (:background "#3a3f5a"))))
+  :init
+  (vertico-mode)
+)
 ;; (use-package! vertico
 ;;   :ensure t
 ;;   :init
