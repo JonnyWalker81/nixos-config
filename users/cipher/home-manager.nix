@@ -87,6 +87,11 @@ in {
     pkgs.acpi
     pkgs.croc
     pkgs.zig-master
+    pkgs.bottom
+    pkgs.kubernetes-helm
+    pkgs.kubernetes
+    pkgs.vscode
+    pkgs.google-chrome-dev
 
     pkgs.haskellPackages.libmpd
     pkgs.haskellPackages.xmobar
@@ -95,6 +100,43 @@ in {
     zoxide
     pkgs.diskonaut
   ];
+
+  programs.go = {
+    enable = true;
+    package = pkgs.go_1_17;
+    goPath = "go";
+    goPrivate = [ "github.com/geneva" "github.com/jonnywalker81" ];
+  };
+
+  # services.picom = {
+  #   enable = true;
+  #   # blur = true;
+
+  # };
+  # services.xserver.windowManager.xmonad = {
+
+  #   #  i3.enable = true;
+  #   enable = true;
+  #   enableContribAndExtras = true;
+
+  #   extraPackages = hpkgs: [
+  #     hpkgs.xmonad-contrib
+  #     hpkgs.xmonad-extras
+  #     hpkgs.xmonad
+  #   ];
+  # };
+  # programs.xsession.picom = { enable = true; };
+  # pkgs.windowManagers.xmonad = {
+  #   #  i3.enable = true;
+  #   enable = true;
+  #   enableContribAndExtras = true;
+
+  #   extraPackages = hpkgs: [
+  #     hpkgs.xmonad-contrib
+  #     hpkgs.xmonad-extras
+  #     hpkgs.xmonad
+  #   ];
+  # };
 
   programs.mcfly = {
     enable = true;
@@ -137,7 +179,7 @@ in {
       ll = "exa -l";
       l = "exa -la";
       rebuild = "sudo nixos-rebuild switch --flake .#vm-aarch64";
-      mf = "mcfly search";
+      h = "mcfly search -f ''";
       bc = "git branch | grep '*' | awk '{print $2}' | pbcopy";
 
       pbcopy = "xclip";
@@ -153,6 +195,9 @@ in {
       LC_ALL = "en_US.utf8";
       LIBVIRT_DEFAULT_URI = "qemu:///system";
       GOPATH = "\${HOME}";
+      # GOPRIVATE = "github.com";
+      # GOPROXY = "off";
+      CGO_ENABLED = "1";
       PATH = "\${PATH}:\${HOME}/bin:\${HOME}/.cargo/bin";
       PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
 
@@ -162,6 +207,8 @@ in {
       EDITOR = "emacsclient -t -a ''"; # $EDITOR use Emacs in terminal
       VISUAL = "emacsclient -c -a emacs"; # $VISUAL use Emacs in GUI mode
 
+      CLOUDFLARE_EMAIL = "jon@geneva.com";
+      CLOUDFLARE_API_KEY = "c3d4bf1c3c3ef72dc4be85a989fa544ac7bd3";
     };
 
     # eval "$(${mcflyBin} init zsh)"
@@ -170,6 +217,7 @@ in {
       eval "$(${zoxideBin} init zsh)"
       eval "$(${mcflyBin} init zsh)"
       eval "$(ssh-agent -s)"
+      bindkey "^R" mcfly-history-widget
     '';
 
     oh-my-zsh = {
@@ -184,9 +232,46 @@ in {
     };
   };
 
-  programs.neovim.enable = true;
-  programs.neovim.viAlias = true;
-  programs.neovim.vimAlias = true;
+  # programs.neovim = {
+  #   enable = true;
+  #   package = pkgs.neovim-nightly;
+
+  #   viAlias = true;
+  #   vimAlias = true;
+
+  #   plugins = with pkgs; [
+  #     customVim.vim-cue
+  #     customVim.vim-fish
+  #     customVim.vim-fugitive
+  #     customVim.vim-glsl
+  #     customVim.vim-misc
+  #     customVim.vim-pgsql
+  #     customVim.vim-tla
+  #     customVim.vim-zig
+  #     customVim.pigeon
+  #     customVim.AfterColors
+
+  #     customVim.vim-nord
+  #     customVim.nvim-comment
+  #     customVim.nvim-lspconfig
+  #     customVim.nvim-plenary # required for telescope
+  #     customVim.nvim-telescope
+  #     customVim.nvim-treesitter
+  #     customVim.nvim-treesitter-playground
+  #     customVim.nvim-treesitter-textobjects
+
+  #     vimPlugins.vim-airline
+  #     vimPlugins.vim-airline-themes
+  #     vimPlugins.vim-eunuch
+  #     vimPlugins.vim-gitgutter
+
+  #     vimPlugins.vim-markdown
+  #     vimPlugins.vim-nix
+  #     vimPlugins.typescript-vim
+  #   ];
+
+  #   extraConfig = (import ./vim-config.nix);
+  # };
 
   programs.direnv = {
     enable = true;

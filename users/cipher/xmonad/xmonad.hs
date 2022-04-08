@@ -428,8 +428,8 @@ myLogHook h = dynamicLogWithPP $ def
 
 myStartupHook = do
   -- spawnOnce "feh --bg-scale ~/Downloads/wallpaper/GRDZSqf-most-popular-computer-wallpaper.jpg &"
-  spawnOnce "feh --bg-scale ~/Downloads/wallpaper/7316.jpg &"
-  spawnOnce "picom --experimental-backends &"
+  spawnOnce "feh --bg-scale ~/Downloads/wallpaper/wallpaper2.jpg &"
+  spawnOnce "picom --experimental-backends --config ~/.config/picom/picom.conf &"
   spawnOnce "greenclip daemon &"
   spawnOnce "clipcatd &"
   spawnOnce "emacs --daemon" -- emacs daemon for the emacsclient

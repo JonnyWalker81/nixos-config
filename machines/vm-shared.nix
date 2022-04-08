@@ -154,7 +154,7 @@
   # xrandr -s 2880x1800
   environment.sessionVariables = {
     GDK_SCALE = "2";
-    CGO_ENABLED = "0";
+    # CGO_ENABLED = "0";
     WINIT_HIDPI_FACTOR = "1";
     TERM = "xterm-256color";
   };
