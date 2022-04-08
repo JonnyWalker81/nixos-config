@@ -208,7 +208,6 @@ in {
       VISUAL = "emacsclient -c -a emacs"; # $VISUAL use Emacs in GUI mode
 
       CLOUDFLARE_EMAIL = "jon@geneva.com";
-      CLOUDFLARE_API_KEY = "c3d4bf1c3c3ef72dc4be85a989fa544ac7bd3";
     };
 
     # eval "$(${mcflyBin} init zsh)"
