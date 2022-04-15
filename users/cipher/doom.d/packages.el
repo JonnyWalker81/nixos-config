@@ -108,3 +108,5 @@
 (package! tree-sitter-langs)
 
 (package! flycheck-golangci-lint)
+
+(package! just-mode)

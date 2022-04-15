@@ -6,6 +6,8 @@ let
   mcfly = pkgs.mcfly;
   mcflyBin = mcfly + "/bin/mcfly";
 
+  homeDir = builtins.getEnv "HOME";
+
 in {
   home.file.".doom.d" = {
     source = ./doom.d;
@@ -55,7 +57,7 @@ in {
   home.packages = [
     pkgs.fd
     pkgs.ripgrep
-    pkgs.go_1_17
+    pkgs.go
     pkgs.gopls
     pkgs.goimports
     pkgs.rustup
@@ -91,7 +93,6 @@ in {
     pkgs.kubernetes-helm
     pkgs.kubernetes
     pkgs.vscode
-    pkgs.google-chrome-dev
 
     pkgs.haskellPackages.libmpd
     pkgs.haskellPackages.xmobar
@@ -103,7 +104,7 @@ in {
 
   programs.go = {
     enable = true;
-    package = pkgs.go_1_17;
+    # package = pkgs.go_1_17;
     goPath = "go";
     goPrivate = [ "github.com/geneva" "github.com/jonnywalker81" ];
   };
@@ -182,7 +183,7 @@ in {
       h = "mcfly search -f ''";
       bc = "git branch | grep '*' | awk '{print $2}' | pbcopy";
 
-      pbcopy = "xclip";
+      pbcopy = "xclip -selection clipboard";
       pbpaste = "xclip -o";
     };
 
@@ -197,7 +198,8 @@ in {
       GOPATH = "\${HOME}";
       # GOPRIVATE = "github.com";
       # GOPROXY = "off";
-      CGO_ENABLED = "1";
+      # PATH =
+      #   "\${PATH}:\${HOME}/bin:\${HOME}/.cargo/bin:~/Repositories/geneva/node_modules/.bin";
       PATH = "\${PATH}:\${HOME}/bin:\${HOME}/.cargo/bin";
       PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
 
@@ -292,7 +294,40 @@ in {
 
   programs.home-manager.enable = true;
 
-  programs.ssh = { enable = true; };
+  # programs.ssh = { enable = true; };
+  programs.ssh = {
+    enable = true;
+
+    controlMaster = "auto";
+    controlPath = "/tmp/ssh-%u-%r@%h:%p";
+    controlPersist = "1800";
+
+    forwardAgent = true;
+    serverAliveInterval = 60;
+
+    hashKnownHosts = true;
+    userKnownHostsFile = "${homeDir}/.ssh/known_hosts";
+
+    matchBlocks = {
+      github = {
+        hostname = "github.com";
+        identityFile = "${homeDir}/.ssh/id_ed25519";
+        forwardAgent = true;
+        user = "jonnywalker81";
+      };
+      # dangirsh = {
+      #   host = "dangirsh.org";
+      #   hostname = "ssh.phx.nearlyfreespeech.net";
+      #   identityFile = "${homeDir}/.ssh/id_rsa";
+      #   user = "dangirsh_dangirsh";
+      # };
+      # nixos-dev = {
+      #   hostname = "45.79.58.229";
+      #   identityFile = "${homeDir}/.ssh/id_rsa";
+      #   user = "dan";
+      # };
+    };
+  };
 
   programs.alacritty = {
     enable = true;
