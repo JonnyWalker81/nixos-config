@@ -59,8 +59,11 @@ in {
     pkgs.ripgrep
     pkgs.go
     pkgs.gopls
-    pkgs.goimports
+    pkgs.gotools
+    pkgs.gotestsum
+    pkgs.golangci-lint
     pkgs.rustup
+    pkgs.rust-analyzer
     pkgs.clang
     pkgs.just
     pkgs.docker-compose
@@ -93,6 +96,8 @@ in {
     pkgs.kubernetes-helm
     pkgs.kubernetes
     pkgs.vscode
+    pkgs.waypoint
+    pkgs.helix
 
     pkgs.haskellPackages.libmpd
     pkgs.haskellPackages.xmobar
@@ -155,6 +160,7 @@ in {
       init.defaultBranch = "main";
       color.ui = true;
       credential.helper = "store --file ~/.git-credentials";
+      url."git@github.com".insteadOf = "https://github.com";
     };
 
     aliases = {
@@ -180,6 +186,7 @@ in {
       ll = "exa -l";
       l = "exa -la";
       rebuild = "sudo nixos-rebuild switch --flake .#vm-aarch64";
+      ri = "sudo nixos-rebuild switch --flake .#vm-intel";
       h = "mcfly search -f ''";
       bc = "git branch | grep '*' | awk '{print $2}' | pbcopy";
 
@@ -294,7 +301,6 @@ in {
 
   programs.home-manager.enable = true;
 
-  # programs.ssh = { enable = true; };
   programs.ssh = {
     enable = true;
 
@@ -315,17 +321,6 @@ in {
         forwardAgent = true;
         user = "jonnywalker81";
       };
-      # dangirsh = {
-      #   host = "dangirsh.org";
-      #   hostname = "ssh.phx.nearlyfreespeech.net";
-      #   identityFile = "${homeDir}/.ssh/id_rsa";
-      #   user = "dangirsh_dangirsh";
-      # };
-      # nixos-dev = {
-      #   hostname = "45.79.58.229";
-      #   identityFile = "${homeDir}/.ssh/id_rsa";
-      #   user = "dan";
-      # };
     };
   };
 

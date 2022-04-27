@@ -276,9 +276,9 @@
 ;;   ;; (smartparens-global-mode -1)
   )
 
-(use-package! flycheck-golangci-lint
-  :ensure t
-  :hook (go-mode . flycheck-golangci-lint-setup))
+;; (use-package! flycheck-golangci-lint
+;;   :ensure t
+;;   :hook (go-mode . flycheck-golangci-lint-setup))
 
 (add-hook 'terraform-mode-hook (lambda ()
                                  (terraform-format-on-save-mode)
