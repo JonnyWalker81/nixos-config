@@ -4,7 +4,7 @@
   # https://github.com/nix-community/home-manager/pull/2408
   # environment.pathsToLink = [ "/share/fish" ];
 
-  users.users.cipher = {
+  users.users.jrothberg = {
     isNormalUser = true;
     home = "/home/jrothberg";
     extraGroups = [ "docker" "wheel" ];
