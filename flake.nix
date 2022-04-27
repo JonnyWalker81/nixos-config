@@ -60,6 +60,12 @@
         user = "cipher";
       };
 
+      nixosConfigurations.vm-intel = mkVM "vm-intel" rec {
+        inherit overlays nixpkgs home-manager nix-doom-emacs;
+        system = "x86_64-linux";
+        user = "jrothberg";
+      };
+
     };
 
 }
