@@ -3,6 +3,6 @@
 {
   imports = [ ../common.nix ];
 
-  programs.googlechome-dev = { enable = true; };
+  programs.google-chrome-dev = { enable = true; };
 
 }
