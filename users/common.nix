@@ -50,7 +50,7 @@ in {
 
   programs.emacs = {
     enable = true;
-    package = pkgs.emacsGcc;
+    package = pkgs.emacsNativeComp;
     extraPackages = (epkgs: [ epkgs.vterm ]);
   };
 
@@ -91,7 +91,7 @@ in {
     pkgs.delta
     pkgs.acpi
     pkgs.croc
-    pkgs.zig-master
+    # pkgs.zig-master
     pkgs.bottom
     pkgs.kubernetes-helm
     pkgs.kubernetes
