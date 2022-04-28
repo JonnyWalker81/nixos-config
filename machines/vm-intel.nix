@@ -11,7 +11,7 @@
   # Shared folder to host works on Intel
   fileSystems."/host" = {
     fsType = "fuse./run/current-system/sw/bin/vmhgfs-fuse";
-    device = ".host/";
+    device = ".host:/";
     options = [
       "umask=22"
       "uid=1000"

@@ -6,24 +6,23 @@
 {
   imports = [ ];
 
-  boot.initrd.availableKernelModules = [ "uhci_hcd" "ahci" "xhci_pci" "nvme" "usbhid" "sr_mod" ];
+  boot.initrd.availableKernelModules =
+    [ "uhci_hcd" "ahci" "xhci_pci" "nvme" "usbhid" "sr_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ ];
   boot.extraModulePackages = [ ];
 
-  fileSystems."/" =
-    { 
-      # device = "/dev/disk/by-uuid/a86ccfdc-e6ea-4d51-b6e8-23c3d01fbffb";
-      device = "/dev/disk/by-label/nixos";
-      fsType = "ext4";
-    };
+  fileSystems."/" = {
+    # device = "/dev/disk/by-uuid/a86ccfdc-e6ea-4d51-b6e8-23c3d01fbffb";
+    device = "/dev/disk/by-label/nixos";
+    fsType = "ext4";
+  };
 
-  fileSystems."/boot" =
-    { 
-      # device = "/dev/disk/by-uuid/CF56-CE5A";
-      device = "/dev/disk/by-label/boot";
-      fsType = "vfat";
-    };
+  fileSystems."/boot" = {
+    # device = "/dev/disk/by-uuid/CF56-CE5A";
+    device = "/dev/disk/by-label/boot";
+    fsType = "vfat";
+  };
 
   swapDevices = [ ];
 
