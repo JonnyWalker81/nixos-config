@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, currentSystem, ... }:
 
 {
   # We require 5.14+ for VMware Fusion on M1.
@@ -59,10 +59,13 @@
     resolutions = [
       # { x = 2560; y = 1600;}
       # { x = 2880; y = 1800;}
-      {
+      (if currentSystem == "aarch64-linux" then {
         x = 3840;
         y = 2160;
-      }
+      } else {
+        x = 2880;
+        y = 1800;
+      })
     ];
 
     displayManager = {
