@@ -17,7 +17,7 @@ nixpkgs.lib.nixosSystem rec {
     home-manager.nixosModules.home-manager {
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
-      home-manager.users.${user}.imports = [../users/${user}/home-manager.nix nix-doom-emacs.hmModule];
+      home-manager.users.${user}.imports = [../users/${user}/home-manager.nix];
     }
   ];
 
