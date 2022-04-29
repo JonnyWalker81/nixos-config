@@ -7,7 +7,7 @@
   imports = [ ];
 
   boot.initrd.availableKernelModules =
-    [ "ata_piix" "mptspi" "uhci_hcd" "ehci_pci" "sd_mod" "sr_mod" ];
+    [ "ata_piix" "mptspi" "uhci_hcd" "ehci_pci" "nvme" "sr_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ ];
   boot.extraModulePackages = [ ];
@@ -23,5 +23,8 @@
   };
 
   swapDevices = [ ];
+
+  hardware.cpu.intel.updateMicrocode =
+    lib.mkDefault config.hardware.enableRedistributableFirmware;
 
 }
