@@ -49,7 +49,7 @@
   services.xserver = {
     enable = true;
     layout = "us";
-    dpi = 120;
+    dpi = 220;
 
     #desktopManager = {
     #  xterm.enable = false;
@@ -63,8 +63,8 @@
         x = 3840;
         y = 2160;
       } else {
-        x = 2048;
-        y = 1280;
+        x = 2560;
+        y = 1600;
       })
     ];
 
