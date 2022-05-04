@@ -1,7 +1,7 @@
 # This contains various packages we want to overlay. Note that the
 # other ".nix" files in this directory are automatically loaded.
-final: prev:
-{
+final: prev: {
+  waypoint = final.callPackage ../pkgs/waypoint.nix { };
   # picom = prev.picom.overrideAttrs (old: {
   #   src = prev.fetchFromGitHub {
   #     owner = "jonaburg";

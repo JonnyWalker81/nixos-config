@@ -105,6 +105,8 @@ in {
     pkgs.vscode
     pkgs.waypoint
     pkgs.helix
+    pkgs.unzip
+    pkgs.k9s
 
     pkgs.haskellPackages.libmpd
     pkgs.haskellPackages.xmobar
@@ -184,6 +186,39 @@ in {
     enableZshIntegration = false;
     enableFuzzySearch = true;
     keyScheme = "vim";
+  };
+
+  programs.git = {
+    enable = true;
+    userName = "Jonathan Rothberg";
+    userEmail = "jon@geneva.com";
+    extraConfig = {
+      pull.rebase = true;
+      init.defaultBranch = "main";
+      color.ui = true;
+      core.askPass = ""; # needs to be empty to use terminal for ask pass
+      # credential.helper = "store --file ~/.config/git-credentials";
+      credential.helper = "store";
+      push.default = "tracking";
+      branch.autosetuprebase = "always";
+      # url."git@github.com".insteadOf = "https://github.com";
+    };
+
+    aliases = {
+      bump =
+        "!git checkout $1; git pull origin $1; git rebase \${2:-'main'}; git push origin; git checkout \${2:-'main'}";
+    };
+
+    delta = {
+      enable = true;
+      options = {
+        syntax-theme = "1337";
+        plus-color = "#32473d";
+        minus-color = "#643632";
+        features = "line-numbers";
+        whitespace-error-style = "22 reverse";
+      };
+    };
   };
 
   programs.zsh = {
