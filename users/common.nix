@@ -196,7 +196,7 @@ in {
   programs.git = {
     enable = true;
     userName = "Jonathan Rothberg";
-    userEmail = "jon@geneva.com";
+    # userEmail = "jon@geneva.com";
     extraConfig = {
       pull.rebase = true;
       init.defaultBranch = "main";
