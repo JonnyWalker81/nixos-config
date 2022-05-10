@@ -89,7 +89,7 @@ in {
     pkgs.powerline-symbols
     pkgs.clipcat
     pkgs.zoxide
-    pkgs.fzf
+    # pkgs.fzf
     pkgs.openssl
     pkgs.lsof
     pkgs.gnupg
@@ -123,33 +123,33 @@ in {
     goPrivate = [ "github.com/geneva" "github.com/jonnywalker81" ];
   };
 
-  programs.git = {
-    enable = true;
-    userName = "Jonathan Rothberg";
-    extraConfig = {
-      pull.rebase = true;
-      init.defaultBranch = "main";
-      color.ui = true;
-      credential.helper = "store --file ~/.git-credentials";
-      url."git@github.com".insteadOf = "https://github.com";
-    };
+  # programs.git = {
+  #   enable = true;
+  #   userName = "Jonathan Rothberg";
+  #   extraConfig = {
+  #     pull.rebase = true;
+  #     init.defaultBranch = "main";
+  #     color.ui = true;
+  #     credential.helper = "store --file ~/.git-credentials";
+  #     url."git@github.com".insteadOf = "https://github.com";
+  #   };
 
-    aliases = {
-      bump =
-        "!git checkout $1; git pull origin $1; git rebase \${2:-'main'}; git push origin; git checkout \${2:-'main'}";
-    };
+  #   aliases = {
+  #     bump =
+  #       "!git checkout $1; git pull origin $1; git rebase \${2:-'main'}; git push origin; git checkout \${2:-'main'}";
+  #   };
 
-    delta = {
-      enable = true;
-      options = {
-        syntax-theme = "1337";
-        plus-color = "#32473d";
-        minus-color = "#643632";
-        features = "line-numbers";
-        whitespace-error-style = "22 reverse";
-      };
-    };
-  };
+  #   delta = {
+  #     enable = true;
+  #     options = {
+  #       syntax-theme = "1337";
+  #       plus-color = "#32473d";
+  #       minus-color = "#643632";
+  #       features = "line-numbers";
+  #       whitespace-error-style = "22 reverse";
+  #     };
+  #   };
+  # };
 
   # services.picom = {
   #   enable = true;
@@ -186,6 +186,11 @@ in {
     enableZshIntegration = false;
     enableFuzzySearch = true;
     keyScheme = "vim";
+  };
+
+  programs.fzf = {
+    enable = true;
+    enableZshIntegration = true;
   };
 
   programs.git = {
@@ -229,6 +234,7 @@ in {
       rebuild = "sudo nixos-rebuild switch --flake .#vm-aarch64";
       ri = "sudo nixos-rebuild switch --flake .#vm-intel";
       h = "mcfly search -f ''";
+      f = "history | fzf --sort --exact";
       bc = "git branch | grep '*' | awk '{print $2}' | pbcopy";
 
       pbcopy = "xclip -selection clipboard";
@@ -266,7 +272,7 @@ in {
       eval "$(${zoxideBin} init zsh)"
       eval "$(${mcflyBin} init zsh)"
       eval "$(ssh-agent -s)"
-      bindkey "^R" mcfly-history-widget
+      # bindkey "^R" mcfly-history-widget
     '';
 
     oh-my-zsh = {
