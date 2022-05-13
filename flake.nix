@@ -7,6 +7,11 @@
     # home-manager.url = "github:nix-community/home-manager/release-21.11";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    # Locks nixpkgs to an older version with an older Kernel that boots
+    # on VMware Fusion Tech Preview. This can be swapped to nixpkgs when
+    # the TP fixes the bug.
+    nixpkgs-old-kernel.url =
+      "github:nixos/nixpkgs/bacbfd713b4781a4a82c1f390f8fe21ae3b8b95b";
     # nix-doom-emacs.url = "github:he-la/nix-doom-emacs/develop";
     # nix-doom-emacs.inputs.doom-emacs.follows = "doom-emacs";
     # nix-doom-emacs.inputs.nixpkgs.follows = "nixpkgs";
@@ -44,7 +49,8 @@
       ];
     in {
       nixosConfigurations.vm-aarch64 = mkVM "vm-aarch64" rec {
-        inherit overlays nixpkgs home-manager nix-doom-emacs;
+        inherit overlays home-manager nix-doom-emacs;
+        nixpkgs = inputs.nixpkgs-old-kernel;
         system = "aarch64-linux";
         user = "cipher";
       };
