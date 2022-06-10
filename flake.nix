@@ -2,7 +2,7 @@
   description = "NixOS configuration and Home Manager configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/release-21.11";
+    nixpkgs.url = "github:nixos/nixpkgs/release-22.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     # home-manager.url = "github:nix-community/home-manager/release-21.11";
     home-manager.url = "github:nix-community/home-manager";
@@ -59,6 +59,12 @@
         inherit overlays nixpkgs home-manager nix-doom-emacs;
         system = "x86_64-linux";
         user = "jrothberg";
+      };
+
+      nixosConfigurations.vm-aarch64-prl = mkVM "vm-aarch64-prl" rec {
+        inherit overlays nixpkgs home-manager nix-doom-emacs;
+        system = "aarch64-linux";
+        user = "cipher";
       };
 
     };
