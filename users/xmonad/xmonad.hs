@@ -248,14 +248,14 @@ mySpacing' :: Integer -> l a -> XMonad.Layout.LayoutModifier.ModifiedLayout Spac
 mySpacing' i = spacingRaw True (Border i 0 i 0) True (Border 0 i 0 i) True
 
 
-myTabTheme = defaultTheme { decoHeight = 28
-                   , activeColor = "#333333"
-                   , inactiveColor = "#151515"
-                   , activeBorderColor = "#4B5054"
-                   , inactiveBorderColor = "#4B5054"
-                   , activeTextColor = "#ebac54"
-                   , inactiveTextColor = "#666666"
-                   }
+-- myTabTheme = defaultTheme { decoHeight = 28
+--                    , activeColor = "#333333"
+--                    , inactiveColor = "#151515"
+--                    , activeBorderColor = "#4B5054"
+--                    , inactiveBorderColor = "#4B5054"
+--                    , activeTextColor = "#ebac54"
+--                    , inactiveTextColor = "#666666"
+--                    }
 
 -- You can specify and transform your layouts by modifying these values.
 -- If you change layout bindings be sure to use 'mod-shift-space' after
@@ -454,7 +454,7 @@ main = do
 
 urgentConfig = UrgencyConfig { suppressWhen = Focused, remindWhen = Dont } 
 
-customPP = defaultPP { ppCurrent = xmobarColor "#429942" "" . wrap "<" ">" }
+-- customPP = defaultPP { ppCurrent = xmobarColor "#429942" "" . wrap "<" ">" }
 
 toggleStrutsKey :: XConfig Layout -> (KeyMask, KeySym)
 toggleStrutsKey XConfig {XMonad.modMask = modMask} = (modMask, xK_b)
