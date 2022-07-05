@@ -84,7 +84,7 @@ in {
     pkgs.kitty
     pkgs.pcmanfm
     pkgs.rofi
-    pkgs.font-awesome
+    pkgs.font-awesome_5
     pkgs.powerline-fonts
     pkgs.powerline-symbols
     pkgs.clipcat
@@ -98,7 +98,7 @@ in {
     pkgs.delta
     pkgs.acpi
     pkgs.croc
-    # pkgs.zig-master
+    pkgs.zig-master
     pkgs.bottom
     pkgs.kubernetes-helm
     pkgs.kubernetes
@@ -114,6 +114,7 @@ in {
     pkgs.haskellPackages.greenclip
     zoxide
     pkgs.diskonaut
+    pkgs.sqlite
   ];
 
   programs.go = {
@@ -231,7 +232,9 @@ in {
     shellAliases = {
       ll = "exa -l";
       l = "exa -la";
-      rebuild = "sudo nixos-rebuild switch --flake .#vm-aarch64";
+      rebuild =
+        "sudo NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1 nixos-rebuild switch --flake .#vm-aarch64";
+      rp = "sudo nixos-rebuild switch --flake .#vm-aarch64-prl";
       ri = "sudo nixos-rebuild switch --flake .#vm-intel";
       h = "mcfly search -f ''";
       f = "history | fzf --sort --exact";
@@ -392,39 +395,73 @@ in {
 
     settings = {
       env.TERM = "xterm-256color";
+      font = {
+        size = 12.0;
+        use_thin_strokes = true;
+
+        normal.family = "JetBrains Mono";
+        bold.family = "JetBrains Mono Medium";
+        italic.family = "JetBrains Mono Book Italic";
+      };
+
+      selection = { save_to_clipboard = true; };
 
       key_bindings = [
-        {
-          key = "K";
-          mods = "Command";
-          chars = "ClearHistory";
-        }
-        {
-          key = "V";
-          mods = "Command";
-          action = "Paste";
-        }
         {
           key = "C";
           mods = "Command";
           action = "Copy";
         }
         {
-          key = "Key0";
+          key = "V";
           mods = "Command";
-          action = "ResetFontSize";
-        }
-        {
-          key = "Equals";
-          mods = "Command";
-          action = "IncreaseFontSize";
-        }
-        {
-          key = "Subtract";
-          mods = "Command";
-          action = "DecreaseFontSize";
+          action = "Paste";
         }
       ];
+
+      # key_bindings = [
+      #   {
+      #     key = "K";
+      #     mods = "Command";
+      #     chars = "ClearHistory";
+      #   }
+      #   {
+      #     key = "V";
+      #     mods = "Command";
+      #     action = "Paste";
+      #   }
+      #   {
+      #     key = "C";
+      #     mods = "Command";
+      #     action = "Copy";
+      #   }
+      #   {
+      #     key = "Key0";
+      #     mods = "Command";
+      #     action = "ResetFontSize";
+      #   }
+      #   {
+      #     key = "Equals";
+      #     mods = "Command";
+      #     action = "IncreaseFontSize";
+      #   }
+      #   {
+      #     key = "Subtract";
+      #     mods = "Command";
+      #     action = "DecreaseFontSize";
+      #   }
+      # ];
     };
+  };
+
+  # Make cursor not tiny on HiDPI screens
+  home.pointerCursor = {
+    name = "Adwaita";
+    package = pkgs.gnome.adwaita-icon-theme;
+    size = 32;
+    # name = "Vanilla-DMZ";
+    # package = pkgs.vanilla-dmz;
+    # size = 64;
+    x11.enable = true;
   };
 }

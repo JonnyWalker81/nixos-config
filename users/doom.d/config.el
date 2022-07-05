@@ -699,9 +699,16 @@
   :ensure
   :init
   ;; ;; Add all your customizations prior to loading the themes
-  ;; (setq modus-themes-italic-constructs t
-  ;;       modus-themes-bold-constructs nil
-  ;;       modus-themes-region '(bg-only no-extend))
+  (setq modus-themes-italic-constructs t
+        modus-themes-bold-constructs t
+        modus-themes-region '(bg-only)
+        modus-themes-hl-line '(underline)
+        modus-themes-paren-match '(bold intense underline)
+        modus-themes-completions '((matches . (extrabold))
+                                 (selection . (semibold accented))
+                                 (popup . (accented intense)))
+        modus-themes-mode-line '(accented borderless (padding . 5) (height . 0.9))
+        )
 
   ;; Load the theme files before enabling a theme
   (modus-themes-load-themes)
@@ -755,7 +762,7 @@
   :custom-face
   (blamer-face ((t :foreground "#7a88cf"
                     :background nil
-                    :height 140
+                    :height 115
                     :italic t)))
   :config
   (global-blamer-mode 1))

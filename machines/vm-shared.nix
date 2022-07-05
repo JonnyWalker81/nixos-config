@@ -1,4 +1,4 @@
-{ config, pkgs, currentSystem, ... }:
+{ config, pkgs, currentSystem, currentSystemName, ... }:
 
 {
   # We require 5.14+ for VMware Fusion on M1.
@@ -6,6 +6,7 @@
 
   # Be careful updating this.
   boot.kernelPackages = pkgs.linuxPackages_latest;
+  # boot.kernelPackages = pkgs.linuxPackages_5_18;
 
   # use unstable nix so we can access flakes
   nix = {
@@ -61,17 +62,17 @@
     #  wallpaper.mode = "scale";
     #};
 
-    resolutions = [
-      # { x = 2560; y = 1600;}
-      # { x = 2880; y = 1800;}
-      (if currentSystem == "aarch64-linux" then {
-        x = 3840;
-        y = 2160;
-      } else {
-        x = 2560;
-        y = 1600;
-      })
-    ];
+    # resolutions = [
+    #   #  # { x = 2560; y = 1600;}
+    #   # { x = 2880; y = 1800;}
+    #   (if currentSystem == "aarch64-linux" then {
+    #     x = 3840;
+    #     y = 2160;
+    #   } else {
+    #     x = 2560;
+    #     y = 1600;
+    #   })
+    # ];
 
     displayManager = {
 
@@ -122,50 +123,57 @@
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    firefox
-    neovim
-    gnumake
-    killall
-    niv
-    rxvt_unicode
-    xsel
-    xclip
-    vimHugeX
-    nixfmt
+  environment.systemPackages = with pkgs;
+    [
+      firefox
+      neovim
+      gnumake
+      killall
+      niv
+      rxvt_unicode
+      xsel
+      xclip
+      vimHugeX
+      nixfmt
 
-    # gitAndTools.gitFull
+      # gitAndTools.gitFull
 
-    dmenu
-    xorg.xrandr
-    # haskellPackages.libmpd
-    # haskellPackages.xmobar
-    # haskellPackages.xmonad
-    # haskellPackages.greenclip
+      dmenu
+      xorg.xrandr
+      # haskellPackages.libmpd
+      # haskellPackages.xmobar
+      # haskellPackages.xmonad
+      # haskellPackages.greenclip
 
-    # This is needed for the vmware user tools clipboard to work.
-    # You can test if you don't need this by deleting this and seeing
-    # if the clipboard sill works.
-    gtkmm3
+      (writeShellScriptBin "xrandr-auto" ''
+        xrandr --output Virtual-1 --auto
+      '')
+    ] ++ lib.optionals (currentSystemName == "vm-aarch64") [
 
-    # VMware on M1 doesn't support automatic resizing yet and on
-    # my big monitor it doesn't detect the resolution either so we just
-    # manualy create the resolution and switch to it with this script.
-    # This script could be better but its hopefully temporary so just force it.
-    (writeShellScriptBin "xrandr-6k" ''
-      xrandr --newmode "6016x3384_60.00"  1768.50  6016 6544 7216 8416  3384 3387 3392 3503 -hsync +vsync
-      xrandr --addmode Virtual-1 6016x3384_60.00
-      xrandr -s 6016x3384_60.00
-    '')
-    (writeShellScriptBin "xrandr-mbp" ''
-      xrandr -s 3840x2160
-    '')
-  ];
+      # This is needed for the vmware user tools clipboard to work.
+      # You can test if you don't need this by deleting this and seeing
+      # if the clipboard sill works.
+      gtkmm3
+
+      # VMware on M1 doesn't support automatic resizing yet and on
+      # my big monitor it doesn't detect the resolution either so we just
+      # manualy create the resolution and switch to it with this script.
+      # This script could be better but its hopefully temporary so just force it.
+      (writeShellScriptBin "xrandr-4k" ''
+        xrandr --newmode "4096x2160_60.00"  1768.50  6016 6544 7216 8416  3384 3387 3392 3503 -hsync +vsync
+        xrandr --addmode Virtual-1 4096x2160_60.00
+        xrandr -s 4096x2160_60.00
+      '')
+      (writeShellScriptBin "xrandr-mbp" ''
+        xrandr -s 4096x2160
+        xrandr --output Virtual-1 --mode 4096x2160
+      '')
+    ];
 
   # xrandr -s 2880x1800
   environment.sessionVariables = {
-    GDK_SCALE = "2";
-    WINIT_HIDPI_FACTOR = "1";
+    # GDK_SCALE = "2";
+    # WINIT_HIDPI_FACTOR = "1";
     TERM = "xterm-256color";
   };
 
