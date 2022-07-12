@@ -15,7 +15,7 @@ darwin.lib.darwinSystem rec {
     }
 
     # ../hardware/${name}.nix
-    # ../machines/${name}.nix
+    ../machines/vm-darwin.nix
     ../users/${user}-darwin/nixos.nix
     home-manager.darwinModules.home-manager
     {
