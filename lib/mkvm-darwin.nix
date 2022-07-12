@@ -1,9 +1,9 @@
 # This function creates a NixOS system based on our VM setup for a
 # particular architecture.
 name:
-{ nixpkgs, home-manager, system, user, overlays, ... }@args:
+{ nixpkgs, home-manager, system, user, overlays, darwin, ... }@args:
 
-nixpkgs.lib.darwinSystem rec {
+darwin.lib.darwinSystem rec {
   inherit system;
 
   modules = [

@@ -73,7 +73,7 @@
       };
 
       darwinConfigurations.vm-intel = mkVMDarwin "vm-intel" rec {
-        inherit overlays home-manager;
+        inherit overlays home-manager darwin;
         nixpkgs = nixpkgs-darwin;
         system = "x86_64-darwin";
         user = "jrothber";
