@@ -92,7 +92,6 @@ in {
     pkgs.hunspell
     pkgs.bat
     pkgs.delta
-    pkgs.acpi
     pkgs.croc
     pkgs.zig-master
     pkgs.bottom
@@ -112,6 +111,7 @@ in {
     pkgs.diskonaut
     pkgs.sqlite
   ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
+    pkgs.acpi
     pkgs.golangci-lint
     pkgs.pcmanfm
     pkgs.rofi
