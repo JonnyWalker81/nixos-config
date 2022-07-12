@@ -101,10 +101,6 @@ in {
     pkgs.unzip
     pkgs.k9s
 
-    pkgs.haskellPackages.libmpd
-    pkgs.haskellPackages.xmobar
-    pkgs.haskellPackages.xmonad
-    pkgs.haskellPackages.greenclip
     zoxide
     pkgs.diskonaut
     pkgs.sqlite
@@ -116,6 +112,11 @@ in {
     pkgs.rofi
     pkgs.clipcat
     pkgs.vscode
+    pkgs.haskellPackages.libmpd
+    pkgs.haskellPackages.xmobar
+    pkgs.haskellPackages.xmonad
+    pkgs.haskellPackages.greenclip
+
   ];
 
   programs.go = {
