@@ -19,36 +19,9 @@ in {
     recursive = true;
   };
 
-  home.file.".xmonad/xmonad.hs" = { source = ./xmonad/xmonad.hs; };
-
-  home.file.".config/xmobar/.xmobarrc" = { source = ./xmobar/.xmobarrc; };
-
   home.file.".config/kitty/kitty.conf" = { source = ./kitty/kitty.conf; };
 
   # home.file.".config/rofi/config.rasi" = { source = ./rofi/config.rasi; };
-
-  home.file.".config/rofi/config.rasi".text = ''
-    // Write your configuration
-
-    // String interpolation to get the store path
-    @theme "${pkgs.rofi-unwrapped}/share/rofi/themes/glue_pro_blue.rasi"
-  '';
-
-  home.file.".config/greenclip.toml" = { source = ./greenclip/greenclip.toml; };
-
-  home.file.".config/clipcat/clipcatd.toml" = {
-    source = ./clipcat/clipcatd.toml;
-  };
-
-  home.file.".config/clipcat/clipcatctl.toml" = {
-    source = ./clipcat/clipcatctl.toml;
-  };
-
-  home.file.".config/clipcat/clipcat-menu.toml" = {
-    source = ./clipcat/clipcat-menu.toml;
-  };
-
-  home.file.".config/picom/picom.conf" = { source = ./picom/picom.conf; };
 
   home.file."scripts" = {
     source = ./scripts;
