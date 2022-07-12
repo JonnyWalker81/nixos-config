@@ -199,7 +199,7 @@ in {
     userName = "Jonathan Rothberg";
     # userEmail = "jon@geneva.com";
     extraConfig = {
-      pull.rebase = true;
+      pull.rebase = false;
       init.defaultBranch = "main";
       color.ui = true;
       core.askPass = ""; # needs to be empty to use terminal for ask pass

@@ -3,7 +3,11 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/release-22.05";
+    nixpkgs-darwin.url = "github:nixos/nixpkgs-21.11-darwin";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+
+    darwin.url = "github:1n17/nix-darwin/master";
+    darwin.inputs.nixpkgs.follows = "nixpkgs-unstable";
     # home-manager.url = "github:nix-community/home-manager/release-21.11";
     home-manager.url = "github:nix-community/home-manager/release-22.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
@@ -26,9 +30,10 @@
   #  nur = { url = "github:nix-community/NUR"; };
   #};
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs:
+  outputs = { self, darwin, nixpkgs, home-manager, ... }@inputs:
     let
       mkVM = import ./lib/mkvm.nix;
+      mkVMDarwin = import ./lib/mkvm-darwin.nix;
 
       # Overlays is the list of overlays we want to apply from flake inputs.
       overlays = [
@@ -65,6 +70,12 @@
         inherit overlays nixpkgs home-manager;
         system = "aarch64-linux";
         user = "cipher";
+      };
+
+      darwinConfigurations.vm-intel = mkVMDarwin "vm-intel" rec {
+        inherit overlays nixpkgs home-manager;
+        system = "x86_64-darwin";
+        user = "jrothber";
       };
 
     };
