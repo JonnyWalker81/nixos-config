@@ -96,7 +96,6 @@ in {
     pkgs.zig-master
     pkgs.bottom
     pkgs.kubernetes-helm
-    pkgs.vscode
     pkgs.waypoint
     pkgs.helix
     pkgs.unzip
@@ -116,6 +115,7 @@ in {
     pkgs.pcmanfm
     pkgs.rofi
     pkgs.clipcat
+    pkgs.vscode
   ];
 
   programs.go = {
