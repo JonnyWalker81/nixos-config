@@ -17,7 +17,7 @@ darwin.lib.darwinSystem rec {
     # ../hardware/${name}.nix
     # ../machines/${name}.nix
     ../users/${user}/nixos.nix
-    home-manager.nixosModules.home-manager
+    home-manager.darwinModules.home-manager
     {
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
