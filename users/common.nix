@@ -376,7 +376,7 @@ in {
 
         normal.family = "JetBrains Mono";
         bold.family = "JetBrains Mono Medium";
-        italic.family = "JetBrains Mono Book Italic";
+        italic.family = "JetBrains Mono Medium Italic";
       };
 
       selection = { save_to_clipboard = true; };
