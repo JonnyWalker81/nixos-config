@@ -68,7 +68,6 @@ in {
     pkgs.gopls
     pkgs.gotools
     pkgs.gotestsum
-    pkgs.golangci-lint
     pkgs.rustup
     pkgs.rust-analyzer
     pkgs.clang
@@ -115,7 +114,7 @@ in {
     zoxide
     pkgs.diskonaut
     pkgs.sqlite
-  ];
+  ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [ pkgs.golangci-lint ];
 
   programs.go = {
     enable = true;
