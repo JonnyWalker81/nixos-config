@@ -18,6 +18,9 @@
 
   nixpkgs.overlays = import ../../lib/overlays.nix;
 
+  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.allowUnsupportedSystem = true;
+
   # nixpkgs.overlays = import ../../lib/overlays.nix ++ [
   #   (import ./vim.nix)
   # ];
