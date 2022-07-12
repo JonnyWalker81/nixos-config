@@ -5,7 +5,7 @@
   # environment.pathsToLink = [ "/share/fish" ];
 
   users.users.jrothberg = {
-    isNormalUser = true;
+    # isNormalUser = true;
     home = "/home/jrothberg";
     # extraGroups = [ "docker" "wheel" ];
     # initialPassword = "jrothberg";
