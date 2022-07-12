@@ -72,7 +72,7 @@
         user = "cipher";
       };
 
-      darwinConfigurations.vm-intel = mkVMDarwin "vm-intel" rec {
+      darwinConfigurations.vm-darwin = mkVMDarwin "vm-darwin" rec {
         inherit overlays home-manager darwin;
         nixpkgs = nixpkgs-darwin;
         system = "x86_64-darwin";
