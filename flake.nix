@@ -30,7 +30,7 @@
   #  nur = { url = "github:nix-community/NUR"; };
   #};
 
-  outputs = { self, darwin, nixpkgs, home-manager, ... }@inputs:
+  outputs = { self, darwin, nixpkgs-darwin, nixpkgs, home-manager, ... }@inputs:
     let
       mkVM = import ./lib/mkvm.nix;
       mkVMDarwin = import ./lib/mkvm-darwin.nix;
@@ -73,7 +73,8 @@
       };
 
       darwinConfigurations.vm-intel = mkVMDarwin "vm-intel" rec {
-        inherit overlays nixpkgs home-manager;
+        inherit overlays home-manager;
+        nixpkgs = nixpkgs-darwin;
         system = "x86_64-darwin";
         user = "jrothber";
       };
