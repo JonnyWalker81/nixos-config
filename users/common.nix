@@ -34,64 +34,63 @@ in {
     extraPackages = (epkgs: [ epkgs.vterm ]);
   };
 
-  home.packages = [
+  home.packages = [ pkgs.jetbrains-mono ]
+    ++ lib.optionals (!pkgs.stdenv.isDarwin) [
+      pkgs.fd
+      pkgs.ripgrep
+      pkgs.go
+      pkgs.gopls
+      pkgs.gotools
+      pkgs.gotestsum
+      pkgs.rustup
+      pkgs.rust-analyzer
+      pkgs.clang
+      pkgs.just
+      pkgs.docker-compose
+      pkgs.awscli
+      pkgs.postgresql_14
+      pkgs.jq
+      pkgs.exa
+      pkgs.thefuck
+      pkgs.feh
+      pkgs.xplr
+      pkgs.kitty
+      pkgs.font-awesome_5
+      pkgs.powerline-fonts
+      pkgs.powerline-symbols
+      pkgs.zoxide
+      # pkgs.fzf
+      pkgs.openssl
+      pkgs.lsof
+      pkgs.gnupg
+      pkgs.hunspell
+      pkgs.bat
+      pkgs.delta
+      pkgs.croc
+      pkgs.zig-master
+      pkgs.bottom
+      pkgs.kubernetes-helm
+      pkgs.waypoint
+      pkgs.helix
+      pkgs.unzip
+      pkgs.k9s
 
-  ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
-    pkgs.fd
-    pkgs.ripgrep
-    pkgs.go
-    pkgs.gopls
-    pkgs.gotools
-    pkgs.gotestsum
-    pkgs.rustup
-    pkgs.rust-analyzer
-    pkgs.clang
-    pkgs.just
-    pkgs.docker-compose
-    pkgs.awscli
-    pkgs.postgresql_14
-    pkgs.jq
-    pkgs.exa
-    pkgs.thefuck
-    pkgs.feh
-    pkgs.xplr
-    pkgs.kitty
-    pkgs.font-awesome_5
-    pkgs.powerline-fonts
-    pkgs.powerline-symbols
-    pkgs.zoxide
-    # pkgs.fzf
-    pkgs.openssl
-    pkgs.lsof
-    pkgs.gnupg
-    pkgs.hunspell
-    pkgs.bat
-    pkgs.delta
-    pkgs.croc
-    pkgs.zig-master
-    pkgs.bottom
-    pkgs.kubernetes-helm
-    pkgs.waypoint
-    pkgs.helix
-    pkgs.unzip
-    pkgs.k9s
+      zoxide
+      pkgs.diskonaut
+      pkgs.sqlite
+      pkgs.acpi
+      pkgs.golangci-lint
+      pkgs.kubernetes
+      pkgs.pcmanfm
+      pkgs.rofi
+      pkgs.clipcat
+      pkgs.vscode
+      pkgs.haskellPackages.libmpd
+      pkgs.haskellPackages.xmobar
+      pkgs.haskellPackages.xmonad
+      pkgs.haskellPackages.greenclip
 
-    zoxide
-    pkgs.diskonaut
-    pkgs.sqlite
-    pkgs.acpi
-    pkgs.golangci-lint
-    pkgs.kubernetes
-    pkgs.pcmanfm
-    pkgs.rofi
-    pkgs.clipcat
-    pkgs.vscode
-    pkgs.haskellPackages.libmpd
-    pkgs.haskellPackages.xmobar
-    pkgs.haskellPackages.xmonad
-    pkgs.haskellPackages.greenclip
-
-  ];
+    ];
 
   programs.go = {
     enable = true;
