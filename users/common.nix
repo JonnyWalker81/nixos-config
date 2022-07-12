@@ -81,12 +81,9 @@ in {
     pkgs.feh
     pkgs.xplr
     pkgs.kitty
-    pkgs.pcmanfm
-    pkgs.rofi
     pkgs.font-awesome_5
     pkgs.powerline-fonts
     pkgs.powerline-symbols
-    pkgs.clipcat
     pkgs.zoxide
     # pkgs.fzf
     pkgs.openssl
@@ -114,7 +111,12 @@ in {
     zoxide
     pkgs.diskonaut
     pkgs.sqlite
-  ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [ pkgs.golangci-lint ];
+  ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
+    pkgs.golangci-lint
+    pkgs.pcmanfm
+    pkgs.rofi
+    pkgs.clipcat
+  ];
 
   programs.go = {
     enable = true;
