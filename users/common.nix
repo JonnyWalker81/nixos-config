@@ -96,7 +96,6 @@ in {
     pkgs.zig-master
     pkgs.bottom
     pkgs.kubernetes-helm
-    pkgs.kubernetes
     pkgs.vscode
     pkgs.waypoint
     pkgs.helix
@@ -113,6 +112,7 @@ in {
   ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
     pkgs.acpi
     pkgs.golangci-lint
+    pkgs.kubernetes
     pkgs.pcmanfm
     pkgs.rofi
     pkgs.clipcat
