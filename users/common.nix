@@ -62,6 +62,8 @@ in {
   };
 
   home.packages = [
+
+  ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
     pkgs.fd
     pkgs.ripgrep
     pkgs.go
@@ -104,7 +106,6 @@ in {
     zoxide
     pkgs.diskonaut
     pkgs.sqlite
-  ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
     pkgs.acpi
     pkgs.golangci-lint
     pkgs.kubernetes
