@@ -40,6 +40,7 @@ in {
     pkgs.fd
     pkgs.rustup
     pkgs.rust-analyzer
+    pkgs.thefuck
 
   ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
     pkgs.go
@@ -55,7 +56,6 @@ in {
     pkgs.postgresql_14
     pkgs.jq
     pkgs.exa
-    pkgs.thefuck
     pkgs.feh
     pkgs.xplr
     pkgs.kitty
