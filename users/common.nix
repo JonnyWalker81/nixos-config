@@ -41,6 +41,13 @@ in {
     pkgs.rustup
     pkgs.rust-analyzer
     pkgs.thefuck
+    pkgs.zoxide
+    pkgs.bat
+    pkgs.delta
+    zoxide
+    pkgs.jq
+    pkgs.exa
+    pkgs.k9s
 
   ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
     pkgs.go
@@ -54,22 +61,17 @@ in {
     pkgs.docker-compose
     pkgs.awscli
     pkgs.postgresql_14
-    pkgs.jq
-    pkgs.exa
     pkgs.feh
     pkgs.xplr
     pkgs.kitty
     pkgs.font-awesome_5
     pkgs.powerline-fonts
     pkgs.powerline-symbols
-    pkgs.zoxide
     # pkgs.fzf
     pkgs.openssl
     pkgs.lsof
     pkgs.gnupg
     pkgs.hunspell
-    pkgs.bat
-    pkgs.delta
     pkgs.croc
     pkgs.zig-master
     pkgs.bottom
@@ -77,9 +79,7 @@ in {
     pkgs.waypoint
     pkgs.helix
     pkgs.unzip
-    pkgs.k9s
 
-    zoxide
     pkgs.diskonaut
     pkgs.sqlite
     pkgs.acpi
