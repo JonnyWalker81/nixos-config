@@ -6,7 +6,7 @@
 
   users.users.jrothberg = {
     # isNormalUser = true;
-    # home = "/home/jrothberg";
+    home = "/Users/jrothberg";
     # extraGroups = [ "docker" "wheel" ];
     # initialPassword = "jrothberg";
     shell = pkgs.zsh;
