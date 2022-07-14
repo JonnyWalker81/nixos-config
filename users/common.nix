@@ -215,6 +215,7 @@ in {
         "sudo NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1 nixos-rebuild switch --flake .#vm-aarch64";
       rp = "sudo nixos-rebuild switch --flake .#vm-aarch64-prl";
       ri = "sudo nixos-rebuild switch --flake .#vm-intel";
+      rd = "sudo darwin-rebuild switch --flake .#vm-darwin";
       h = "mcfly search -f ''";
       f = "history | fzf --sort --exact";
       bc = "git branch | grep '*' | awk '{print $2}' | pbcopy";
