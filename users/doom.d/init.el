@@ -27,7 +27,7 @@
        ;; evil-goggles      ; display visual hints when editing in evil
        ophints           ; highlight the region an operation acts on
       ;; fci               ; a `fill-column' indicator
-       fill-column
+       ;; fill-column
        hl-todo           ; highlight TODO/FIXME/NOTE tags
        modeline
        minimap

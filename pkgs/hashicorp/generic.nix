@@ -11,7 +11,7 @@ let
     i686-linux = "linux_386";
     x86_64-darwin = "darwin_amd64";
     i686-darwin = "darwin_386";
-    aarch64-linux = "linux_arm";
+    aarch64-linux = "linux_arm64";
   };
 
   # Get our system

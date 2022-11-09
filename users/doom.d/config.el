@@ -45,6 +45,15 @@
 
 (require 'nix-shell)
 
+(require 'evil-little-word)
+(define-key evil-normal-state-map (kbd "w") 'evil-forward-little-word-begin)
+(define-key evil-normal-state-map (kbd "b") 'evil-backward-little-word-begin)
+(define-key evil-operator-state-map (kbd "w") 'evil-forward-little-word-begin)
+(define-key evil-operator-state-map (kbd "b") 'evil-backward-little-word-begin)
+(define-key evil-visual-state-map (kbd "w") 'evil-forward-little-word-begin)
+(define-key evil-visual-state-map (kbd "b") 'evil-backward-little-word-begin)
+(define-key evil-visual-state-map (kbd "i w") 'evil-inner-little-word)
+
 
 (setq auth-sources '("~/.authinfo"))
 
@@ -695,27 +704,46 @@
 
 (setq magit-circleci-token "d6d0347d6efda8daffc42d7b1156e4ed22572c05")
 
-(use-package! modus-themes
+;; (use-package! modus-themes
+;;   :ensure
+;;   :init
+;;   ;; ;; Add all your customizations prior to loading the themes
+;;   (setq modus-themes-italic-constructs t
+;;         modus-themes-bold-constructs t
+;;         modus-themes-region '(bg-only)
+;;         modus-themes-hl-line '(underline)
+;;         modus-themes-paren-match '(bold intense underline)
+;;         modus-themes-completions '((matches . (extrabold))
+;;                                  (selection . (semibold accented))
+;;                                  (popup . (accented intense)))
+;;         modus-themes-mode-line '(accented borderless (padding . 5) (height . 0.9))
+;;         )
+
+;;   ;; Load the theme files before enabling a theme
+;;   (modus-themes-load-themes)
+;;   :config
+;;   ;; Load the theme of your choice:
+;;   (modus-themes-load-vivendi)
+;;   :bind ("<f5>" . modus-themes-toggle)
+;;   )
+
+(use-package! ef-themes
   :ensure
   :init
-  ;; ;; Add all your customizations prior to loading the themes
-  (setq modus-themes-italic-constructs t
-        modus-themes-bold-constructs t
-        modus-themes-region '(bg-only)
-        modus-themes-hl-line '(underline)
-        modus-themes-paren-match '(bold intense underline)
-        modus-themes-completions '((matches . (extrabold))
-                                 (selection . (semibold accented))
-                                 (popup . (accented intense)))
-        modus-themes-mode-line '(accented borderless (padding . 5) (height . 0.9))
-        )
 
-  ;; Load the theme files before enabling a theme
-  (modus-themes-load-themes)
-  :config
-  ;; Load the theme of your choice:
-  (modus-themes-load-vivendi)
-  :bind ("<f5>" . modus-themes-toggle))
+  (setq ef-themes-mixed-fonts t
+        ef-modus-themes-variable-pitch-ui t)
+
+  (mapc #'disable-theme custom-enabled-themes)
+
+  (ef-themes-select 'ef-night)
+
+  )
+
+(use-package! topsy
+  :ensure
+  :hook (prog-mode . topsy-mode)
+  )
 
 (map! :leader  :desc "fzf-projectile" "f h" #'fzf-projectile)
 (map! :leader  :desc "fzf-switch-buffer" "b h" #'fzf-switch-buffer)

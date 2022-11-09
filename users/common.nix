@@ -48,6 +48,9 @@ in {
     pkgs.jq
     pkgs.exa
     pkgs.k9s
+    pkgs.procs
+    pkgs.graphviz
+    # pkgs.jetbrains.datagrip
 
   ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
     pkgs.go
@@ -79,6 +82,8 @@ in {
     pkgs.waypoint
     pkgs.helix
     pkgs.unzip
+    pkgs.sublime-merge
+    pkgs.lapce
 
     pkgs.diskonaut
     pkgs.sqlite
@@ -185,7 +190,7 @@ in {
       # credential.helper = "store --file ~/.config/git-credentials";
       credential.helper = "store";
       push.default = "tracking";
-      branch.autosetuprebase = "always";
+      # branch.autosetuprebase = "always";
       # url."git@github.com".insteadOf = "https://github.com";
     };
 

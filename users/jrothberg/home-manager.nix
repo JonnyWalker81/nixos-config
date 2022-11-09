@@ -14,25 +14,27 @@
     @theme "${pkgs.rofi-unwrapped}/share/rofi/themes/glue_pro_blue.rasi"
   '';
 
-  home.file.".config/greenclip.toml" = { source = ./greenclip/greenclip.toml; };
+  home.file.".config/greenclip.toml" = {
+    source = ../greenclip/greenclip.toml;
+  };
 
   home.file.".config/clipcat/clipcatd.toml" = {
-    source = ./clipcat/clipcatd.toml;
+    source = ../clipcat/clipcatd.toml;
   };
 
   home.file.".config/clipcat/clipcatctl.toml" = {
-    source = ./clipcat/clipcatctl.toml;
+    source = ../clipcat/clipcatctl.toml;
   };
 
   home.file.".config/clipcat/clipcat-menu.toml" = {
-    source = ./clipcat/clipcat-menu.toml;
+    source = ../clipcat/clipcat-menu.toml;
   };
 
-  home.file.".config/picom/picom.conf" = { source = ./picom/picom.conf; };
+  home.file.".config/picom/picom.conf" = { source = ../picom/picom.conf; };
 
-  home.file.".xmonad/xmonad.hs" = { source = ./xmonad/xmonad.hs; };
+  home.file.".xmonad/xmonad.hs" = { source = ../xmonad/xmonad.hs; };
 
-  home.file.".config/xmobar/.xmobarrc" = { source = ./xmobar/.xmobarrc; };
+  home.file.".config/xmobar/.xmobarrc" = { source = ../xmobar/.xmobarrc; };
 
   # Make cursor not tiny on HiDPI screens
   home.pointerCursor = {

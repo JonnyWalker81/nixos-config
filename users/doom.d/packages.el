@@ -75,6 +75,7 @@
 (package! elfeed-goodies)
 
 (package! modus-themes)
+(package! ef-themes)
 
 (package! go-tag)
 (package! exec-path-from-shell)
@@ -110,3 +111,9 @@
 (package! flycheck-golangci-lint)
 
 (package! just-mode)
+
+(package! denote)
+
+(package! topsy)
+
+;;; packages.el ends here
