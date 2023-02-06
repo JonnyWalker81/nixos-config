@@ -13,8 +13,8 @@
 ;; (setq doom-big-font (font-spec :family "Cascadia Code" :size 19))
 ;; (setq doom-font (font-spec :family "Cascadia Code" :size 16))
 
-(setq doom-big-font (font-spec :family "JetBrains Mono" :size 19))
-(setq doom-font (font-spec :family "JetBrains Mono" :size 16))
+;; (setq doom-big-font (font-spec :family "JetBrains Mono" :size 19))
+;; (setq doom-font (font-spec :family "JetBrains Mono" :size 16))
 
 ;; (setq doom-big-font (font-spec :family "Victor Mono" :size 19))
 ;; (setq doom-font (font-spec :family "Victor Mono" :size 16))

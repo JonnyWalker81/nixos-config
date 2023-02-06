@@ -30,7 +30,7 @@
 
 ;; (package! helm-posframe)
 
-(package! kaolin-themes)
+;; (package! kaolin-themes)
 
 (package! darkokai-theme)
 

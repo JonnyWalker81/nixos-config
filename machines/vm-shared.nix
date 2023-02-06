@@ -74,8 +74,15 @@
     #   })
     # ];
 
-    displayManager = {
+    desktopManager = {
+      xterm.enable = false;
+      wallpaper.mode = "fill";
+    };
 
+    displayManager = {
+      sessionCommands = ''
+        ${pkgs.xorg.xset}/bin/xset r rate 200 40
+      '';
       # sddm.enable = true;
       # sddm.enableHidpi = true;
       # defaultSession = "none+i3";
@@ -159,15 +166,15 @@
       # my big monitor it doesn't detect the resolution either so we just
       # manualy create the resolution and switch to it with this script.
       # This script could be better but its hopefully temporary so just force it.
-      (writeShellScriptBin "xrandr-4k" ''
-        xrandr --newmode "4096x2160_60.00"  1768.50  6016 6544 7216 8416  3384 3387 3392 3503 -hsync +vsync
-        xrandr --addmode Virtual-1 4096x2160_60.00
-        xrandr -s 4096x2160_60.00
-      '')
-      (writeShellScriptBin "xrandr-mbp" ''
-        xrandr -s 4096x2160
-        xrandr --output Virtual-1 --mode 4096x2160
-      '')
+      # (writeShellScriptBin "xrandr-4k" ''
+      #   xrandr --newmode "4096x2160_60.00"  1768.50  6016 6544 7216 8416  3384 3387 3392 3503 -hsync +vsync
+      #   xrandr --addmode Virtual-1 4096x2160_60.00
+      #   xrandr -s 4096x2160_60.00
+      # '')
+      # (writeShellScriptBin "xrandr-mbp" ''
+      #   xrandr -s 4096x2160
+      #   xrandr --output Virtual-1 --mode 4096x2160
+      # '')
     ];
 
   # xrandr -s 2880x1800
@@ -200,5 +207,5 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "22.05"; # Did you read the comment?
+  system.stateVersion = "22.11"; # Did you read the comment?
 }

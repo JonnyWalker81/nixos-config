@@ -2,14 +2,14 @@
   description = "NixOS configuration and Home Manager configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/release-22.05";
-    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-22.05-darwin";
+    nixpkgs.url = "github:nixos/nixpkgs/release-22.11";
+    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-22.11-darwin";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     darwin.url = "github:lnl7/nix-darwin/master";
     darwin.inputs.nixpkgs.follows = "nixpkgs-unstable";
     # home-manager.url = "github:nix-community/home-manager/release-21.11";
-    home-manager.url = "github:nix-community/home-manager/release-22.05";
+    home-manager.url = "github:nix-community/home-manager/release-22.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     # Locks nixpkgs to an older version with an older Kernel that boots
     # on VMware Fusion Tech Preview. This can be swapped to nixpkgs when
@@ -22,7 +22,7 @@
     # nix-doom-emacs.inputs.emacs-overlay.follows = "emacs-overlay";
     emacs-overlay.url = "github:nix-community/emacs-overlay";
     # nix-doom-emacs.url = "github:vlaci/nix-doom-emacs/";
-    zig.url = "github:arqv/zig-overlay";
+    zig.url = "github:mitchellh/zig-overlay";
   };
 
   # inputs = {
@@ -38,12 +38,11 @@
       # Overlays is the list of overlays we want to apply from flake inputs.
       overlays = [
         inputs.emacs-overlay.overlay
+        inputs.zig.overlays.default
         (final: prev: {
-          # Zig doesn't export an overlay so we do it here
-          zig-master = inputs.zig.packages.${prev.system}.master.latest;
 
           # Go we always want the latest version
-          go = inputs.nixpkgs-unstable.legacyPackages.${prev.system}.go_1_18;
+          go = inputs.nixpkgs-unstable.legacyPackages.${prev.system}.go_1_19;
 
           # To get Kitty 0.24.x. Delete this once it hits release.
           kitty = inputs.nixpkgs-unstable.legacyPackages.${prev.system}.kitty;

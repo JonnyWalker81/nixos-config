@@ -9,6 +9,8 @@ let
   homeDir = builtins.getEnv "HOME";
 
 in {
+  home.stateVersion = "18.09";
+
   home.file.".doom.d" = {
     source = ./doom.d;
     recursive = true;
@@ -28,9 +30,23 @@ in {
     recursive = true;
   };
 
+  home.file.".psqlrc".text = ''
+    set PROMPT1 '[%m] '
+    set PROMPT2 '[%m:trx] '
+    select split_part(:'HOST','.',1) = 'komodo' as is_prod gset
+    if :is_prod
+       SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY;
+       echo '**************************************************************************************************'
+       echo 'Connected to the PRODUCTION DB. UPDATE WITH CAUTION.'
+       echo 'Session READ ONLY by default. Change with: SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE;'
+       echo '**************************************************************************************************'
+    endif
+    	iming
+  '';
+
   programs.emacs = {
     enable = true;
-    package = pkgs.emacsNativeComp;
+    package = pkgs.emacsGit;
     extraPackages = (epkgs: [ epkgs.vterm ]);
   };
 
@@ -50,9 +66,13 @@ in {
     pkgs.k9s
     pkgs.procs
     pkgs.graphviz
+    pkgs.fira-code
+    pkgs.fira-code-symbols
     # pkgs.jetbrains.datagrip
 
   ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
+    pkgs.libreoffice
+    pkgs.chromium
     pkgs.go
     pkgs.gopls
     pkgs.gotools
@@ -62,7 +82,7 @@ in {
     pkgs.clang
     pkgs.just
     pkgs.docker-compose
-    pkgs.awscli
+    pkgs.awscli2
     pkgs.postgresql_14
     pkgs.feh
     pkgs.xplr
@@ -76,14 +96,15 @@ in {
     pkgs.gnupg
     pkgs.hunspell
     pkgs.croc
-    pkgs.zig-master
+    pkgs.zigpkgs.master
     pkgs.bottom
     pkgs.kubernetes-helm
     pkgs.waypoint
     pkgs.helix
     pkgs.unzip
-    pkgs.sublime-merge
+    # pkgs.sublime-merge
     pkgs.lapce
+    pkgs.terraform
 
     pkgs.diskonaut
     pkgs.sqlite
@@ -169,7 +190,7 @@ in {
   programs.mcfly = {
     enable = true;
     enableZshIntegration = false;
-    enableFuzzySearch = true;
+    fuzzySearchFactor = 3;
     keyScheme = "vim";
   };
 
@@ -261,6 +282,7 @@ in {
       eval "$(${mcflyBin} init zsh)"
       eval "$(ssh-agent -s)"
       # bindkey "^R" mcfly-history-widget
+      source ~/.bash_join_db
     '';
 
     oh-my-zsh = {
@@ -382,7 +404,6 @@ in {
       env.TERM = "xterm-256color";
       font = {
         size = 12.0;
-        use_thin_strokes = true;
 
         normal.family = "JetBrains Mono";
         bold.family = "JetBrains Mono Medium";

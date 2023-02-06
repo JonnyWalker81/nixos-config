@@ -116,4 +116,6 @@
 
 (package! topsy)
 
+(package! dap-mode)
+
 ;;; packages.el ends here

@@ -513,15 +513,15 @@
 ;; ;; (add-hook 'rust-mode-hook #'racer-mode)
 ;; ;; (add-hook 'racer-mode-hook #'eldoc-mode)
 ;;
-;; doom-big-font (font-spec :family "Fira Mono" :size 19)
-;; (setq doom-font (font-spec :family "Fira Code" :size 19))
+doom-big-font (font-spec :family "Fira Mono" :size 25)
+(setq doom-font (font-spec :family "Fira Code" :size 18))
 (auto-composition-mode t)
  ;; (setq doom-font (font-spec :family "Input Mono" :size 19))
  ;; (setq doom-font (font-spec :family "Iosevka Nerd Font Mono" :size 19))
  ;; (setq doom-font (font-spec :family "DejaVu Sans Mono" :size 19))
  ;; (setq doom-font (font-spec :family "Fantasque Sans Mono" :size 19))
  ;; (setq doom-font (font-spec :family "Cascadia Code" :size 16))
- (setq doom-font (font-spec :family "JetBrains Mono Medium" :size 18))
+ ;; (setq doom-font (font-spec :family "JetBrains Mono Medium" :size 18))
 ;; (setq doom-font (font-spec :family "JetBrains Mono Medium" :size 16))
  ;; (setq doom-font (font-spec :family "JetBrains Mono SemiLight" :size 21)) 
 ;; (setq doom-font (font-spec :family "Victor Mono" :size 21)) 
@@ -800,6 +800,32 @@
   :config
         (eyebrowse-mode t)
   )
+
+(use-package! dap-mode
+;;:custom
+  ;;(dap-go-debug-program `("node" "~/extension/out/src/debugAdapter/goDebug.js"))
+  :config
+  (dap-mode 1)
+  (setq dap-print-io t)
+  ;;(setq fit-window-to-buffer-horizontally t)
+  ;;(setq window-resize-pixelwise t)
+  (require 'dap-hydra)
+  ;; old version
+  ;;  (require 'dap-go)		; download and expand vscode-go-extenstion to the =~/.extensions/go=
+  ;;  (dap-go-setup)
+  ;; new version
+  (require 'dap-dlv-go)
+
+  (use-package dap-ui
+    :ensure nil
+    :config
+    (dap-ui-mode 1)
+    )
+  )
+
+(add-hook 'dap-stopped-hook
+          (lambda (arg) (call-interactively #'dap-hydra)))
+
 
 (provide 'config)
 ;;; config.el
