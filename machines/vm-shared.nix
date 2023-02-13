@@ -81,7 +81,7 @@
 
     displayManager = {
       sessionCommands = ''
-        ${pkgs.xorg.xset}/bin/xset r rate 200 40
+        ${pkgs.xorg.xset}/bin/xset -r rate 300 100
       '';
       # sddm.enable = true;
       # sddm.enableHidpi = true;
