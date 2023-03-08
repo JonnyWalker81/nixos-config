@@ -8,8 +8,16 @@ let
 
   homeDir = builtins.getEnv "HOME";
 
+  isDarwin = pkgs.stdenv.isDarwin;
+  manpager = (pkgs.writeShellScriptBin "manpager" (if isDarwin then ''
+    sh -c 'col -bx | bat -l man -p'
+  '' else ''
+    cat "$1" | col -bx | bat --language man --style plain
+  ''));
+
 in {
   home.stateVersion = "18.09";
+  xdg.enable = true;
 
   home.file.".doom.d" = {
     source = ./doom.d;
@@ -68,7 +76,13 @@ in {
     pkgs.graphviz
     pkgs.fira-code
     pkgs.fira-code-symbols
+    # pkgs.gcc_latest
+    pkgs.llvm
     # pkgs.jetbrains.datagrip
+    pkgs.gitui
+    pkgs.bind
+    # pkgs.firefox-bin
+    pkgs.firefox-esr-102-unwrapped
 
   ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
     pkgs.libreoffice
@@ -121,6 +135,15 @@ in {
     pkgs.haskellPackages.greenclip
 
   ];
+
+  home.sessionVariables = {
+    LANG = "en_US.UTF-8";
+    LC_CTYPE = "en_US.UTF-8";
+    LC_ALL = "en_US.UTF-8";
+    EDITOR = "nvim";
+    PAGER = "less -FirSwX";
+    MANPAGER = "${manpager}/bin/manpager";
+  };
 
   programs.go = {
     enable = true;
@@ -269,8 +292,10 @@ in {
       ZSH_TMUX_AUTOSTART = "true";
       ZSH_TMUX_AUTOCONNECT = "true";
       TERM = "xterm-256color";
-      EDITOR = "emacsclient -t -a ''"; # $EDITOR use Emacs in terminal
-      VISUAL = "emacsclient -c -a emacs"; # $VISUAL use Emacs in GUI mode
+      # EDITOR = "emacsclient -t -a ''"; # $EDITOR use Emacs in terminal
+      EDITOR = "nvim"; # $EDITOR use Emacs in terminal
+      # VISUAL = "emacsclient -c -a emacs"; # $VISUAL use Emacs in GUI mode
+      VISUAL = "$EDITOR"; # $VISUAL use Emacs in GUI mode
 
       CLOUDFLARE_EMAIL = "jon@geneva.com";
     };

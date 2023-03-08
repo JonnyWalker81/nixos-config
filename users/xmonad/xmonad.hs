@@ -78,7 +78,7 @@ myClickJustFocuses = False
 
 -- Width of the window border in pixels.
 --
-myBorderWidth   = 3
+myBorderWidth   = 2
 
 -- modMask lets you specify which modkey you want to use. The default
 -- is mod1Mask ("left alt").  You may also consider using mod3Mask
@@ -105,7 +105,7 @@ myNormalBorderColor  = "#2c698d" -- "#56b6c2"  -- "#6A657C"
 myFocusedBorderColor = "#98c379"  -- "#567568"
 
 mySpace :: Integer
-mySpace = 20
+mySpace = 5
 
 clipboardy :: MonadIO m => m () -- Don't question it
 -- clipboardy = spawn "rofi -modi \"\63053 :greenclip print\" -show \"\63053 \" -run-command '{cmd}'"
@@ -295,10 +295,10 @@ myLayout = avoidStruts
                  myDefaultLayout = tall ||| grid ||| threeCol ||| threeColMid ||| threeRow ||| oneBig ||| noBorders monocle ||| space ||| floats
 
 
-tall          = renamed [Replace "tall"]     $ spacing 10 $ ResizableTall 1 (3/100) (1/2) []
-grid          = renamed [Replace "grid"]     $ spacing 10 $ mkToggle (single MIRROR) $ Grid (16/10)
-threeCol      = renamed [Replace "threeCol"] $ spacing 20 $ ThreeCol 1 (3/100) (1/2)
-threeColMid   = renamed [Replace "threeColMid"]  $ spacing 10 $ ThreeColMid 1 (3/100) (1/2)
+tall          = renamed [Replace "tall"]     $ spacing 5 $ ResizableTall 1 (3/100) (1/2) []
+grid          = renamed [Replace "grid"]     $ spacing 5 $ mkToggle (single MIRROR) $ Grid (16/10)
+threeCol      = renamed [Replace "threeCol"] $ spacing 5 $ ThreeCol 1 (3/100) (1/2)
+threeColMid   = renamed [Replace "threeColMid"]  $ spacing 5 $ ThreeColMid 1 (3/100) (1/2)
 threeRow      = renamed [Replace "threeRow"] $ limitWindows 3  $ Mirror $ mkToggle (single MIRROR) zoomRow
 oneBig        = renamed [Replace "oneBig"]   $ limitWindows 6  $ Mirror $ mkToggle (single MIRROR) $ mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $ OneBig (5/9) (8/12)
 monocle       = renamed [Replace "monocle"]  $ limitWindows 20 $ Full

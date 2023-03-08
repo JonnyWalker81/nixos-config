@@ -132,7 +132,7 @@
   # $ nix search wget
   environment.systemPackages = with pkgs;
     [
-      firefox
+      # firefox
       neovim
       gnumake
       killall

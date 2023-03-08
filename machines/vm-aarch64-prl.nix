@@ -8,6 +8,7 @@
     ./vm-shared.nix
   ];
 
+  services.ntp.enable = true;
   # The official parallels guest support does not work currently.
   # https://github.com/NixOS/nixpkgs/pull/153665
   disabledModules = [ "virtualisation/parallels-guest.nix" ];
