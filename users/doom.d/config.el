@@ -256,6 +256,10 @@
      ("typescript.inlayHints.variableTypes.enabled" t t)
      ("typescript.inlayHints" t t)
      ))
+
+  (setq lsp-ui-doc-enable t)
+  (setq lsp-ui-peek-enable t)
+  (setq lsp-yaml-single-quote t)
   )
 
 (use-package lsp-ui
@@ -702,43 +706,67 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
         )
   )
 
-(setq magit-circleci-token "d6d0347d6efda8daffc42d7b1156e4ed22572c05")
+ (setq magit-circleci-token "d6d0347d6efda8daffc42d7b1156e4ed22572c05")
+
+;;(use-package modus-themes
+;; :ensure t
+;; :config
+;; ;; Add all your customizations prior to loading the themes
+;;; (setq modus-themes-italic-constructs t
+;;;       modus-themes-bold-constructs nil)
+;;;
+;;; ;; Maybe define some palette overrides, such as by using our presets
+;;; (setq modus-themes-common-palette-overrides
+;;;       modus-themes-preset-overrides-intense)
+;;
+;; (setq modus-themes-italic-constructs t
+;;     modus-themes-bold-constructs nil
+;;     modus-themes-mixed-fonts t
+;;     modus-themes-variable-pitch-ui nil
+;;     modus-themes-custom-auto-reload t
+;;     modus-themes-disable-other-themes t)
+;;
+;; ;; Load the theme of your choice.
+;; (load-theme 'modus-vivendi)
+;;
+;; (define-key global-map (kbd "<f5>") #'modus-themes-toggle)
+;;)
 
 ;; (use-package! modus-themes
-;;   :ensure
-;;   :init
-;;   ;; ;; Add all your customizations prior to loading the themes
-;;   (setq modus-themes-italic-constructs t
-;;         modus-themes-bold-constructs t
-;;         modus-themes-region '(bg-only)
-;;         modus-themes-hl-line '(underline)
-;;         modus-themes-paren-match '(bold intense underline)
-;;         modus-themes-completions '((matches . (extrabold))
-;;                                  (selection . (semibold accented))
-;;                                  (popup . (accented intense)))
-;;         modus-themes-mode-line '(accented borderless (padding . 5) (height . 0.9))
-;;         )
+;;  :ensure
+;;  :init
+;;  ;; ;; Add all your customizations prior to loading the themes
+;;  (setq modus-themes-italic-constructs t
+;;        modus-themes-bold-constructs t
+;;        modus-themes-region '(bg-only)
+;;        modus-themes-hl-line '(underline)
+;;        modus-themes-paren-match '(bold intense underline)
+;;        modus-themes-completions '((matches . (extrabold))
+;;                                 (selection . (semibold accented))
+;;                                 (popup . (accented intense)))
+;;        modus-themes-mode-line '(accented borderless (padding . 5) (height . 0.9))
+;;        )
+;; 
+;;  ;; Load the theme files before enabling a theme
+;;  (modus-themes-load-themes)
+;;  :config
+;;  ;; Load the theme of your choice:
+;;  (modus-themes-load-vivendi)
+;;  :bind ("<f5>" . modus-themes-toggle)
+;;  )
 
-;;   ;; Load the theme files before enabling a theme
-;;   (modus-themes-load-themes)
-;;   :config
-;;   ;; Load the theme of your choice:
-;;   (modus-themes-load-vivendi)
-;;   :bind ("<f5>" . modus-themes-toggle)
-;;   )
+ (use-package! ef-themes
+   :ensure
+   :init
 
-(use-package! ef-themes
-  :ensure
-  :init
+   (setq ef-themes-mixed-fonts t
+         ef-modus-themes-variable-pitch-ui t)
 
-  (setq ef-themes-mixed-fonts t
-        ef-modus-themes-variable-pitch-ui t)
+   (mapc #'disable-theme custom-enabled-themes)
 
-  (mapc #'disable-theme custom-enabled-themes)
+   (ef-themes-select 'ef-duo-dark)
 
-  (ef-themes-select 'ef-night)
-
-  )
+   )
 
 (use-package! topsy
   :ensure
@@ -747,6 +775,9 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
 
 (map! :leader  :desc "fzf-projectile" "f h" #'fzf-projectile)
 (map! :leader  :desc "fzf-switch-buffer" "b h" #'fzf-switch-buffer)
+
+(map! :leader :desc "cr-pull-reqs" "l p" #'(lambda () (forge-list-labeled-pullreqs (forge-get-repository t) "costs-and-reporting-pod"
+                                                  )))
 
 (use-package! lusty-explorer
    :ensure

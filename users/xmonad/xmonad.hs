@@ -105,7 +105,7 @@ myNormalBorderColor  = "#2c698d" -- "#56b6c2"  -- "#6A657C"
 myFocusedBorderColor = "#98c379"  -- "#567568"
 
 mySpace :: Integer
-mySpace = 5
+mySpace = 2
 
 clipboardy :: MonadIO m => m () -- Don't question it
 -- clipboardy = spawn "rofi -modi \"\63053 :greenclip print\" -show \"\63053 \" -run-command '{cmd}'"
@@ -295,10 +295,10 @@ myLayout = avoidStruts
                  myDefaultLayout = tall ||| grid ||| threeCol ||| threeColMid ||| threeRow ||| oneBig ||| noBorders monocle ||| space ||| floats
 
 
-tall          = renamed [Replace "tall"]     $ spacing 5 $ ResizableTall 1 (3/100) (1/2) []
-grid          = renamed [Replace "grid"]     $ spacing 5 $ mkToggle (single MIRROR) $ Grid (16/10)
-threeCol      = renamed [Replace "threeCol"] $ spacing 5 $ ThreeCol 1 (3/100) (1/2)
-threeColMid   = renamed [Replace "threeColMid"]  $ spacing 5 $ ThreeColMid 1 (3/100) (1/2)
+tall          = renamed [Replace "tall"]     $ spacing 2 $ ResizableTall 1 (3/100) (1/2) []
+grid          = renamed [Replace "grid"]     $ spacing 2 $ mkToggle (single MIRROR) $ Grid (16/10)
+threeCol      = renamed [Replace "threeCol"] $ spacing 2 $ ThreeCol 1 (3/100) (1/2)
+threeColMid   = renamed [Replace "threeColMid"]  $ spacing 2 $ ThreeColMid 1 (3/100) (1/2)
 threeRow      = renamed [Replace "threeRow"] $ limitWindows 3  $ Mirror $ mkToggle (single MIRROR) zoomRow
 oneBig        = renamed [Replace "oneBig"]   $ limitWindows 6  $ Mirror $ mkToggle (single MIRROR) $ mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $ OneBig (5/9) (8/12)
 monocle       = renamed [Replace "monocle"]  $ limitWindows 20 $ Full

@@ -85,6 +85,7 @@
        docker
        editorconfig      ; let someone else argue about tabs vs spaces
       ;ein               ; tame Jupyter notebooks with emacs
+      (eval +overlay)
       ;gist              ; interacting with github gists
        (lookup           ; helps you navigate your code and documentation
         +devdocs         ; ...on devdocs.io online
@@ -107,6 +108,8 @@
       ;;   +childframe)     ; use childframes for error popups (Emacs 26+ only)
       ;prodigy           ; FIXME managing external services & code builders
       rgb               ; creating color strings
+      (terraform +lsp)
+      tree-sitter
       ;tmux              ; an API for interacting with tmux
       ;upload            ; map local to remote projects via ssh/ftp
       ;wakatime
@@ -135,7 +138,7 @@
       (haskell +lsp)  ; a language that's lazier than I am
       ;hy                ; readability of scheme w/ speed of python
       ;(java +meghanada) ; the poster child for carpal tunnel syndrome
-      (javascript +lsp)        ; all(hope(abandon(ye(who(enter(here))))))
+      (javascript +lsp +tree-sitter)        ; all(hope(abandon(ye(who(enter(here))))))
       ;julia             ; a better, faster MATLAB
       ;latex             ; writing papers in Emacs has never been so fun
       ;ledger            ; an accounting system in Emacs
@@ -167,6 +170,7 @@
        sh                ; she sells (ba|z)sh shells on the C xor
       ;solidity          ; do you need a blockchain? No.
       swift             ; who asked for emoji variables?
+      (yaml +lsp)
       web               ; the tubes
 
        ;; Applications are complex and opinionated modules that transform Emacs

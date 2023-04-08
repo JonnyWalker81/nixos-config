@@ -39,22 +39,26 @@ in {
   };
 
   home.file.".psqlrc".text = ''
-    set PROMPT1 '[%m] '
-    set PROMPT2 '[%m:trx] '
-    select split_part(:'HOST','.',1) = 'komodo' as is_prod gset
-    if :is_prod
-       SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY;
-       echo '**************************************************************************************************'
-       echo 'Connected to the PRODUCTION DB. UPDATE WITH CAUTION.'
-       echo 'Session READ ONLY by default. Change with: SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE;'
-       echo '**************************************************************************************************'
-    endif
-    	iming
+     --  set PROMPT1 '[%m] '
+     -- set PROMPT2 '[%m:trx] '
+    -- select split_part(:'HOST','.',1) = 'komodo' as is_prod gset
+    -- if :is_prod
+    --    SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY;
+    --    echo '**************************************************************************************************'
+    --    echo 'Connected to the PRODUCTION DB. UPDATE WITH CAUTION.'
+    --    echo 'Session READ ONLY by default. Change with: SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE;'
+    --    echo '**************************************************************************************************'
+    -- endif
+    -- 	iming
   '';
+
+  home.file.".config/gitui/key_bindings.ron" = {
+    source = ./gitui/key_bindings.ron;
+  };
 
   programs.emacs = {
     enable = true;
-    package = pkgs.emacsGit;
+    package = pkgs.emacsUnstable;
     extraPackages = (epkgs: [ epkgs.vterm ]);
   };
 
@@ -83,14 +87,34 @@ in {
     pkgs.bind
     # pkgs.firefox-bin
     pkgs.firefox-esr-102-unwrapped
+    pkgs.pgmanage
+    pkgs.pgadmin4
+    pkgs.pandoc
+    pkgs.terraform-ls
+    pkgs.tree-sitter
+    # pkgs.tree-sitter-grammars.tree-sitter-c
+    pkgs.tree-sitter-grammars.tree-sitter-go
+    # pkgs.tree-sitter-grammars.tree-sitter-tsx
+    # pkgs.tree-sitter-grammars.tree-sitter-sql
+    # pkgs.tree-sitter-grammars.tree-sitter-nix
+    # pkgs.tree-sitter-grammars.tree-sitter-hcl
+    # pkgs.tree-sitter-grammars.tree-sitter-css
+    # pkgs.tree-sitter-grammars.tree-sitter-cpp
+    # pkgs.tree-sitter-grammars.tree-sitter-yaml
+    # pkgs.tree-sitter-grammars.tree-sitter-rust
+    # pkgs.tree-sitter-grammars.tree-sitter-json
+    # pkgs.tree-sitter-grammars.tree-sitter-html
+    # pkgs.tree-sitter-grammars.tree-sitter-bash
+    # pkgs.tree-sitter-grammars.tree-sitter-typescript
+    # pkgs.tree-sitter-grammars.tree-sitter-javascript
 
   ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
     pkgs.libreoffice
     pkgs.chromium
-    pkgs.go
-    pkgs.gopls
-    pkgs.gotools
-    pkgs.gotestsum
+    pkgs.go_1_20
+    # pkgs.gopls
+    # pkgs.gotools
+    # pkgs.gotestsum
     pkgs.rustup
     pkgs.rust-analyzer
     pkgs.clang
@@ -114,7 +138,7 @@ in {
     pkgs.bottom
     pkgs.kubernetes-helm
     pkgs.waypoint
-    pkgs.helix
+    # pkgs.helix
     pkgs.unzip
     # pkgs.sublime-merge
     pkgs.lapce
@@ -145,12 +169,12 @@ in {
     MANPAGER = "${manpager}/bin/manpager";
   };
 
-  programs.go = {
-    enable = true;
-    # package = pkgs.go_1_17;
-    goPath = "go";
-    goPrivate = [ "github.com/geneva" "github.com/jonnywalker81" ];
-  };
+  # programs.go_1_20 = {
+  #   enable = true;
+  #   # package = pkgs.go_1_20;
+  #   goPath = "go";
+  #   goPrivate = [ "github.com/joincad" "github.com/jonnywalker81" ];
+  # };
 
   # programs.git = {
   #   enable = true;
@@ -282,7 +306,7 @@ in {
       LC_ALL = "en_US.utf8";
       LIBVIRT_DEFAULT_URI = "qemu:///system";
       GOPATH = "\${HOME}";
-      # GOPRIVATE = "github.com";
+      GOPRIVATE = "github.com/JoinCAD,github.com/JonnyWalker81";
       # GOPROXY = "off";
       # PATH =
       #   "\${PATH}:\${HOME}/bin:\${HOME}/.cargo/bin:~/Repositories/geneva/node_modules/.bin";
