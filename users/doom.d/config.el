@@ -141,7 +141,10 @@
 ;; (setq rustic-lsp-client 'lsp-mode)
 ;; (setq eglot-rust-server 'rust-analyzer)
 
-(setq magit-todos-exclude-globs '("*brindle*"))
+(setq magit-todos-exclude-globs '(
+                                  "*brindle*"
+                                  "*node_modules*"
+                                  ))
 
 ;; ;; (after! rustic
 ;; ;;   (setq rustic-lsp-server 'rust-analyzer)
@@ -187,6 +190,16 @@
 
 (map! :leader  :desc "dumb-jump-go" "d" #'dumb-jump-go)
 (map! :leader  :desc "dumb-jump-go other window" "D" #'dumb-jump-go-other-window)
+
+(map! :leader :desc "fold code" "c f" #'fold-this)
+(map! :leader :desc "fold code" "c u" #'fold-this-unfold-at-point)
+
+;; (add-to-list 'auto-mode-alist '("\\.ml[iylp]?$" . caml-mode))
+;; (autoload 'caml-mode "caml" "Major mode for editing OCaml code." t)
+;; (autoload 'run-caml "inf-caml" "Run an inferior OCaml process." t)
+;; (autoload 'camldebug "camldebug" "Run ocamldebug on program." t)
+;; (add-to-list 'interpreter-mode-alist '("ocamlrun" . caml-mode))
+;; (add-to-list 'interpreter-mode-alist '("ocaml" . caml-mode))
 
 ;; (load-theme 'zenburn)
 (setq +popup-buffer-mode 'toggle)
@@ -422,7 +435,7 @@
                            (elm-format-on-save-mode)
                            ))
 
-(setq display-line-numbers 'visual)
+;; (setq display-line-numbers 'visual)
 
 ;; (add-hook 'rustic-mode-hook 'eglot-ensure)
 (add-hook 'rustic-mode-hook (lambda ()
@@ -685,29 +698,6 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
 ;;   :init
 ;;   (selectrum-mode +1))
 
-(defun jr/bump-code-to-env (from-branch &optional to-branch)
-  (interactive (list (read-string "From Branch (master): "
-                             nil nil "master")
-                     (read-string "To Branch (dev): "
-                             nil nil "dev")))
-
-
-  (let* ((project-root (projectile-project-root))
-         (default-directory project-root)
-         )
-        (message "From: %s" from-branch)
-        (message "To: %s" to-branch)
-        (message "Project Root: %s" project-root)
-
-        (shell-command (format "git checkout %s" to-branch))
-        (shell-command (format "git pull origin %s" to-branch))
-        (shell-command (format "git rebase %s" from-branch))
-        (shell-command "git" "push" "origin")
-        )
-  )
-
- (setq magit-circleci-token "d6d0347d6efda8daffc42d7b1156e4ed22572c05")
-
 ;;(use-package modus-themes
 ;; :ensure t
 ;; :config
@@ -786,8 +776,8 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
 
 (smooth-scrolling-mode 1)
 (setq scroll-step 1)
-(setq scroll-margin 99)
-(setq smooth-scroll-margin 99)
+(setq scroll-margin 500)
+(setq smooth-scroll-margin 500)
 
 (use-package! zig-mode
   :hook ((zig-mode . lsp-deferred))
@@ -856,6 +846,15 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
 
 (add-hook 'dap-stopped-hook
           (lambda (arg) (call-interactively #'dap-hydra)))
+
+(add-hook 'tuareg-mode-hook (lambda ()
+  (define-key tuareg-mode-map (kbd "C-M-<tab>") #'ocamlformat)
+  (add-hook 'before-save-hook #'ocamlformat-before-save)))
+
+(use-package! ocamlformat
+  :custom (ocamlformat-enable 'enable-outside-detected-project)
+  :hook (before-save . ocamlformat-before-save)
+  )
 
 
 (provide 'config)

@@ -52,6 +52,7 @@
 ;(package! builtin-package :recipe (:branch "develop"))
 ;
 
+;; (unpin! tuareg)
 ;; (unpin! magit forge)
 (package! flycheck)
 (package! graphql-mode)
@@ -118,5 +119,8 @@
 (package! topsy)
 
 (package! dap-mode)
+
+(package! fold-this)
+;; (package! caml-mode)
 
 ;;; packages.el ends here

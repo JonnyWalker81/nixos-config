@@ -3,6 +3,8 @@
 {
   # https://github.com/nix-community/home-manager/pull/2408
   # environment.pathsToLink = [ "/share/fish" ];
+  #
+  programs.zsh.enable = true;
 
   users.users.cipher = {
     isNormalUser = true;
@@ -16,10 +18,9 @@
     # ];
   };
 
+  nixpkgs.overlays = import ../../lib/overlays.nix;
 
- nixpkgs.overlays = import ../../lib/overlays.nix;
-
-# nixpkgs.overlays = import ../../lib/overlays.nix ++ [
-#   (import ./vim.nix)
-# ];
+  # nixpkgs.overlays = import ../../lib/overlays.nix ++ [
+  #   (import ./vim.nix)
+  # ];
 }

@@ -68,6 +68,7 @@ return require("packer").startup {
         -- local_use "lsp_extensions.nvim"
         use "onsails/lspkind-nvim"
 
+        use 'tjdevries/ocaml.nvim'
 
         use "jose-elias-alvarez/nvim-lsp-ts-utils"
 
@@ -437,6 +438,8 @@ return require("packer").startup {
         use 'ray-x/guihua.lua'
 
         use 'ray-x/go.nvim'
+
+        use 'jparise/vim-graphql'
 
         use 'kdheepak/lazygit.nvim'
 

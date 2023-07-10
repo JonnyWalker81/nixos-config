@@ -111,7 +111,7 @@ require('toggleterm').setup({
 local lspconfig = require('lspconfig')
 local lsp_defaults = lspconfig.util.default_config
 
-lspconfig.sumneko_lua.setup({
+lspconfig.ls_lua.setup({
     single_file_support = true,
     flags = {
         debounce_text_changes = 150,

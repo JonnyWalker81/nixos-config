@@ -2,14 +2,14 @@
   description = "NixOS configuration and Home Manager configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/release-22.11";
-    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-22.11-darwin";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
+    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-23.05-darwin";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     darwin.url = "github:lnl7/nix-darwin/master";
     darwin.inputs.nixpkgs.follows = "nixpkgs-unstable";
     # home-manager.url = "github:nix-community/home-manager/release-21.11";
-    home-manager.url = "github:nix-community/home-manager/release-22.11";
+    home-manager.url = "github:nix-community/home-manager/release-23.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     # Locks nixpkgs to an older version with an older Kernel that boots
     # on VMware Fusion Tech Preview. This can be swapped to nixpkgs when
@@ -38,8 +38,34 @@
       # Overlays is the list of overlays we want to apply from flake inputs.
       overlays = [
         inputs.emacs-overlay.overlay
+        # (import (builtins.fetchTarball {
+        #   url =
+        #     "https://github.com/nix-community/emacs-overlay/archive/dec958258b133b4c21224c594da433919d852800.tar.gz";
+        #   sha256 = "0jlvxg0k744zyvdhpvwf2hv3fxc7b31iapjwlm4h3qxsgpjh7gvm";
+        # }))
         inputs.zig.overlays.default
         (final: prev: {
+          tree-sitter-grammars = prev.tree-sitter-grammars // {
+            tree-sitter-tsx =
+              prev.tree-sitter-grammars.tree-sitter-tsx.overrideAttrs (_: {
+                nativeBuildInputs = [ final.tree-sitter ];
+                configurePhase = ''
+                  tree-sitter generate --abi 13 src/grammar.json
+                '';
+              });
+            tree-sitter-go =
+              prev.tree-sitter-grammars.tree-sitter-tsx.overrideAttrs (_: {
+                nativeBuildInputs = [ final.tree-sitter ];
+                configurePhase = ''
+                  tree-sitter generate --abi 13 src/grammar.json
+                '';
+              });
+
+          };
+          # emacs = (import (builtins.fetchTarball {
+          #   url =
+          #     "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
+          # }));
 
           # Go we always want the latest version
           # go = inputs.nixpkgs-unstable.legacyPackages.${prev.system}.go_1_20;
@@ -47,7 +73,10 @@
           # To get Kitty 0.24.x. Delete this once it hits release.
           kitty = inputs.nixpkgs-unstable.legacyPackages.${prev.system}.kitty;
 
-          xmobar = inputs.nixpkga-unstable.legacyPackages.${prev.system}.xmobar;
+          xmobar = inputs.nixpkgs-unstable.legacyPackages.${prev.system}.xmobar;
+
+          awscli2 =
+            inputs.nixpkgs-unstable.legacyPackages.${prev.system}.awscli2;
         })
         # (import (fetchGit { url = "https://github.com/jonaburg/picom"; }))
       ];

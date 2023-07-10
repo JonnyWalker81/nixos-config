@@ -3,7 +3,7 @@
 , kernel, libsOnly ? false, fetchurl, undmg, perl, autoPatchelfHook }:
 
 stdenv.mkDerivation rec {
-  version = "18.2.0-53488";
+  version = "18.3.0-53606";
   pname = "prl-tools";
 
   # We download the full distribution to extract prl-tools-lin.iso from
@@ -12,7 +12,7 @@ stdenv.mkDerivation rec {
     url = "https://download.parallels.com/desktop/v${
         lib.versions.major version
       }/${version}/ParallelsDesktop-${version}.dmg";
-    sha256 = "sha256-FpAbQQapIcZ7GsGjH4ZeJ81Ke+NUF7GvgV1wEDLKoUU=";
+    sha256 = "sha256-uthaY6266YJqh5UtlI6ifmJVZVC6JTlsEoxEUOihx4I=";
   };
 
   # patches = [./prl-tools-6.0.patch];

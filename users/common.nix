@@ -56,9 +56,19 @@ in {
     source = ./gitui/key_bindings.ron;
   };
 
+  home.file.".config/nvim" = {
+    source = ./nvim;
+    recursive = true;
+  };
+
+  home.file.".config/dune/config" = {
+    source = ./dune/config;
+    recursive = true;
+  };
+
   programs.emacs = {
     enable = true;
-    package = pkgs.emacsUnstable;
+    package = pkgs.emacs-unstable;
     extraPackages = (epkgs: [ epkgs.vterm ]);
   };
 
@@ -66,8 +76,8 @@ in {
     pkgs.jetbrains-mono
     pkgs.ripgrep
     pkgs.fd
-    pkgs.rustup
-    pkgs.rust-analyzer
+    # pkgs.rustup
+    # pkgs.rust-analyzer
     pkgs.thefuck
     pkgs.zoxide
     pkgs.bat
@@ -91,9 +101,12 @@ in {
     pkgs.pgadmin4
     pkgs.pandoc
     pkgs.terraform-ls
-    pkgs.tree-sitter
+    # pkgs.tree-sitter
+    pkgs.file
+    # pkgs.tree-sitter.withPlugins
+    # (p: [ p.tree-sitter-tsx p.tree-sitter-go ])
     # pkgs.tree-sitter-grammars.tree-sitter-c
-    pkgs.tree-sitter-grammars.tree-sitter-go
+    # pkgs.tree-sitter-grammars.tree-sitter-go
     # pkgs.tree-sitter-grammars.tree-sitter-tsx
     # pkgs.tree-sitter-grammars.tree-sitter-sql
     # pkgs.tree-sitter-grammars.tree-sitter-nix
@@ -116,7 +129,7 @@ in {
     # pkgs.gotools
     # pkgs.gotestsum
     pkgs.rustup
-    pkgs.rust-analyzer
+    # pkgs.rust-analyzer
     pkgs.clang
     pkgs.just
     pkgs.docker-compose
@@ -144,6 +157,7 @@ in {
     pkgs.lapce
     pkgs.terraform
 
+    pkgs.lazygit
     pkgs.diskonaut
     pkgs.sqlite
     pkgs.acpi
@@ -157,7 +171,8 @@ in {
     pkgs.haskellPackages.xmobar
     pkgs.haskellPackages.xmonad
     pkgs.haskellPackages.greenclip
-
+    pkgs.nyxt
+    pkgs.ssm-session-manager-plugin
   ];
 
   home.sessionVariables = {
@@ -237,7 +252,7 @@ in {
   programs.mcfly = {
     enable = true;
     enableZshIntegration = false;
-    fuzzySearchFactor = 3;
+    # fuzzySearchFactor = 3;
     keyScheme = "vim";
   };
 
@@ -256,7 +271,8 @@ in {
       color.ui = true;
       core.askPass = ""; # needs to be empty to use terminal for ask pass
       # credential.helper = "store --file ~/.config/git-credentials";
-      credential.helper = "store";
+      # credential.helper = "store";
+      credential.helper = "cache --timeout 72000";
       push.default = "tracking";
       # branch.autosetuprebase = "always";
       # url."git@github.com".insteadOf = "https://github.com";
@@ -290,7 +306,7 @@ in {
       ri = "sudo nixos-rebuild switch --flake .#vm-intel";
       rdd = "sudo darwin-rebuild switch --flake .#vm-darwin";
       h = "mcfly search -f ''";
-      f = "history | fzf --sort --exact";
+      f = "history | fzf --sort --exact | sh";
       bc = "git branch | grep '*' | awk '{print $2}' | pbcopy";
 
       pbcopy = "xclip -selection clipboard";
@@ -332,6 +348,8 @@ in {
       eval "$(ssh-agent -s)"
       # bindkey "^R" mcfly-history-widget
       source ~/.bash_join_db
+
+      [[ ! -r /home/cipher/.opam/opam-init/init.zsh ]] || source /home/cipher/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
     '';
 
     oh-my-zsh = {
@@ -422,6 +440,10 @@ in {
 
     extraConfig = ''
       HostkeyAlgorithms +ssh-rsa
+
+      # SSH over AWS Systems Manager Session Manager
+      Host i-* mi-*
+        ProxyCommand sh -c "aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
     '';
 
     matchBlocks = {
