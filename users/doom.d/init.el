@@ -60,7 +60,8 @@
        undo
        (dired
         +icons
-        +ranger
+        ;; +ranger
+        +dirvish
         )            ; making dired pretty [functional]
        ;; ediff             ; comparing files in Emacs
        electric          ; smarter, keyword-based electric-indent
@@ -109,7 +110,7 @@
       ;prodigy           ; FIXME managing external services & code builders
       rgb               ; creating color strings
       (terraform +lsp)
-      tree-sitter
+      ;; tree-sitter
       ;tmux              ; an API for interacting with tmux
       ;upload            ; map local to remote projects via ssh/ftp
       ;wakatime
@@ -124,21 +125,29 @@
       ;common-lisp       ; if you've seen one lisp, you've seen them all
       ;crystal           ; ruby at the speed of c
       ;clojure           ; java with a lisp
-      csharp            ; unity, .NET, and mono shenanigans
+      ;; csharp            ; unity, .NET, and mono shenanigans
        data              ; config/data formats
       ;erlang            ; an elegant language for a more civilized age
       ;elixir            ; erlang done right
-      elm               ; care for a cup of TEA?
+      ;; elm               ; care for a cup of TEA?
        emacs-lisp        ; drown in parentheses
       ;ess               ; emacs speaks statistics
        (go
-        +lsp)
+        +lsp
+        ;; +tree-sitter
+        )
       ;; go
                                         ; the hipster dialect
+      graphql
       (haskell +lsp)  ; a language that's lazier than I am
       ;hy                ; readability of scheme w/ speed of python
       ;(java +meghanada) ; the poster child for carpal tunnel syndrome
-      (javascript +lsp +tree-sitter)        ; all(hope(abandon(ye(who(enter(here))))))
+      (javascript +lsp
+                  ;; +tree-sitter
+                  )        ; all(hope(abandon(ye(who(enter(here))))))
+      (json +lsp
+            ;; +tree-sitter
+            )
       ;julia             ; a better, faster MATLAB
       ;latex             ; writing papers in Emacs has never been so fun
       ;ledger            ; an accounting system in Emacs
@@ -146,9 +155,12 @@
        +lsp)                                        ; one-based indices? one-based indices
        markdown          ; writing docs for people to ignore
       ;nim               ; python + lisp at the speed of c
-      nix               ; I hereby declare "nix geht mehr!"
-      ocaml             ; an objective camel
+      (nix +lsp)               ; I hereby declare "nix geht mehr!"
+      (ocaml +lsp
+             ;; +tree-sitter
+             )            ; an objective camel
        (org              ; organize your plain life in plain text
+       +pretty
        +attach          ; custom attachment system
        +babel           ; running code in org
        +capture         ; org-capture in and outside of Emacs
@@ -161,17 +173,17 @@
       ;purescript        ; javascript, but functional
       ;python            ; beautiful is better than ugly
       ;qt                ; the 'cutest' gui framework ever
-      rest              ; Emacs as a REST client
+      ;; rest              ; Emacs as a REST client
       ;ruby              ; 1.step do {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
       (rust +lsp)               ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
       ;; (rust
       ;;  +lsp)
       ;scala             ; java, but good
-       sh                ; she sells (ba|z)sh shells on the C xor
+       (sh +lsp)               ; she sells (ba|z)sh shells on the C xor
       ;solidity          ; do you need a blockchain? No.
-      swift             ; who asked for emoji variables?
+      ;; swift             ; who asked for emoji variables?
       (yaml +lsp)
-      web               ; the tubes
+      (web +lsp)               ; the tubes
 
        ;; Applications are complex and opinionated modules that transform Emacs
        ;; toward a specific purpose. They may have additional dependencies and

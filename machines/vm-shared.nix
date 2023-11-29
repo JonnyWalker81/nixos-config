@@ -35,6 +35,7 @@
   # Set your time zone.
   time.timeZone = "America/Los_Angeles";
 
+  # networking.timeServers = config.networking.timeServers.default ++ [ "ntp.example.com" ];
   services.ntp.enable = true;
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.

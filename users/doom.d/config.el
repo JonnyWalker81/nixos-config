@@ -14,20 +14,39 @@
 ;; (require 'sunrise-buttons)
 ;; (require 'sunrise-modeline)
 
+;; (use-package! tsc
+;;   :config
+;; (setq! tsc-dyn-get-from '(:compilation))
+;;   )
+
+;; (setq major-mode-remap-alist
+;;  '(
+;;    ;; (go-mode . go-ts-mode)
+;;    ;; (yaml-mode . yaml-ts-mode)
+;;    (bash-mode . bash-ts-mode)
+;;    (js2-mode . js-ts-mode)
+;;    (typescript-mode . typescript-ts-mode)
+;;    (json-mode . json-ts-mode)
+;;    (css-mode . css-ts-mode)
+;;    ;; (python-mode . python-ts-mode)
+;;    )
+;;  )
 
 (if (eq system-type 'darwin)
-                                        ;; something for OS X if true
-                                        ;; optional something if not
-   (exec-path-from-shell-copy-env "GOPATH")
+    ;; something for OS X if true
+    ;; optional something if not
+    (exec-path-from-shell-copy-env "GOPATH")
   (exec-path-from-shell-copy-env "RUST_SRC_PATH")
- )
+  )
 
 (if (eq system-type 'linux)
-                                        ;; something for OS X if true
-                                        ;; optional something if not
-   (exec-path-from-shell-copy-env "GOPATH")
+    ;; something for OS X if true
+    ;; optional something if not
+    (exec-path-from-shell-copy-env "GOPATH")
   (exec-path-from-shell-copy-env "RUST_SRC_PATH")
- )
+  )
+
+(add-to-list 'treesit-extra-load-path "~/.tree-sitter/bin")
 
 
 
@@ -115,19 +134,20 @@
       user-mail-address "jon@geneva.com")
 
 (use-package! blamer
-  :bind (("s-i" . blamer-show-commit-info))
   :defer 20
   :custom
   (blamer-idle-time 0.3)
   (blamer-min-offset 70)
   :custom-face
   (blamer-face ((t :foreground "#7a88cf"
-                    :background nil
-                    :height 1.0
-                    :italic t)))
+                   :background nil
+                   :height 1.0
+                   :italic t)))
   :config
+  (map! :localleader  :desc "blamer-show" "b s" #'blamer-show-posframe-commit-info)
   (set-face-attribute 'blamer-face nil :height 1.0)
-  (global-blamer-mode 1))
+  ;; (global-blamer-mode 1)
+  )
 
 
 
@@ -194,6 +214,8 @@
 (map! :leader :desc "fold code" "c f" #'fold-this)
 (map! :leader :desc "fold code" "c u" #'fold-this-unfold-at-point)
 
+(map! :leader :desc "toggle lsp doc" "t d" #'lsp-ui-doc-toggle)
+
 ;; (add-to-list 'auto-mode-alist '("\\.ml[iylp]?$" . caml-mode))
 ;; (autoload 'caml-mode "caml" "Major mode for editing OCaml code." t)
 ;; (autoload 'run-caml "inf-caml" "Run an inferior OCaml process." t)
@@ -212,41 +234,49 @@
 (require 'protobuf-mode)
 (require 'prettier-js)
 
+(setq prettier-js-args nil)
+
+;; (setq prettier-js-args '(
+;;   "--trailing-comma" "es5"
+;;   "--tab-width" "2"
+;;   "--print-width" "100"
+;; ))
+
 (add-to-list 'auto-mode-alist '("\\.proto$" . protobuf-mode))
- ;; (add-to-list 'auto-mode-alist '("\\.rs$" . rustic-mode))
- ;; ;; Enable custom neotree theme (all-the-icons must be installed!)
- ;; (doom-themes-neotree-config)
- ;; ;; or for treemacs users
- ;; (doom-themes-treemacs-config)
+;; (add-to-list 'auto-mode-alist '("\\.rs$" . rustic-mode))
+;; ;; Enable custom neotree theme (all-the-icons must be installed!)
+;; (doom-themes-neotree-config)
+;; ;; or for treemacs users
+;; (doom-themes-treemacs-config)
 
- ;; ;; Corrects (and improves) org-mode's native fontification.
- ;; (doom-themes-org-config)
+;; ;; Corrects (and improves) org-mode's native fontification.
+;; (doom-themes-org-config)
 
- ;; (setq which-key-idle-delay 1.0)
+;; (setq which-key-idle-delay 1.0)
 
- ;; (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
- ;; (add-to-list 'default-frame-alist '(ns-appearance . dark))
- ;; (setq ns-use-proxy-icon nil)
- ;; (setq frame-title-format nil)
+;; (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+;; (add-to-list 'default-frame-alist '(ns-appearance . dark))
+;; (setq ns-use-proxy-icon nil)
+;; (setq frame-title-format nil)
 
- (set-fill-column 120)
+(set-fill-column 120)
 
-(defun jr-setup-dev-env ()
-  (interactive)
-  (message "Settting up dev env...")
-  (setq doom-line-numbers-style 'relative)
-  (setq display-line-numbers 'visual)
-  (set-fill-column 120)
-  (setq rust-format-on-save t)
-  (setq go-mode-format-on-save t)
-  ;; (remove-hook 'rustic-mode-hook 'flycheck-mode)
-  (setq gofmt-command "goimports")
-  (setq lsp/rust-analyzer-inlay-hint-kind-type-hint t)
-  (setq lsp-rust-analyzer-server-display-inlay-hints t)
-  ;; (lsp-lens-mode t)
-  ;; (lsp-ui-mode t)
-  (company-mode-on)
-  )
+;; (defun jr-setup-dev-env ()
+;;   (interactive)
+;;   (message "Settting up dev env...")
+;;   (setq doom-line-numbers-style 'relative)
+;;   (setq display-line-numbers 'visual)
+;;   (set-fill-column 120)
+;;   (setq rust-format-on-save t)
+;;   (setq go-mode-format-on-save t)
+;;   ;; (remove-hook 'rustic-mode-hook 'flycheck-mode)
+;;   (setq gofmt-command "goimports")
+;;   (setq lsp/rust-analyzer-inlay-hint-kind-type-hint t)
+;;   (setq lsp-rust-analyzer-server-display-inlay-hints t)
+;;   ;; (lsp-lens-mode t)
+;;   ;; (lsp-ui-mode t)
+;;   (company-mode-on)
+;;   )
 
 ;; (after! helm
 ;;         (setq helm-display-function 'helm-display-buffer-in-own-frame
@@ -255,154 +285,169 @@
 ;; )
 ;; Set up before-save hooks to format buffer and add/delete imports.
 ;; Make sure you don't have other gofmt/goimports hooks enabled.
-(defun lsp-go-install-save-hooks ()
-  (add-hook 'before-save-hook #'lsp-format-buffer t t)
-  (add-hook 'before-save-hook #'lsp-organize-imports t t))
+;; (defun lsp-go-install-save-hooks ()
+;;   (add-hook 'before-save-hook #'lsp-format-buffer t t)
+;;   (add-hook 'before-save-hook #'lsp-organize-imports t t))
 
 ;; Optional - provides fancier overlays.
 
 (after! lsp-mode
-  (lsp-register-custom-settings
-   '(("gopls.experimentalWorkspaceModule" t t)
-     ("gopls.completeUnimported" t t)
-     ("gopls.staticcheck" t t)
-     ("typescript.inlayHints.variableTypes.enabled" t t)
-     ("typescript.inlayHints" t t)
-     ))
+  ;;   (lsp-register-custom-settings
+  ;;    '(
+  ;;      ("gopls.workspaces" t t)
+  ;;      ("gopls.completeUnimported" t t)
+  ;;      ("gopls.staticcheck" t t)
+  ;;      ("typescript.inlayHints.variableTypes.enabled" t t)
+  ;;      ("typescript.inlayHints" t t)
+  ;;      ))
+  ;;
+  ;;   (setq lsp-ui-doc-enable t)
+  ;;   (setq lsp-ui-peek-enable t)
+  ;;   (setq lsp-yaml-single-quote t)
 
-  (setq lsp-ui-doc-enable t)
-  (setq lsp-ui-peek-enable t)
-  (setq lsp-yaml-single-quote t)
+  (setq lsp-enable-file-watchers t)
+  (setq lsp-file-watch-threshold 2500)
+  (setq lsp-restart 'auto-restart)
   )
 
-(use-package lsp-ui
-  :ensure t
-  :commands lsp-ui-mode)
+;; (use-package lsp-ui
+;;   :ensure t
+;;   :commands lsp-ui-mode)
 
-(use-package! lsp-mode
-  :ensure
-  :commands lsp
- :config
-  (setq lsp-rust-analyzer-cargo-watch-command "clippy")
-  (setq lsp-eldoc-render-all t)
-  (setq lsp-rust-analyzer-server-display-inlay-hints t)
-  (lsp-ui-mode 1)
-  (lsp-lens-mode 1)
-  (lsp-lens-mode)
-  (setq lsp-lens-enable t)
- (add-hook 'lsp-mode-hook 'lsp-ui-mode)
- (add-hook 'lsp-mode-hook 'lsp-lens-mode)
-  )
+;; (use-package! lsp-mode
+;;   :ensure
+;;   :commands lsp
+;;  :config
+;;   (setq lsp-rust-analyzer-cargo-watch-command "clippy")
+;;   (setq lsp-eldoc-render-all t)
+;;   (setq lsp-rust-analyzer-server-display-inlay-hints t)
+;;   (lsp-ui-mode 1)
+;;   (lsp-lens-mode 1)
+;;   (lsp-lens-mode)
+;;   (setq lsp-lens-enable t)
+;;  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+;;  (add-hook 'lsp-mode-hook 'lsp-lens-mode)
+;;   )
 
-(defun jr-after-change-major-mode-hook ()
-;;   (interactive)
-  (setq doom-line-numbers-style 'relative)
-  (setq display-line-numbers 'visual)
-  (setq web-mode-enable-current-element-highlight t)
-;;   ;; (smartparens-global-mode -1)
-  )
+;; (defun jr-after-change-major-mode-hook ()
+;; ;;   (interactive)
+;;   (setq doom-line-numbers-style 'relative)
+;;   (setq display-line-numbers 'visual)
+;;   (setq web-mode-enable-current-element-highlight t)
+;; ;;   ;; (smartparens-global-mode -1)
+;; )
 
 ;; (use-package! flycheck-golangci-lint
 ;;   :ensure t
 ;;   :hook (go-mode . flycheck-golangci-lint-setup))
 
-(add-hook 'terraform-mode-hook (lambda ()
-                                 (terraform-format-on-save-mode)
-                                 ))
-
-(add-hook 'prog-mode-hook (lambda ()
-                                 ;; (add-to-list 'tree-sitter-major-mode-language-alist '(terraform-mode . hcl))
-                            ;; (jr-setup-dev-env)
-                            (set-fill-column 120)
-                              ;; (tree-sitter-hl-mode)
-                            ;; (smartparens-global-mode -1)
-                ;; (smartparens-mode -1)
-                ;; (turn-off-smartparens-mode)
-                            ))
-
-(add-hook 'after-change-major-mode-hook (lambda()
-                                          (jr-after-change-major-mode-hook)
-                                          ))
-
-;; (add-hook 'js2-mode-hook (lambda ()
-;;                            (jr-setup-dev-env)
-;;                            ))
-
+;; (use-package! tree-sitter
+;;               :ensure 
+;;               :config
+;;   (add-to-list 'tree-sitter-load-path (concat doom-cache-dir "tree-sitter"))
+;; )
+;;
+;; (after! tree-sitter
+;;   (add-to-list 'tree-sitter-load-path (concat doom-cache-dir "tree-sitter"))
+;;   )
+;;
+;; (add-hook 'terraform-mode-hook (lambda ()
+;;                                  (terraform-format-on-save-mode)
+;;                                  ))
+;;
+;; (add-hook 'prog-mode-hook (lambda ()
+;;                                  ;; (add-to-list 'tree-sitter-major-mode-language-alist '(terraform-mode . hcl))
+;;                             ;; (jr-setup-dev-env)
+;;                             (set-fill-column 120)
+;;                               ;; (tree-sitter-hl-mode)
+;;                             ;; (smartparens-global-mode -1)
+;;                 ;; (smartparens-mode -1)
+;;                 ;; (turn-off-smartparens-mode)
+;;                             ))
+;;
+;; (add-hook 'after-change-major-mode-hook (lambda()
+;;                                           (jr-after-change-major-mode-hook)
+;;                                           ))
+;;
+;; ;; (add-hook 'js2-mode-hook (lambda ()
+;; ;;                            (jr-setup-dev-env)
+;; ;;                            ))
+;;
 (after! org
-                           ;; (setq org-startup-indented nil)
+  ;; (setq org-startup-indented nil)
   (add-to-list 'org-capture-templates
-           '("w" "Work Todo"  entry
-             (file "work.org")
-             "* TODO %T %?  :work:" :empty-lines 1))
+               '("w" "Work Todo"  entry
+                 (file "work.org")
+                 "* TODO %T %?  :work:" :empty-lines 1))
 
   (setq org-agenda-custom-commands
         '(("w" "Work Todos"
-            ((agenda "")
-           (tags-todo "work")
-           ))
-        ("a" "Work Todos"
-            ((agenda "")
-           (alltodo "")
-           ))
-   ))
-                           )
+           ((agenda "")
+            (tags-todo "work")
+            ))
+          ("a" "Work Todos"
+           ((agenda "")
+            (alltodo "")
+            ))
+          ))
+  )
 
 ;; ;; in ~/.doom.d/config.el (for example)
 (after! smartparens
   (dolist (brace '("(" "{" "["))
-    (sp-pair brace nil :unless '(:rem sp-point-before-word-p sp-point-before-same-p))))
+    (sp-pair brace nil :unless '(:rem sp-point-before-word-p sp-point-before-same-p)))) 
 
 (setq doom-line-numbers-style 'relative)
 
-(use-package company
-  :ensure t
-  :delight
-  :init
-  (setq company-backends '(
-                           company-files
-                           ;; company-capf
-                           company-keywords
-                           company-semantic
-                           company-etags
-                           company-elisp
-                           company-clang
-                           company-irony-c-headers
-                           company-irony
-                           company-jedi
-                           company-cmake
-                           company-ispell
-                           company-yasnippet))
-)
-
+;; (use-package company
+;;   :ensure t
+;;   :delight
+;;   :init
+;;   (setq company-backends '(
+;;                            company-files
+;;                            ;; company-capf
+;;                            company-keywords
+;;                            company-semantic
+;;                            company-etags
+;;                            company-elisp
+;;                            company-clang
+;;                            company-irony-c-headers
+;;                            company-irony
+;;                            company-jedi
+;;                            company-cmake
+;;                            company-ispell
+;;                            company-yasnippet))
+;; )
+;;
 (setq nlinum-highlight-current-line t)
 
 ;; (setq rustic-format-on-save t)
-(setq go-mode-format-on-save t)
+;; (setq go-mode-format-on-save t)
 
 ;; (setq racer-rust-src-path
 ;;       (concat (string-trim
 ;;                (shell-command-to-string "rustc --print sysroot"))
 ;;               "/lib/rustlib/src/rust/src"))
 
-(setq company-idle-delay 0.1)
-(setq company-minimum-prefix-length 2)
+;; (setq company-idle-delay 0.1)
+;; (setq company-minimum-prefix-length 2)
 
 (global-whitespace-mode)
 ;; (global-whitespace-newline-mode)
 
 
-(advice-add 'lsp :before (lambda (&rest _args) (eval '(setf (lsp-session-server-id->folders (lsp-session)) (ht)))))
+;; (advice-add 'lsp :before (lambda (&rest _args) (eval '(setf (lsp-session-server-id->folders (lsp-session)) (ht)))))
 
-(setq gofmt-command "goimports")
+;; (setq gofmt-command "goimports")
 ;; (setq gofmt-command "gci")
 ;; (setq gofmt-command "gci")
 ;; (setq gofmt-args '("-s Standard" "-s Default" "-s 'Prefix(github.com/geneva)'"))
 ;; (setq gofmt-args '())
 
-(add-hook 'before-save-hook #'gofmt-before-save)
+;; (add-hook 'before-save-hook #'gofmt-before-save)
 
 (after! magit
-       (evil-collection-init 'magit))
+  (evil-collection-init 'magit))
 
 (add-hook 'protobuf-mode-hook (lambda ()
                                 (format-all-mode t)
@@ -430,22 +475,26 @@
 
 ;;                           ))
 
-(add-hook 'elm-mode-hook (lambda ()
-                           (setq elm-format-on-save-mode t)
-                           (elm-format-on-save-mode)
-                           ))
-
+;; (add-hook 'elm-mode-hook (lambda ()
+;;                            (setq elm-format-on-save-mode t)
+;;                            (elm-format-on-save-mode)
+;;                            ))
+;;
 ;; (setq display-line-numbers 'visual)
 
 ;; (add-hook 'rustic-mode-hook 'eglot-ensure)
-(add-hook 'rustic-mode-hook (lambda ()
-                              (lsp)
-                              ;; (lsp-mode)
-  ;; (company-mode -1) (flycheck-mode -1) (remove-hook 'rustic-mode-hook
-  ;; 'flycheck-mode) (flycheck-mode -1) (add-hook 'before-save-hook (lambda ()
-  ;; (rustic-format-buffer) (message "formatting rust buffer...")
-                    ))
+;; (add-hook 'rustic-mode-hook (lambda ()
+;;                               (lsp)
+;; (lsp-mode)
+;; (company-mode -1) (flycheck-mode -1) (remove-hook 'rustic-mode-hook
+;; 'flycheck-mode) (flycheck-mode -1) (add-hook 'before-save-hook (lambda ()
+;; (rustic-format-buffer) (message "formatting rust buffer...")
+;; ))
 
+;; (add-hook 'go-mode-hook (lambda ()
+;;                           (lsp-mode)
+;;                           ))
+;;
 ;; (add-hook 'omnisharp-mode-hook (lambda ()
 ;;                                 (add-hook 'before-save-hook (lambda ()
 ;;	                                                              (omnisharp-code-format-entire-file)
@@ -459,49 +508,57 @@
 ;;                                                           ;; )
 ;;                                                           ))))
 
-(add-hook 'graphql-mode-hook 'prettier-js-mode)
+;; (add-hook 'graphql-mode-hook 'prettier-js-mode)
+;;
+(after! typescript-mode
+  (add-hook 'typescript-mode-hook (lambda ()
+                                    (format-all-mode -1)
+                                    (prettier-js-mode)
+                                    (setq +format-with-lsp nil)
+                                    ))
+  )
 
-(add-hook 'typescript-mode-hook 'prettier-js-mode)
-
-(add-hook 'swift-mode-hook (lambda ()
-                             (format-all-mode t)
-                             ))
-
-(defun tide-setup-hook ()
-    (tide-setup)
-    (eldoc-mode)
-    (run-import-js)
-    (tide-hl-identifier-mode +1)
-    (setq web-mode-enable-auto-quoting nil)
-    (setq web-mode-markup-indent-offset 2)
-    (setq web-mode-code-indent-offset 2)
-    (setq web-mode-attr-indent-offset 2)
-    (setq web-mode-attr-value-indent-offset 2)
-    ;; (setq lsp-eslint-server-command '("node" (concat (getenv "HOME") "/var/src/vscode-eslint/server/out/eslintServer.js") "--stdio"))
-    (set (make-local-variable 'company-backends)
-         '((company-tide company-files :with company-yasnippet)
-           (company-dabbrev-code company-dabbrev))))
-
+(setq-hook! 'typescript-mode-hook +format-with-lsp nil)
+;;
+;; (add-hook 'swift-mode-hook (lambda ()
+;;                              (format-all-mode t)
+;;                              ))
+;;
+;; (defun tide-setup-hook ()
+;;     (tide-setup)
+;;     (eldoc-mode)
+;;     (run-import-js)
+;;     (tide-hl-identifier-mode +1)
+;;     (setq web-mode-enable-auto-quoting nil)
+;;     (setq web-mode-markup-indent-offset 2)
+;;     (setq web-mode-code-indent-offset 2)
+;;     (setq web-mode-attr-indent-offset 2)
+;;     (setq web-mode-attr-value-indent-offset 2)
+;;     ;; (setq lsp-eslint-server-command '("node" (concat (getenv "HOME") "/var/src/vscode-eslint/server/out/eslintServer.js") "--stdio"))
+;;     (set (make-local-variable 'company-backends)
+;;          '((company-tide company-files :with company-yasnippet)
+;;            (company-dabbrev-code company-dabbrev))))
+;;
 ;; hooks
 ;; (add-hook 'before-save-hook 'tide-format-before-save)
 
 
 ;; use rjsx-mode for .js* files except json and use tide with rjsx
-(add-to-list 'auto-mode-alist '("\\.js.*$" . rjsx-mode))
-(add-to-list 'auto-mode-alist '("\\.json$" . json-mode))
-(add-hook 'rjsx-mode-hook 'tide-setup-hook)
-
-
-;; web-mode extra config
-(add-hook 'web-mode-hook 'tide-setup-hook
-          (lambda () (pcase (file-name-extension buffer-file-name)
-                  ("tsx" ('tide-setup-hook))
-                  (_ (my-web-mode-hook)))))
-
-;; (flycheck-add-mode 'typescript-tslint 'web-mode)
-(add-hook 'web-mode-hook 'company-mode)
-;; (add-hook 'web-mode-hook 'prettier-js-mode)
-(add-hook 'web-mode-hook #'turn-on-smartparens-mode t)
+;; (add-to-list 'auto-mode-alist '("\\.js.*$" . rjsx-mode))
+;; (add-to-list 'auto-mode-alist '("\\.json$" . json-mode))
+;; (add-hook 'rjsx-mode-hook 'tide-setup-hook)
+;;
+;;
+;; ;; web-mode extra config
+;; (add-hook 'web-mode-hook 'tide-setup-hook
+;;           (lambda () (pcase (file-name-extension buffer-file-name)
+;;                   ("tsx" ('tide-setup-hook))
+;;                   (_ (my-web-mode-hook)))))
+;;
+;; ;; (flycheck-add-mode 'typescript-tslint 'web-mode)
+;; (add-hook 'web-mode-hook 'company-mode)
+;; ;; (add-hook 'web-mode-hook 'prettier-js-mode)
+;; (add-hook 'web-mode-hook #'turn-on-smartparens-mode t)
 ;; (defun jr-swift-format-hook ()
 ;;   (interactive)
 ;;   (format-all-buffer)
@@ -530,17 +587,19 @@
 ;; ;; (add-hook 'rust-mode-hook #'racer-mode)
 ;; ;; (add-hook 'racer-mode-hook #'eldoc-mode)
 ;;
-doom-big-font (font-spec :family "Fira Mono" :size 25)
-(setq doom-font (font-spec :family "Fira Code" :size 18))
 (auto-composition-mode t)
- ;; (setq doom-font (font-spec :family "Input Mono" :size 19))
- ;; (setq doom-font (font-spec :family "Iosevka Nerd Font Mono" :size 19))
- ;; (setq doom-font (font-spec :family "DejaVu Sans Mono" :size 19))
- ;; (setq doom-font (font-spec :family "Fantasque Sans Mono" :size 19))
- ;; (setq doom-font (font-spec :family "Cascadia Code" :size 16))
- ;; (setq doom-font (font-spec :family "JetBrains Mono Medium" :size 18))
+;; (setq doom-font (font-spec :family "Input Mono" :size 19))
+;; (setq doom-font (font-spec :family "Iosevka Nerd Font Mono" :size 19))
+;; (setq doom-font (font-spec :family "DejaVu Sans Mono" :size 19))
+;; (setq doom-font (font-spec :family "Fantasque Sans Mono" :size 19))
+doom-big-font (font-spec :family "Fira Mono" :size 25)
+(setq doom-font (font-spec :family "Fira Code" :size 16))
+;; (setq doom-font (font-spec :family "Cascadia Code" :size 16))
+;; doom-big-font (font-spec :family "Cascadia Code" :size 25)
+;; (setq doom-font (font-spec :family "JetBrains Mono" :size 16))
+;; doom-big-font (font-spec :family "JetBrains Mono" :size 25)
 ;; (setq doom-font (font-spec :family "JetBrains Mono Medium" :size 16))
- ;; (setq doom-font (font-spec :family "JetBrains Mono SemiLight" :size 21)) 
+;; (setq doom-font (font-spec :family "JetBrains Mono SemiLight" :size 21)) 
 ;; (setq doom-font (font-spec :family "Victor Mono" :size 21)) 
 ;; (setq doom-font (font-spec :family "Victor Mono Bold" :size 16))
 
@@ -596,19 +655,19 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
     :size 0.75 :actions '(display-buffer-below-selected)
     :select t :quit nil :ttl t)
 
-(set-popup-rule! "^\\*eww"
+  (set-popup-rule! "^\\*eww"
     :size 0.75 :actions '(display-buffer-below-selected)
     :select t :quit nil :ttl t)
   )
 
 (defun my/elfeed-show-eww (&optional link)
-    (interactive)
-    (let* ((entry (if (eq major-mode 'elfeed-show-mode)
-                      elfeed-show-entry
-                    (elfeed-search-selected :ignore-region)))
-           (link (if link link (elfeed-entry-link entry))))
-      (eww link)
-      (add-hook 'eww-after-render-hook 'eww-readable nil t)))
+  (interactive)
+  (let* ((entry (if (eq major-mode 'elfeed-show-mode)
+                    elfeed-show-entry
+                  (elfeed-search-selected :ignore-region)))
+         (link (if link link (elfeed-entry-link entry))))
+    (eww link)
+    (add-hook 'eww-after-render-hook 'eww-readable nil t)))
 
 (let ((host-init-file (format "~/.doom.d/hosts/init-%s.el" (system-name))))
   (message host-init-file)
@@ -637,7 +696,7 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
   (vertico-current ((t (:background "#3a3f5a"))))
   :init
   (vertico-mode)
-)
+  )
 ;; (use-package! vertico
 ;;   :ensure t
 ;;   :init
@@ -698,16 +757,16 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
 ;;   :init
 ;;   (selectrum-mode +1))
 
-;;(use-package modus-themes
+;; (use-package modus-themes
 ;; :ensure t
 ;; :config
 ;; ;; Add all your customizations prior to loading the themes
-;;; (setq modus-themes-italic-constructs t
-;;;       modus-themes-bold-constructs nil)
-;;;
-;;; ;; Maybe define some palette overrides, such as by using our presets
-;;; (setq modus-themes-common-palette-overrides
-;;;       modus-themes-preset-overrides-intense)
+;; (setq modus-themes-italic-constructs t
+;;       modus-themes-bold-constructs nil)
+;;
+;; ;; Maybe define some palette overrides, such as by using our presets
+;; (setq modus-themes-common-palette-overrides
+;;       modus-themes-preset-overrides-intense)
 ;;
 ;; (setq modus-themes-italic-constructs t
 ;;     modus-themes-bold-constructs nil
@@ -720,7 +779,8 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
 ;; (load-theme 'modus-vivendi)
 ;;
 ;; (define-key global-map (kbd "<f5>") #'modus-themes-toggle)
-;;)
+;;
+;; )
 
 ;; (use-package! modus-themes
 ;;  :ensure
@@ -745,18 +805,21 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
 ;;  :bind ("<f5>" . modus-themes-toggle)
 ;;  )
 
- (use-package! ef-themes
-   :ensure
-   :init
 
-   (setq ef-themes-mixed-fonts t
-         ef-modus-themes-variable-pitch-ui t)
+(use-package! ef-themes
+  :ensure
+  :init
 
-   (mapc #'disable-theme custom-enabled-themes)
+  (setq ef-themes-mixed-fonts t
+        ef-modus-themes-variable-pitch-ui t)
 
-   (ef-themes-select 'ef-duo-dark)
+  (mapc #'disable-theme custom-enabled-themes)
 
-   )
+  ;; (ef-themes-select 'ef-duo-dark)
+  ;; (ef-themes-select 'ef-deuteranopia-dark)
+  (ef-themes-select 'ef-trio-dark)
+
+  )
 
 (use-package! topsy
   :ensure
@@ -767,30 +830,36 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
 (map! :leader  :desc "fzf-switch-buffer" "b h" #'fzf-switch-buffer)
 
 (map! :leader :desc "cr-pull-reqs" "l p" #'(lambda () (forge-list-labeled-pullreqs (forge-get-repository t) "costs-and-reporting-pod"
-                                                  )))
+                                                                                   )))
+(map! :leader :desc "lsp-mode" "l l" #'lsp-mode)
 
 (use-package! lusty-explorer
-   :ensure
-   :init
+  :ensure
+  :init
   )
 
 (smooth-scrolling-mode 1)
 (setq scroll-step 1)
-(setq scroll-margin 500)
-(setq smooth-scroll-margin 500)
+;; (setq scroll-margin 999)
+(setq smooth-scroll-margin 999)
 
-(use-package! zig-mode
-  :hook ((zig-mode . lsp-deferred))
-  :custom (zig-format-on-save t)
-  :config
-  (after! lsp-mode
-    (add-to-list 'lsp-language-id-configuration '(zig-mode . "zig"))
-    (message (concat (getenv "HOME") "/zls/zls"))
-    (lsp-register-client
-      (make-lsp-client
-        :new-connection (lsp-stdio-connection (concat (getenv "HOME") "/zls/zls"))
-        :major-modes '(zig-mode)
-        :server-id 'zls))))
+(setq scroll-preserve-screen-position t
+      scroll-conservatively 0
+      maximum-scroll-margin 0.5
+      scroll-margin 99999)
+
+;; (use-package! zig-mode
+;;   :hook ((zig-mode . lsp-deferred))
+;;   :custom (zig-format-on-save t)
+;;   :config
+;;   (after! lsp-mode
+;;     (add-to-list 'lsp-language-id-configuration '(zig-mode . "zig"))
+;;     (message (concat (getenv "HOME") "/zls/zls"))
+;;     (lsp-register-client
+;;       (make-lsp-client
+;;         :new-connection (lsp-stdio-connection (concat (getenv "HOME") "/zls/zls"))
+;;         :major-modes '(zig-mode)
+;;         :server-id 'zls))))
 
 
 (defun affe-orderless-regexp-compiler (input _type)
@@ -803,27 +872,14 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
   ;; Manual preview key for `affe-grep'
   (consult-customize affe-grep :preview-key (kbd "M-.")))
 
-(use-package! blamer
-  :defer 20
-  :custom
-  (blamer-idle-time 0.3)
-  (blamer-min-offset 70)
-  :custom-face
-  (blamer-face ((t :foreground "#7a88cf"
-                    :background nil
-                    :height 115
-                    :italic t)))
-  :config
-  (global-blamer-mode 1))
-
 (use-package! eyebrowse
   :ensure
   :config
-        (eyebrowse-mode t)
+  (eyebrowse-mode t)
   )
 
 (use-package! dap-mode
-;;:custom
+  ;;:custom
   ;;(dap-go-debug-program `("node" "~/extension/out/src/debugAdapter/goDebug.js"))
   :config
   (dap-mode 1)
@@ -847,13 +903,91 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
 (add-hook 'dap-stopped-hook
           (lambda (arg) (call-interactively #'dap-hydra)))
 
-(add-hook 'tuareg-mode-hook (lambda ()
-  (define-key tuareg-mode-map (kbd "C-M-<tab>") #'ocamlformat)
-  (add-hook 'before-save-hook #'ocamlformat-before-save)))
-
+;; (add-hook 'tuareg-mode-hook (lambda ()
+;;   (define-key tuareg-mode-map (kbd "C-M-<tab>") #'ocamlformat)
+;;   (add-hook 'before-save-hook #'ocamlformat-before-save)))
+;;
 (use-package! ocamlformat
   :custom (ocamlformat-enable 'enable-outside-detected-project)
   :hook (before-save . ocamlformat-before-save)
+  )
+
+;;
+;; (use-package! dired-preview
+;;   :hook ((dired-mode . dired-preview-mode))
+;;   )
+;; (after! tuareg-mode 
+;;   (add-hook 'before-save-hook #'ocamlformat-before-save)
+;; )
+
+(use-package! go-mode 
+  :hook ((go-mode . lsp-mode))
+  :config
+  ;; (set-formatter! 'gofmt "goimports")
+  (setq gofmt-command "goimports")
+  )
+
+
+(after! go-mode
+  ;; (set-formatter! 'gofmt "goimports")
+  (setq gofmt-command "goimports")
+  ;; (add-hook 'before-save-hook 'gofmt-before-save)
+  (add-hook 'before-save-hook (lambda ()
+                                (gofmt-before-save)
+                                (lsp-organize-imports)
+                                ))
+  (lsp-mode)
+  )
+
+(setq-hook! 'go-mode-hook +format-with-lsp t) 
+
+(setq display-line-numbers-type 'relative)
+
+(defun check-lsp-mode ()
+  (when (derived-mode-p 'prog-mode) 
+    (unless lsp-mode
+      (message "enabling lsp-mode")
+      (lsp-mode)
+      )
+    (setq +format-with-lsp
+          (not (or (eq major-mode 'typescript-tsx-mode)
+                   (eq major-mode 'typescript-mode))))
+    )
+  ) 
+
+(run-with-idle-timer 2 t #'check-lsp-mode)
+
+(defun jr/prettify-and-save()
+  (interactive)
+
+  (let ((current-mode major-mode))
+    (fundamental-mode)
+    (setq prettier-js-args '("--trailing-comma" "es5"))
+    (prettier-js)
+    (setq prettier-js-args nil)
+    (save-buffer)
+    (funcall current-mode)
+    )
+  
+  ) 
+
+(defun jr/pretty-and-save()
+  (interactive)
+  (prettier-js)
+  (save-buffer)
+  
+  )
+
+
+
+
+(map! :localleader  :desc "jr/prettify" "s" #'jr/prettify-and-save)
+
+(use-package! dirvish
+  :init
+  (dirvish-override-dired-mode)
+  :config
+  (setq dired-listing-switches "-la --almost-all --human-readable --group-directories-first --no-group")
   )
 
 

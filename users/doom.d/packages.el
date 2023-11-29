@@ -51,6 +51,10 @@
 ;; our package manager can't deal with; see raxod502/straight.el#279)
 ;(package! builtin-package :recipe (:branch "develop"))
 ;
+;; (unpin! tree-sitter)
+;; (unpin! tree-sitter-langs)
+;; (unpin! tree-sitter-indent)
+
 
 ;; (unpin! tuareg)
 ;; (unpin! magit forge)
@@ -123,4 +127,9 @@
 (package! fold-this)
 ;; (package! caml-mode)
 
+(package! dired-preview)
+
+(package! edbi)
+(package! lispy)
+(package! elisp-autofmt)
 ;;; packages.el ends here

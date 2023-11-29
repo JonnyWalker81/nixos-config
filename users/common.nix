@@ -96,13 +96,21 @@ in {
     pkgs.gitui
     pkgs.bind
     # pkgs.firefox-bin
-    pkgs.firefox-esr-102-unwrapped
+    # pkgs.firefox-esr-102-unwrapped
+    pkgs.firefox-unwrapped
     pkgs.pgmanage
     pkgs.pgadmin4
     pkgs.pandoc
     pkgs.terraform-ls
-    # pkgs.tree-sitter
+    pkgs.tree-sitter
     pkgs.file
+    pkgs.nil
+    pkgs.nixpkgs-fmt
+    pkgs.nixfmt
+    pkgs.shfmt
+    # pkgs.opam
+    # pkgs.ocamlPackages.ocaml-lsp
+    # pkgs.ocamlPackages.findlib
     # pkgs.tree-sitter.withPlugins
     # (p: [ p.tree-sitter-tsx p.tree-sitter-go ])
     # pkgs.tree-sitter-grammars.tree-sitter-c
@@ -141,6 +149,7 @@ in {
     pkgs.font-awesome_5
     pkgs.powerline-fonts
     pkgs.powerline-symbols
+    pkgs.cascadia-code
     # pkgs.fzf
     pkgs.openssl
     pkgs.lsof
@@ -156,6 +165,7 @@ in {
     # pkgs.sublime-merge
     pkgs.lapce
     pkgs.terraform
+    pkgs.enchant
 
     pkgs.lazygit
     pkgs.diskonaut
@@ -173,6 +183,10 @@ in {
     pkgs.haskellPackages.greenclip
     pkgs.nyxt
     pkgs.ssm-session-manager-plugin
+    # pkgs.atuin
+    pkgs.bun
+    pkgs.wezterm
+    pkgs.zellij
   ];
 
   home.sessionVariables = {
@@ -264,7 +278,6 @@ in {
   programs.git = {
     enable = true;
     userName = "Jonathan Rothberg";
-    # userEmail = "jon@geneva.com";
     extraConfig = {
       pull.rebase = false;
       init.defaultBranch = "main";
@@ -311,6 +324,9 @@ in {
 
       pbcopy = "xclip -selection clipboard";
       pbpaste = "xclip -o";
+
+      cd = "z";
+      ys = "yarn install && yarn start";
     };
 
     # interactiveShellInit = lib.strings.concatStrings
@@ -325,7 +341,6 @@ in {
       GOPRIVATE = "github.com/JoinCAD,github.com/JonnyWalker81";
       # GOPROXY = "off";
       # PATH =
-      #   "\${PATH}:\${HOME}/bin:\${HOME}/.cargo/bin:~/Repositories/geneva/node_modules/.bin";
       PATH = "\${PATH}:\${HOME}/bin:\${HOME}/.cargo/bin";
       PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
 
@@ -336,20 +351,33 @@ in {
       EDITOR = "nvim"; # $EDITOR use Emacs in terminal
       # VISUAL = "emacsclient -c -a emacs"; # $VISUAL use Emacs in GUI mode
       VISUAL = "$EDITOR"; # $VISUAL use Emacs in GUI mode
-
-      CLOUDFLARE_EMAIL = "jon@geneva.com";
     };
 
     # eval "$(${mcflyBin} init zsh)"
     initExtra = ''
       source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
       eval "$(${zoxideBin} init zsh)"
-      eval "$(${mcflyBin} init zsh)"
+      # eval "$(${mcflyBin} init zsh)"
       eval "$(ssh-agent -s)"
       # bindkey "^R" mcfly-history-widget
       source ~/.bash_join_db
 
       [[ ! -r /home/cipher/.opam/opam-init/init.zsh ]] || source /home/cipher/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
+
+      # eval "$(atuin init zsh)"
+
+      if [[ -z "$ZELLIJ" ]]; then
+        if [[ "$ZELLIJ_AUTO_ATTACH" == "true" ]]; then
+          zellij attach -c
+        else
+          zellij
+        fi
+
+        if [[ "$ZELLIJ_AUTO_EXIT" == "true" ]]; then
+          exit
+        fi
+    fi
+
     '';
 
     oh-my-zsh = {
@@ -414,6 +442,9 @@ in {
     enable = true;
     # Configuration written to ~/.config/starship.toml
     settings = {
+      directory.fish_style_pwd_dir_length =
+        1; # turn on fish directory truncation
+      directory.truncation_length = 2; # number of directories not to truncate
       add_newline = true;
 
       character = {

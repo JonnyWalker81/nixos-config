@@ -2,7 +2,7 @@ args@{ config, lib, pkgs, ... }: {
 
   imports = [ ../common.nix ];
 
-  programs.git.userEmail = "jonathan@join.build";
+  programs.git.userEmail = "jon@join.build";
 
   home.file.".config/rofi/config.rasi".text = ''
     // Write your configuration
