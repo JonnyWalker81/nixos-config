@@ -57,7 +57,9 @@
 
 
 ;; (unpin! tuareg)
-;; (unpin! magit forge)
+; (unpin! magit forge)
+; (package! magit :pin "48818355728c48d986d74dde8b1e9fba25f0fd53")
+; (package! forge :pin "fd586e106effa456defc94c6fd21a2f9ac185d09")
 (package! flycheck)
 (package! graphql-mode)
 ;; (package! rust-mode)
@@ -95,7 +97,7 @@
 (package! visual-regexp)
 (package! visual-regexp-steroids)
 
-(package! magit-circleci)
+; (package! magit-circleci)
 (package! lusty-explorer)
 
 (package! smooth-scrolling)
@@ -110,6 +112,7 @@
 (package! eyebrowse)
 
 (package! go-playground)
+(package! go-mode)
 
 (package! tree-sitter)
 (package! tree-sitter-langs)
@@ -132,4 +135,42 @@
 (package! edbi)
 (package! lispy)
 (package! elisp-autofmt)
+
+(package! copilot
+ :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el" "dist")))
+
+;; (package! gleam-mode
+;;   :recipe (:host github :repo "gleam-lang/gleam-mode" :files ("*.el")))
+
+(package! gleam-mode 
+  :recipe (:local-repo "~/Repositories/gleam-mode"))
+
+(package! tree-sitter-indent
+          :recipe (:local-repo "~/Repositories/tree-sitter-indent")
+          )
+;; (straight-use-package
+ ;; '(tree-sitter-indent :type git
+                      ;; :repo "https://codeberg.org/FelipeLema/tree-sitter-indent.el.git"
+                      ;; :branch "main"
+                      ;; :files ("tree-sitter-indent.el")))
+
+; (package! code-review)
+
+(when (package! lsp-bridge
+        :recipe (:host github
+                 :repo "manateelazycat/lsp-bridge"
+                 :branch "master"
+                 :files ("*.el" "*.py" "acm" "core" "langserver" "multiserver" "resources")
+                 ;; do not perform byte compilation or native compilation for lsp-bridge
+                 :build (:not compile)))
+  (package! markdown-mode)
+  (package! yasnippet))
+
+(package! indent-guide
+          :recipe (:host github 
+                   :repo "zk-phi/indent-guide"
+                   :branch "master"
+                   :files ("*.el")
+          ))
+
 ;;; packages.el ends here

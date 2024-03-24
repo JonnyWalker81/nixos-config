@@ -2,14 +2,14 @@
   description = "NixOS configuration and Home Manager configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
-    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-23.05-darwin";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-23.11-darwin";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     darwin.url = "github:lnl7/nix-darwin/master";
     darwin.inputs.nixpkgs.follows = "nixpkgs-unstable";
     # home-manager.url = "github:nix-community/home-manager/release-21.11";
-    home-manager.url = "github:nix-community/home-manager/release-23.05";
+    home-manager.url = "github:nix-community/home-manager/release-23.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     # Locks nixpkgs to an older version with an older Kernel that boots
     # on VMware Fusion Tech Preview. This can be swapped to nixpkgs when
@@ -23,6 +23,32 @@
     emacs-overlay.url = "github:nix-community/emacs-overlay";
     # nix-doom-emacs.url = "github:vlaci/nix-doom-emacs/";
     zig.url = "github:mitchellh/zig-overlay";
+
+    # Replacement for ls
+    eza = {
+      url = "github:eza-community/eza";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        # rust-overlay.follows = "rust-overlay";
+      };
+    };
+
+    hyprland.url = "github:hyprwm/Hyprland";
+    hyprland-plugins = {
+      url = "github:hyprwm/hyprland-plugins";
+      inputs.hyprland.follows = "hyprland";
+    };
+
+    # I think technically you're not supposed to override the nixpkgs
+    # used by neovim but recently I had failures if I didn't pin to my
+    # own. We can always try to remove that anytime.
+    neovim-nightly-overlay = {
+      url = "github:nix-community/neovim-nightly-overlay";
+
+      # Only need unstable until the lpeg fix hits mainline, probably
+      # not very long... can safely switch back for 23.11.
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
   };
 
   # inputs = {
@@ -32,12 +58,14 @@
 
   outputs = { self, darwin, nixpkgs-darwin, nixpkgs, home-manager, ... }@inputs:
     let
+      # mkVM = import ./lib/mkvm.nix { inherit overlays nixpkgs inputs; };
       mkVM = import ./lib/mkvm.nix;
       mkVMDarwin = import ./lib/mkvm-darwin.nix;
 
       # Overlays is the list of overlays we want to apply from flake inputs.
       overlays = [
         inputs.emacs-overlay.overlay
+        inputs.neovim-nightly-overlay.overlay
         # (import (builtins.fetchTarball {
         #   url =
         #     "https://github.com/nix-community/emacs-overlay/archive/dec958258b133b4c21224c594da433919d852800.tar.gz";
@@ -77,6 +105,40 @@
 
           awscli2 =
             inputs.nixpkgs-unstable.legacyPackages.${prev.system}.awscli2;
+
+          picom =
+            inputs.nixpkgs-unstable.legacyPackages.${prev.system}.picom.overrideAttrs
+            (o: {
+              src = prev.fetchFromGitHub {
+                repo = "picom";
+                owner = "ibhagwan";
+                rev = "44b4970f70d6b23759a61a2b94d9bfb4351b41b1";
+                sha256 = "0iff4bwpc00xbjad0m000midslgx12aihs33mdvfckr75r114ylh";
+              };
+              buildInputs = [
+                inputs.nixpkgs-unstable.legacyPackages.${prev.system}.meson
+                inputs.nixpkgs-unstable.legacyPackages.${prev.system}.pcre
+                inputs.nixpkgs-unstable.legacyPackages.${prev.system}.cmake
+                inputs.nixpkgs-unstable.legacyPackages.${prev.system}.libev
+                inputs.nixpkgs-unstable.legacyPackages.${prev.system}.xorg.libX11
+                inputs.nixpkgs-unstable.legacyPackages.${prev.system}.xorg.xcbutilrenderutil
+                inputs.nixpkgs-unstable.legacyPackages.${prev.system}.xorg.xcbutil
+                inputs.nixpkgs-unstable.legacyPackages.${prev.system}.xorg.libxcb
+                inputs.nixpkgs-unstable.legacyPackages.${prev.system}.xorg.libxcb.dev
+                inputs.nixpkgs-unstable.legacyPackages.${prev.system}.xorg.xcbutilimage
+                inputs.nixpkgs-unstable.legacyPackages.${prev.system}.xorg.libXext
+                inputs.nixpkgs-unstable.legacyPackages.${prev.system}.pixman
+                inputs.nixpkgs-unstable.legacyPackages.${prev.system}.libconfig
+                inputs.nixpkgs-unstable.legacyPackages.${prev.system}.libGL
+                inputs.nixpkgs-unstable.legacyPackages.${prev.system}.dbus
+              ];
+              # src = prev.fetchFromGitHub {
+              #   repo = "picom";
+              #   owner = "jonaburg";
+              #   rev = "e3c19cd7d1108d114552267f302548c113278d45";
+              #   sha256 = "4voCAYd0fzJHQjJo4x3RoWz5l3JJbRvgIXn1Kg6nz6Y=";
+              # };
+            });
         })
         # (import (fetchGit { url = "https://github.com/jonaburg/picom"; }))
       ];

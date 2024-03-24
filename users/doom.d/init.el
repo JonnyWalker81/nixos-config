@@ -6,8 +6,15 @@
 (doom! :feature
 
        :completion
-       (company          ; the ultimate code completion backend
-        +auto)           ; as-you-type code completion
+       ;; (corfu 
+       ;;   +icons
+       ;;   +orderless
+       ;;   +dabbrev
+       ;;   )
+       ;; (company          ; the ultimate code completion backend
+       ;;  +auto
+       ;;  +childframe
+       ;;  )           ; as-you-type code completion
       ;; (helm             ; the *other* search engine for love and life
       ;; +fuzzy)          ; enable fuzzy search backend for helm
       ;ido               ; the other *other* search engine...
@@ -61,7 +68,7 @@
        (dired
         +icons
         ;; +ranger
-        +dirvish
+        ; +dirvish
         )            ; making dired pretty [functional]
        ;; ediff             ; comparing files in Emacs
        electric          ; smarter, keyword-based electric-indent
@@ -93,8 +100,8 @@
         +dictionary
         +offline
         +docsets)        ; ...or in Dash docsets locally
-       (lsp
-        +peek)
+       ;; (lsp
+       ;;  +peek)
        jr
       make              ; run make tasks from Emacs
       (magit +forge)          ;
@@ -109,7 +116,9 @@
       ;;   +childframe)     ; use childframes for error popups (Emacs 26+ only)
       ;prodigy           ; FIXME managing external services & code builders
       rgb               ; creating color strings
-      (terraform +lsp)
+      (terraform 
+        ;; +lsp
+        )
       ;; tree-sitter
       ;tmux              ; an API for interacting with tmux
       ;upload            ; map local to remote projects via ssh/ftp
@@ -132,31 +141,39 @@
       ;; elm               ; care for a cup of TEA?
        emacs-lisp        ; drown in parentheses
       ;ess               ; emacs speaks statistics
-       (go
-        +lsp
+       ;; (go
+        ;; +lsp
         ;; +tree-sitter
-        )
+        ;; )
       ;; go
                                         ; the hipster dialect
       graphql
-      (haskell +lsp)  ; a language that's lazier than I am
+      (haskell 
+        ;; +lsp
+        )  ; a language that's lazier than I am
       ;hy                ; readability of scheme w/ speed of python
       ;(java +meghanada) ; the poster child for carpal tunnel syndrome
-      (javascript +lsp
+      (javascript 
+        ;; +lsp
                   ;; +tree-sitter
                   )        ; all(hope(abandon(ye(who(enter(here))))))
-      (json +lsp
+      (json 
+        ;; +lsp
             ;; +tree-sitter
             )
       ;julia             ; a better, faster MATLAB
       ;latex             ; writing papers in Emacs has never been so fun
       ;ledger            ; an accounting system in Emacs
       (lua
-       +lsp)                                        ; one-based indices? one-based indices
+       ;; +lsp
+       )                                        ; one-based indices? one-based indices
        markdown          ; writing docs for people to ignore
       ;nim               ; python + lisp at the speed of c
-      (nix +lsp)               ; I hereby declare "nix geht mehr!"
-      (ocaml +lsp
+      (nix 
+        ;; +lsp
+        )               ; I hereby declare "nix geht mehr!"
+      (ocaml 
+        ;; +lsp
              ;; +tree-sitter
              )            ; an objective camel
        (org              ; organize your plain life in plain text
@@ -175,15 +192,23 @@
       ;qt                ; the 'cutest' gui framework ever
       ;; rest              ; Emacs as a REST client
       ;ruby              ; 1.step do {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
-      (rust +lsp)               ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+      (rust 
+        ;; +lsp
+        )               ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
       ;; (rust
       ;;  +lsp)
       ;scala             ; java, but good
-       (sh +lsp)               ; she sells (ba|z)sh shells on the C xor
+       (sh 
+         ;; +lsp
+         )               ; she sells (ba|z)sh shells on the C xor
       ;solidity          ; do you need a blockchain? No.
       ;; swift             ; who asked for emoji variables?
-      (yaml +lsp)
-      (web +lsp)               ; the tubes
+      (yaml 
+        ;; +lsp
+        )
+      (web 
+        ;; +lsp
+        )               ; the tubes
 
        ;; Applications are complex and opinionated modules that transform Emacs
        ;; toward a specific purpose. They may have additional dependencies and

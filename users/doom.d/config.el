@@ -1,6 +1,13 @@
 ;;-*- lexical-binding: t -*-
 ;; ~/.doom.d/config.el -*- lexical-binding: t; -*-
 
+
+(defun load-directory (dir)
+  (let ((load-it (lambda (f)
+		   (load-file (concat (file-name-as-directory dir) f)))
+		 ))
+    (mapc load-it (directory-files dir nil "\\.el$"))))
+
 ;; Add personal doom config directory to load-path
 (add-to-list 'load-path "~/.doom.d")
 (add-to-list 'load-path "~/.elisp")
@@ -8,6 +15,10 @@
 ;; (add-to-list 'load-path "~/Dropbox/dotfiles/doom/elisp/sunrise-commander")
 (add-to-list 'exec-path "~/.cargo/bin")
 (add-to-list 'load-path "~/Repositories/org-reveal")
+(when (file-exists-p "~/Repositories/komodo")
+  (add-to-list 'load-path "~/Repositories/komodo")
+  (load-directory "~/Repositories/komodo")
+  )
 ;; (setq org-directory "~/Dropbox/Notes/Org/")
 
 ;; (require 'sunrise)
@@ -307,7 +318,7 @@
 
   (setq lsp-enable-file-watchers t)
   (setq lsp-file-watch-threshold 2500)
-  (setq lsp-restart 'auto-restart)
+  ;; (setq lsp-restart 'auto-restart)
   )
 
 ;; (use-package lsp-ui
@@ -355,7 +366,9 @@
 ;;                                  (terraform-format-on-save-mode)
 ;;                                  ))
 ;;
+
 ;; (add-hook 'prog-mode-hook (lambda ()
+(setq doom-line-numbers-style 'relative)
 ;;                                  ;; (add-to-list 'tree-sitter-major-mode-language-alist '(terraform-mode . hcl))
 ;;                             ;; (jr-setup-dev-env)
 ;;                             (set-fill-column 120)
@@ -363,7 +376,8 @@
 ;;                             ;; (smartparens-global-mode -1)
 ;;                 ;; (smartparens-mode -1)
 ;;                 ;; (turn-off-smartparens-mode)
-;;                             ))
+;;                           ))
+
 ;;
 ;; (add-hook 'after-change-major-mode-hook (lambda()
 ;;                                           (jr-after-change-major-mode-hook)
@@ -592,12 +606,14 @@
 ;; (setq doom-font (font-spec :family "Iosevka Nerd Font Mono" :size 19))
 ;; (setq doom-font (font-spec :family "DejaVu Sans Mono" :size 19))
 ;; (setq doom-font (font-spec :family "Fantasque Sans Mono" :size 19))
-doom-big-font (font-spec :family "Fira Mono" :size 25)
-(setq doom-font (font-spec :family "Fira Code" :size 16))
+;; doom-big-font (font-spec :family "Fira Mono" :size 25)
+;; (setq doom-font (font-spec :family "Fira Code" :size 16))
+                                        ; doom-big-font (font-spec :family "Monaspace" :size 25)
+                                        ; (setq doom-font (font-spec :family "Monaspace" :size 16))
 ;; (setq doom-font (font-spec :family "Cascadia Code" :size 16))
 ;; doom-big-font (font-spec :family "Cascadia Code" :size 25)
-;; (setq doom-font (font-spec :family "JetBrains Mono" :size 16))
-;; doom-big-font (font-spec :family "JetBrains Mono" :size 25)
+(setq doom-font (font-spec :family "JetBrains Mono" :size 16))
+doom-big-font (font-spec :family "JetBrains Mono" :size 25)
 ;; (setq doom-font (font-spec :family "JetBrains Mono Medium" :size 16))
 ;; (setq doom-font (font-spec :family "JetBrains Mono SemiLight" :size 21)) 
 ;; (setq doom-font (font-spec :family "Victor Mono" :size 21)) 
@@ -685,6 +701,8 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
 
 (exec-path-from-shell-copy-env "SSH_AGENT_PID")
 (exec-path-from-shell-copy-env "SSH_AUTH_SOCK")
+
+;; (exec-path-from-shell-initialize)
 
 (require 'keychain-environment)
 (keychain-refresh-environment)
@@ -826,7 +844,23 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
   :hook (prog-mode . topsy-mode)
   )
 
-(map! :leader  :desc "fzf-projectile" "f h" #'fzf-projectile)
+(use-package! fzf
+  :ensure
+  :init
+  (setq fzf/args "-x --color bw --print-query --margin=1,0 --no-hscroll --")
+  )
+
+(defun my/fzf-git-files ()
+  "Search for all files in a Git repository, including those ignored and hidden."
+  (interactive)
+  (let ((fzf/args "-x --tiebreak=index --print-query --preview '([[ -f {} ]] && (bat --color=always {} || cat {})) 2> /dev/null | head -200'"))
+    (fzf/start (concat "git ls-files --cached --others --ignored --exclude-standard; "
+                       "git ls-files --others --exclude-standard; "
+                       "find . -type f -not -path '*/.git/*'") nil)))
+
+;; (global-set-key (kbd "C-c f") 'my/fzf-git-files)
+;; (map! :leader  :desc "fzf-projectile" "f h" #'fzf-projectile)
+(map! :leader  :desc "fzf-find-files" "f h" #'my/fzf-git-files)
 (map! :leader  :desc "fzf-switch-buffer" "b h" #'fzf-switch-buffer)
 
 (map! :leader :desc "cr-pull-reqs" "l p" #'(lambda () (forge-list-labeled-pullreqs (forge-get-repository t) "costs-and-reporting-pod"
@@ -871,6 +905,11 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
   :config
   ;; Manual preview key for `affe-grep'
   (consult-customize affe-grep :preview-key (kbd "M-.")))
+
+(use-package! consult 
+  :config
+  ;; (consult-fd-args "-I -H")
+  )
 
 (use-package! eyebrowse
   :ensure
@@ -920,27 +959,29 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
 ;;   (add-hook 'before-save-hook #'ocamlformat-before-save)
 ;; )
 
-(use-package! go-mode 
-  :hook ((go-mode . lsp-mode))
-  :config
-  ;; (set-formatter! 'gofmt "goimports")
-  (setq gofmt-command "goimports")
-  )
+  ;; (add-hook 'go-mode-hook 'lsp-deferred)
+;; (use-package! go-mode 
+;; ;;   ;; :hook ((go-mode . lsp-mode))
+;; ;;   :hook ((go-mode))
+;;   :config
+;; ;;   ;; (set-formatter! 'gofmt "goimports")
+;; ;;   (setq gofmt-command "goimports")
+;;   )
 
 
-(after! go-mode
-  ;; (set-formatter! 'gofmt "goimports")
-  (setq gofmt-command "goimports")
-  ;; (add-hook 'before-save-hook 'gofmt-before-save)
-  (add-hook 'before-save-hook (lambda ()
-                                (gofmt-before-save)
-                                (lsp-organize-imports)
-                                ))
-  (lsp-mode)
-  )
-
-(setq-hook! 'go-mode-hook +format-with-lsp t) 
-
+;; (after! go-mode
+;;   ;; (set-formatter! 'gofmt "goimports")
+;;   (setq gofmt-command "goimports")
+;;   ;; (add-hook 'before-save-hook 'gofmt-before-save)
+;;   (add-hook 'before-save-hook (lambda ()
+;;                                 (gofmt-before-save)
+;;                                 ;; (lsp-organize-imports)
+;;                                 ))
+;;   ;; (lsp-mode)
+;;   )
+;;
+;; (setq-hook! 'go-mode-hook +format-with-lsp t) 
+;;
 (setq display-line-numbers-type 'relative)
 
 (defun check-lsp-mode ()
@@ -955,7 +996,7 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
     )
   ) 
 
-(run-with-idle-timer 2 t #'check-lsp-mode)
+;; (run-with-idle-timer 2 t #'check-lsp-mode)
 
 (defun jr/prettify-and-save()
   (interactive)
@@ -978,17 +1019,112 @@ doom-big-font (font-spec :family "Fira Mono" :size 25)
   
   )
 
+(defun jr/set-copilot-node-executable ()
+  (interactive)
+  (message "Setting copilot node executable to %s" (executable-find "node"))
+  (setq copilot-node-executable (executable-find "node"))
+  )
+
 
 
 
 (map! :localleader  :desc "jr/prettify" "s" #'jr/prettify-and-save)
 
-(use-package! dirvish
-  :init
-  (dirvish-override-dired-mode)
+;; (use-package! dirvish
+;;   :init
+;;   (dirvish-override-dired-mode)
+;;   :config
+;;   (setq dired-listing-switches "-la --almost-all --human-readable --group-directories-first --no-group")
+;;   )
+
+
+;; accept completion from copilot and fallback to company
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("M-C-<return>" . 'copilot-accept-completion)
+              ("M-C-<tab>" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion)
+              ;; ("C-M-TAB" . 'copilot-accept-completion-by-word)
+              ;; ("C-M-<tab>" . 'copilot-accept-completion-by-word)
+              )
   :config
-  (setq dired-listing-switches "-la --almost-all --human-readable --group-directories-first --no-group")
+  (setq copilot-indent-offset-warning-disable nil)
+  (message "Node executable: %s" (executable-find "node"))
+  (setq copilot-node-executable (executable-find "node"))
+
   )
+
+(defun jr/copilot-tab ()
+  "Tab command that will complete with copilot if a completion is
+available. Otherwise will try company, yasnippet or normal
+tab-indent."
+  (interactive)
+  (copilot-accept-completion)
+  ;; (or (copilot-accept-completion)
+  ;;     (and (company--active-p) (company-complete))
+  ;;     (evil-insert 1)
+  ;;     ;; (indent-for-tab-command)
+  ;;     )
+  )
+
+
+
+(defun jr/nix-post-activate-check ()
+  (jr/set-copilot-node-executable)
+  )
+
+(add-hook 'nix-shell-post-activate-hooks 'jr/nix-post-activate-check)
+
+(define-key global-map (kbd "C-<tab>") #'jr/copilot-tab)
+
+
+;; (after! (evil copilot)
+;;   ;; Define the custom function that either accepts the completion or does the default behavior
+;;   (defun my/copilot-tab-or-default ()
+;;     (interactive)
+;;     (if (and
+;;          ;; (bound-and-true-p copilot-mode)
+;;          (copilot--overlay-visible)
+;;          ;; Add any other conditions to check for active copilot suggestions if necessary
+;;          )
+;;         (copilot-accept-completion)
+;;       (evil-insert 1))) ; Default action to insert a tab. Adjust as needed.
+;;
+;;   ;; Bind the custom function to <tab> in Evil's insert state
+;;   (evil-define-key 'insert 'global (kbd "<tab>") 'my/copilot-tab-or-default))
+
+(setq doom-line-numbers-style 'relative)
+
+(setq code-review-auth-login-marker 'forge)
+
+(add-hook 'code-review-mode-hook
+          (lambda ()
+            ;; include *Code-Review* buffer into current workspace
+            (persp-add-buffer (current-buffer))))
+
+(use-package! gleam-mode
+  :bind (:map gleam-mode-map
+              ("C-c g f" . gleam-format)))
+
+
+(use-package! lsp-bridge
+  :config
+  (setq lsp-bridge-enable-log t)
+  (setq lsp-bridge-python-command (executable-find "python3"))
+  (setq lsp-bridge-enable-inlay-hint t)
+  (evil-define-key 'insert acm-mode-map (kbd "C-n") #'acm-select-next)
+  (evil-define-key 'insert acm-mode-map (kbd "C-p") #'acm-select-prev)
+  (add-hook 'acm-mode-hook #'evil-normalize-keymaps)
+
+  (map! :leader :desc "lsp-bridge-code-action" "c a" #'lsp-bridge-code-action)
+  (global-lsp-bridge-mode)
+  )
+
+(use-package! indent-guide
+  :config
+  (indent-guide-global-mode)
+)
 
 
 (provide 'config)
