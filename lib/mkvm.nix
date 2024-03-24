@@ -12,6 +12,7 @@ nixpkgs.lib.nixosSystem rec {
     # the overlays are available globally.
     { nixpkgs.overlays = overlays; }
 
+    # ./greetd.nix
     ../hardware/${name}.nix
     ../machines/${name}.nix
     ../users/${user}/nixos.nix

@@ -262,14 +262,14 @@ nnoremap("<leader>gf", function()
 end, { desc = "Search [G]it [F]iles" })
 
 -- Telescope keybinds --
-nnoremap("<leader>?", require("telescope.builtin").oldfiles, { desc = "[?] Find recently opened files" })
-nnoremap("<leader>sb", require("telescope.builtin").buffers, { desc = "[S]earch Open [B]uffers" })
-nnoremap("<leader>sf", function()
+nnoremap("<leader>fr", require("telescope.builtin").oldfiles, { desc = "[fr] Find recently opened files" })
+nnoremap("<leader>bb", require("telescope.builtin").buffers, { desc = "Search Open Buffers" })
+nnoremap("<leader>ff", function()
 	require("telescope.builtin").find_files({ hidden = true })
-end, { desc = "[S]earch [F]iles" })
+end, { desc = "[F]ind [F]iles" })
 nnoremap("<leader>sh", require("telescope.builtin").help_tags, { desc = "[S]earch [H]elp" })
 nnoremap("<leader>sw", require("telescope.builtin").grep_string, { desc = "[S]earch current [W]ord" })
-nnoremap("<leader>sg", require("telescope.builtin").live_grep, { desc = "[S]earch by [G]rep" })
+nnoremap("<leader>/", require("telescope.builtin").live_grep, { desc = "[S]earch by [G]rep" })
 nnoremap("<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
 nnoremap("<leader>sd", require("telescope.builtin").git_files, { desc = "[S]earch [D]iagnostics" })
 
@@ -279,11 +279,11 @@ nnoremap("<leader>sc", function()
 	}))
 end, { desc = "[S]earch [C]ommands" })
 
-nnoremap("<leader>/", function()
+nnoremap("<leader>bf", function()
 	require("telescope.builtin").current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
 		previewer = false,
 	}))
-end, { desc = "[/] Fuzzily search in current buffer]" })
+end, { desc = "[bf] Fuzzily search in current buffer]" })
 
 nnoremap("<leader>ss", function()
 	require("telescope.builtin").spell_suggest(require("telescope.themes").get_dropdown({
@@ -295,6 +295,7 @@ end, { desc = "[S]earch [S]pelling suggestions" })
 M.map_lsp_keybinds = function(buffer_number)
 	nnoremap("<leader>rn", vim.lsp.buf.rename, { desc = "LSP: [R]e[n]ame", buffer = buffer_number })
 	nnoremap("<leader>ca", vim.lsp.buf.code_action, { desc = "LSP: [C]ode [A]ction", buffer = buffer_number })
+	nnoremap("<leader>oi", vim.lsp.buf.organize_imports, { desc = "LSP: [C]ode [A]ction", buffer = buffer_number })
 
 	nnoremap("gd", vim.lsp.buf.definition, { desc = "LSP: [G]oto [D]efinition", buffer = buffer_number })
 

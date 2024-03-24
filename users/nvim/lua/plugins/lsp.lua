@@ -1,11 +1,12 @@
 return {
 	{
 		"neovim/nvim-lspconfig",
-		event = { "BufReadPost" },
+    event = { "BufReadPost" },
+		opts = { inlay_hints ={ true } },
 		cmd = { "LspInfo", "LspInstall", "LspUninstall", "Mason" },
 		dependencies = {
 			-- Plugin and UI to automatically install LSPs to stdpath
-			"williamboman/mason.nvim",
+      "williamboman/mason.nvim",
 			"williamboman/mason-lspconfig.nvim",
 
 			"hrsh7th/cmp-nvim-lsp",
@@ -21,8 +22,7 @@ return {
 		config = function()
 			local null_ls = require("null-ls")
 			local map_lsp_keybinds = require("user.keymaps").map_lsp_keybinds -- Has to load keymaps before pluginslsp
-
-			-- Use neodev to configure lua_ls in nvim directories - must load before lspconfig
+			-- Use neodev to configure luapls in nvim directories - must load before lspconfig
 			require("neodev").setup()
 
 			-- Setup mason so it can manage 3rd party LSP servers
@@ -62,17 +62,36 @@ return {
 					end
 				end
 
-				result.diagnostics = filtered_diagnostics
+        result.diagnostics = filtered_diagnostics
 
 				vim.lsp.diagnostic.on_publish_diagnostics(_, result, ctx, config)
 			end
 
 			-- LSP servers to install (see list here: https://github.com/williamboman/mason-lspconfig.nvim#available-lsp-servers )
 			local servers = {
-				bashls = {},
+				bashls = {
+          cmd = { 'bash-language-server', 'start' },
+          filetypes = { "sh", "bash" }
+        },
 				-- clangd = {},
 				cssls = {},
 				gleam = {},
+				gopls = {
+          settings = {
+                gopls = {
+                  codelenses = { test = true },
+                  hints = {
+                    assignVariableTypes = true,
+                    compositeLiteralFields = true,
+                    compositeLiteralTypes = true,
+                    constantValues = true,
+                    functionTypeParameters = true,
+                    parameterNames = true,
+                    rangeVariableTypes = true,
+                  },
+                },
+              },
+        },
 				graphql = {},
 				html = {},
 				jsonls = {},
@@ -85,7 +104,16 @@ return {
 					},
 				},
 				marksman = {},
-				ocamllsp = {},
+        nixd = {},
+				ocamllsp = {
+          settings = {
+                codelens = { enable = true },
+              },
+
+              get_language_id = function(_, ftype)
+                return ftype
+              end,
+        },
 				prismals = {},
 				pyright = {},
 				solidity = {},
@@ -93,6 +121,7 @@ return {
 				tailwindcss = {
 					-- filetypes = { "reason" },
 				},
+        terraformls = {},
 				tsserver = {
 					settings = {
 						experimental = {
@@ -100,7 +129,7 @@ return {
 						},
 					},
 					handlers = {
-						["textDocument/publishDiagnostics"] = vim.lsp.with(
+            ["textDocument/publishDiagnostics"] = vim.lsp.with(
 							tsserver_on_publish_diagnostics_override,
 							{}
 						),
@@ -167,20 +196,23 @@ return {
 					formatting.prettier,
 					formatting.stylua,
 					formatting.ocamlformat,
+					formatting.shfmt,
+          formatting.nixfmt,
+          formatting.stylua,
 
 					-- diagnostics
-					diagnostics.eslint_d.with({
-						condition = function(utils)
-							return utils.root_has_file({ ".eslintrc.js", ".eslintrc.cjs", ".eslintrc.json" })
-						end,
-					}),
-
-					-- code actions
-					code_actions.eslint_d.with({
-						condition = function(utils)
-							return utils.root_has_file({ ".eslintrc.js", ".eslintrc.cjs", ".eslintrc.json" })
-						end,
-					}),
+					-- diagnostics.eslint_d.with({
+					-- 	condition = function(utils)
+					-- 		return utils.root_has_file({ ".eslintrc.js", ".eslintrc.cjs", ".eslintrc.json" })
+					-- 	end,
+					-- }),
+					--
+					-- -- code actions
+					-- code_actions.eslint_d.with({
+					-- 	condition = function(utils)
+					-- 		return utils.root_has_file({ ".eslintrc.js", ".eslintrc.cjs", ".eslintrc.json" })
+					-- 	end,
+					-- }),
 				},
 			})
 

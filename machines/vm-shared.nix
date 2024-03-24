@@ -1,4 +1,4 @@
-{ config, pkgs, currentSystem, currentSystemName, ... }:
+{ config, pkgs, currentSystem, currentSystemName, inputs, ... }:
 
 {
   # We require 5.14+ for VMware Fusion on M1.
@@ -16,6 +16,13 @@
       keep-outputs = true
       keep-derivations = true
     '';
+
+    settings = {
+      substituters = [ "https://hyprland.cachix.org" ];
+      trusted-public-keys = [
+        "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+      ];
+    };
   };
 
   # We expect to run the VM on hidpi machines.
@@ -54,8 +61,31 @@
 
   services.picom = { enable = true; };
 
+  # programs.hyprland = {
+  #   enable = true;
+  #   # package = inputs.hyprland.packages.${pkgs.system}.hyprland;
+  #   xwayland.enable = true;
+  # };
+
+  # programs.sway.enable = true;
+  # security.polkit.enable = true;
+  # hardware.opengl.enable = true;
+
   # setup windowing environment
   services.xserver = {
+    # enable = true;
+    # xkb = {
+    #   variant = "";
+    #   layout = "us";
+    # };
+    # libinput.enable = true;
+    # displayManager.sddm = {
+    #   enable = true;
+    #   autoNumlock = true;
+    #   wayland.enable = true;
+    #   theme = "tokyo-night-sddm";
+    # };
+
     enable = true;
     layout = "us";
     dpi = 220;
@@ -128,7 +158,12 @@
   fonts = {
     fontDir.enable = true;
 
-    fonts = with pkgs; [ fira-code fira-code-symbols nerdfonts jetbrains-mono ];
+    packages = with pkgs; [
+      fira-code
+      fira-code-symbols
+      nerdfonts
+      jetbrains-mono
+    ];
   };
 
   # List packages installed in system profile. To search, run:
@@ -150,6 +185,7 @@
 
       dmenu
       xorg.xrandr
+      xorg.xprop
       # haskellPackages.libmpd
       # haskellPackages.xmobar
       # haskellPackages.xmonad

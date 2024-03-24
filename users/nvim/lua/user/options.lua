@@ -66,7 +66,7 @@ vim.opt.foldlevelstart = 99
 vim.opt.foldenable = true
 
 -- Always keep 8 lines above/below cursor unless at start/end of file
-vim.opt.scrolloff = 8
+vim.opt.scrolloff = 999
 
 -- Place a column line
 vim.opt.colorcolumn = "80"

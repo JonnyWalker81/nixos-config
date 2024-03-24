@@ -1,5 +1,11 @@
 args@{ config, lib, pkgs, ... }:
+# { inputs, ... }:
+
+# { config, lib, pkgs, theme, ... }:
 let
+  # hyprland = import "./hyprland.nix";
+  # theme = config.colorScheme.pallete;
+
   zoxide = pkgs.zoxide;
   zoxideBin = zoxide + "/bin/zoxide";
 
@@ -15,7 +21,8 @@ let
     cat "$1" | col -bx | bat --language man --style plain
   ''));
 
-in {
+in
+{
   home.stateVersion = "18.09";
   xdg.enable = true;
 
@@ -57,6 +64,8 @@ in {
   };
 
   home.file.".config/nvim" = {
+    # source = ./lazyvim;
+    # source = ./lazy;
     source = ./nvim;
     recursive = true;
   };
@@ -76,6 +85,7 @@ in {
     pkgs.jetbrains-mono
     pkgs.ripgrep
     pkgs.fd
+    pkgs.monaspace
     # pkgs.rustup
     # pkgs.rust-analyzer
     pkgs.thefuck
@@ -84,7 +94,7 @@ in {
     pkgs.delta
     zoxide
     pkgs.jq
-    pkgs.exa
+    # eza
     pkgs.k9s
     pkgs.procs
     pkgs.graphviz
@@ -128,11 +138,26 @@ in {
     # pkgs.tree-sitter-grammars.tree-sitter-bash
     # pkgs.tree-sitter-grammars.tree-sitter-typescript
     # pkgs.tree-sitter-grammars.tree-sitter-javascript
+    (pkgs.python3.withPackages
+      (p: with p; [ epc orjson sexpdata six setuptools paramiko rapidfuzz ]))
+    # pkgs.python3
+    # pkgs.python311Packages.epc
+    # pkgs.python311Packages.orjson
+    # pkgs.python311Packages.sexpdata
+    # pkgs.python311Packages.six
+    # pkgs.python311Packages.setuptools
+    # pkgs.python311Packages.paramiko
+    # pkgs.python311Packages.rapidfuzz
 
+    pkgs.difftastic
+    pkgs.nixd
+    pkgs.luaformatter
+    pkgs.lua-language-server
+    pkgs.stylua
   ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
     pkgs.libreoffice
     pkgs.chromium
-    pkgs.go_1_20
+    pkgs.go
     # pkgs.gopls
     # pkgs.gotools
     # pkgs.gotestsum
@@ -141,7 +166,7 @@ in {
     pkgs.clang
     pkgs.just
     pkgs.docker-compose
-    pkgs.awscli2
+    # pkgs.awscli2
     pkgs.postgresql_14
     pkgs.feh
     pkgs.xplr
@@ -167,13 +192,14 @@ in {
     pkgs.terraform
     pkgs.enchant
 
-    pkgs.lazygit
+    # pkgs.lazygit
     pkgs.diskonaut
     pkgs.sqlite
     pkgs.acpi
     pkgs.golangci-lint
     pkgs.kubernetes
     pkgs.pcmanfm
+    pkgs.cinnamon.nemo
     pkgs.rofi
     pkgs.clipcat
     pkgs.vscode
@@ -187,6 +213,8 @@ in {
     pkgs.bun
     pkgs.wezterm
     pkgs.zellij
+    pkgs.gtk3
+    pkgs.teller
   ];
 
   home.sessionVariables = {
@@ -265,14 +293,14 @@ in {
 
   programs.mcfly = {
     enable = true;
-    enableZshIntegration = false;
+    # enableZshIntegration = false;
     # fuzzySearchFactor = 3;
     keyScheme = "vim";
   };
 
   programs.fzf = {
     enable = true;
-    enableZshIntegration = true;
+    enableZshIntegration = false;
   };
 
   programs.git = {
@@ -296,8 +324,10 @@ in {
         "!git checkout $1; git pull origin $1; git rebase \${2:-'main'}; git push origin; git checkout \${2:-'main'}";
     };
 
+    difftastic = { enable = true; };
+
     delta = {
-      enable = true;
+      enable = false;
       options = {
         syntax-theme = "1337";
         plus-color = "#32473d";
@@ -308,11 +338,20 @@ in {
     };
   };
 
+  programs.atuin = {
+    enable = true;
+    settings = {
+      # Uncomment this to use your instance
+      # sync_address = "https://majiy00-shell.fly.dev";
+      keymap_mode = "vim-normal";
+    };
+  };
+
   programs.zsh = {
     enable = true;
     shellAliases = {
-      ll = "exa -l";
-      l = "exa -la";
+      ll = "eza -l";
+      l = "eza -lah";
       rebuild =
         "sudo NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1 nixos-rebuild switch --flake .#vm-aarch64";
       rp = "sudo nixos-rebuild switch --flake .#vm-aarch64-prl";
@@ -333,7 +372,7 @@ in {
     #   (lib.strings.intersperse "\n" [ (builtins.readFile ./config.zsh) ]);
 
     enableAutosuggestions = true;
-    enableSyntaxHighlighting = true;
+    syntaxHighlighting.enable = true;
     sessionVariables = {
       LC_ALL = "en_US.utf8";
       LIBVIRT_DEFAULT_URI = "qemu:///system";
@@ -341,7 +380,7 @@ in {
       GOPRIVATE = "github.com/JoinCAD,github.com/JonnyWalker81";
       # GOPROXY = "off";
       # PATH =
-      PATH = "\${PATH}:\${HOME}/bin:\${HOME}/.cargo/bin";
+      PATH = "\${HOME}/bin:\${HOME}/.cargo/bin:\${PATH}";
       PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
 
       ZSH_TMUX_AUTOSTART = "true";
@@ -355,28 +394,39 @@ in {
 
     # eval "$(${mcflyBin} init zsh)"
     initExtra = ''
-      source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
-      eval "$(${zoxideBin} init zsh)"
-      # eval "$(${mcflyBin} init zsh)"
-      eval "$(ssh-agent -s)"
-      # bindkey "^R" mcfly-history-widget
-      source ~/.bash_join_db
+        source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+        eval "$(${zoxideBin} init zsh)"
+        # eval "$(${mcflyBin} init zsh)"
+        eval "$(ssh-agent -s)"
+        # bindkey "^R" mcfly-history-widget
+        source ~/.bash_join_db
 
-      [[ ! -r /home/cipher/.opam/opam-init/init.zsh ]] || source /home/cipher/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
+        [[ ! -r /home/cipher/.opam/opam-init/init.zsh ]] || source /home/cipher/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
 
-      # eval "$(atuin init zsh)"
+        export ATUIN_NOBIND="true"
+        eval "$(atuin init zsh)"
 
-      if [[ -z "$ZELLIJ" ]]; then
-        if [[ "$ZELLIJ_AUTO_ATTACH" == "true" ]]; then
-          zellij attach -c
-        else
-          zellij
-        fi
+        # bindkey '^z' atuin-search
+        bindkey -M emacs '^r' atuin-search
+        bindkey -M viins '^r' atuin-search
+        bindkey -M vicmd '^r' atuin-search
 
-        if [[ "$ZELLIJ_AUTO_EXIT" == "true" ]]; then
-          exit
-        fi
-    fi
+
+        # bind to the up key, which depends on terminal mode
+        # bindkey '^[[A' atuin-up-search
+        # bindkey '^[OA' atuin-up-search
+
+      #   if [[ -z "$ZELLIJ" ]]; then
+      #     if [[ "$ZELLIJ_AUTO_ATTACH" == "true" ]]; then
+      #       zellij attach -c
+      #     else
+      #       zellij
+      #     fi
+      #
+      #     if [[ "$ZELLIJ_AUTO_EXIT" == "true" ]]; then
+      #       exit
+      #     fi
+      # fi
 
     '';
 
@@ -388,10 +438,17 @@ in {
 
     history = {
       size = 100000;
-      path = "${config.xdg.dataHome}/zsh/history";
+      # path = "${config.xdg.dataHome}/zsh/history";
     };
   };
 
+  programs.neovim = {
+    enable = true;
+    package = pkgs.neovim-nightly;
+
+    viAlias = true;
+    vimAlias = true;
+  };
   # programs.neovim = {
   #   enable = true;
   #   package = pkgs.neovim-nightly;
@@ -455,6 +512,46 @@ in {
   };
 
   programs.home-manager.enable = true;
+
+  # wayland.windowManager.sway = {
+  #   enable = true;
+  #
+  #   config = rec {
+  #     modifier = "Mod4";
+  #     terminal = "alacritty";
+  #     output = {
+  #       "Virtual-1" = {
+  #         mode = "1920x1080@60Hz";
+  #       };
+  #     };
+  #   };
+  # };
+
+  # wayland.windowManager.hyprland.settings = {
+  #   "$mod" = "ALT";
+  #   bind =
+  #     [
+  #       "$mod, F, exec, firefox"
+  #       "$mod SHIFT, Return, exec, alacritty"
+  #       ", Print, exec, grimblast copy area"
+  #     ]
+  #     ++ (
+  #       # workspaces
+  #       # binds $mod + [shift +] {1..10} to [move to] workspace {1..10}
+  #       builtins.concatLists (builtins.genList (
+  #           x: let
+  #             ws = let
+  #               c = (x + 1) / 10;
+  #             in
+  #               builtins.toString (x + 1 - (c * 10));
+  #           in [
+  #             "$mod, ${ws}, workspace, ${toString (x + 1)}"
+  #             "$mod SHIFT, ${ws}, movetoworkspace, ${toString (x + 1)}"
+  #           ]
+  #         )
+  #         10)
+  #     );
+  # };
 
   programs.ssh = {
     enable = true;

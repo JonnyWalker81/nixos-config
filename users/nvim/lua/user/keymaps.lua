@@ -400,4 +400,16 @@ tnoremap("<C-l>", [[<Cmd>wincmd l<CR>]])
 -- Reenable default <space> functionality to prevent input delay
 tnoremap("<space>", "<space>")
 
+nnoremap("<leader>gg", ":Neogit<cr>")
+nnoremap("<leader>wv", ":vsplit<cr>")
+nnoremap("<leader>ws", ":split<cr>")
+
+nnoremap("<leader>wh", [[<Cmd>wincmd h<CR>]])
+nnoremap("<leader>wj", [[<Cmd>wincmd j<CR>]])
+nnoremap("<leader>wk", [[<Cmd>wincmd k<CR>]])
+nnoremap("<leader>wl", [[<Cmd>wincmd l<CR>]])
+nnoremap("<leader>ww", "<C-w>w") 
+nnoremap("<leader>wc", ":close<cr>") 
+
+
 return M

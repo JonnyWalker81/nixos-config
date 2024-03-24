@@ -20,7 +20,7 @@ return {
 		},
 		config = function()
 			local null_ls = require("null-ls")
-			local map_lsp_keybinds = require("user.keymaps").map_lsp_keybinds -- Has to load keymaps before pluginslsp
+			local map_lsp_keybinds = require("user.keymaps").map_lsp_keybind -- Has to load keymaps before pluginslsp
 
 			-- Use neodev to configure lua_ls in nvim directories - must load before lspconfig
 			require("neodev").setup()
@@ -34,7 +34,7 @@ return {
 
 			-- Configure mason to auto install servers
 			require("mason-lspconfig").setup({
-				automatic_installation = { exclude = { "ocamllsp", "gleam" } },
+				automatic_installation = { exclude = { "ocamllsp", "gleam", "gopls" } },
 			})
 
 			-- Override tsserver diagnostics to filter out specific messages
@@ -73,6 +73,15 @@ return {
 				-- clangd = {},
 				cssls = {},
 				gleam = {},
+        gopls = {
+          -- settings = {
+          --   analyses = {
+          --   unusedparams = true,
+          --   },
+          --   staticcheck = true,
+          --   gofumpt = true,
+          -- },
+        },
 				graphql = {},
 				html = {},
 				jsonls = {},
@@ -122,15 +131,15 @@ return {
 			---@diagnostic disable-next-line: unused-local
 			local on_attach = function(_client, buffer_number)
 				-- Pass the current buffer to map lsp keybinds
-				map_lsp_keybinds(buffer_number)
+        map_lsp_keybinds(buffer_number)
 
 				-- Create a command `:Format` local to the LSP buffer
 				vim.api.nvim_buf_create_user_command(buffer_number, "Format", function(_)
 					vim.lsp.buf.format({
-						filter = function(format_client)
-							-- Use Prettier to format TS/JS if it's available
-							return format_client.name ~= "tsserver" or not null_ls.is_registered("prettier")
-						end,
+						-- filter = function(format_client)
+						-- 	-- Use Prettier to format TS/JS if it's available
+						-- 	return format_client.name ~= "tsserver" or not null_ls.is_registered("prettier")
+						-- end,
 					})
 				end, { desc = "LSP: Format current buffer with LSP" })
 

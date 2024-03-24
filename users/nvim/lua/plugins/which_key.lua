@@ -13,4 +13,4 @@ return { -- Useful plugin to show you pending keybinds.
         ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
       }
     end,
-  },
+  }

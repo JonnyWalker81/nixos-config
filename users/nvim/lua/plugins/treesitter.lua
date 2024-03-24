@@ -8,6 +8,7 @@ return {
 		dependencies = {
 			-- Additional text objects for treesitter
 			"nvim-treesitter/nvim-treesitter-textobjects",
+      "nvim-treesitter/playground",
 		},
 		config = function()
 			---@diagnostic disable: missing-fields
@@ -23,9 +24,11 @@ return {
 					"json",
 					"lua",
 					"markdown",
+          "nix",
 					"ocaml",
 					"ocaml_interface",
 					"prisma",
+          "terraform",
 					"tsx",
 					"typescript",
 					"vim",

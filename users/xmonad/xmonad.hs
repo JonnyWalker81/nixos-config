@@ -8,6 +8,7 @@
 --
 
 import XMonad
+import Data.Word
 import Data.Monoid
 import System.Exit
 import System.IO
@@ -65,7 +66,8 @@ import qualified Data.Map        as M
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
-myTerminal      = "alacritty"
+-- myTerminal      = "alacritty"
+myTerminal      = "wezterm"
 -- myTerminal      = "kitty"
 
 -- Whether focus follows the mouse pointer.
@@ -102,7 +104,8 @@ myWorkspaces    = ["coding", "web", "services", "work", "misc"] ++ map show ["6"
 -- Border colors for unfocused and focused windows, respectively.
 --
 myNormalBorderColor  = "#2c698d" -- "#56b6c2"  -- "#6A657C"
-myFocusedBorderColor = "#98c379"  -- "#567568"
+-- myFocusedBorderColor = "#98c379"  -- "#567568"
+myFocusedBorderColor = "#1F51FF"
 
 mySpace :: Integer
 mySpace = 2
@@ -388,7 +391,7 @@ myManageHook = composeAll
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myEventHook = mempty
+-- myEventHook = mempty
 
 
 xmobarTitleColor = "#FFB6B0"
@@ -428,11 +431,23 @@ myLogHook h = dynamicLogWithPP $ def
 
 myStartupHook = do
   -- spawnOnce "feh --bg-scale ~/Downloads/wallpaper/GRDZSqf-most-popular-computer-wallpaper.jpg &"
-  spawnOnce "feh --bg-scale ~/Downloads/wallpaper/wallpaper2.jpg &"
+  --
+  -- spawnOnce "feh --bg-scale ~/Downloads/wallpaper/wallpaper2.jpg &"
+  -- spawnOnce "feh --bg-scale ~/Downloads/wallpaper/natures-beauty-reflected-tranquil-mountain-waters-generative-ai.jpg &"
+  spawnOnce "feh --bg-scale ~/Downloads/wallpaper/building_city_japan_tokyo_during_nighttime_hd_travel-1920x1080.jpg &"
   spawnOnce "picom --experimental-backends --config ~/.config/picom/picom.conf &"
   spawnOnce "greenclip daemon &"
   spawnOnce "clipcatd &"
   spawnOnce "emacs --daemon" -- emacs daemon for the emacsclient
+
+setTransparentHook :: Event -> X All
+setTransparentHook ConfigureEvent{ev_event_type = createNotify, ev_window = id} = do
+  setOpacity id opacity
+  return (All True) where
+    opacityFloat = 0.70
+    opacity = floor $ fromIntegral (maxBound :: Word32) * opacityFloat
+    setOpacity id op = spawn $ "xprop -id " ++ show id ++ " -f _NET_WM_WINDOW_OPACITY 32c -set _NET_WM_WINDOW_OPACITY " ++ show op
+setTransparentHook _ = return (All True)
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
@@ -483,7 +498,7 @@ defaults h = def {
       -- hooks, layouts
         layoutHook         = avoidStruts $  myLayout,
         manageHook         = myManageHook,
-        handleEventHook    = myEventHook,
+        handleEventHook    = setTransparentHook <+> handleEventHook def,
         logHook            = myLogHook h,
         startupHook        = myStartupHook
     }

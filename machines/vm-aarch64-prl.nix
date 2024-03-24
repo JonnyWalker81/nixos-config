@@ -1,9 +1,10 @@
-{ config, pkgs, lib, modulesPath, ... }: {
+{ config, pkgs, lib, modulesPath,  ... }: {
   imports = [
     # Parallels is qemu under the covers. This brings in important kernel
     # modules to get a lot of the stuff working.
     (modulesPath + "/profiles/qemu-guest.nix")
 
+    # ../hardware/vm-aarch64-prl.nix
     ../modules/parallels-guest.nix
     ./vm-shared.nix
   ];
