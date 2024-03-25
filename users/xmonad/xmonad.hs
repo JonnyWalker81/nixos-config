@@ -159,7 +159,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm,               xK_k     ), windows W.focusUp  )
 
     -- Move focus to the master window
-    , ((modm,               xK_m     ), windows W.focusMaster  )
+    , ((modm,               xK_v     ), windows W.focusMaster  )
+
+    -- Toggle Maximize windows
+    , ((modm,               xK_m     ), toggleFullscreen )
 
     -- Swap the focused window and the master window
     , ((modm,               xK_Return), windows W.swapMaster)
@@ -220,6 +223,13 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     --     | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
     --     , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
 
+toggleFullscreen :: X ()
+toggleFullscreen =
+    withWindowSet $ \ws ->
+    withFocused $ \w -> do
+        let fullRect = W.RationalRect 0 0 1 1
+        let isFullFloat = w `M.lookup` W.floating ws == Just fullRect
+        windows $ if isFullFloat then W.sink w else W.float w fullRect
 
 ------------------------------------------------------------------------
 -- Mouse bindings: default actions bound to mouse events

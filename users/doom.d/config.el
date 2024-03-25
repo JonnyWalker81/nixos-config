@@ -1113,6 +1113,8 @@ tab-indent."
   (setq lsp-bridge-enable-log t)
   (setq lsp-bridge-python-command (executable-find "python3"))
   (setq lsp-bridge-enable-inlay-hint t)
+  (setq lsp-bridge-enable-auto-format-code t)
+  (setq lsp-bridge-enable-hover-diagnostic t)
   (evil-define-key 'insert acm-mode-map (kbd "C-n") #'acm-select-next)
   (evil-define-key 'insert acm-mode-map (kbd "C-p") #'acm-select-prev)
   (add-hook 'acm-mode-hook #'evil-normalize-keymaps)
@@ -1124,6 +1126,12 @@ tab-indent."
 (use-package! indent-guide
   :config
   (indent-guide-global-mode)
+)
+
+
+(use-package! shfmt
+  :config
+    (add-hook 'sh-mode-hook 'shfmt-on-save-mode)
 )
 
 

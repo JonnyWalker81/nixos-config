@@ -191,6 +191,7 @@ in
     pkgs.lapce
     pkgs.terraform
     pkgs.enchant
+    pkgs.gh
 
     # pkgs.lazygit
     pkgs.diskonaut

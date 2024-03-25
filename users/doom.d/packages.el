@@ -158,7 +158,8 @@
 
 (when (package! lsp-bridge
         :recipe (:host github
-                 :repo "manateelazycat/lsp-bridge"
+                 ;; :repo "manateelazycat/lsp-bridge"
+                 :repo "JonnyWalker81/lsp-bridge"
                  :branch "master"
                  :files ("*.el" "*.py" "acm" "core" "langserver" "multiserver" "resources")
                  ;; do not perform byte compilation or native compilation for lsp-bridge
@@ -172,5 +173,13 @@
                    :branch "master"
                    :files ("*.el")
           ))
+
+(package! shfmt
+          :recipe (:host github
+                   :repo "purcell/emacs-shfmt"
+                   :branch "master"
+                   :files ("*.el")
+          )
+)
 
 ;;; packages.el ends here

@@ -62,15 +62,21 @@ nnoremap("<leader>'", "<C-^>", { desc = "Switch to last buffer" })
 
 -- Save with leader key
 nnoremap("<leader>w", "<cmd>w<cr>", { silent = false })
+nnoremap("<leader>sp", "<cmd>wa<cr>", { silent = false })
 
 -- Quit with leader key
-nnoremap("<leader>q", "<cmd>q<cr>", { silent = false })
+nnoremap("<leader>qq", "<cmd>q<cr>", { silent = false })
+nnoremap("<leader>q", "<cmd>qa<cr>", { silent = false })
+nnoremap("<leader>qf", "<cmd>xa<cr>", { silent = false })
 
 -- Save and Quit with leader key
 nnoremap("<leader>z", "<cmd>wq<cr>", { silent = false })
 
 -- Map Oil to <leader>e
 nnoremap("<leader>e", function()
+	require("oil").toggle_float()
+end)
+nnoremap("<leader>ff", function()
 	require("oil").toggle_float()
 end)
 -- Center buffer while navigating
@@ -262,14 +268,14 @@ nnoremap("<leader>gf", function()
 end, { desc = "Search [G]it [F]iles" })
 
 -- Telescope keybinds --
-nnoremap("<leader>?", require("telescope.builtin").oldfiles, { desc = "[?] Find recently opened files" })
-nnoremap("<leader>sb", require("telescope.builtin").buffers, { desc = "[S]earch Open [B]uffers" })
-nnoremap("<leader>sf", function()
+nnoremap("<leader>fr", require("telescope.builtin").oldfiles, { desc = "[?] Find recently opened files" })
+nnoremap("<leader>bb", require("telescope.builtin").buffers, { desc = "[S]earch Open [B]uffers" })
+nnoremap("<leader><space>", function()
 	require("telescope.builtin").find_files({ hidden = true })
 end, { desc = "[S]earch [F]iles" })
 nnoremap("<leader>sh", require("telescope.builtin").help_tags, { desc = "[S]earch [H]elp" })
 nnoremap("<leader>sw", require("telescope.builtin").grep_string, { desc = "[S]earch current [W]ord" })
-nnoremap("<leader>sg", require("telescope.builtin").live_grep, { desc = "[S]earch by [G]rep" })
+nnoremap("<leader>/", require("telescope.builtin").live_grep, { desc = "[S]earch by [G]rep" })
 nnoremap("<leader>sd", require("telescope.builtin").diagnostics, { desc = "[S]earch [D]iagnostics" })
 nnoremap("<leader>sd", require("telescope.builtin").git_files, { desc = "[S]earch [D]iagnostics" })
 
@@ -279,7 +285,7 @@ nnoremap("<leader>sc", function()
 	}))
 end, { desc = "[S]earch [C]ommands" })
 
-nnoremap("<leader>/", function()
+nnoremap("<leader>sb", function()
 	require("telescope.builtin").current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
 		previewer = false,
 	}))
@@ -410,6 +416,41 @@ nnoremap("<leader>wk", [[<Cmd>wincmd k<CR>]])
 nnoremap("<leader>wl", [[<Cmd>wincmd l<CR>]])
 nnoremap("<leader>ww", "<C-w>w") 
 nnoremap("<leader>wc", ":close<cr>") 
+nnoremap("<leader>bk", ":bp|bd #<cr>") 
+
+nnoremap("<leader>tf", ":ToggleTerm direction=float<cr>") 
+
+local Terminal  = require('toggleterm.terminal').Terminal
+local lazygit = Terminal:new({ cmd = "lazygit", hidden = true, direction = "float" })
+local bottomTerminal = Terminal:new({  direction = "horizontal" })
+
+function lazygit_toggle()
+  lazygit:toggle()
+end
+
+function toggle_bottom_terminal()
+  bottomTerminal:toggle(20)
+end
+
+nnoremap("<leader>tt", "<cmd>lua toggle_bottom_terminal()<cr>") 
+nnoremap("<leader>lg", "<cmd>lua lazygit_toggle()<cr>") 
+
+-- nnoremap("<leader>ih", ":lua vim.lsp.inlay_hint.enable(vim.fn.bufnr(), true)<cr>") 
+nnoremap("<leader>ih", function() 
+  -- require('lsp-inlayhints').toggle()
+  vim.lsp.inlay_hint.enable(vim.fn.bufnr(), not vim.lsp.inlay_hint.is_enabled())
+end) 
+
+nnoremap("<leader>ic", function() 
+  -- require('lsp-inlayhints').toggle()
+  vim.lsp.codelens.refresh({ bufnr = vim.fn.bufnr()}) 
+end)
+
+nnoremap("<leader>ir", function() 
+  -- require('lsp-inlayhints').toggle()
+  vim.lsp.codelens.run() 
+end)
+
 
 
 return M

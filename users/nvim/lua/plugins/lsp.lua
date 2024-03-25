@@ -34,7 +34,7 @@ return {
 
 			-- Configure mason to auto install servers
 			require("mason-lspconfig").setup({
-				automatic_installation = { exclude = { "ocamllsp", "gleam" } },
+				automatic_installation = { exclude = { "ocamllsp", "gleam", "rust_analyzer" } },
 			})
 
 			-- Override tsserver diagnostics to filter out specific messages
@@ -116,6 +116,9 @@ return {
         },
 				prismals = {},
 				pyright = {},
+        -- rust_analyzer = {
+        --   cmd = {'/home/cipher/.cargo/bin/rust-analyzer'}
+        -- },
 				solidity = {},
 				sqlls = {},
 				tailwindcss = {
@@ -149,9 +152,10 @@ return {
 			local default_capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
 
 			---@diagnostic disable-next-line: unused-local
-			local on_attach = function(_client, buffer_number)
+			local on_attach = function(client, buffer_number)
 				-- Pass the current buffer to map lsp keybinds
 				map_lsp_keybinds(buffer_number)
+
 
 				-- Create a command `:Format` local to the LSP buffer
 				vim.api.nvim_buf_create_user_command(buffer_number, "Format", function(_)
@@ -163,6 +167,11 @@ return {
 					})
 				end, { desc = "LSP: Format current buffer with LSP" })
 
+
+       -- vim.lsp.inlay_hint.enable(buffer_number, true)
+      vim.lsp.codelens.refresh({bufnr = buffer_number})
+
+      require("lsp-inlayhints").on_attach(client, buffer_number)
 				-- if client.server_capabilities.codeLensProvider then
 				-- 	vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave", "CursorHold" }, {
 				-- 		buffer = buffer_number,
