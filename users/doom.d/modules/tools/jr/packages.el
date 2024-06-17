@@ -60,9 +60,9 @@
 ;; (package! flycheck-posframe)
 (package! terraform-mode)
 
-(package! rjsx-mode)
+;; (package! rjsx-mode)
 ;; (package! import-mode)
-(package! prettier-js)
+;; (package! prettier-js)
 
 (package! magit-todos)
 

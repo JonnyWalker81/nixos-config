@@ -64,8 +64,8 @@
 (package! graphql-mode)
 ;; (package! rust-mode)
 (package! flycheck-rust)
-(package! lsp-mode)
-(package! lsp-ui)
+;; (package! lsp-mode)
+;; (package! lsp-ui)
 (package! dockerfile-mode)
 (package! protobuf-mode)
 ;; (package! prettier-js-mode)
@@ -77,7 +77,7 @@
 ;; rjsx-mode, typescript-mode, web-mode, tide, company, yasnippet, import-js, prettier-js
 ;; (package! rjsx-mode)
 ;; (package! import-mode)
-(package! prettier-js)
+;; (package! prettier-js)
 (package! autopair)
 (package! elfeed-org)
 (package! elfeed-goodies)
@@ -112,7 +112,7 @@
 (package! eyebrowse)
 
 (package! go-playground)
-(package! go-mode)
+;; (package! go-mode)
 
 (package! tree-sitter)
 (package! tree-sitter-langs)
@@ -156,16 +156,18 @@
 
 ; (package! code-review)
 
-(when (package! lsp-bridge
-        :recipe (:host github
-                 ;; :repo "manateelazycat/lsp-bridge"
-                 :repo "JonnyWalker81/lsp-bridge"
-                 :branch "master"
-                 :files ("*.el" "*.py" "acm" "core" "langserver" "multiserver" "resources")
-                 ;; do not perform byte compilation or native compilation for lsp-bridge
-                 :build (:not compile)))
-  (package! markdown-mode)
-  (package! yasnippet))
+;; (when (package! lsp-bridge
+;;         :recipe (:host github
+;;                  ;; :repo "manateelazycat/lsp-bridge"
+;;                  :repo "JonnyWalker81/lsp-bridge"
+;;                  :branch "master"
+;;                  :files ("*.el" "*.py" "acm" "core" "langserver" "multiserver" "resources")
+;;                  ;; do not perform byte compilation or native compilation for lsp-bridge
+;;                  :build (:not compile)))
+;;   (package! markdown-mode)
+;;   (package! yasnippet)
+;;   (package! tempel)
+;;   )
 
 (package! indent-guide
           :recipe (:host github 
@@ -181,5 +183,25 @@
                    :files ("*.el")
           )
 )
+
+(package! tokyo-theme
+          :recipe (:host github
+                   :repo "rawleyfowler/tokyo-theme.el"
+                   :branch "main"
+                   :files ("*.el")
+                   )
+          )
+
+;; (package! rose-pine-doom-emacs
+;;           :recipe (:host github
+;;                    :repo "donniebreve/rose-pine-doom-emacs"
+;;                    :branch "main"
+;;                    :files ("*.el")
+;;                    )
+;;           )
+
+(package! treesit-auto)
+
+(package! jenkinsfile-mode)
 
 ;;; packages.el ends here

@@ -1,5 +1,5 @@
 return {
-	{
-		"szw/vim-maximizer",
-	},
+    {
+        'szw/vim-maximizer',
+    },
 }

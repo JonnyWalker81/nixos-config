@@ -243,9 +243,9 @@
 ;; (doom-themes-visual-bell-config)
 
 (require 'protobuf-mode)
-(require 'prettier-js)
+;; (require 'prettier-js)
 
-(setq prettier-js-args nil)
+;; (setq prettier-js-args nil)
 
 ;; (setq prettier-js-args '(
 ;;   "--trailing-comma" "es5"
@@ -317,7 +317,7 @@
   ;;   (setq lsp-yaml-single-quote t)
 
   (setq lsp-enable-file-watchers t)
-  (setq lsp-file-watch-threshold 2500)
+  (setq lsp-file-watch-threshold 3000)
   ;; (setq lsp-restart 'auto-restart)
   )
 
@@ -446,7 +446,7 @@
 ;; (setq company-idle-delay 0.1)
 ;; (setq company-minimum-prefix-length 2)
 
-(global-whitespace-mode)
+;; (global-whitespace-mode)
 ;; (global-whitespace-newline-mode)
 
 
@@ -527,7 +527,7 @@
 (after! typescript-mode
   (add-hook 'typescript-mode-hook (lambda ()
                                     (format-all-mode -1)
-                                    (prettier-js-mode)
+                                    ;; (prettier-js-mode)
                                     (setq +format-with-lsp nil)
                                     ))
   )
@@ -613,7 +613,7 @@
 ;; (setq doom-font (font-spec :family "Cascadia Code" :size 16))
 ;; doom-big-font (font-spec :family "Cascadia Code" :size 25)
 (setq doom-font (font-spec :family "JetBrains Mono" :size 16))
-doom-big-font (font-spec :family "JetBrains Mono" :size 25)
+doom-big-font (font-spec :family "JetBrains Mono" :size 28)
 ;; (setq doom-font (font-spec :family "JetBrains Mono Medium" :size 16))
 ;; (setq doom-font (font-spec :family "JetBrains Mono SemiLight" :size 21)) 
 ;; (setq doom-font (font-spec :family "Victor Mono" :size 21)) 
@@ -691,7 +691,10 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 25)
     (message "found local file, loading it...")
     (load-file host-init-file)))
 
-(add-hook 'org-mode-hook (lambda () (electric-indent-local-mode -1)))
+(add-hook 'org-mode-hook (lambda () 
+                           (electric-indent-local-mode -1)
+                          (setq org-adapt-indentation t)
+                           ))
 
 (setq go-tag-args (list "-transform" "camelcase"))
 
@@ -814,30 +817,46 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 25)
 ;;                                 (popup . (accented intense)))
 ;;        modus-themes-mode-line '(accented borderless (padding . 5) (height . 0.9))
 ;;        )
-;; 
+;;
 ;;  ;; Load the theme files before enabling a theme
-;;  (modus-themes-load-themes)
+;;  ;; (modus-themes-load-themes)
 ;;  :config
 ;;  ;; Load the theme of your choice:
-;;  (modus-themes-load-vivendi)
+;;  ;; (modus-themes-load-vivendi)
+;;   (load-theme 'modus-vivendi t)             ; Dark theme
 ;;  :bind ("<f5>" . modus-themes-toggle)
 ;;  )
 
 
-(use-package! ef-themes
-  :ensure
-  :init
+;; (use-package! ef-themes
+;;   :ensure
+;;   :init
+;;
+;;   (setq ef-themes-mixed-fonts t
+;;         ef-modus-themes-variable-pitch-ui t)
+;;
+;;   (mapc #'disable-theme custom-enabled-themes)
+;;
+;;   ;; (ef-themes-select 'ef-duo-dark)
+;;   (ef-themes-select 'ef-deuteranopia-dark)
+;;   ;; (ef-themes-select 'ef-trio-dark)
+;;
+;;   )
 
-  (setq ef-themes-mixed-fonts t
-        ef-modus-themes-variable-pitch-ui t)
+;; (use-package! tokyo-theme
+;;               :ensure
+;;               :config 
+;;             (load-theme 'tokyo t)
+;;               )
 
-  (mapc #'disable-theme custom-enabled-themes)
+;; (use-package! rose-pine-doom-emacs
+;;               :ensure
+;;               :config
+;;               (setq doom-theme 'doom-rose-pine-moon)
+;;               )
 
-  ;; (ef-themes-select 'ef-duo-dark)
-  ;; (ef-themes-select 'ef-deuteranopia-dark)
-  (ef-themes-select 'ef-trio-dark)
-
-  )
+;; (setq doom-theme 'doom-rose-pine-moon)
+(setq doom-theme 'doom-tokyo-night)
 
 (use-package! topsy
   :ensure
@@ -882,18 +901,18 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 25)
       maximum-scroll-margin 0.5
       scroll-margin 99999)
 
-;; (use-package! zig-mode
-;;   :hook ((zig-mode . lsp-deferred))
-;;   :custom (zig-format-on-save t)
-;;   :config
-;;   (after! lsp-mode
-;;     (add-to-list 'lsp-language-id-configuration '(zig-mode . "zig"))
-;;     (message (concat (getenv "HOME") "/zls/zls"))
-;;     (lsp-register-client
-;;       (make-lsp-client
-;;         :new-connection (lsp-stdio-connection (concat (getenv "HOME") "/zls/zls"))
-;;         :major-modes '(zig-mode)
-;;         :server-id 'zls))))
+(use-package! zig-mode
+  :hook ((zig-mode . lsp-deferred))
+  :custom (zig-format-on-save t)
+  :config
+  (after! lsp-mode
+    (add-to-list 'lsp-language-id-configuration '(zig-mode . "zig"))
+    (message (concat (getenv "HOME") "/zls/zls"))
+    (lsp-register-client
+      (make-lsp-client
+        :new-connection (lsp-stdio-connection (executable-find "zls"))
+        :major-modes '(zig-mode)
+        :server-id 'zls))))
 
 
 (defun affe-orderless-regexp-compiler (input _type)
@@ -907,8 +926,21 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 25)
   (consult-customize affe-grep :preview-key (kbd "M-.")))
 
 (use-package! consult 
+  ;; :hook (completion-list-mode . consult-preview-at-point-mode)
   :config
   ;; (consult-fd-args "-I -H")
+
+;; (setq consult--customize-alist nil)
+;;   (consult-customize
+;;    consult-ripgrep consult-git-grep consult-grep
+;;    consult-bookmark consult-recent-file
+;;    +default/search-project +default/search-other-project
+;;    +default/search-project-for-symbol-at-point
+;;    +default/search-cwd +default/search-other-cwd
+;;    +default/search-notes-for-symbol-at-point
+;;    +default/search-emacsd
+;;    consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
+;;    :preview-key 'any)
   )
 
 (use-package! eyebrowse
@@ -960,29 +992,37 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 25)
 ;; )
 
   ;; (add-hook 'go-mode-hook 'lsp-deferred)
-;; (use-package! go-mode 
+  (add-hook 'go-mode-hook 'lsp-defferred)
+  (add-hook 'go-ts-mode-hook 'lsp-deferred)
+(use-package! go-mode 
 ;; ;;   ;; :hook ((go-mode . lsp-mode))
 ;; ;;   :hook ((go-mode))
-;;   :config
+  :config
 ;; ;;   ;; (set-formatter! 'gofmt "goimports")
-;; ;;   (setq gofmt-command "goimports")
-;;   )
+  (setq gofmt-command "goimports")
+  )
 
 
-;; (after! go-mode
-;;   ;; (set-formatter! 'gofmt "goimports")
-;;   (setq gofmt-command "goimports")
-;;   ;; (add-hook 'before-save-hook 'gofmt-before-save)
-;;   (add-hook 'before-save-hook (lambda ()
-;;                                 (gofmt-before-save)
-;;                                 ;; (lsp-organize-imports)
-;;                                 ))
-;;   ;; (lsp-mode)
-;;   )
+(after! go-mode
+  ;; (set-formatter! 'gofmt "goimports")
+  (setq gofmt-command "goimports")
+  ;; (add-hook 'before-save-hook 'gofmt-before-save)
+  (add-hook 'before-save-hook (lambda ()
+                                (gofmt-before-save)
+                                (lsp-organize-imports)
+                                ))
+  ;; (lsp-mode)
+  )
 ;;
-;; (setq-hook! 'go-mode-hook +format-with-lsp t) 
+(setq-hook! 'go-mode-hook +format-with-lsp t) 
 ;;
 (setq display-line-numbers-type 'relative)
+
+
+(use-package! jenkinsfile-mode
+  :config
+(add-to-list 'auto-mode-alist '(".*Jenkinsfile.*\\'" . jenkinsfile-mode))
+             )
 
 (defun check-lsp-mode ()
   (when (derived-mode-p 'prog-mode) 
@@ -1003,9 +1043,9 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 25)
 
   (let ((current-mode major-mode))
     (fundamental-mode)
-    (setq prettier-js-args '("--trailing-comma" "es5"))
-    (prettier-js)
-    (setq prettier-js-args nil)
+    ;; (setq prettier-js-args '("--trailing-comma" "es5"))
+    ;; (prettier-js)
+    ;; (setq prettier-js-args nil)
     (save-buffer)
     (funcall current-mode)
     )
@@ -1014,7 +1054,7 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 25)
 
 (defun jr/pretty-and-save()
   (interactive)
-  (prettier-js)
+  ;; (prettier-js)
   (save-buffer)
   
   )
@@ -1042,9 +1082,10 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 25)
 (use-package! copilot
   :hook (prog-mode . copilot-mode)
   :bind (:map copilot-completion-map
-              ("M-C-<return>" . 'copilot-accept-completion)
-              ("M-C-<tab>" . 'copilot-accept-completion)
-              ("C-TAB" . 'copilot-accept-completion)
+              ;; ("M-C-<return>" . 'copilot-accept-completion)
+              ;; ("M-C-<tab>" . 'copilot-accept-completion)
+              ;; ("C-TAB" . 'copilot-accept-completion)
+              ("C-y" . 'copilot-accept-completion)
               ;; ("C-M-TAB" . 'copilot-accept-completion-by-word)
               ;; ("C-M-<tab>" . 'copilot-accept-completion-by-word)
               )
@@ -1076,7 +1117,7 @@ tab-indent."
 
 (add-hook 'nix-shell-post-activate-hooks 'jr/nix-post-activate-check)
 
-(define-key global-map (kbd "C-<tab>") #'jr/copilot-tab)
+;; (define-key global-map (kbd "C-<tab>") #'jr/copilot-tab)
 
 
 ;; (after! (evil copilot)
@@ -1108,20 +1149,20 @@ tab-indent."
               ("C-c g f" . gleam-format)))
 
 
-(use-package! lsp-bridge
-  :config
-  (setq lsp-bridge-enable-log t)
-  (setq lsp-bridge-python-command (executable-find "python3"))
-  (setq lsp-bridge-enable-inlay-hint t)
-  (setq lsp-bridge-enable-auto-format-code t)
-  (setq lsp-bridge-enable-hover-diagnostic t)
-  (evil-define-key 'insert acm-mode-map (kbd "C-n") #'acm-select-next)
-  (evil-define-key 'insert acm-mode-map (kbd "C-p") #'acm-select-prev)
-  (add-hook 'acm-mode-hook #'evil-normalize-keymaps)
-
-  (map! :leader :desc "lsp-bridge-code-action" "c a" #'lsp-bridge-code-action)
-  (global-lsp-bridge-mode)
-  )
+;; (use-package! lsp-bridge
+;;   :config
+;;   (setq lsp-bridge-enable-log t)
+;;   (setq lsp-bridge-python-command (executable-find "python3"))
+;;   (setq lsp-bridge-enable-inlay-hint t)
+;;   (setq lsp-bridge-enable-auto-format-code t)
+;;   (setq lsp-bridge-enable-hover-diagnostic t)
+;;   (evil-define-key 'insert acm-mode-map (kbd "C-n") #'acm-select-next)
+;;   (evil-define-key 'insert acm-mode-map (kbd "C-p") #'acm-select-prev)
+;;   (add-hook 'acm-mode-hook #'evil-normalize-keymaps)
+;;
+;;   (map! :leader :desc "lsp-bridge-code-action" "c a" #'lsp-bridge-code-action)
+;;   (global-lsp-bridge-mode)
+;;   )
 
 (use-package! indent-guide
   :config
@@ -1134,6 +1175,69 @@ tab-indent."
     (add-hook 'sh-mode-hook 'shfmt-on-save-mode)
 )
 
+(defvar-local consult-toggle-preview-orig nil)
+
+(defun consult-toggle-preview ()
+  "Command to enable/disable preview."
+  (interactive)
+  (if consult-toggle-preview-orig
+      (setq consult--preview-function consult-toggle-preview-orig
+            consult-toggle-preview-orig nil)
+    (setq consult-toggle-preview-orig consult--preview-function
+          consult--preview-function #'ignore)))
+
+(define-key vertico-map (kbd "C-.") #'consult-toggle-preview)
+
+
+;; (setq read-file-name-function #'consult-find-file-with-preview)
+;;
+;; (defun consult-find-file-with-preview (prompt &optional dir default mustmatch initial pred)
+;;   (interactive)
+;;   (let ((default-directory (or dir default-directory))
+;;         (minibuffer-completing-file-name t))
+;;     (consult--read #'read-file-name-internal :state (consult--file-preview)
+;;                    :prompt prompt
+;;                    :initial initial
+;;                    :require-match mustmatch
+;;                    :predicate pred)))
+
+;; (define-key vertico-map [S-up] #'vertico-previous)
+;; (define-key vertico-map [S-down] #'vertico-next)
+;; (consult-customize consult-recent-file :preview-key '([S-up] [S-down]))
+
+(defun jr/copy-file-path ()
+  (interactive)
+  (let ((project-root (projectile-project-root))
+        root-str
+        file-path)
+     (if project-root (setq root-str project-root) (setq root-str ""))
+     (setq file-path (string-remove-prefix root-str (buffer-file-name)))
+     (message "%s" file-path)
+    (kill-new file-path))
+)
+
+(use-package! treesit-auto 
+              :config
+
+(setq jr/js-tsauto-config
+      (make-treesit-auto-recipe
+       :lang 'javascript
+       :ts-mode 'js-ts-mode
+       :remap '(js2-mode js-mode javascript-mode rjsx-mode)
+       :url "https://github.com/tree-sitter/tree-sitter-javascript"
+       :revision "f1e5a09"
+       :source-dir "src"
+       :ext "\\.js\\'"))
+
+;; (add-to-list 'treesit-auto-recipe-list jr/js-tsauto-config)
+
+              (global-treesit-auto-mode)
+
+              )
+
+(after! typescript-mode
+        (setq typescript-indent-level 2)
+        )
 
 (provide 'config)
 ;;; config.el

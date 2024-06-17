@@ -1,7 +1,7 @@
 # This function creates a NixOS system based on our VM setup for a
 # particular architecture.
 name:
-{ nixpkgs, home-manager, system, user, overlays, ... }@args:
+{ nixpkgs, home-manager, system, user, overlays, inputs, ... }@args:
 
 nixpkgs.lib.nixosSystem rec {
   inherit system;
@@ -10,7 +10,9 @@ nixpkgs.lib.nixosSystem rec {
     # Apply our overlays. Overlays are keyed by system type so we have
     # to go through and apply our system type. We do this first so
     # the overlays are available globally.
-    { nixpkgs.overlays = overlays; }
+    {
+      nixpkgs.overlays = overlays;
+    }
 
     # ./greetd.nix
     ../hardware/${name}.nix

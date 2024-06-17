@@ -10,7 +10,7 @@
 
 (package! cargo)
 
-(package! format-all)
+;; (package! format-all)
 
 (package! gradle-mode)
 

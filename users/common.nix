@@ -1,5 +1,4 @@
-args@{ config, lib, pkgs, ... }:
-# { inputs, ... }:
+{ config, lib, pkgs, ... }:
 
 # { config, lib, pkgs, theme, ... }:
 let
@@ -21,8 +20,7 @@ let
     cat "$1" | col -bx | bat --language man --style plain
   ''));
 
-in
-{
+in {
   home.stateVersion = "18.09";
   xdg.enable = true;
 
@@ -36,7 +34,11 @@ in
     recursive = true;
   };
 
+  home.file.".config/zls.json" = { source = ./zls.json; };
+
   home.file.".config/kitty/kitty.conf" = { source = ./kitty/kitty.conf; };
+
+  home.file.".wezterm.lua" = { source = ./wezterm/wezterm.lua; };
 
   # home.file.".config/rofi/config.rasi" = { source = ./rofi/config.rasi; };
 
@@ -107,7 +109,7 @@ in
     pkgs.bind
     # pkgs.firefox-bin
     # pkgs.firefox-esr-102-unwrapped
-    pkgs.firefox-unwrapped
+    # pkgs.firefox-devedition-unwrapped
     pkgs.pgmanage
     pkgs.pgadmin4
     pkgs.pandoc
@@ -154,6 +156,9 @@ in
     pkgs.luaformatter
     pkgs.lua-language-server
     pkgs.stylua
+    pkgs.nodePackages.sql-formatter
+    pkgs.nodePackages.typescript-language-server
+    pkgs.sqls
   ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
     pkgs.libreoffice
     pkgs.chromium
@@ -208,7 +213,7 @@ in
     pkgs.haskellPackages.xmobar
     pkgs.haskellPackages.xmonad
     pkgs.haskellPackages.greenclip
-    pkgs.nyxt
+    # pkgs.nyxt
     pkgs.ssm-session-manager-plugin
     # pkgs.atuin
     pkgs.bun
@@ -216,6 +221,7 @@ in
     pkgs.zellij
     pkgs.gtk3
     pkgs.teller
+    pkgs.warp-terminal
   ];
 
   home.sessionVariables = {
@@ -225,6 +231,73 @@ in
     EDITOR = "nvim";
     PAGER = "less -FirSwX";
     MANPAGER = "${manpager}/bin/manpager";
+  };
+
+  programs.firefox = {
+    package = pkgs.firefox-beta-unwrapped;
+    enable = true;
+    profiles = {
+      default = {
+        id = 0;
+        name = "default";
+        isDefault = true;
+        settings = {
+          # "browser.startup.homepage" = "https://searx.aicampground.com";
+          # "browser.search.defaultenginename" = "Searx";
+          # "browser.search.order.1" = "Searx";
+        };
+        search = {
+          force = true;
+          default = "Google";
+          order = [ "Google" "Searx" ];
+          engines = {
+            "Nix Packages" = {
+              urls = [{
+                template = "https://search.nixos.org/packages";
+                params = [
+                  {
+                    name = "type";
+                    value = "packages";
+                  }
+                  {
+                    name = "query";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }];
+              icon =
+                "''${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              definedAliases = [ "@np" ];
+            };
+            "NixOS Wiki" = {
+              urls = [{
+                template = "https://nixos.wiki/index.php?search={searchTerms}";
+              }];
+              iconUpdateURL = "https://nixos.wiki/favicon.png";
+              updateInterval = 24 * 60 * 60 * 1000; # every day
+              definedAliases = [ "@nw" ];
+            };
+            "Searx" = {
+              urls = [{
+                template = "https://searx.aicampground.com/?q={searchTerms}";
+              }];
+              iconUpdateURL = "https://nixos.wiki/favicon.png";
+              updateInterval = 24 * 60 * 60 * 1000; # every day
+              definedAliases = [ "@searx" ];
+            };
+            "Bing".metaData.hidden = true;
+            "Google".metaData.alias =
+              "@g"; # builtin engines only support specifying one additional alias
+          };
+        };
+        # extensions = with pkgs.nur.repos.rycee.firefox-addons; [
+        # ublock-origin
+        # bitwarden
+        # darkreader
+        # tridactyl
+        # ];
+      };
+    };
   };
 
   # programs.go_1_20 = {
@@ -314,8 +387,8 @@ in
       core.askPass = ""; # needs to be empty to use terminal for ask pass
       # credential.helper = "store --file ~/.config/git-credentials";
       # credential.helper = "store";
-      credential.helper = "cache --timeout 72000";
-      push.default = "tracking";
+      credential.helper = "cache --timeout 720000";
+      push.default = "current";
       # branch.autosetuprebase = "always";
       # url."git@github.com".insteadOf = "https://github.com";
     };
@@ -372,7 +445,7 @@ in
     # interactiveShellInit = lib.strings.concatStrings
     #   (lib.strings.intersperse "\n" [ (builtins.readFile ./config.zsh) ]);
 
-    enableAutosuggestions = true;
+    autosuggestion = { enable = true; };
     syntaxHighlighting.enable = true;
     sessionVariables = {
       LC_ALL = "en_US.utf8";
@@ -445,7 +518,9 @@ in
 
   programs.neovim = {
     enable = true;
-    package = pkgs.neovim-nightly;
+    # package = pkgs.neovim-nightly;
+    # package = pkgs.unstable.neovim;
+    # package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
 
     viAlias = true;
     vimAlias = true;

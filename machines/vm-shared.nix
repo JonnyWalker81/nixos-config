@@ -10,7 +10,7 @@
 
   # use unstable nix so we can access flakes
   nix = {
-    package = pkgs.nixUnstable;
+    package = pkgs.nixVersions.latest;
     extraOptions = ''
       experimental-features = nix-command flakes
       keep-outputs = true
@@ -18,23 +18,25 @@
     '';
 
     settings = {
-      substituters = [ "https://hyprland.cachix.org" ];
-      trusted-public-keys = [
-        "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
-      ];
+      # substituters = [ "https://hyprland.cachix.org" ];
+      # trusted-public-keys = [
+      # "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+      # ];
     };
   };
 
   # We expect to run the VM on hidpi machines.
-  hardware.opengl = { enable = true; };
+  # hardware.opengl = { enable = true; };
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.systemd-boot.configurationLimit = 42;
+  # boot.loader.systemd-boot.configurationLimit = 42;
 
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowUnsupportedSystem = true;
+
+  boot.loader.systemd-boot.consoleMode = "0";
 
   # Define your hostname.
   networking.hostName = "cipher";
@@ -43,7 +45,7 @@
   time.timeZone = "America/Los_Angeles";
 
   # networking.timeServers = config.networking.timeServers.default ++ [ "ntp.example.com" ];
-  services.ntp.enable = true;
+  # services.ntp.enable = true;
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
@@ -57,9 +59,68 @@
   virtualisation.docker.enable = true;
 
   # Select internationalisation properties.
-  i18n.defaultLocale = "en_US.UTF-8";
+  # i18n.defaultLocale = "en_US.UTF-8";
 
-  services.picom = { enable = true; };
+  i18n = {
+    defaultLocale = "en_US.UTF-8";
+    inputMethod = {
+      enabled = "fcitx5";
+      fcitx5.addons = with pkgs; [
+        fcitx5-mozc
+        fcitx5-gtk
+        fcitx5-chinese-addons
+      ];
+    };
+  };
+
+  # services.picom = {
+  #   enable = false;
+  #   activeOpacity = 0.8;
+  #   inactiveOpacity = 0.5;
+  #   backend = "xr_glx_hybrid";
+  #   # settings = {
+  #   #   blur = false;
+  #   #   blurExclude = [ "\n      class_g = 'slop'" "class_g *?= 'Firefox'" ];
+  #   #   blur-method = "dual_kawase";
+  #   #   blur-strength = 5;
+  #   #
+  #   #   # Radius
+  #   #   corner-radius = 10;
+  #   #   round-borders = 1;
+  #   #   rounded-corners-exclude = [ "class_g = 'Custom-taffybar'" ];
+  #   # };
+  #   # extraOptions = ''
+  #   #   corner-radius = 10;
+  #   #   blur-method = "dual_kawase";
+  #   #   blur-strength = "10";
+  #   #   xinerama-shadow-crop = true;
+  #   # '';
+  #   # experimentalBackends = true;
+  #
+  #   # shadowExclude = [ "bounding_shaped && !rounded_corners" ];
+  #
+  #   # fade = true;
+  #   # fadeDelta = 5;
+  #   # vSync = true;
+  #   # opacityRules = [
+  #   #   "100:class_g = 'firefox' && window_type = 'utility'"
+  #   #   "100:class_g   *?= 'Chromium-browser'"
+  #   #   "100:class_g   *?= 'Firefox'"
+  #   #   "100:class_g   *?= 'gitkraken'"
+  #   #   "100:class_g   *?= 'emacs'"
+  #   #   "100:class_g   ~=  'jetbrains'"
+  #   #   "100:class_g   *?= 'slack'"
+  #   # ];
+  #
+  #   package = pkgs.picom.overrideAttrs (o: {
+  #     src = pkgs.fetchFromGitHub {
+  #       repo = "picom";
+  #       owner = "ibhagwan";
+  #       rev = "44b4970f70d6b23759a61a2b94d9bfb4351b41b1";
+  #       sha256 = "0iff4bwpc00xbjad0m000midslgx12aihs33mdvfckr75r114ylh";
+  #     };
+  #   });
+  # };
 
   # programs.hyprland = {
   #   enable = true;
@@ -87,7 +148,7 @@
     # };
 
     enable = true;
-    layout = "us";
+    xkb.layout = "us";
     dpi = 220;
 
     #desktopManager = {
@@ -113,8 +174,12 @@
     };
 
     displayManager = {
+      # sddm.enable = true;
+
+      lightdm.enable = true;
+      defaultSession = "none+awesome";
       sessionCommands = ''
-        ${pkgs.xorg.xset}/bin/xset -r rate 300 100
+        ${pkgs.xorg.xset}/bin/xset r rate 200 40
       '';
       # sddm.enable = true;
       # sddm.enableHidpi = true;
@@ -137,16 +202,23 @@
       # '';
     };
 
-    windowManager.xmonad = {
+    # windowManager.xmonad = {
+    #   #  i3.enable = true;
+    #   enable = true;
+    #   enableContribAndExtras = true;
+    #
+    #   extraPackages = hpkgs: [
+    #     hpkgs.xmonad-contrib
+    #     hpkgs.xmonad-extras
+    #     hpkgs.xmonad
+    #   ];
+    # };
+
+    windowManager.awesome = {
       #  i3.enable = true;
       enable = true;
-      enableContribAndExtras = true;
 
-      extraPackages = hpkgs: [
-        hpkgs.xmonad-contrib
-        hpkgs.xmonad-extras
-        hpkgs.xmonad
-      ];
+      luaModules = with pkgs.luaPackages; [ luarocks luadbi-mysql ];
     };
   };
 
@@ -171,7 +243,7 @@
   environment.systemPackages = with pkgs;
     [
       # firefox
-      neovim
+      # neovim
       gnumake
       killall
       niv
@@ -179,7 +251,7 @@
       xsel
       xclip
       vimHugeX
-      nixfmt
+      nixfmt-classic
 
       # gitAndTools.gitFull
 
@@ -192,7 +264,7 @@
       # haskellPackages.greenclip
 
       (writeShellScriptBin "xrandr-auto" ''
-        xrandr --output Virtual-1 --mode  4096x2160
+        xrandr --output Virtual-1 --auto
       '')
     ] ++ lib.optionals (currentSystemName == "vm-aarch64") [
 
@@ -221,6 +293,7 @@
     # GDK_SCALE = "2";
     # WINIT_HIDPI_FACTOR = "1";
     TERM = "xterm-256color";
+    DISPLAY = ":0";
   };
 
   # Some programs need SUID wrappers, can be configured further or are

@@ -105,7 +105,7 @@ myWorkspaces    = ["coding", "web", "services", "work", "misc"] ++ map show ["6"
 --
 myNormalBorderColor  = "#2c698d" -- "#56b6c2"  -- "#6A657C"
 -- myFocusedBorderColor = "#98c379"  -- "#567568"
-myFocusedBorderColor = "#1F51FF"
+myFocusedBorderColor = "#5DFFFF"
 
 mySpace :: Integer
 mySpace = 2
@@ -445,16 +445,17 @@ myStartupHook = do
   -- spawnOnce "feh --bg-scale ~/Downloads/wallpaper/wallpaper2.jpg &"
   -- spawnOnce "feh --bg-scale ~/Downloads/wallpaper/natures-beauty-reflected-tranquil-mountain-waters-generative-ai.jpg &"
   spawnOnce "feh --bg-scale ~/Downloads/wallpaper/building_city_japan_tokyo_during_nighttime_hd_travel-1920x1080.jpg &"
-  spawnOnce "picom --experimental-backends --config ~/.config/picom/picom.conf &"
+  -- spawnOnce "picom --experimental-backends --config ~/.config/picom/picom.conf &"
   spawnOnce "greenclip daemon &"
   spawnOnce "clipcatd &"
   spawnOnce "emacs --daemon" -- emacs daemon for the emacsclient
 
 setTransparentHook :: Event -> X All
 setTransparentHook ConfigureEvent{ev_event_type = createNotify, ev_window = id} = do
+  return (All True)
   setOpacity id opacity
   return (All True) where
-    opacityFloat = 0.70
+    opacityFloat = 1
     opacity = floor $ fromIntegral (maxBound :: Word32) * opacityFloat
     setOpacity id op = spawn $ "xprop -id " ++ show id ++ " -f _NET_WM_WINDOW_OPACITY 32c -set _NET_WM_WINDOW_OPACITY " ++ show op
 setTransparentHook _ = return (All True)
@@ -490,7 +491,7 @@ toggleStrutsKey XConfig {XMonad.modMask = modMask} = (modMask, xK_b)
 --
 -- No need to modify this.
 --
-defaults h = def {
+defaults h = ewmh def {
       -- simple stuff
         terminal           = myTerminal,
         focusFollowsMouse  = myFocusFollowsMouse,
@@ -563,3 +564,4 @@ help = unlines ["The default modifier key is 'alt'. Default keybindings:",
     "mod-button1  Set the window to floating mode and move by dragging",
     "mod-button2  Raise the window to the top of the stack",
     "mod-button3  Set the window to floating mode and resize by dragging"]
+

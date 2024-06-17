@@ -1,0 +1,46 @@
+local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
+
+-- Auto-install lazy.nvim if not present
+if not vim.loop.fs_stat(lazypath) then
+  print('Installing lazy.nvim....')
+  vim.fn.system({
+    'git',
+    'clone',
+    '--filter=blob:none',
+    'https://github.com/folke/lazy.nvim.git',
+    '--branch=stable', -- latest stable release
+    lazypath,
+  })
+  print('Done.')
+end
+
+vim.opt.rtp:prepend(lazypath)
+
+-- local download_packer = function()
+--  if vim.fn.input "Download Packer? (y for yes)" ~= "y" then
+--    return
+--  end
+-- 
+--  local directory = string.format("%s/site/pack/packer/start/", vim.fn.stdpath "data")
+-- 
+--  vim.fn.mkdir(directory, "p")
+-- 
+--  local out = vim.fn.system(
+--    string.format("git clone %s %s", "https://github.com/wbthomason/packer.nvim", directory .. "/packer.nvim")
+--  )
+-- 
+--  print(out)
+--  print "Downloading packer.nvim..."
+--  print "( You'll need to restart now )"
+--  vim.cmd [[qa]]
+-- end
+-- 
+-- return function()
+--  if not pcall(require, "packer") then
+--    download_packer()
+-- 
+--    return true
+--  end
+-- 
+--  return false
+-- end

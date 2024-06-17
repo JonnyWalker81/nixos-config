@@ -6,11 +6,11 @@
 (doom! :feature
 
        :completion
-       ;; (corfu 
-       ;;   +icons
-       ;;   +orderless
-       ;;   +dabbrev
-       ;;   )
+       (corfu 
+         +icons
+         +orderless
+         +dabbrev
+         )
        ;; (company          ; the ultimate code completion backend
        ;;  +auto
        ;;  +childframe
@@ -100,8 +100,11 @@
         +dictionary
         +offline
         +docsets)        ; ...or in Dash docsets locally
-       ;; (lsp
-       ;;  +peek)
+       (lsp
+         ;; +eglot
+       ;;  +peek
+       )
+
        jr
       make              ; run make tasks from Emacs
       (magit +forge)          ;
@@ -141,10 +144,10 @@
       ;; elm               ; care for a cup of TEA?
        emacs-lisp        ; drown in parentheses
       ;ess               ; emacs speaks statistics
-       ;; (go
+       (go
         ;; +lsp
         ;; +tree-sitter
-        ;; )
+        )
       ;; go
                                         ; the hipster dialect
       graphql
@@ -154,7 +157,7 @@
       ;hy                ; readability of scheme w/ speed of python
       ;(java +meghanada) ; the poster child for carpal tunnel syndrome
       (javascript 
-        ;; +lsp
+        +lsp
                   ;; +tree-sitter
                   )        ; all(hope(abandon(ye(who(enter(here))))))
       (json 
@@ -209,6 +212,7 @@
       (web 
         ;; +lsp
         )               ; the tubes
+      zig
 
        ;; Applications are complex and opinionated modules that transform Emacs
        ;; toward a specific purpose. They may have additional dependencies and
