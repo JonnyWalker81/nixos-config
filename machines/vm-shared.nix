@@ -10,7 +10,8 @@
 
   # use unstable nix so we can access flakes
   nix = {
-    package = pkgs.nixVersions.latest;
+    package = pkgs.nixUnstable;
+    # package = pkgs.nixVersions.latest;
     extraOptions = ''
       experimental-features = nix-command flakes
       keep-outputs = true
@@ -18,10 +19,10 @@
     '';
 
     settings = {
-      # substituters = [ "https://hyprland.cachix.org" ];
-      # trusted-public-keys = [
-      # "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
-      # ];
+      substituters = [ "https://hyprland.cachix.org" ];
+      trusted-public-keys = [
+        "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+      ];
     };
   };
 
@@ -36,7 +37,7 @@
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowUnsupportedSystem = true;
 
-  boot.loader.systemd-boot.consoleMode = "0";
+  # boot.loader.systemd-boot.consoleMode = "0";
 
   # Define your hostname.
   networking.hostName = "cipher";
@@ -132,6 +133,8 @@
   # security.polkit.enable = true;
   # hardware.opengl.enable = true;
 
+  # services.displayManager.defaultSession = "none+xmonad";
+
   # setup windowing environment
   services.xserver = {
     # enable = true;
@@ -148,7 +151,8 @@
     # };
 
     enable = true;
-    xkb.layout = "us";
+    # xkb.layout = "us";
+    layout = "us";
     dpi = 220;
 
     #desktopManager = {
@@ -176,10 +180,13 @@
     displayManager = {
       # sddm.enable = true;
 
+      # startx.enable = true;
       lightdm.enable = true;
-      defaultSession = "none+awesome";
+      # defaultSession = "none+awesome";
+      defaultSession = "none+xmonad";
       sessionCommands = ''
-        ${pkgs.xorg.xset}/bin/xset r rate 200 40
+        # ${pkgs.xorg.xrandr}/bin/xrandr -s '1920x1080'
+        ${pkgs.xorg.xset}/bin/xset r rate 1000 1000
       '';
       # sddm.enable = true;
       # sddm.enableHidpi = true;
@@ -202,24 +209,26 @@
       # '';
     };
 
-    # windowManager.xmonad = {
-    #   #  i3.enable = true;
-    #   enable = true;
-    #   enableContribAndExtras = true;
-    #
-    #   extraPackages = hpkgs: [
-    #     hpkgs.xmonad-contrib
-    #     hpkgs.xmonad-extras
-    #     hpkgs.xmonad
-    #   ];
-    # };
-
-    windowManager.awesome = {
+    windowManager.xmonad = {
       #  i3.enable = true;
       enable = true;
+      enableContribAndExtras = true;
 
-      luaModules = with pkgs.luaPackages; [ luarocks luadbi-mysql ];
+      extraPackages = hpkgs: [
+        hpkgs.xmonad-contrib
+        hpkgs.xmonad-extras
+        hpkgs.xmonad
+      ];
     };
+
+    # windowManager.dwm = { enable = true; };
+
+    # windowManager.awesome = {
+    #   # i3.enable = true;
+    #   enable = true;
+    #
+    #   luaModules = with pkgs.luaPackages; [ luarocks luadbi-mysql ];
+    # };
   };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
@@ -251,21 +260,23 @@
       xsel
       xclip
       vimHugeX
-      nixfmt-classic
+      # nixfmt-classic
+      nixfmt
 
       # gitAndTools.gitFull
 
       dmenu
-      xorg.xrandr
-      xorg.xprop
+      # xorg.xrandr
+      # xorg.xprop
       # haskellPackages.libmpd
       # haskellPackages.xmobar
       # haskellPackages.xmonad
       # haskellPackages.greenclip
 
-      (writeShellScriptBin "xrandr-auto" ''
-        xrandr --output Virtual-1 --auto
-      '')
+      # (writeShellScriptBin "xrandr-auto" ''
+      #   xrandr --output Virtual-1 --auto
+      #   # xrandr --output Virtual-1 --mode 3840x2097
+      # '')
     ] ++ lib.optionals (currentSystemName == "vm-aarch64") [
 
       # This is needed for the vmware user tools clipboard to work.
@@ -292,8 +303,8 @@
   environment.sessionVariables = {
     # GDK_SCALE = "2";
     # WINIT_HIDPI_FACTOR = "1";
-    TERM = "xterm-256color";
-    DISPLAY = ":0";
+    # TERM = "xterm-256color";
+    # DISPLAY = ":0";
   };
 
   # Some programs need SUID wrappers, can be configured further or are

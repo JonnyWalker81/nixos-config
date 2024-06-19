@@ -445,7 +445,10 @@ in {
     # interactiveShellInit = lib.strings.concatStrings
     #   (lib.strings.intersperse "\n" [ (builtins.readFile ./config.zsh) ]);
 
-    autosuggestion = { enable = true; };
+    # autosuggestion = { enable = true; };
+    # enableAutosuggestion = true;
+    enableAutosuggestions = true;
+    enableCompletion = true;
     syntaxHighlighting.enable = true;
     sessionVariables = {
       LC_ALL = "en_US.utf8";
