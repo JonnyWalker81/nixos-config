@@ -96,7 +96,7 @@ in {
     pkgs.delta
     zoxide
     pkgs.jq
-    # eza
+    pkgs.eza
     pkgs.k9s
     pkgs.procs
     pkgs.graphviz
@@ -159,6 +159,7 @@ in {
     pkgs.nodePackages.sql-formatter
     pkgs.nodePackages.typescript-language-server
     pkgs.sqls
+    pkgs.yazi
   ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
     pkgs.libreoffice
     pkgs.chromium
@@ -186,7 +187,7 @@ in {
     pkgs.gnupg
     pkgs.hunspell
     pkgs.croc
-    pkgs.zigpkgs.master
+    # pkgs.zigpkgs.master
     pkgs.bottom
     pkgs.kubernetes-helm
     pkgs.waypoint
@@ -222,6 +223,7 @@ in {
     pkgs.gtk3
     pkgs.teller
     pkgs.warp-terminal
+    pkgs.neofetch
   ];
 
   home.sessionVariables = {

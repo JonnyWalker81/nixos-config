@@ -6,7 +6,8 @@ stdenv.mkDerivation rec {
   # version = "18.3.1-53614";
   # version = "19.1.1-54734";
   # version = "19.3.0-54924";
-  version = "19.4.0-54962";
+  # version = "19.4.0-54962";
+  version = "19.4.1-54985";
   pname = "prl-tools";
 
   # We download the full distribution to extract prl-tools-lin.iso from
@@ -18,7 +19,8 @@ stdenv.mkDerivation rec {
     # sha256 = "sha256-MZtNxByY2GSoPFeH9mPieCPPNfUgfla+lYgpeD+SgOc=";
     # sha256 = "sha256-02YxBkV9pZGfXuK6GvUDTgE9U5H2MOMk24h9qGJdFTM=";
     # sha256 = "sha256-Hj1manQSZHiht6mmWes44RVk2Bdqp6QdNCdK322bzWc=";
-    sha256 = "sha256-c/MrWUvwY/Z38uOBbetJSVkZlwkdzFhw6wpk1L0BuQs=";
+    # sha256 = "sha256-c/MrWUvwY/Z38uOBbetJSVkZlwkdzFhw6wpk1L0BuQs=";
+    sha256 = "sha256-VBHCsxaMI6mfmc/iQ4hJW/592rKck9HilTX2Hq7Hb5s=";
   };
 
   # patches = [./prl-tools-6.0.patch];

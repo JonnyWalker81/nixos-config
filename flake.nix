@@ -2,17 +2,17 @@
   description = "NixOS configuration and Home Manager configuration";
 
   inputs = {
-    # nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
-    # nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-24.05-darwin";
-    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-23.11-darwin";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+    # nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-24.05-darwin";
+    # nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-23.11-darwin";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     darwin.url = "github:lnl7/nix-darwin/master";
     darwin.inputs.nixpkgs.follows = "nixpkgs-unstable";
     # home-manager.url = "github:nix-community/home-manager/release-21.11";
-    # home-manager.url = "github:nix-community/home-manager/release-24.05";
-    home-manager.url = "github:nix-community/home-manager/release-23.11";
+    home-manager.url = "github:nix-community/home-manager/release-24.05";
+    # home-manager.url = "github:nix-community/home-manager/release-23.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     # Locks nixpkgs to an older version with an older Kernel that boots
     # on VMware Fusion Tech Preview. This can be swapped to nixpkgs when
@@ -54,6 +54,8 @@
     };
 
     neovim-flake = { url = "github:jordanisaacs/neovim-flake"; };
+
+    yazi.url = "github:sxyazi/yazi";
   };
 
   # inputs = {
@@ -85,6 +87,7 @@
       # Overlays is the list of overlays we want to apply from flake inputs.
       overlays = [
         inputs.emacs-overlay.overlay
+        inputs.yazi.overlays.default
         # inputs.neovim-nightly-overlay.overlay
         # inputs.neovim-nightly-overlay.overlays.default
         # (import (builtins.fetchTarball {

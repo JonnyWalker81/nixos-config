@@ -1043,9 +1043,9 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
 
   (let ((current-mode major-mode))
     (fundamental-mode)
-    ;; (setq prettier-js-args '("--trailing-comma" "es5"))
-    ;; (prettier-js)
-    ;; (setq prettier-js-args nil)
+    (setq prettier-js-args '("--trailing-comma" "es5"))
+    (prettier-js)
+    (setq prettier-js-args nil)
     (save-buffer)
     (funcall current-mode)
     )
@@ -1216,6 +1216,28 @@ tab-indent."
     (kill-new file-path))
 )
 
+(defun jr/magit-add-current-buffer-to-kill-ring ()
+  "Show the current branch in the echo-area and add it to the `kill-ring'."
+  (interactive)
+  (let ((branch (magit-get-current-branch)))
+    (if branch
+        (progn (kill-new branch)
+               (message "%s" branch))
+      (user-error "There is no current branch")))
+)
+
+
+(defun jr/copy-branch-name ()
+  "Copy the current Git branch name to the clipboard."
+  (interactive)
+  (require 'magit)
+  (let ((branch-name (magit-get-current-branch)))
+    (if branch-name
+        (progn
+          (kill-new branch-name)
+          (message "Copied branch name: %s" branch-name))
+      (message "Not in a Git repository or not on a branch"))))
+
 (use-package! treesit-auto 
               :config
 
@@ -1238,6 +1260,15 @@ tab-indent."
 (after! typescript-mode
         (setq typescript-indent-level 2)
         )
+
+(defun jr/dired-untracked (dir)
+  (interactive "DUntracked in directory: ")
+  (cd (projectile-project-root))
+  (switch-to-buffer (get-buffer-create "*untracked*"))
+  (shell-command "git ls-files --others --exclude-standard | xargs ls -l" (current-buffer))
+  (dired-mode dir)
+  (set (make-local-variable 'dired-subdir-alist)
+       (list (cons default-directory (point-min-marker)))))
 
 (provide 'config)
 ;;; config.el
