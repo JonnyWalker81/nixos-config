@@ -239,8 +239,8 @@
 (require 'protobuf-mode)
 (require 'prettier-js)
 
-(use-package! prettier-js
-  :hook ((typescript-mode typescript-tsx-mode) . prettier-js-mode))
+;; (use-package! prettier-js
+;;   :hook ((typescript-mode typescript-tsx-mode) . prettier-js-mode))
 
 (message "loadded prettier-js...")
 
@@ -320,7 +320,7 @@
   (setq lsp-enable-file-watchers t)
   (setq lsp-file-watch-threshold 3000)
   ;; (setq lsp-restart 'auto-restart)
-  
+
 
   (setq-hook! '(typescript-mode-hook typescript-tsx-mode-hook)
     +format-with-lsp nil)
@@ -559,9 +559,9 @@
                                     (setq +format-with 'prettier)
                                     ))
 
-  (add-hook 'before-save-hook (lambda ()
-                                (prettier-js)
-                                ))
+  ;; (add-hook 'before-save-hook (lambda ()
+  ;;                               (prettier-js)
+  ;;                               ))
 
   (remove-hook 'before-save-hook #'lsp-format-buffer t)
   (remove-hook 'before-save-hook #'lsp-organize-imports t)
@@ -572,7 +572,7 @@
   )
 
 (after! typescript-tsx-mode
-  
+
   (add-hook 'typescript-tsx-mode-hook (lambda ()
                                         ;; (format-all-mode -1)
                                         ;; (prettier-js-mode)
@@ -580,9 +580,9 @@
                                         (setq +format-with 'prettier)
                                         ))
 
-  (add-hook 'before-save-hook (lambda ()
-                                (prettier-js)
-                                ))
+  ;; (add-hook 'before-save-hook (lambda ()
+  ;;                               (prettier-js)
+  ;;                               ))
 
 
   (setq-hook! 'typescript-tsx-mode-hook +format-with-lsp nil)
@@ -591,25 +591,11 @@
   (setq typescript-indent-level 2)
   )
 
-(after! jsx-mode
-  
-  (add-hook 'typescript-tsx-mode-hook (lambda ()
-                                        ;; (format-all-mode -1)
-                                        ;; (prettier-js-mode)
-                                        (setq +format-with-lsp nil)
-                                        (setq +format-with 'prettier)
-                                        ))
 
-  (add-hook 'before-save-hook (lambda ()
-                                (prettier-js)
-                                ))
-
-
-  (setq-hook! 'typescript-tsx-mode-hook +format-with-lsp nil)
-  (remove-hook 'before-save-hook #'lsp-format-buffer t)
-  (remove-hook 'before-save-hook #'lsp-organize-imports t)
-  (setq typescript-indent-level 2)
-  )
+(setq-hook! 'typescript-tsx-mode-hook +format-with-lsp nil)
+(remove-hook 'before-save-hook #'lsp-format-buffer t)
+(remove-hook 'before-save-hook #'lsp-organize-imports t)
+(setq typescript-indent-level 2)
 
 (message "after typescript-tsx-mode")
 
@@ -1143,9 +1129,6 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
 ;;   (add-hook 'before-save-hook #'ocamlformat-before-save)
 ;; )
 
-;; (add-hook 'go-mode-hook 'lsp-deferred)
-(add-hook 'go-mode-hook 'lsp-defferred)
-(add-hook 'go-ts-mode-hook 'lsp-deferred)
 (use-package! go-mode
   ;; ;;   ;; :hook ((go-mode . lsp-mode))
   ;; ;;   :hook ((go-mode))
@@ -1158,14 +1141,19 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
   ;; (set-formatter! 'gofmt "goimports")
   (setq gofmt-command "goimports")
   ;; (add-hook 'before-save-hook 'gofmt-before-save)
-  (add-hook 'before-save-hook (lambda ()
-                                (gofmt-before-save)
-                                (lsp-organize-imports)
-                                ))
+  ;; (add-hook 'before-save-hook (lambda ()
+  ;;                               (gofmt-before-save)
+  ;;                               (lsp-organize-imports)
+  ;;                               ))
+
+  ;; (add-hook 'go-mode-hook 'lsp-deferred)
+  ;; (add-hook 'go-mode-hook 'lsp-defferred)
+  ;; (add-hook 'go-ts-mode-hook 'lsp-deferred)
+
+  (setq-hook! 'go-mode-hook +format-with-lsp t)
   ;; (lsp-mode)
   )
 ;;
-(setq-hook! 'go-mode-hook +format-with-lsp t)
 ;;
 (setq display-line-numbers-type 'relative)
 
@@ -1174,19 +1162,19 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
   (add-to-list 'auto-mode-alist '(".*Jenkinsfile.*\\'" . jenkinsfile-mode))
   )
 
-(defun check-lsp-mode ()
-  (when (derived-mode-p 'prog-mode)
-    (unless lsp-mode
-      (message "enabling lsp-mode")
-      (lsp-mode)
-      )
-    ;; (setq +format-with-lsp
-    ;;       ;; (not (or (eq major-mode 'typescript-tsx-mode)
-    ;;       ;;          (eq major-mode 'typescript-mode)))
-    ;;       )
-    ;; )
-    )
-  )
+;; (defun check-lsp-mode ()
+;;   (when (derived-mode-p 'prog-mode)
+;;     (unless lsp-mode
+;;       (message "enabling lsp-mode")
+;;       (lsp-mode)
+;;       )
+;;     ;; (setq +format-with-lsp
+;;     ;;       ;; (not (or (eq major-mode 'typescript-tsx-mode)
+;;     ;;       ;;          (eq major-mode 'typescript-mode)))
+;;     ;;       )
+;;     ;; )
+;;     )
+;;   )
 
 ;; (run-with-idle-timer 2 t #'check-lsp-mode)
 
