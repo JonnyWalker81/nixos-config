@@ -23,7 +23,7 @@ import qualified XMonad.StackSet as SS
 import XMonad.Layout.MultiToggle as MT
 import XMonad.Layout.SimpleFloat
 import XMonad.Layout.WindowArranger
-import XMonad.Layout.Named
+import XMonad.Layout.Renamed
 import XMonad.Layout.Magnifier
 -- import XMonad.Layout.Grid
 import XMonad.Layout.GridVariants (Grid(Grid))
@@ -42,7 +42,7 @@ import XMonad.Layout.Simplest
 import XMonad.Layout.SubLayouts
 import XMonad.Layout.ToggleLayouts
 import XMonad.Layout.Tabbed
-import XMonad.Layout.Circle
+import XMonad.Layout.CircleEx
 import XMonad.Layout.IM
 import XMonad.Layout.Reflect
 import XMonad.Layout.ComboP
@@ -67,8 +67,9 @@ import qualified Data.Map        as M
 -- certain contrib modules.
 --
 -- myTerminal      = "alacritty"
-myTerminal      = "wezterm"
+-- myTerminal      = "wezterm"
 -- myTerminal      = "kitty"
+myTerminal      = "ghostty"
 
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse :: Bool

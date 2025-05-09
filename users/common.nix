@@ -1,4 +1,11 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  system,
+  inputs,
+  ...
+}:
 
 # { config, lib, pkgs, theme, ... }:
 let
@@ -8,19 +15,26 @@ let
   zoxide = pkgs.zoxide;
   zoxideBin = zoxide + "/bin/zoxide";
 
-  mcfly = pkgs.mcfly;
-  mcflyBin = mcfly + "/bin/mcfly";
-
   homeDir = builtins.getEnv "HOME";
 
   isDarwin = pkgs.stdenv.isDarwin;
-  manpager = (pkgs.writeShellScriptBin "manpager" (if isDarwin then ''
-    sh -c 'col -bx | bat -l man -p'
-  '' else ''
-    cat "$1" | col -bx | bat --language man --style plain
-  ''));
+  manpager = (
+    pkgs.writeShellScriptBin "manpager" (
+      if isDarwin then
+        ''
+          sh -c 'col -bx | bat -l man -p'
+        ''
+      else
+        ''
+          cat "$1" | col -bx | bat --language man --style plain
+        ''
+    )
+  );
 
-in {
+  neovimNightly = inputs.neovim-nightly-overlay.packages.${system}.default;
+
+in
+{
   home.stateVersion = "18.09";
   xdg.enable = true;
 
@@ -34,13 +48,27 @@ in {
     recursive = true;
   };
 
-  home.file.".config/zls.json" = { source = ./zls.json; };
+  home.file.".config/zls.json" = {
+    source = ./zls.json;
+  };
 
-  home.file.".config/kitty/kitty.conf" = { source = ./kitty/kitty.conf; };
+  home.file.".config/kitty/kitty.conf" = {
+    source = ./kitty/kitty.conf;
+  };
 
-  home.file.".wezterm.lua" = { source = ./wezterm/wezterm.lua; };
+  home.file.".wezterm.lua" = {
+    source = ./wezterm/wezterm.lua;
+  };
 
   # home.file.".config/rofi/config.rasi" = { source = ./rofi/config.rasi; };
+
+  home.file.".config/ghostty/config" = {
+    source = ./ghostty/config;
+  };
+
+  home.file.".config/rainfrog/rainfrog_config.toml" = {
+    source = ./rainfrog/rainfrog_config.toml;
+  };
 
   home.file."scripts" = {
     source = ./scripts;
@@ -65,166 +93,198 @@ in {
     source = ./gitui/key_bindings.ron;
   };
 
-  home.file.".config/nvim" = {
-    # source = ./lazyvim;
-    # source = ./lazy;
-    source = ./nvim;
-    recursive = true;
-  };
+  # home.file.".config/nvim" = {
+  #   # source = ./lazyvim;
+  #   # source = ./lazy;
+  #   source = ./nvim;
+  #   recursive = true;
+  # };
 
   home.file.".config/dune/config" = {
     source = ./dune/config;
     recursive = true;
   };
 
+  home.file.".config/nyxt/config.lisp" = {
+    source = ./nyxt;
+    recursive = true;
+  };
+
   programs.emacs = {
     enable = true;
     package = pkgs.emacs-unstable;
-    extraPackages = (epkgs: [ epkgs.vterm ]);
+    extraPackages = (
+      epkgs: [
+        epkgs.vterm
+        epkgs.jinx
+      ]
+    );
   };
 
-  home.packages = [
-    pkgs.jetbrains-mono
-    pkgs.ripgrep
-    pkgs.fd
-    pkgs.monaspace
-    # pkgs.rustup
-    # pkgs.rust-analyzer
-    pkgs.thefuck
-    pkgs.zoxide
-    pkgs.bat
-    pkgs.delta
-    zoxide
-    pkgs.jq
-    pkgs.eza
-    pkgs.k9s
-    pkgs.procs
-    pkgs.graphviz
-    pkgs.fira-code
-    pkgs.fira-code-symbols
-    # pkgs.gcc_latest
-    pkgs.llvm
-    # pkgs.jetbrains.datagrip
-    pkgs.gitui
-    pkgs.bind
-    # pkgs.firefox-bin
-    # pkgs.firefox-esr-102-unwrapped
-    # pkgs.firefox-devedition-unwrapped
-    pkgs.pgmanage
-    pkgs.pgadmin4
-    pkgs.pandoc
-    pkgs.terraform-ls
-    pkgs.tree-sitter
-    pkgs.file
-    pkgs.nil
-    pkgs.nixpkgs-fmt
-    pkgs.nixfmt
-    pkgs.shfmt
-    # pkgs.opam
-    # pkgs.ocamlPackages.ocaml-lsp
-    # pkgs.ocamlPackages.findlib
-    # pkgs.tree-sitter.withPlugins
-    # (p: [ p.tree-sitter-tsx p.tree-sitter-go ])
-    # pkgs.tree-sitter-grammars.tree-sitter-c
-    # pkgs.tree-sitter-grammars.tree-sitter-go
-    # pkgs.tree-sitter-grammars.tree-sitter-tsx
-    # pkgs.tree-sitter-grammars.tree-sitter-sql
-    # pkgs.tree-sitter-grammars.tree-sitter-nix
-    # pkgs.tree-sitter-grammars.tree-sitter-hcl
-    # pkgs.tree-sitter-grammars.tree-sitter-css
-    # pkgs.tree-sitter-grammars.tree-sitter-cpp
-    # pkgs.tree-sitter-grammars.tree-sitter-yaml
-    # pkgs.tree-sitter-grammars.tree-sitter-rust
-    # pkgs.tree-sitter-grammars.tree-sitter-json
-    # pkgs.tree-sitter-grammars.tree-sitter-html
-    # pkgs.tree-sitter-grammars.tree-sitter-bash
-    # pkgs.tree-sitter-grammars.tree-sitter-typescript
-    # pkgs.tree-sitter-grammars.tree-sitter-javascript
-    (pkgs.python3.withPackages
-      (p: with p; [ epc orjson sexpdata six setuptools paramiko rapidfuzz ]))
-    # pkgs.python3
-    # pkgs.python311Packages.epc
-    # pkgs.python311Packages.orjson
-    # pkgs.python311Packages.sexpdata
-    # pkgs.python311Packages.six
-    # pkgs.python311Packages.setuptools
-    # pkgs.python311Packages.paramiko
-    # pkgs.python311Packages.rapidfuzz
+  home.packages =
+    [
+      pkgs.jetbrains-mono
+      pkgs.ripgrep
+      pkgs.fd
+      pkgs.monaspace
+      # pkgs.rustup
+      # pkgs.rust-analyzer
+      pkgs.thefuck
+      pkgs.zoxide
+      pkgs.bat
+      pkgs.delta
+      zoxide
+      pkgs.jq
+      pkgs.eza
+      pkgs.k9s
+      pkgs.procs
+      pkgs.graphviz
+      pkgs.fira-code
+      pkgs.fira-code-symbols
+      # pkgs.gcc_latest
+      pkgs.llvm
+      # pkgs.jetbrains.datagrip
+      pkgs.gitui
+      pkgs.bind
+      # pkgs.firefox-bin
+      # pkgs.firefox-esr-102-unwrapped
+      # pkgs.firefox-devedition-unwrapped
+      pkgs.pgmanage
+      pkgs.pgadmin4
+      pkgs.pandoc
+      pkgs.terraform-ls
+      pkgs.tree-sitter
+      pkgs.file
+      pkgs.nil
+      pkgs.nixpkgs-fmt
+      pkgs.nixfmt-rfc-style
+      pkgs.shfmt
+      # pkgs.opam
+      # pkgs.ocamlPackages.ocaml-lsp
+      # pkgs.ocamlPackages.findlib
+      # pkgs.tree-sitter.withPlugins
+      # (p: [ p.tree-sitter-tsx p.tree-sitter-go ])
+      # pkgs.tree-sitter-grammars.tree-sitter-c
+      # pkgs.tree-sitter-grammars.tree-sitter-go
+      # pkgs.tree-sitter-grammars.tree-sitter-tsx
+      # pkgs.tree-sitter-grammars.tree-sitter-sql
+      # pkgs.tree-sitter-grammars.tree-sitter-nix
+      # pkgs.tree-sitter-grammars.tree-sitter-hcl
+      # pkgs.tree-sitter-grammars.tree-sitter-css
+      # pkgs.tree-sitter-grammars.tree-sitter-cpp
+      # pkgs.tree-sitter-grammars.tree-sitter-yaml
+      # pkgs.tree-sitter-grammars.tree-sitter-rust
+      # pkgs.tree-sitter-grammars.tree-sitter-json
+      # pkgs.tree-sitter-grammars.tree-sitter-html
+      # pkgs.tree-sitter-grammars.tree-sitter-bash
+      # pkgs.tree-sitter-grammars.tree-sitter-typescript
+      # pkgs.tree-sitter-grammars.tree-sitter-javascript
+      (pkgs.python3.withPackages (
+        p: with p; [
+          epc
+          orjson
+          sexpdata
+          six
+          setuptools
+          paramiko
+          rapidfuzz
+        ]
+      ))
+      # pkgs.python3
+      # pkgs.python311Packages.epc
+      # pkgs.python311Packages.orjson
+      # pkgs.python311Packages.sexpdata
+      # pkgs.python311Packages.six
+      # pkgs.python311Packages.setuptools
+      # pkgs.python311Packages.paramiko
+      # pkgs.python311Packages.rapidfuzz
 
-    pkgs.difftastic
-    pkgs.nixd
-    pkgs.luaformatter
-    pkgs.lua-language-server
-    pkgs.stylua
-    pkgs.nodePackages.sql-formatter
-    pkgs.nodePackages.typescript-language-server
-    pkgs.sqls
-    pkgs.yazi
-  ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
-    pkgs.libreoffice
-    pkgs.chromium
-    pkgs.go
-    # pkgs.gopls
-    # pkgs.gotools
-    # pkgs.gotestsum
-    pkgs.rustup
-    # pkgs.rust-analyzer
-    pkgs.clang
-    pkgs.just
-    pkgs.docker-compose
-    # pkgs.awscli2
-    pkgs.postgresql_14
-    pkgs.feh
-    pkgs.xplr
-    pkgs.kitty
-    pkgs.font-awesome_5
-    pkgs.powerline-fonts
-    pkgs.powerline-symbols
-    pkgs.cascadia-code
-    # pkgs.fzf
-    pkgs.openssl
-    pkgs.lsof
-    pkgs.gnupg
-    pkgs.hunspell
-    pkgs.croc
-    # pkgs.zigpkgs.master
-    pkgs.bottom
-    pkgs.kubernetes-helm
-    pkgs.waypoint
-    # pkgs.helix
-    pkgs.unzip
-    # pkgs.sublime-merge
-    pkgs.lapce
-    pkgs.terraform
-    pkgs.enchant
-    pkgs.gh
+      pkgs.difftastic
+      pkgs.nixd
+      pkgs.luaformatter
+      pkgs.lua-language-server
+      pkgs.stylua
+      pkgs.nodePackages.sql-formatter
+      pkgs.nodePackages.typescript-language-server
+      pkgs.sqls
+      pkgs.yazi
+      pkgs.qemu
 
-    # pkgs.lazygit
-    pkgs.diskonaut
-    pkgs.sqlite
-    pkgs.acpi
-    pkgs.golangci-lint
-    pkgs.kubernetes
-    pkgs.pcmanfm
-    pkgs.cinnamon.nemo
-    pkgs.rofi
-    pkgs.clipcat
-    pkgs.vscode
-    pkgs.haskellPackages.libmpd
-    pkgs.haskellPackages.xmobar
-    pkgs.haskellPackages.xmonad
-    pkgs.haskellPackages.greenclip
-    # pkgs.nyxt
-    pkgs.ssm-session-manager-plugin
-    # pkgs.atuin
-    pkgs.bun
-    pkgs.wezterm
-    pkgs.zellij
-    pkgs.gtk3
-    pkgs.teller
-    pkgs.warp-terminal
-    pkgs.neofetch
-  ];
+      inputs.zen-browser.packages."${system}".default
+      # inputs.Neve.packages.${pkgs.system}.default
+      # inputs.nvix.packages.${pkgs.system}.full
+      # neovimNightly
+      # pkgs.nixvim
+
+      inputs.nixvim.packages.${pkgs.system}.default
+    ]
+    ++ lib.optionals (!pkgs.stdenv.isDarwin) [
+      pkgs.libreoffice
+      pkgs.chromium
+      # pkgs.gopls
+      # pkgs.gotools
+      # pkgs.gotestsum
+      pkgs.rustup
+      # pkgs.rust-analyzer
+      pkgs.clang
+      pkgs.just
+      pkgs.docker-compose
+      # pkgs.awscli2
+      pkgs.postgresql_14
+      pkgs.feh
+      pkgs.xplr
+      pkgs.kitty
+      pkgs.font-awesome_5
+      pkgs.powerline-fonts
+      pkgs.powerline-symbols
+      pkgs.cascadia-code
+      # pkgs.fzf
+      pkgs.openssl
+      pkgs.lsof
+      pkgs.gnupg
+      pkgs.hunspell
+      pkgs.hunspellDicts.en-us
+      pkgs.croc
+      # pkgs.zigpkgs.master
+      pkgs.bottom
+      pkgs.kubernetes-helm
+      # pkgs.waypoint
+      # pkgs.helix
+      pkgs.unzip
+      # pkgs.sublime-merge
+      pkgs.lapce
+      pkgs.terraform
+      pkgs.enchant
+      pkgs.gh
+
+      # pkgs.lazygit
+      pkgs.diskonaut
+      pkgs.sqlite
+      pkgs.acpi
+      pkgs.golangci-lint
+      pkgs.kubernetes
+      pkgs.pcmanfm
+      pkgs.nemo
+      pkgs.rofi
+      pkgs.clipcat
+      pkgs.vscode
+      pkgs.haskellPackages.libmpd
+      pkgs.haskellPackages.xmobar
+      pkgs.haskellPackages.xmonad
+      pkgs.haskellPackages.greenclip
+      pkgs.nyxt
+      pkgs.ssm-session-manager-plugin
+      # pkgs.atuin
+      pkgs.bun
+      pkgs.wezterm
+      # pkgs.ghostty
+      pkgs.zellij
+      pkgs.gtk3
+      pkgs.teller
+      pkgs.warp-terminal
+      pkgs.neofetch
+      pkgs.pandoc
+    ];
 
   home.sessionVariables = {
     LANG = "en_US.UTF-8";
@@ -251,45 +311,44 @@ in {
         search = {
           force = true;
           default = "Google";
-          order = [ "Google" "Searx" ];
+          order = [
+            "Google"
+            "Searx"
+          ];
           engines = {
             "Nix Packages" = {
-              urls = [{
-                template = "https://search.nixos.org/packages";
-                params = [
-                  {
-                    name = "type";
-                    value = "packages";
-                  }
-                  {
-                    name = "query";
-                    value = "{searchTerms}";
-                  }
-                ];
-              }];
-              icon =
-                "''${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              urls = [
+                {
+                  template = "https://search.nixos.org/packages";
+                  params = [
+                    {
+                      name = "type";
+                      value = "packages";
+                    }
+                    {
+                      name = "query";
+                      value = "{searchTerms}";
+                    }
+                  ];
+                }
+              ];
+              icon = "''${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
               definedAliases = [ "@np" ];
             };
             "NixOS Wiki" = {
-              urls = [{
-                template = "https://nixos.wiki/index.php?search={searchTerms}";
-              }];
+              urls = [ { template = "https://nixos.wiki/index.php?search={searchTerms}"; } ];
               iconUpdateURL = "https://nixos.wiki/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
               definedAliases = [ "@nw" ];
             };
             "Searx" = {
-              urls = [{
-                template = "https://searx.aicampground.com/?q={searchTerms}";
-              }];
+              urls = [ { template = "https://searx.aicampground.com/?q={searchTerms}"; } ];
               iconUpdateURL = "https://nixos.wiki/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
               definedAliases = [ "@searx" ];
             };
             "Bing".metaData.hidden = true;
-            "Google".metaData.alias =
-              "@g"; # builtin engines only support specifying one additional alias
+            "Google".metaData.alias = "@g"; # builtin engines only support specifying one additional alias
           };
         };
         # extensions = with pkgs.nur.repos.rycee.firefox-addons; [
@@ -367,16 +426,9 @@ in {
   #   ];
   # };
 
-  programs.mcfly = {
-    enable = true;
-    # enableZshIntegration = false;
-    # fuzzySearchFactor = 3;
-    keyScheme = "vim";
-  };
-
   programs.fzf = {
     enable = true;
-    enableZshIntegration = false;
+    enableZshIntegration = true;
   };
 
   programs.git = {
@@ -396,11 +448,12 @@ in {
     };
 
     aliases = {
-      bump =
-        "!git checkout $1; git pull origin $1; git rebase \${2:-'main'}; git push origin; git checkout \${2:-'main'}";
+      bump = "!git checkout $1; git pull origin $1; git rebase \${2:-'main'}; git push origin; git checkout \${2:-'main'}";
     };
 
-    difftastic = { enable = true; };
+    difftastic = {
+      enable = true;
+    };
 
     delta = {
       enable = false;
@@ -414,31 +467,33 @@ in {
     };
   };
 
-  programs.atuin = {
-    enable = true;
-    settings = {
-      # Uncomment this to use your instance
-      # sync_address = "https://majiy00-shell.fly.dev";
-      keymap_mode = "vim-normal";
-    };
-  };
+  # programs.atuin = {
+  #   enable = true;
+  #   settings = {
+  #     # Uncomment this to use your instance
+  #     # sync_address = "https://majiy00-shell.fly.dev";
+  #     keymap_mode = "vim-normal";
+  #   };
+  # };
 
   programs.zsh = {
     enable = true;
     shellAliases = {
       ll = "eza -l";
       l = "eza -lah";
-      rebuild =
-        "sudo NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1 nixos-rebuild switch --flake .#vm-aarch64";
+      rebuild = "sudo NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1 nixos-rebuild switch --flake .#vm-aarch64";
       rp = "sudo nixos-rebuild switch --flake .#vm-aarch64-prl";
       ri = "sudo nixos-rebuild switch --flake .#vm-intel";
       rdd = "sudo darwin-rebuild switch --flake .#vm-darwin";
-      h = "mcfly search -f ''";
       f = "history | fzf --sort --exact | sh";
       bc = "git branch | grep '*' | awk '{print $2}' | pbcopy";
 
       pbcopy = "xclip -selection clipboard";
       pbpaste = "xclip -o";
+
+      ap = ''export AWS_PROFILE=$(aws configure list-profiles | fzf --prompt "Choose active AWS profile:")'';
+      sw = ''terraform workspace list | fzf --prompt "Choose workspace:" | xargs -r terraform workspace select'';
+      ka = ''ps -aux | fzf | awk '{print $2}' | xargs -r kill -9'';
 
       cd = "z";
       ys = "yarn install && yarn start";
@@ -449,7 +504,10 @@ in {
 
     # autosuggestion = { enable = true; };
     # enableAutosuggestion = true;
-    enableAutosuggestions = true;
+    # enableAutosuggestions = true;
+    autosuggestion = {
+      enable = true;
+    };
     enableCompletion = true;
     syntaxHighlighting.enable = true;
     sessionVariables = {
@@ -471,24 +529,23 @@ in {
       VISUAL = "$EDITOR"; # $VISUAL use Emacs in GUI mode
     };
 
-    # eval "$(${mcflyBin} init zsh)"
     initExtra = ''
         source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
         eval "$(${zoxideBin} init zsh)"
-        # eval "$(${mcflyBin} init zsh)"
         eval "$(ssh-agent -s)"
-        # bindkey "^R" mcfly-history-widget
         source ~/.bash_join_db
 
         [[ ! -r /home/cipher/.opam/opam-init/init.zsh ]] || source /home/cipher/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
 
-        export ATUIN_NOBIND="true"
-        eval "$(atuin init zsh)"
+        # export ATUIN_NOBIND="true"
+        # eval "$(atuin init zsh)"
 
-        # bindkey '^z' atuin-search
-        bindkey -M emacs '^r' atuin-search
-        bindkey -M viins '^r' atuin-search
-        bindkey -M vicmd '^r' atuin-search
+        source <(fzf --zsh)
+
+        # # bindkey '^z' atuin-search
+        # bindkey -M emacs '^r' atuin-search
+        # bindkey -M viins '^r' atuin-search
+        # bindkey -M vicmd '^r' atuin-search
 
 
         # bind to the up key, which depends on terminal mode
@@ -511,7 +568,10 @@ in {
 
     oh-my-zsh = {
       enable = true;
-      plugins = [ "git" "thefuck" ];
+      plugins = [
+        "git"
+        "thefuck"
+      ];
       theme = "robbyrussell";
     };
 
@@ -521,15 +581,15 @@ in {
     };
   };
 
-  programs.neovim = {
-    enable = true;
-    # package = pkgs.neovim-nightly;
-    # package = pkgs.unstable.neovim;
-    # package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
-
-    viAlias = true;
-    vimAlias = true;
-  };
+  # programs.neovim = {
+  #   enable = true;
+  #   # package = pkgs.neovim-nightly;
+  #   # package = pkgs.unstable.neovim;
+  #   package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
+  #
+  #   viAlias = true;
+  #   vimAlias = true;
+  # };
   # programs.neovim = {
   #   enable = true;
   #   package = pkgs.neovim-nightly;
@@ -573,15 +633,16 @@ in {
 
   programs.direnv = {
     enable = true;
-    nix-direnv = { enable = true; };
+    nix-direnv = {
+      enable = true;
+    };
   };
 
   programs.starship = {
     enable = true;
     # Configuration written to ~/.config/starship.toml
     settings = {
-      directory.fish_style_pwd_dir_length =
-        1; # turn on fish directory truncation
+      directory.fish_style_pwd_dir_length = 1; # turn on fish directory truncation
       directory.truncation_length = 2; # number of directories not to truncate
       add_newline = true;
 
@@ -690,7 +751,9 @@ in {
         italic.family = "JetBrains Mono Medium";
       };
 
-      selection = { save_to_clipboard = true; };
+      selection = {
+        save_to_clipboard = true;
+      };
 
       key_bindings = [
         {

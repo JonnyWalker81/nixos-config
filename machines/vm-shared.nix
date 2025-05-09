@@ -1,13 +1,21 @@
-{ config, pkgs, currentSystem, currentSystemName, inputs, ... }:
+{
+  config,
+  pkgs,
+  currentSystem,
+  currentSystemName,
+  inputs,
+  ...
+}:
 
 {
   # We require 5.14+ for VMware Fusion on M1.
   # boot.kernelPackages = pkgs.linuxPackages_5_15;
 
   # Be careful updating this.
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.linuxPackages_6_6;
   # boot.kernelPackages = pkgs.linuxPackages_5_18;
-
+  services.journald.extraConfig = "SystemMaxUse=100M";
   # use unstable nix so we can access flakes
   nix = {
     # package = pkgs.nixUnstable;
@@ -19,11 +27,17 @@
     '';
 
     settings = {
-      substituters = [ "https://hyprland.cachix.org" ];
+      substituters = [ "https://mitchellh-nixos-config.cachix.org" ];
       trusted-public-keys = [
-        "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+        "mitchellh-nixos-config.cachix.org-1:bjEbXJyLrL1HZZHBbO4QALnI5faYZppzkU4D2s0G8RQ="
       ];
     };
+
+    # settings = {
+    #
+    #   substituters = [ "https://hyprland.cachix.org" ];
+    #   trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
+    # };
   };
 
   # We expect to run the VM on hidpi machines.
@@ -37,7 +51,7 @@
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowUnsupportedSystem = true;
 
-  # boot.loader.systemd-boot.consoleMode = "0";
+  boot.loader.systemd-boot.consoleMode = "0";
 
   # Define your hostname.
   networking.hostName = "cipher";
@@ -46,6 +60,12 @@
   time.timeZone = "America/Los_Angeles";
 
   # networking.timeServers = config.networking.timeServers.default ++ [ "ntp.example.com" ];
+  networking.timeServers = [
+    "pool.ntp.org"
+    "time.nist.gov"
+  ];
+  services.timesyncd.enable = true;
+
   # services.ntp.enable = true;
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
@@ -136,99 +156,112 @@
   # services.displayManager.defaultSession = "none+xmonad";
 
   # setup windowing environment
-  services.xserver = {
-    # enable = true;
-    # xkb = {
-    #   variant = "";
-    #   layout = "us";
-    # };
-    # libinput.enable = true;
-    # displayManager.sddm = {
-    #   enable = true;
-    #   autoNumlock = true;
-    #   wayland.enable = true;
-    #   theme = "tokyo-night-sddm";
-    # };
-
-    enable = true;
-    # xkb.layout = "us";
-    layout = "us";
-    dpi = 220;
-
-    #desktopManager = {
-    #  xterm.enable = false;
-    #  wallpaper.mode = "scale";
-    #};
-
-    # resolutions = [
-    #   #  # { x = 2560; y = 1600;}
-    #   # { x = 2880; y = 1800;}
-    #   (if currentSystem == "aarch64-linux" then {
-    #     x = 3840;
-    #     y = 2160;
-    #   } else {
-    #     x = 2560;
-    #     y = 1600;
-    #   })
-    # ];
-
-    desktopManager = {
-      xterm.enable = false;
-      wallpaper.mode = "fill";
-    };
-
+  services = {
     displayManager = {
-      # sddm.enable = true;
-
-      # startx.enable = true;
-      lightdm.enable = true;
-      # defaultSession = "none+awesome";
       defaultSession = "none+xmonad";
-      sessionCommands = ''
-        # ${pkgs.xorg.xrandr}/bin/xrandr -s '1920x1080'
-        ${pkgs.xorg.xset}/bin/xset r rate 1000 1000
-      '';
-      # sddm.enable = true;
-      # sddm.enableHidpi = true;
-      # defaultSession = "none+i3";
-      # lightdm.enable = true;
-
-      # AARCH64: For now, on Apple Silicon, we must manually set the
-      # display resolution. This is a known issue with VMware Fusion.
-
-      # sessionCommands = ''
-      # ${pkgs.xorg.xrdb}/bin/xrdb -merge <<EOF
-      #  xft.dpi: 192
-      #  Xcursor.theme: Adwaita
-      #  Xcursor.size: 64
-      # EOF
-      # '';
-      # sessionCommands = ''
-      #   ${pkgs.xorg.xset}/bin/xset r rate 200 40
-      #   ${pkgs.xorg.xrandr}/bin/xrandr -s '2880x1800'
-      # '';
     };
 
-    windowManager.xmonad = {
-      #  i3.enable = true;
+    xserver = {
+      # enable = true;
+      # xkb = {
+      #   variant = "";
+      #   layout = "us";
+      # };
+      # libinput.enable = true;
+      # displayManager.sddm = {
+      #   enable = true;
+      #   autoNumlock = true;
+      #   wayland.enable = true;
+      #   theme = "tokyo-night-sddm";
+      # };
+
       enable = true;
-      enableContribAndExtras = true;
+      # xkb.layout = "us";
+      xkb.layout = "us";
+      dpi = 220;
 
-      extraPackages = hpkgs: [
-        hpkgs.xmonad-contrib
-        hpkgs.xmonad-extras
-        hpkgs.xmonad
-      ];
+      #desktopManager = {
+      #  xterm.enable = false;
+      #  wallpaper.mode = "scale";
+      #};
+
+      # resolutions = [
+      #   #  # { x = 2560; y = 1600;}
+      #   # { x = 2880; y = 1800;}
+      #   (if currentSystem == "aarch64-linux" then {
+      #     x = 3840;
+      #     y = 2160;
+      #   } else {
+      #     x = 2560;
+      #     y = 1600;
+      #   })
+      # ];
+
+      desktopManager = {
+        xterm.enable = false;
+        wallpaper.mode = "fill";
+      };
+
+      displayManager = {
+        # defaultSession = "none+i3";
+        # sddm.enable = true;
+
+        # startx.enable = true;
+        lightdm.enable = true;
+        # defaultSession = "none+awesome";
+        # defaultSession = "none+xmonad";
+        # ${pkgs.xorg.xrandr}/bin/xrandr -s '1920x1080'
+        # ${pkgs.xorg.xset}/bin/xset r rate 1000 1000
+        sessionCommands = ''
+            # ${pkgs.xorg.xset}/bin/xset r rate 200 50
+          ${pkgs.xorg.xset}/bin/xset r rate 1000 1000
+        '';
+        # sddm.enable = true;
+        # sddm.enableHidpi = true;
+        # defaultSession = "none+i3";
+        # lightdm.enable = true;
+
+        # AARCH64: For now, on Apple Silicon, we must manually set the
+        # display resolution. This is a known issue with VMware Fusion.
+
+        # sessionCommands = ''
+        # ${pkgs.xorg.xrdb}/bin/xrdb -merge <<EOF
+        #  xft.dpi: 192
+        #  Xcursor.theme: Adwaita
+        #  Xcursor.size: 64
+        # EOF
+        # '';
+        # sessionCommands = ''
+        #   ${pkgs.xorg.xset}/bin/xset r rate 200 40
+        #   ${pkgs.xorg.xrandr}/bin/xrandr -s '2880x1800'
+        # '';
+      };
+
+      # windowManager = {
+      #   i3.enable = true;
+      # };
+
+      windowManager.xmonad = {
+        #  i3.enable = true;
+        enable = true;
+        enableContribAndExtras = true;
+
+        extraPackages = hpkgs: [
+          hpkgs.xmonad-contrib
+          hpkgs.xmonad-extras
+          hpkgs.xmonad
+        ];
+      };
+
+      # windowManager.dwm = { enable = true; };
+
+      # windowManager.awesome = {
+      #   # i3.enable = true;
+      #   enable = true;
+      #
+      #   luaModules = with pkgs.luaPackages; [ luarocks luadbi-mysql ];
+      # };
     };
-
-    # windowManager.dwm = { enable = true; };
-
-    # windowManager.awesome = {
-    #   # i3.enable = true;
-    #   enable = true;
-    #
-    #   luaModules = with pkgs.luaPackages; [ luarocks luadbi-mysql ];
-    # };
   };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
@@ -249,19 +282,23 @@
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs;
+  environment.systemPackages =
+    with pkgs;
     [
       # firefox
       # neovim
+      asciidoc
+      cachix
       gnumake
       killall
       niv
-      rxvt_unicode
+      rxvt-unicode-unwrapped
       xsel
       xclip
       vimHugeX
       # nixfmt-classic
-      nixfmt
+      nixfmt-rfc-style
+      linuxKernel.packages.linux_6_6.prl-tools
 
       # gitAndTools.gitFull
 
@@ -273,11 +310,12 @@
       # haskellPackages.xmonad
       # haskellPackages.greenclip
 
-      # (writeShellScriptBin "xrandr-auto" ''
-      #   xrandr --output Virtual-1 --auto
-      #   # xrandr --output Virtual-1 --mode 3840x2097
-      # '')
-    ] ++ lib.optionals (currentSystemName == "vm-aarch64") [
+      (writeShellScriptBin "xrandr-auto" ''
+          xrandr --output Virtual-1 --auto
+        #   # xrandr --output Virtual-1 --mode 3840x2097
+      '')
+    ]
+    ++ lib.optionals (currentSystemName == "vm-aarch64") [
 
       # This is needed for the vmware user tools clipboard to work.
       # You can test if you don't need this by deleting this and seeing

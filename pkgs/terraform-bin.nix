@@ -1,7 +1,10 @@
-{ callPackage ? pkgs.callPackage, pkgs ? import <nixpkgs> { } }:
+{
+  callPackage ? pkgs.callPackage,
+  pkgs ? import <nixpkgs> { },
+}:
 
 callPackage (import ./hashicorp/generic.nix) {
   name = "terraform";
-  version = "1.9.3";
-  sha256 = "GTziaar9XETzWc1zp1xcx6qrkk61w2AXhMGHNXWCjsc=";
+  version = "1.10.5";
+  sha256 = "sha256-DKXWl3x8Rr+ku+AwAwuRHol88Mtyv/VSX7dsEPHDQJo=";
 }

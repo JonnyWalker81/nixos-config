@@ -9,7 +9,7 @@
   (gradle-mode 1))
 
 (use-package! evil-org
-  :when (featurep! :feature evil +everywhere)
+  :when (module! :feature evil +everywhere)
   :hook (org-mode . evil-org-mode)
   :init
   (add-hook 'evil-org-mode-hook
@@ -26,15 +26,15 @@
 ;;   (message "Enabled helm-posframe")
 ;;   )
 
-(with-eval-after-load 'flycheck
-  (add-hook 'flycheck-mode-hook #'flycheck-inline-mode))
+;; (with-eval-after-load 'flycheck
+;;   (add-hook 'flycheck-mode-hook #'flycheck-inline-mode))
 
 (setq auth-sources '("~/.authinfo"))
 
-(with-eval-after-load 'flycheck
-   ;; (require 'flycheck-posframe)
-   ;; (add-hook 'flycheck-mode-hook #'flycheck-posframe-mode)
-)
+;; (with-eval-after-load 'flycheck
+;;   ;; (require 'flycheck-posframe)
+;;   ;; (add-hook 'flycheck-mode-hook #'flycheck-posframe-mode)
+;;   )
 
 ;; (def-package! evil-org
 ;;   :when (featurep! :feature evil +everywhere)

@@ -1,0 +1,5 @@
+theme = Firefly Traditional
+gtk-titlebar = false
+window-decoration = false
+copy-on-select = clipboard
+

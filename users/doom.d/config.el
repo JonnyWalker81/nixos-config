@@ -1,7 +1,7 @@
 ;;-*- lexical-binding: t -*-
 ;; ~/.doom.d/config.el -*- lexical-binding: t; -*-
 
-
+(message "loading...")
 (defun load-directory (dir)
   (let ((load-it (lambda (f)
 		   (load-file (concat (file-name-as-directory dir) f)))
@@ -15,10 +15,8 @@
 ;; (add-to-list 'load-path "~/Dropbox/dotfiles/doom/elisp/sunrise-commander")
 (add-to-list 'exec-path "~/.cargo/bin")
 (add-to-list 'load-path "~/Repositories/org-reveal")
-(when (file-exists-p "~/Repositories/komodo")
-  (add-to-list 'load-path "~/Repositories/komodo")
-  (load-directory "~/Repositories/komodo")
-  )
+
+(message "loaded path config...")
 ;; (setq org-directory "~/Dropbox/Notes/Org/")
 
 ;; (require 'sunrise)
@@ -59,8 +57,6 @@
 
 (add-to-list 'treesit-extra-load-path "~/.tree-sitter/bin")
 
-
-
 (load! "config-misc")
 (load! "config-font")
 (load! "config-bindings")
@@ -84,10 +80,9 @@
 (define-key evil-visual-state-map (kbd "b") 'evil-backward-little-word-begin)
 (define-key evil-visual-state-map (kbd "i w") 'evil-inner-little-word)
 
-
 (setq auth-sources '("~/.authinfo"))
 
-
+(message "loaded authinfo...")
 ;; (require 'lin)
 ;; (global-hl-line-mode 1)
 ;; (lin-add-to-many-modes)
@@ -160,8 +155,6 @@
   ;; (global-blamer-mode 1)
   )
 
-
-
 ;; (setq rustic-lsp-server 'rust-analyzer)
 ;; (setq lsp-rust-server 'rust-analyzer)
 ;; (setq lsp-rust-analyzer-server-command '("~/.cargo/bin/rust-analyzer"))
@@ -177,6 +170,7 @@
                                   "*node_modules*"
                                   ))
 
+(message "loaded blamer...")
 ;; ;; (after! rustic
 ;; ;;   (setq rustic-lsp-server 'rust-analyzer)
 ;; ;;   )
@@ -243,7 +237,12 @@
 ;; (doom-themes-visual-bell-config)
 
 (require 'protobuf-mode)
-;; (require 'prettier-js)
+(require 'prettier-js)
+
+(use-package! prettier-js
+  :hook ((typescript-mode typescript-tsx-mode) . prettier-js-mode))
+
+(message "loadded prettier-js...")
 
 ;; (setq prettier-js-args nil)
 
@@ -302,6 +301,7 @@
 
 ;; Optional - provides fancier overlays.
 
+(message "before lsp-mode...")
 (after! lsp-mode
   ;;   (lsp-register-custom-settings
   ;;    '(
@@ -315,12 +315,31 @@
   ;;   (setq lsp-ui-doc-enable t)
   ;;   (setq lsp-ui-peek-enable t)
   ;;   (setq lsp-yaml-single-quote t)
-
+  ;;   
+  (add-to-list 'lsp--formatting-indent-alist '(typescript-tsx-mode . typescript-indent-level))
   (setq lsp-enable-file-watchers t)
   (setq lsp-file-watch-threshold 3000)
   ;; (setq lsp-restart 'auto-restart)
+  
+
+  (setq-hook! '(typescript-mode-hook typescript-tsx-mode-hook)
+    +format-with-lsp nil)
+
   )
 
+(after! editorconfig
+  (add-to-list 'editorconfig-indentation-alist '(typescript-tsx-mode typescript-indent-level)))
+
+(message "after lsp-mode...")
+
+;; (after! format
+;;   (setq +format-on-save-enabled-modes
+;;         (delq 'typescript-mode +format-on-save-enabled-modes)
+;;         +format-on-save-enabled-modes
+;;         (delq 'typescript-tsx-mode +format-on-save-enabled-modes))
+;;   )
+
+(message "after lsp...")
 ;; (use-package lsp-ui
 ;;   :ensure t
 ;;   :commands lsp-ui-mode)
@@ -353,7 +372,7 @@
 ;;   :hook (go-mode . flycheck-golangci-lint-setup))
 
 ;; (use-package! tree-sitter
-;;               :ensure 
+;;               :ensure
 ;;               :config
 ;;   (add-to-list 'tree-sitter-load-path (concat doom-cache-dir "tree-sitter"))
 ;; )
@@ -404,12 +423,15 @@
             (alltodo "")
             ))
           ))
+
+  (define-key org-mode-map (kbd "C-c C-r") verb-command-map)
+
   )
 
 ;; ;; in ~/.doom.d/config.el (for example)
 (after! smartparens
   (dolist (brace '("(" "{" "["))
-    (sp-pair brace nil :unless '(:rem sp-point-before-word-p sp-point-before-same-p)))) 
+    (sp-pair brace nil :unless '(:rem sp-point-before-word-p sp-point-before-same-p))))
 
 (setq doom-line-numbers-style 'relative)
 
@@ -448,7 +470,6 @@
 
 ;; (global-whitespace-mode)
 ;; (global-whitespace-newline-mode)
-
 
 ;; (advice-add 'lsp :before (lambda (&rest _args) (eval '(setf (lsp-session-server-id->folders (lsp-session)) (ht)))))
 
@@ -524,15 +545,110 @@
 
 ;; (add-hook 'graphql-mode-hook 'prettier-js-mode)
 ;;
+;; (setq-hook! 'typescript-mode-hook
+;;   )
+
+(message "after magit...")
+
+
 (after! typescript-mode
   (add-hook 'typescript-mode-hook (lambda ()
-                                    (format-all-mode -1)
+                                    ;; (format-all-mode -1)
                                     ;; (prettier-js-mode)
                                     (setq +format-with-lsp nil)
+                                    (setq +format-with 'prettier)
                                     ))
+
+  (add-hook 'before-save-hook (lambda ()
+                                (prettier-js)
+                                ))
+
+  (remove-hook 'before-save-hook #'lsp-format-buffer t)
+  (remove-hook 'before-save-hook #'lsp-organize-imports t)
+
+
+  (setq-hook! 'typescript-mode-hook +format-with-lsp nil)
+  (setq typescript-indent-level 2)
   )
 
-(setq-hook! 'typescript-mode-hook +format-with-lsp nil)
+(after! typescript-tsx-mode
+  
+  (add-hook 'typescript-tsx-mode-hook (lambda ()
+                                        ;; (format-all-mode -1)
+                                        ;; (prettier-js-mode)
+                                        (setq +format-with-lsp nil)
+                                        (setq +format-with 'prettier)
+                                        ))
+
+  (add-hook 'before-save-hook (lambda ()
+                                (prettier-js)
+                                ))
+
+
+  (setq-hook! 'typescript-tsx-mode-hook +format-with-lsp nil)
+  (remove-hook 'before-save-hook #'lsp-format-buffer t)
+  (remove-hook 'before-save-hook #'lsp-organize-imports t)
+  (setq typescript-indent-level 2)
+  )
+
+(after! jsx-mode
+  
+  (add-hook 'typescript-tsx-mode-hook (lambda ()
+                                        ;; (format-all-mode -1)
+                                        ;; (prettier-js-mode)
+                                        (setq +format-with-lsp nil)
+                                        (setq +format-with 'prettier)
+                                        ))
+
+  (add-hook 'before-save-hook (lambda ()
+                                (prettier-js)
+                                ))
+
+
+  (setq-hook! 'typescript-tsx-mode-hook +format-with-lsp nil)
+  (remove-hook 'before-save-hook #'lsp-format-buffer t)
+  (remove-hook 'before-save-hook #'lsp-organize-imports t)
+  (setq typescript-indent-level 2)
+  )
+
+(message "after typescript-tsx-mode")
+
+(setq-hook! 'typescript-tsx-mode-hook
+  typescript-indent-level 2)
+
+
+(setq-hook! 'typescript-mode-hook
+  typescript-indent-level 2)
+
+
+(setq-hook! 'web-mode-hook
+  typescript-indent-level 2)
+
+
+(message "after web-mode")
+
+(add-hook 'typescript-mode-hook
+          (lambda ()
+            ;; Remove LSP’s format and organize-imports on save
+            (remove-hook 'before-save-hook #'lsp-format-buffer t)
+            (remove-hook 'before-save-hook #'lsp-organize-imports t)))
+
+(add-hook 'typescript-tsx-mode-hook
+          (lambda ()
+            ;; Remove LSP’s format and organize-imports on save
+            (remove-hook 'before-save-hook #'lsp-format-buffer t)
+            (remove-hook 'before-save-hook #'lsp-organize-imports t)))
+
+
+(setq +format-with-lsp nil)
+
+(setq lsp-format-buffer-on-save nil)
+
+(setq lsp-javascript-format-enable nil
+      lsp-typescript-format-enable nil)
+
+
+;; (setq-hook! 'typescript-mode-hook +format-with-lsp nil)
 ;;
 ;; (add-hook 'swift-mode-hook (lambda ()
 ;;                              (format-all-mode t)
@@ -555,7 +671,6 @@
 ;;
 ;; hooks
 ;; (add-hook 'before-save-hook 'tide-format-before-save)
-
 
 ;; use rjsx-mode for .js* files except json and use tide with rjsx
 ;; (add-to-list 'auto-mode-alist '("\\.js.*$" . rjsx-mode))
@@ -612,12 +727,18 @@
                                         ; (setq doom-font (font-spec :family "Monaspace" :size 16))
 ;; (setq doom-font (font-spec :family "Cascadia Code" :size 16))
 ;; doom-big-font (font-spec :family "Cascadia Code" :size 25)
-(setq doom-font (font-spec :family "JetBrains Mono" :size 16))
-doom-big-font (font-spec :family "JetBrains Mono" :size 28)
+doom-font (font-spec :family "JetBrains Mono" :size 5)
+;; doom-big-font (font-spec :family "JetBrains Mono" :size 28)
 ;; (setq doom-font (font-spec :family "JetBrains Mono Medium" :size 16))
-;; (setq doom-font (font-spec :family "JetBrains Mono SemiLight" :size 21)) 
-;; (setq doom-font (font-spec :family "Victor Mono" :size 21)) 
+;; (setq doom-font (font-spec :family "JetBrains Mono SemiLight" :size 21))
+;; (setq doom-font (font-spec :family "Victor Mono" :size 21))
 ;; (setq doom-font (font-spec :family "Victor Mono Bold" :size 16))
+
+;; in $DOOMDIR/config.el
+(setq doom-font (font-spec :family "JetBrainsMono" :size 16)
+      ;; doom-variable-pitch-font (font-spec :family "DejaVu Sans" :size 13)
+      ;; doom-symbol-font (font-spec :family "JuliaMono")
+      doom-big-font (font-spec :family "JetBrainsMono" :size 24))
 
 ;; (if (string= (system-name) "Jonathans-MacBook-Pro.local")
 ;;  (setq doom-font (font-spec :family "Cascadia Code" :size 16))
@@ -638,7 +759,6 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
 ;;   )
 ;; (add-to-list 'evil-emacs-state-modes 'magit-mode)
 ;; (add-to-list 'evil-emacs-state-modes 'magit-status-mode)
-
 
 ;; (defvar host (substring (shell-command-to-string "hostname") 0 -1))
 ;; (message host)
@@ -691,9 +811,9 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
     (message "found local file, loading it...")
     (load-file host-init-file)))
 
-(add-hook 'org-mode-hook (lambda () 
+(add-hook 'org-mode-hook (lambda ()
                            (electric-indent-local-mode -1)
-                          (setq org-adapt-indentation t)
+                           (setq org-adapt-indentation t)
                            ))
 
 (setq go-tag-args (list "-transform" "camelcase"))
@@ -751,9 +871,13 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
 ;;   ;; Enable recursive minibuffers
 ;;   (setq enable-recursive-minibuffers t))
 
+(message "after vertico...")
 (use-package savehist
   :init
   (savehist-mode))
+
+
+(message "after savehist...")
 
 ;; Enable richer annotations using the Marginalia package
 ;; (use-package marginalia
@@ -827,7 +951,6 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
 ;;  :bind ("<f5>" . modus-themes-toggle)
 ;;  )
 
-
 ;; (use-package! ef-themes
 ;;   :ensure
 ;;   :init
@@ -845,7 +968,7 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
 
 ;; (use-package! tokyo-theme
 ;;               :ensure
-;;               :config 
+;;               :config
 ;;             (load-theme 'tokyo t)
 ;;               )
 
@@ -856,18 +979,29 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
 ;;               )
 
 ;; (setq doom-theme 'doom-rose-pine-moon)
-(setq doom-theme 'doom-tokyo-night)
+;; (setq doom-theme 'doom-tokyo-night)
+;; (setq doom-theme 'doom-one)
+(setq doom-theme 'modus-vivendi-deuteranopia)
+
+
+(message "after doom-theme modus...")
 
 (use-package! topsy
   :ensure
   :hook (prog-mode . topsy-mode)
   )
 
+
+(message "after topsy...")
+
 (use-package! fzf
   :ensure
   :init
   (setq fzf/args "-x --color bw --print-query --margin=1,0 --no-hscroll --")
   )
+
+
+(message "after fzf...")
 
 (defun my/fzf-git-files ()
   "Search for all files in a Git repository, including those ignored and hidden."
@@ -885,6 +1019,9 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
 (map! :leader :desc "cr-pull-reqs" "l p" #'(lambda () (forge-list-labeled-pullreqs (forge-get-repository t) "costs-and-reporting-pod"
                                                                                    )))
 (map! :leader :desc "lsp-mode" "l l" #'lsp-mode)
+(map! :leader :desc "find in buffer" "f /" #'consult-line)
+
+(message "after key-mappings...")
 
 (use-package! lusty-explorer
   :ensure
@@ -895,6 +1032,8 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
 (setq scroll-step 1)
 ;; (setq scroll-margin 999)
 (setq smooth-scroll-margin 999)
+
+(message "after scroll stuff...")
 
 (setq scroll-preserve-screen-position t
       scroll-conservatively 0
@@ -909,11 +1048,12 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
     (add-to-list 'lsp-language-id-configuration '(zig-mode . "zig"))
     (message (concat (getenv "HOME") "/zls/zls"))
     (lsp-register-client
-      (make-lsp-client
-        :new-connection (lsp-stdio-connection (executable-find "zls"))
-        :major-modes '(zig-mode)
-        :server-id 'zls))))
+     (make-lsp-client
+      :new-connection (lsp-stdio-connection (executable-find "zls"))
+      :major-modes '(zig-mode)
+      :server-id 'zls))))
 
+(message "after zig-mode...")
 
 (defun affe-orderless-regexp-compiler (input _type)
   (setq input (orderless-pattern-compiler input))
@@ -925,29 +1065,37 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
   ;; Manual preview key for `affe-grep'
   (consult-customize affe-grep :preview-key (kbd "M-.")))
 
-(use-package! consult 
+
+(message "after affe...")
+
+(use-package! consult
   ;; :hook (completion-list-mode . consult-preview-at-point-mode)
   :config
   ;; (consult-fd-args "-I -H")
 
-;; (setq consult--customize-alist nil)
-;;   (consult-customize
-;;    consult-ripgrep consult-git-grep consult-grep
-;;    consult-bookmark consult-recent-file
-;;    +default/search-project +default/search-other-project
-;;    +default/search-project-for-symbol-at-point
-;;    +default/search-cwd +default/search-other-cwd
-;;    +default/search-notes-for-symbol-at-point
-;;    +default/search-emacsd
-;;    consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
-;;    :preview-key 'any)
+  ;; (setq consult--customize-alist nil)
+  ;;   (consult-customize
+  ;;    consult-ripgrep consult-git-grep consult-grep
+  ;;    consult-bookmark consult-recent-file
+  ;;    +default/search-project +default/search-other-project
+  ;;    +default/search-project-for-symbol-at-point
+  ;;    +default/search-cwd +default/search-other-cwd
+  ;;    +default/search-notes-for-symbol-at-point
+  ;;    +default/search-emacsd
+  ;;    consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
+  ;;    :preview-key 'any)
   )
+
+
+(message "after consult...")
 
 (use-package! eyebrowse
   :ensure
   :config
   (eyebrowse-mode t)
   )
+
+(message "after eyebrowse...")
 
 (use-package! dap-mode
   ;;:custom
@@ -971,6 +1119,9 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
     )
   )
 
+
+(message "after dap-ui...")
+
 (add-hook 'dap-stopped-hook
           (lambda (arg) (call-interactively #'dap-hydra)))
 
@@ -978,30 +1129,30 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
 ;;   (define-key tuareg-mode-map (kbd "C-M-<tab>") #'ocamlformat)
 ;;   (add-hook 'before-save-hook #'ocamlformat-before-save)))
 ;;
-(use-package! ocamlformat
-  :custom (ocamlformat-enable 'enable-outside-detected-project)
-  :hook (before-save . ocamlformat-before-save)
-  )
+;; (use-package! ocamlformat
+;;   :custom (ocamlformat-enable 'enable-outside-detected-project)
+;;   ;; :hook (before-save . ocamlformat-before-save)
+;;   )
 
+(message "after ocamlformat...")
 ;;
 ;; (use-package! dired-preview
 ;;   :hook ((dired-mode . dired-preview-mode))
 ;;   )
-;; (after! tuareg-mode 
+;; (after! tuareg-mode
 ;;   (add-hook 'before-save-hook #'ocamlformat-before-save)
 ;; )
 
-  ;; (add-hook 'go-mode-hook 'lsp-deferred)
-  (add-hook 'go-mode-hook 'lsp-defferred)
-  (add-hook 'go-ts-mode-hook 'lsp-deferred)
-(use-package! go-mode 
-;; ;;   ;; :hook ((go-mode . lsp-mode))
-;; ;;   :hook ((go-mode))
+;; (add-hook 'go-mode-hook 'lsp-deferred)
+(add-hook 'go-mode-hook 'lsp-defferred)
+(add-hook 'go-ts-mode-hook 'lsp-deferred)
+(use-package! go-mode
+  ;; ;;   ;; :hook ((go-mode . lsp-mode))
+  ;; ;;   :hook ((go-mode))
   :config
-;; ;;   ;; (set-formatter! 'gofmt "goimports")
+  ;; ;;   ;; (set-formatter! 'gofmt "goimports")
   (setq gofmt-command "goimports")
   )
-
 
 (after! go-mode
   ;; (set-formatter! 'gofmt "goimports")
@@ -1014,27 +1165,28 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
   ;; (lsp-mode)
   )
 ;;
-(setq-hook! 'go-mode-hook +format-with-lsp t) 
+(setq-hook! 'go-mode-hook +format-with-lsp t)
 ;;
 (setq display-line-numbers-type 'relative)
 
-
 (use-package! jenkinsfile-mode
   :config
-(add-to-list 'auto-mode-alist '(".*Jenkinsfile.*\\'" . jenkinsfile-mode))
-             )
+  (add-to-list 'auto-mode-alist '(".*Jenkinsfile.*\\'" . jenkinsfile-mode))
+  )
 
 (defun check-lsp-mode ()
-  (when (derived-mode-p 'prog-mode) 
+  (when (derived-mode-p 'prog-mode)
     (unless lsp-mode
       (message "enabling lsp-mode")
       (lsp-mode)
       )
-    (setq +format-with-lsp
-          (not (or (eq major-mode 'typescript-tsx-mode)
-                   (eq major-mode 'typescript-mode))))
+    ;; (setq +format-with-lsp
+    ;;       ;; (not (or (eq major-mode 'typescript-tsx-mode)
+    ;;       ;;          (eq major-mode 'typescript-mode)))
+    ;;       )
+    ;; )
     )
-  ) 
+  )
 
 ;; (run-with-idle-timer 2 t #'check-lsp-mode)
 
@@ -1049,14 +1201,14 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
     (save-buffer)
     (funcall current-mode)
     )
-  
-  ) 
+
+  )
 
 (defun jr/pretty-and-save()
   (interactive)
   ;; (prettier-js)
   (save-buffer)
-  
+
   )
 
 (defun jr/set-copilot-node-executable ()
@@ -1064,9 +1216,6 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
   (message "Setting copilot node executable to %s" (executable-find "node"))
   (setq copilot-node-executable (executable-find "node"))
   )
-
-
-
 
 (map! :localleader  :desc "jr/prettify" "s" #'jr/prettify-and-save)
 
@@ -1076,7 +1225,6 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
 ;;   :config
 ;;   (setq dired-listing-switches "-la --almost-all --human-readable --group-directories-first --no-group")
 ;;   )
-
 
 ;; accept completion from copilot and fallback to company
 (use-package! copilot
@@ -1096,6 +1244,7 @@ doom-big-font (font-spec :family "JetBrains Mono" :size 28)
 
   )
 
+(message "after copilot...")
 (defun jr/copilot-tab ()
   "Tab command that will complete with copilot if a completion is
 available. Otherwise will try company, yasnippet or normal
@@ -1109,8 +1258,6 @@ tab-indent."
   ;;     )
   )
 
-
-
 (defun jr/nix-post-activate-check ()
   (jr/set-copilot-node-executable)
   )
@@ -1118,7 +1265,6 @@ tab-indent."
 (add-hook 'nix-shell-post-activate-hooks 'jr/nix-post-activate-check)
 
 ;; (define-key global-map (kbd "C-<tab>") #'jr/copilot-tab)
-
 
 ;; (after! (evil copilot)
 ;;   ;; Define the custom function that either accepts the completion or does the default behavior
@@ -1148,7 +1294,6 @@ tab-indent."
   :bind (:map gleam-mode-map
               ("C-c g f" . gleam-format)))
 
-
 ;; (use-package! lsp-bridge
 ;;   :config
 ;;   (setq lsp-bridge-enable-log t)
@@ -1167,13 +1312,12 @@ tab-indent."
 (use-package! indent-guide
   :config
   (indent-guide-global-mode)
-)
-
+  )
 
 (use-package! shfmt
   :config
-    (add-hook 'sh-mode-hook 'shfmt-on-save-mode)
-)
+  (add-hook 'sh-mode-hook 'shfmt-on-save-mode)
+  )
 
 (defvar-local consult-toggle-preview-orig nil)
 
@@ -1187,7 +1331,6 @@ tab-indent."
           consult--preview-function #'ignore)))
 
 (define-key vertico-map (kbd "C-.") #'consult-toggle-preview)
-
 
 ;; (setq read-file-name-function #'consult-find-file-with-preview)
 ;;
@@ -1210,11 +1353,11 @@ tab-indent."
   (let ((project-root (projectile-project-root))
         root-str
         file-path)
-     (if project-root (setq root-str project-root) (setq root-str ""))
-     (setq file-path (string-remove-prefix root-str (buffer-file-name)))
-     (message "%s" file-path)
+    (if project-root (setq root-str project-root) (setq root-str ""))
+    (setq file-path (string-remove-prefix root-str (buffer-file-name)))
+    (message "%s" file-path)
     (kill-new file-path))
-)
+  )
 
 (defun jr/magit-add-current-buffer-to-kill-ring ()
   "Show the current branch in the echo-area and add it to the `kill-ring'."
@@ -1224,8 +1367,7 @@ tab-indent."
         (progn (kill-new branch)
                (message "%s" branch))
       (user-error "There is no current branch")))
-)
-
+  )
 
 (defun jr/copy-branch-name ()
   "Copy the current Git branch name to the clipboard."
@@ -1235,31 +1377,32 @@ tab-indent."
     (if branch-name
         (progn
           (kill-new branch-name)
-          (message "Copied branch name: %s" branch-name))
+          (message "%s" branch-name))
       (message "Not in a Git repository or not on a branch"))))
 
-(use-package! treesit-auto 
-              :config
+(use-package! treesit-auto
+  :config
 
-(setq jr/js-tsauto-config
-      (make-treesit-auto-recipe
-       :lang 'javascript
-       :ts-mode 'js-ts-mode
-       :remap '(js2-mode js-mode javascript-mode rjsx-mode)
-       :url "https://github.com/tree-sitter/tree-sitter-javascript"
-       :revision "f1e5a09"
-       :source-dir "src"
-       :ext "\\.js\\'"))
+  (setq jr/js-tsauto-config
+        (make-treesit-auto-recipe
+         :lang 'javascript
+         :ts-mode 'js-ts-mode
+         :remap '(js2-mode js-mode javascript-mode rjsx-mode)
+         :url "https://github.com/tree-sitter/tree-sitter-javascript"
+         :revision "f1e5a09"
+         :source-dir "src"
+         :ext "\\.js\\'"))
 
-;; (add-to-list 'treesit-auto-recipe-list jr/js-tsauto-config)
+  ;; (add-to-list 'treesit-auto-recipe-list jr/js-tsauto-config)
 
-              (global-treesit-auto-mode)
+  (global-treesit-auto-mode)
 
-              )
+  )
 
-(after! typescript-mode
-        (setq typescript-indent-level 2)
-        )
+(message "after treeesit-auto...")
+;; (after! typescript-mode
+;;   (setq typescript-indent-level 2)
+;;   )
 
 (defun jr/dired-untracked (dir)
   (interactive "DUntracked in directory: ")
@@ -1269,6 +1412,72 @@ tab-indent."
   (dired-mode dir)
   (set (make-local-variable 'dired-subdir-alist)
        (list (cons default-directory (point-min-marker)))))
+
+(defun jr/get-last-commit ()
+  "Get the last commit hash on the current branch using Magit."
+  (interactive)
+  (let ((commit-hash (magit-git-string "rev-parse" "HEAD")))
+    (message "%s" commit-hash)
+    commit-hash))
+
+(defun jr/magit-get-last-commit-for-branch (branch)
+  "Get the last commit hash for a given BRANCH using Magit."
+  (interactive (list (magit-read-branch "Branch")))
+  (let ((commit-hash (magit-git-string "rev-parse" branch)))
+    (message "%s" commit-hash)
+    commit-hash)
+  )
+
+(setq ispell-program-name "hunspell")
+;; Set the default dictionary
+(setq ispell-dictionary "en_US")  ;; Change "en_US" to your preferred dictionary, e.g., "en_GB" for British English
+
+(use-package! jinx
+  :hook (emacs-startup . global-jinx-mode)
+  :bind (("M-C-c" . jinx-correct)
+         ("C-M-l" . jinx-languages)))
+
+(use-package! apheleia
+  :ensure t
+  :config
+  (setf (alist-get 'prettier-yaml apheleia-formatters)
+        '("apheleia-npx" "prettier" "--stdin-filepath" filepath
+          "--parser=yaml" "--single-quote=false"
+          (apheleia-formatters-js-indent "--use-tabs" "--tab-width"))
+        )
+  (setf (alist-get 'typescript-mode apheleia-formatters)
+        '("prettier" "--stdin-filepath" input-file))
+  (setf (alist-get 'typescript-tsx-mode apheleia-formatters)
+        '("prettier" "--stdin-filepath" input-file))
+  )
+
+(use-package! org
+  :mode ("\\.org\\'" . org-mode)
+  :config (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
+
+(message "checking loading komodo folder...")
+(when (file-exists-p "~/Repositories/komodo")
+  (message "loading komodo folder...")
+  (add-to-list 'load-path "~/Repositories/komodo")
+  (load-directory "~/Repositories/komodo")
+  )
+
+(use-package! gptel
+  :config
+                                        ; (setq! gptel-api-key "your key")
+  (gptel-make-gh-copilot "Copilot")
+  )
+
+(use-package elysium
+  :config
+  :custom
+  ;; Below are the default values
+  (elysium-window-size 0.33) ; The elysium buffer will be 1/3 your screen
+  (elysium-window-style 'vertical)) ; Can be customized to horizontal
+)
+
+
+(message "done loading config.el...")
 
 (provide 'config)
 ;;; config.el

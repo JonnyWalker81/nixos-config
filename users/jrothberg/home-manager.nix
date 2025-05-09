@@ -1,9 +1,16 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   imports = [ ../common.nix ];
 
-  programs.google-chrome-dev = { enable = true; };
+  programs.google-chrome-dev = {
+    enable = true;
+  };
 
   programs.git.userEmail = "jrothberg@bluebeam.com";
 
@@ -30,11 +37,15 @@
     source = ../clipcat/clipcat-menu.toml;
   };
 
-  home.file.".config/picom/picom.conf" = { source = ../picom/picom.conf; };
+  # home.file.".config/picom/picom.conf" = { source = ../picom/picom.conf; };
 
-  home.file.".xmonad/xmonad.hs" = { source = ../xmonad/xmonad.hs; };
+  home.file.".xmonad/xmonad.hs" = {
+    source = ../xmonad/xmonad.hs;
+  };
 
-  home.file.".config/xmobar/.xmobarrc" = { source = ../xmobar/.xmobarrc; };
+  home.file.".config/xmobar/.xmobarrc" = {
+    source = ../xmobar/.xmobarrc;
+  };
 
   # Make cursor not tiny on HiDPI screens
   home.pointerCursor = {
