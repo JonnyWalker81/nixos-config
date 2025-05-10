@@ -166,12 +166,14 @@
 ;;   (package! tempel)
 ;;   )
 
-(package! indent-guide
-  :recipe (:host github
-           :repo "zk-phi/indent-guide"
-           :branch "master"
-           :files ("*.el")
-           ))
+;; (package! indent-guide
+;;   :recipe (:host github
+;;            :repo "zk-phi/indent-guide"
+;;            :branch "master"
+;;            :files ("*.el")
+;;            ))
+
+(package! highlight-indent-guides)
 
 (package! shfmt
   :recipe (:host github

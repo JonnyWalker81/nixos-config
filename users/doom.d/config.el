@@ -100,19 +100,19 @@
 (require 'protobuf-mode)
 (require 'prettier-js)
 
-
 (message "loadded prettier-js...")
 
 (add-to-list 'auto-mode-alist '("\\.proto$" . protobuf-mode))
 (set-fill-column 120)
 
-
 (message "before lsp-mode...")
+
+;; (add-hook 'go-mode-hook #'lsp-deferred)
 (after! lsp-mode
   (add-to-list 'lsp--formatting-indent-alist '(typescript-tsx-mode . typescript-indent-level))
+  (add-hook 'go-ts-mode-hook #'lsp-deferred)
   (setq lsp-enable-file-watchers t)
   (setq lsp-file-watch-threshold 3000)
-
 
   (setq-hook! '(typescript-mode-hook typescript-tsx-mode-hook)
     +format-with-lsp nil)
@@ -179,7 +179,6 @@
   (remove-hook 'before-save-hook #'lsp-format-buffer t)
   (remove-hook 'before-save-hook #'lsp-organize-imports t)
 
-
   (setq-hook! 'typescript-mode-hook +format-with-lsp nil)
   (setq typescript-indent-level 2)
   )
@@ -197,13 +196,11 @@
   ;;                               (prettier-js)
   ;;                               ))
 
-
   (setq-hook! 'typescript-tsx-mode-hook +format-with-lsp nil)
   (remove-hook 'before-save-hook #'lsp-format-buffer t)
   (remove-hook 'before-save-hook #'lsp-organize-imports t)
   (setq typescript-indent-level 2)
   )
-
 
 (setq-hook! 'typescript-tsx-mode-hook +format-with-lsp nil)
 (remove-hook 'before-save-hook #'lsp-format-buffer t)
@@ -215,14 +212,11 @@
 (setq-hook! 'typescript-tsx-mode-hook
   typescript-indent-level 2)
 
-
 (setq-hook! 'typescript-mode-hook
   typescript-indent-level 2)
 
-
 (setq-hook! 'web-mode-hook
   typescript-indent-level 2)
-
 
 (message "after web-mode")
 
@@ -238,14 +232,12 @@
             (remove-hook 'before-save-hook #'lsp-format-buffer t)
             (remove-hook 'before-save-hook #'lsp-organize-imports t)))
 
-
 (setq +format-with-lsp nil)
 
 (setq lsp-format-buffer-on-save nil)
 
 (setq lsp-javascript-format-enable nil
       lsp-typescript-format-enable nil)
-
 
 (auto-composition-mode t)
 
@@ -310,7 +302,6 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
 (exec-path-from-shell-copy-env "SSH_AGENT_PID")
 (exec-path-from-shell-copy-env "SSH_AUTH_SOCK")
 
-
 (require 'keychain-environment)
 (keychain-refresh-environment)
 
@@ -355,7 +346,6 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
 (use-package savehist
   :init
   (savehist-mode))
-
 
 (message "after savehist...")
 
@@ -409,13 +399,11 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
 
 (setq doom-theme 'modus-vivendi-deuteranopia)
 
-
 (message "after doom-theme modus...")
 
 (use-package window-stool
   :config
   (add-hook 'prog-mode-hook #'window-stool-mode))
-
 
 (message "after topsy...")
 
@@ -424,7 +412,6 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
   :init
   (setq fzf/args "-x --color bw --print-query --margin=1,0 --no-hscroll --")
   )
-
 
 (message "after fzf...")
 
@@ -489,7 +476,6 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
   ;; Manual preview key for `affe-grep'
   (consult-customize affe-grep :preview-key (kbd "M-.")))
 
-
 (message "after affe...")
 
 (use-package! consult
@@ -509,7 +495,6 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
   ;;    consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
   ;;    :preview-key 'any)
   )
-
 
 (message "after consult...")
 
@@ -543,13 +528,10 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
     )
   )
 
-
 (message "after dap-ui...")
 
 (add-hook 'dap-stopped-hook
           (lambda (arg) (call-interactively #'dap-hydra)))
-
-
 
 (message "after ocamlformat...")
 
@@ -565,10 +547,24 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
   (setq gofmt-command "goimports")
   )
 
+(after! lsp-go
+  (setq lsp-format-buffer-on-save nil    ; disable LSP’s formatter on save
+        lsp-go-format-tool    "goimports")) ; tell gopls to use goimports
+
+(set-formatter! 'gofmt '("goimports") :modes '(go-ts-mode))
+
 (after! go-mode
-  (setq gofmt-command "goimports")
-  (setq-hook! 'go-mode-hook +format-with-lsp t)
-  )
+  ;; 1. Use goimports instead of gofmt
+  (setq gofmt-command "goimports")                             ; :contentReference[oaicite:2]{index=2}
+  ;; 2. Format buffer (and update imports) on save, buffer-local
+  (add-hook 'go-mode-hook
+            (lambda ()
+              (add-hook 'before-save-hook #'gofmt-before-save nil t))))
+
+;; (after! go-mode
+;;   (setq gofmt-command "goimports")
+;;   (setq-hook! 'go-mode-hook +format-with-lsp t)
+;;   )
 ;;
 ;;
 (setq display-line-numbers-type 'relative)
@@ -606,7 +602,6 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
   )
 
 (map! :localleader  :desc "jr/prettify" "s" #'jr/prettify-and-save)
-
 
 ;; accept completion from copilot and fallback to company
 (use-package! copilot
@@ -659,9 +654,21 @@ tab-indent."
   :bind (:map gleam-mode-map
               ("C-c g f" . gleam-format)))
 
-(use-package! indent-guide
+;; (use-package! indent-guide
+;;   :config
+;;   (indent-guide-global-mode)
+;;   )
+
+(use-package! highlight-indent-guides
   :config
-  (indent-guide-global-mode)
+  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+  (setq highlight-indent-guides-method 'bitmap)
+  (setq highlight-indent-guides-bitmap-function 'highlight-indent-guides--bitmap-line)
+  (setq highlight-indent-guides-auto-character-face-perc 50)
+  (setq highlight-indent-guides-auto-enabled nil)
+  (set-face-background 'highlight-indent-guides-odd-face "darkgray")
+  (set-face-background 'highlight-indent-guides-even-face "dimgray")
+  (set-face-foreground 'highlight-indent-guides-character-face "dimgray")
   )
 
 (use-package! shfmt
@@ -793,20 +800,23 @@ tab-indent."
   (load-directory "~/Repositories/komodo")
   )
 
+(message "after komodo...")
+
 (use-package! gptel
   :config
                                         ; (setq! gptel-api-key "your key")
   (gptel-make-gh-copilot "Copilot")
   )
 
+(message "after gptel...")
+
 (use-package elysium
   :config
   :custom
   ;; Below are the default values
   (elysium-window-size 0.33) ; The elysium buffer will be 1/3 your screen
-  (elysium-window-style 'vertical)) ; Can be customized to horizontal
-)
-
+  (elysium-window-style 'vertical)
+  ) ; Can be customized to horizontal
 
 (message "done loading config.el...")
 

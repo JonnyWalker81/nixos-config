@@ -61,7 +61,7 @@
        multiple-cursors  ; editing in many places at once
        rotate-text       ; cycle region at point between text candidates
        snippets          ; my elves. They type so I don't have to
-       ;; (format +onsave)
+       (format +onsave)
 
        :emacs
        undo
@@ -146,7 +146,7 @@
        emacs-lisp        ; drown in parentheses
                                         ;ess               ; emacs speaks statistics
        (go
-        ;; +lsp
+        +lsp
         ;; +tree-sitter
         )
        ;; go
