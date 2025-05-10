@@ -120,7 +120,7 @@
 
 (package! denote)
 
-(package! topsy)
+(package! window-stool :recipe (:host github :repo "jaszhe/window-stool" :files ("*.el")))
 
 (package! dap-mode)
 
