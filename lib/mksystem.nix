@@ -37,6 +37,9 @@ systemFunc rec {
     # the overlays are available globally.
     { nixpkgs.overlays = overlays; }
 
+    # Allow unfree packages.
+    { nixpkgs.config.allowUnfree = true; }
+
     # Bring in WSL if this is a WSL build
     (if isWSL then inputs.nixos-wsl.nixosModules.wsl else { })
 

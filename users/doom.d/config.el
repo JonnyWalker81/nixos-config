@@ -110,13 +110,38 @@
 ;; (add-hook 'go-mode-hook #'lsp-deferred)
 (after! lsp-mode
   (add-to-list 'lsp--formatting-indent-alist '(typescript-tsx-mode . typescript-indent-level))
+  (add-to-list 'lsp--formatting-indent-alist '(tsx-ts-mode . typescript-ts-indent-level))
   (add-hook 'go-ts-mode-hook #'lsp-deferred)
+  (add-hook 'tsx-ts-mode-hook #'lsp-deferred)
+  (add-hook 'typescript-ts-mode-hook #'lsp-deferred)
   (setq lsp-enable-file-watchers t)
   (setq lsp-file-watch-threshold 3000)
 
+  ;; Use the VSCode HTML Language Server instead of the generic one
+  (setq lsp-html-server-command '("vscode-html-language-server" "--stdio"))
+  ;; You can also customize formatting settings:
+  (setq lsp-html-format-enable t         ; ensure formatting is active
+        lsp-html-format-wrap-line-length 0
+        lsp-html-format-unformatted      nil)
+
   (setq-hook! '(typescript-mode-hook typescript-tsx-mode-hook)
     +format-with-lsp nil)
+
+  (setq-hook! '(typescript-ts-mode-hook typescript-tsx-mode-hook)
+    +format-with-lsp nil)
+
+  (setq-hook! '(tsx-mode-hook typescript-tsx-mode-hook)
+    +format-with-lsp nil)
+
+  (add-hook 'graphql-mode-hook #'lsp)
+
   )
+
+;; In ~/.doom.d/config.el
+(add-hook 'web-mode-hook #'lsp-deferred)
+;; Or for plain html-mode:
+;; (add-hook 'html-mode-hook #'lsp-deferred)
+
 
 (after! editorconfig
   (add-to-list 'editorconfig-indentation-alist '(typescript-tsx-mode typescript-indent-level)))
@@ -215,9 +240,6 @@
 (setq-hook! 'typescript-mode-hook
   typescript-indent-level 2)
 
-(setq-hook! 'web-mode-hook
-  typescript-indent-level 2)
-
 (message "after web-mode")
 
 (add-hook 'typescript-mode-hook
@@ -307,12 +329,49 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
 
 (use-package! vertico
   :custom
-  (vertico-cycle t)
+  (vertico-count 15)    ; show 15 candidates at once
+  (vertico-resize t)    ; grow and shrink the minibuffer
+  (vertico-cycle t)    ; wrap around at the top/bottom
   :custom-face
   (vertico-current ((t (:background "#3a3f5a"))))
   :init
   (vertico-mode)
   )
+
+(use-package! corfu
+  :init (global-corfu-mode)
+  :custom
+  (corfu-auto t)
+  (corfu-auto-prefix 2)
+  (corfu-cycle t)
+  (corfu-separator ?\s))
+
+(after! vertico
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles basic partial-completion)))))
+
+(use-package! marginalia
+  :init
+  (marginalia-mode)
+  )
+
+(use-package! consult
+  :after vertico)
+
+(use-package! embark
+  :bind
+  (("C-." . embark-act)    ; pick action for candidate
+   ("M-." . embark-dwim))) ; do-what-I-mean
+
+(use-package! cape
+  :init
+  ;; add common backends
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
+  )
+
 
 ;; ;; Use the `orderless' completion style.
 ;; ;; Enable `partial-completion' for files to allow path expansion.
@@ -397,13 +456,40 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
 ;;
 ;; )
 
-(setq doom-theme 'modus-vivendi-deuteranopia)
+;; (setq doom-theme 'modus-vivendi-deuteranopia)
+(setq doom-theme 'doom-tokyo-night)
 
 (message "after doom-theme modus...")
 
-(use-package window-stool
+;; (use-package window-stool
+;;   :config
+;;   (add-hook 'prog-mode-hook #'window-stool-mode))
+
+(use-package! treesitter-context
+  :after tree-sitter
+  ;; :hook ((prog-mode . treesitter-context-mode)
+  ;;        (prog-mode . treesitter-context-focus-mode))
   :config
-  (add-hook 'prog-mode-hook #'window-stool-mode))
+  ;; optional: customize defaults
+  (setq
+   treesitter-context-idle-time 0.5
+   treesitter-context-show-line-number t
+   treesitter-context-frame-indent-offset 2)
+  )
+
+(add-hook 'go-ts-mode-hook #'treesitter-context-mode)
+;; (add-hook 'go-ts-mode-hook #'treesitter-context-focus-mode)
+
+(add-hook 'typescript-ts-mode-hook #'treesitter-context-mode)
+;; (add-hook 'typescript-ts-mode-hook #'treesitter-context-focus-mode)
+
+(add-hook 'tsx-ts-mode-hook #'treesitter-context-mode)
+;; (add-hook 'tsx-ts-mode-hook #'treesitter-context-focus-mode)
+
+(use-package topsy
+  :hook
+  (prog-mode . topsy-mode)
+  )
 
 (message "after topsy...")
 
@@ -478,23 +564,23 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
 
 (message "after affe...")
 
-(use-package! consult
-  ;; :hook (completion-list-mode . consult-preview-at-point-mode)
-  :config
-  ;; (consult-fd-args "-I -H")
+;; (use-package! consult
+;; :hook (completion-list-mode . consult-preview-at-point-mode)
+;; :config
+;; (consult-fd-args "-I -H")
 
-  ;; (setq consult--customize-alist nil)
-  ;;   (consult-customize
-  ;;    consult-ripgrep consult-git-grep consult-grep
-  ;;    consult-bookmark consult-recent-file
-  ;;    +default/search-project +default/search-other-project
-  ;;    +default/search-project-for-symbol-at-point
-  ;;    +default/search-cwd +default/search-other-cwd
-  ;;    +default/search-notes-for-symbol-at-point
-  ;;    +default/search-emacsd
-  ;;    consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
-  ;;    :preview-key 'any)
-  )
+;; (setq consult--customize-alist nil)
+;;   (consult-customize
+;;    consult-ripgrep consult-git-grep consult-grep
+;;    consult-bookmark consult-recent-file
+;;    +default/search-project +default/search-other-project
+;;    +default/search-project-for-symbol-at-point
+;;    +default/search-cwd +default/search-other-cwd
+;;    +default/search-notes-for-symbol-at-point
+;;    +default/search-emacsd
+;;    consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
+;;    :preview-key 'any)
+;; )
 
 (message "after consult...")
 
@@ -654,11 +740,6 @@ tab-indent."
   :bind (:map gleam-mode-map
               ("C-c g f" . gleam-format)))
 
-;; (use-package! indent-guide
-;;   :config
-;;   (indent-guide-global-mode)
-;;   )
-
 (use-package! highlight-indent-guides
   :config
   (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
@@ -721,24 +802,134 @@ tab-indent."
           (message "%s" branch-name))
       (message "Not in a Git repository or not on a branch"))))
 
+(defun jr/github-file-link ()
+  "Return a GitHub URL pointing to the current file on the current branch."
+  (interactive)
+  (let* ((remote-url
+          (string-trim
+           (shell-command-to-string
+            "git config --get remote.origin.url")))             ; get origin URL :contentReference[oaicite:13]{index=13}
+         (https-url
+          (-> remote-url
+              (replace-regexp-in-string "\\`git@\\(.*?\\):" "https://\\1/") ; SSH→HTTPS
+              (replace-regexp-in-string "\\.git\\'" "")))               ; drop .git suffix
+         (branch (magit-get-current-branch))                             ; current branch :contentReference[oaicite:14]{index=14}
+         (root
+          (or (magit-toplevel default-directory)                      ; Magit repo root :contentReference[oaicite:15]{index=15}
+              (vc-call-backend (vc-responsible-backend default-directory)
+                               'root default-directory)))
+         (relative-path (file-relative-name buffer-file-name root))      ; relative path :contentReference[oaicite:16]{index=16}
+         (full-url (concat https-url "blob/" branch "/" relative-path)))
+    (kill-new full-url)                                          ; copy URL to kill ring
+    (message "GitHub URL: %s" full-url)                              ; print URL
+    ))
+
+(defun jr/github-file-line-link ()
+  "Return a GitHub URL pointing to the current file and line at point."
+  (interactive)
+  (let ((base (my/github-file-link))
+        (line (number-to-string (line-number-at-pos))))               ; line number at point :contentReference[oaicite:17]{index=17}
+    (concat base "#L" line)))                                        ; append line anchor :contentReference[oaicite:18]{index=18}
+
+
+;; (use-package! treesit-auto
+;;   :config
+
+;;   (setq jr/js-tsauto-config
+;;         (make-treesit-auto-recipe
+;;          :lang 'javascript
+;;          :ts-mode 'js-ts-mode
+;;          :remap '(js2-mode js-mode javascript-mode rjsx-mode typescript-mode typescript-tsx-mode)
+;;          :url "https://github.com/tree-sitter/tree-sitter-javascript"
+;;          :revision "f1e5a09"
+;;          :source-dir "src"
+;;          :ext "\\.js\\'"))
+
+;;   ;; (add-to-list 'treesit-auto-recipe-list jr/js-tsauto-config)
+
+;;   (global-treesit-auto-mode)
+
+;;   )
+
 (use-package! treesit-auto
+  :custom
+  (treesit-auto-install 'prompt)
   :config
+  ;; Add all *-ts-modes to `auto-mode-alist'
+  (global-treesit-auto-mode 1)
+  (treesit-auto-add-to-auto-mode-alist 'all))
 
-  (setq jr/js-tsauto-config
-        (make-treesit-auto-recipe
-         :lang 'javascript
-         :ts-mode 'js-ts-mode
-         :remap '(js2-mode js-mode javascript-mode rjsx-mode)
-         :url "https://github.com/tree-sitter/tree-sitter-javascript"
-         :revision "f1e5a09"
-         :source-dir "src"
-         :ext "\\.js\\'"))
 
-  ;; (add-to-list 'treesit-auto-recipe-list jr/js-tsauto-config)
+(use-package treesit
+  :mode (("\\.tsx\\'" . tsx-ts-mode)
+         ("\\.js\\'"  . typescript-ts-mode)
+         ("\\.mjs\\'" . typescript-ts-mode)
+         ("\\.mts\\'" . typescript-ts-mode)
+         ("\\.cjs\\'" . typescript-ts-mode)
+         ("\\.ts\\'"  . typescript-ts-mode)
+         ("\\.jsx\\'" . tsx-ts-mode)
+         ("\\.json\\'" .  json-ts-mode)
+         ("\\.Dockerfile\\'" . dockerfile-ts-mode)
+         ("\\.prisma\\'" . prisma-ts-mode)
+         ;; More modes defined here...
+         )
+  :preface
+  (defun os/setup-install-grammars ()
+    "Install Tree-sitter grammars if they are absent."
+    (interactive)
+    (dolist (grammar
+             '((css . ("https://github.com/tree-sitter/tree-sitter-css" "v0.20.0"))
+               (bash "https://github.com/tree-sitter/tree-sitter-bash")
+               (html . ("https://github.com/tree-sitter/tree-sitter-html" "v0.20.1"))
+               (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript" "v0.21.2" "src"))
+               (json . ("https://github.com/tree-sitter/tree-sitter-json" "v0.20.2"))
+               (python . ("https://github.com/tree-sitter/tree-sitter-python" "v0.20.4"))
+               (go "https://github.com/tree-sitter/tree-sitter-go" "v0.20.0")
+               (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+               (make "https://github.com/alemuller/tree-sitter-make")
+               (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+               (cmake "https://github.com/uyha/tree-sitter-cmake")
+               (c "https://github.com/tree-sitter/tree-sitter-c")
+               (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+               (toml "https://github.com/tree-sitter/tree-sitter-toml")
+               (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "tsx/src"))
+               (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "typescript/src"))
+               (yaml . ("https://github.com/ikatyang/tree-sitter-yaml" "v0.5.0"))
+               (prisma "https://github.com/victorhqc/tree-sitter-prisma")))
+      (add-to-list 'treesit-language-source-alist grammar)
+      ;; Only install `grammar' if we don't already have it
+      ;; installed. However, if you want to *update* a grammar then
+      ;; this obviously prevents that from happening.
+      (unless (treesit-language-available-p (car grammar))
+        (treesit-install-language-grammar (car grammar)))))
 
-  (global-treesit-auto-mode)
+  ;; Optional, but recommended. Tree-sitter enabled major modes are
+  ;; distinct from their ordinary counterparts.
+  ;;
+  ;; You can remap major modes with `major-mode-remap-alist'. Note
+  ;; that this does *not* extend to hooks! Make sure you migrate them
+  ;; also
+  (dolist (mapping
+           '((python-mode . python-ts-mode)
+             (css-mode . css-ts-mode)
+             (typescript-mode . typescript-ts-mode)
+             (typescript-tsx-mode . tsx-ts-mode)
+             (js-mode . typescript-ts-mode)
+             (js2-mode . typescript-ts-mode)
+             (c-mode . c-ts-mode)
+             (c++-mode . c++-ts-mode)
+             (c-or-c++-mode . c-or-c++-ts-mode)
+             (bash-mode . bash-ts-mode)
+             (css-mode . css-ts-mode)
+             (go-mode . go-ts-mode)
+             (json-mode . json-ts-mode)
+             (js-json-mode . json-ts-mode)
+             (sh-mode . bash-ts-mode)
+             (sh-base-mode . bash-ts-mode)))
+    (add-to-list 'major-mode-remap-alist mapping))
+  :config
+  (os/setup-install-grammars))
 
-  )
 
 (message "after treeesit-auto...")
 
@@ -787,7 +978,20 @@ tab-indent."
         '("prettier" "--stdin-filepath" input-file))
   (setf (alist-get 'typescript-tsx-mode apheleia-formatters)
         '("prettier" "--stdin-filepath" input-file))
+
+  (setf (alist-get 'prettier-graphql apheleia-formatters)
+        '("prettier" "--stdin-filepath" filepath "--parser" "graphql"))
+  ;; Associate graphql-mode with our formatter
+  (add-to-list 'apheleia-mode-alist '(graphql-mode . prettier-graphql))
+
+  ;; (setf (alist-get 'web-mode apheleia-formatters)
+  ;;       '("prettier" "--stdin-filepath" input-file "--prose-wrap=preserve" "--object-wrap=preserve" "--html-whitespace-sensitivity=strict"))
   )
+
+;; (after! apheleia
+;;   (add-hook 'web-mode-hook
+;;             (lambda ()
+;;               (apheleia-mode -1))))
 
 (use-package! org
   :mode ("\\.org\\'" . org-mode)
@@ -817,6 +1021,11 @@ tab-indent."
   (elysium-window-size 0.33) ; The elysium buffer will be 1/3 your screen
   (elysium-window-style 'vertical)
   ) ; Can be customized to horizontal
+
+(use-package direnv
+  :config
+  (direnv-mode))
+
 
 (message "done loading config.el...")
 

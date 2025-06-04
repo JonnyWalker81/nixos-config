@@ -258,7 +258,7 @@ in
       pkgs.gh
 
       # pkgs.lazygit
-      pkgs.diskonaut
+      # pkgs.diskonaut
       pkgs.sqlite
       pkgs.acpi
       pkgs.golangci-lint
@@ -296,8 +296,8 @@ in
   };
 
   programs.firefox = {
-    package = pkgs.firefox-beta-unwrapped;
-    enable = true;
+    package = pkgs.firefox-bin;
+    enable = false;
     profiles = {
       default = {
         id = 0;
@@ -396,11 +396,11 @@ in
   #   };
   # };
 
-  # services.picom = {
-  #   enable = true;
-  #   # blur = true;
+  services.picom = {
+    enable = true;
+    #   # blur = true;
 
-  # };
+  };
   # services.xserver.windowManager.xmonad = {
 
   #   #  i3.enable = true;
@@ -497,6 +497,7 @@ in
 
       cd = "z";
       ys = "yarn install && yarn start";
+      ff = ''cd "$(find $(git rev-parse --show-toplevel 2>/dev/null || pwd) -mindepth 1 -type d | fzf)"'';
     };
 
     # interactiveShellInit = lib.strings.concatStrings
@@ -529,7 +530,7 @@ in
       VISUAL = "$EDITOR"; # $VISUAL use Emacs in GUI mode
     };
 
-    initExtra = ''
+    initContent = ''
         source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
         eval "$(${zoxideBin} init zsh)"
         eval "$(ssh-agent -s)"

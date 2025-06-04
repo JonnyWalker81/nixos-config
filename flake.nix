@@ -2,9 +2,9 @@
   description = "NixOS configuration and Home Manager configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
     # nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
-    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-24.11-darwin";
+    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-25.05-darwin";
     # nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-23.11-darwin";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
@@ -13,7 +13,7 @@
     darwin.url = "github:lnl7/nix-darwin/master";
     darwin.inputs.nixpkgs.follows = "nixpkgs-unstable";
     # home-manager.url = "github:nix-community/home-manager/release-21.11";
-    home-manager.url = "github:nix-community/home-manager/release-24.11";
+    home-manager.url = "github:nix-community/home-manager/release-25.05";
     # home-manager.url = "github:nix-community/home-manager/release-23.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     # Locks nixpkgs to an older version with an older Kernel that boots
@@ -36,6 +36,8 @@
     ghostty = {
       url = "github:ghostty-org/ghostty";
     };
+
+    mozilla.url = "github:mozilla/nixpkgs-mozilla";
 
     # Replacement for ls
     # eza = {
@@ -126,7 +128,7 @@
       mkVM = import ./lib/mkvm.nix;
       mkVMDarwin = import ./lib/mkvm-darwin.nix;
       system = "aarch64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
+      # pkgs = nixpkgs.legacyPackages.${system};
 
       configModule = {
         # Add any custom options (and feel free to upstream them!)
@@ -142,6 +144,7 @@
 
       # Overlays is the list of overlays we want to apply from flake inputs.
       overlays = [
+        inputs.mozilla.overlays.firefox
         inputs.emacs-overlay.overlay
         # inputs.yazi.overlays.default
         # inputs.neovim-nightly-overlay.overlay
@@ -151,17 +154,76 @@
         #     "https://github.com/nix-community/emacs-overlay/archive/dec958258b133b4c21224c594da433919d852800.tar.gz";
         #   sha256 = "0jlvxg0k744zyvdhpvwf2hv3fxc7b31iapjwlm4h3qxsgpjh7gvm";
         # }))
+
+        (
+          final: prev:
+          let
+            # Helper function to add required attributes for the old wrapper
+            # The 'nixpkgs-old-kernel' is identified by dli48i29mmjfxn9v0igzw0na6iz94b2h-source in your error.
+            # We need to inspect that wrapper.nix to see all attributes it might need from `browser`.
+            # For now, we'll add the common ones.
+            makeOldWrapperCompatible =
+              firefoxPkgFromMozilla:
+              if firefoxPkgFromMozilla == null then
+                # This can happen if the package (e.g., firefox-nightly-bin) wasn't found in the previous overlay.
+                # You might want to throw an error or handle it,
+                # but for now, returning null will likely cause an error further down if actually used.
+                null
+              else
+                firefoxPkgFromMozilla
+                // {
+                  # Attributes expected by nixpkgs-old-kernel's wrapper.nix from the 'browser' package
+                  gtk3 = final.gtk3; # The one that caused the error
+                  glib = final.glib;
+
+                  # Other common attributes the wrapper might expect (add more if new errors appear):
+                  # These are educated guesses based on typical Firefox wrapper needs.
+                  # You may need to check the specific 'wrapper.nix' from 'nixpkgs-old-kernel'.
+                  alsaLib = final.alsa-lib;
+                  fontconfig = final.fontconfig; # The wrapper might use browser.fontconfig.lib
+                  dbus = final.dbus;
+                  pango = final.pango;
+                  cairo = final.cairo;
+                  libpulseaudio = final.libpulseaudio;
+                  # libXt = final.libXt; # Example if X11 libs are directly accessed
+                  # Add other attributes based on the contents of the wrapper if new errors arise.
+                };
+          in
+          {
+            # Apply this to the specific Firefox package you are using in Home Manager.
+            # Ensure the package name here matches what you set in `programs.firefox.package`.
+
+            # If you are using firefox-beta-bin:
+            # firefox-beta-bin = makeOldWrapperCompatible prev.firefox-beta-bin;
+
+            # If you are using firefox-bin (stable):
+            # firefox-bin = makeOldWrapperCompatible prev.firefox-bin;
+
+            # If you are using firefox-nightly-bin (assuming it's available):
+            # firefox-nightly-bin = makeOldWrapperCompatible prev.firefox-nightly-bin;
+
+            # Add entries for any other Firefox variant you might switch to.
+            # Example:
+            # firefox = makeOldWrapperCompatible prev.firefox; # If you use the generic 'firefox' attr
+          }
+        )
+
         inputs.zig.overlays.default
         (final: prev: {
           picom = prev.picom.overrideAttrs (oldAttrs: {
             src = prev.fetchFromGitHub {
               owner = "yshui";
               repo = "picom";
-              rev = "v12.5"; # Correct version
+              # rev = "v12.5"; # Correct version
+              rev = "b99537235bf858ccf527217bfc196d4923a3e3a1";
               sha256 = "sha256-H8IbzzrzF1c63MXbw5mqoll3H+vgcSVpijrlSDNkc+o=";
             };
             nativeBuildInputs = oldAttrs.nativeBuildInputs ++ [ prev.asciidoc ];
           });
+
+          # firefox-beta-unwrapped = prev.firefox-beta-unwrapped.overrideAttrs (old: {
+          #   nativeBuildInputs = old.nativeBuildInputs ++ [ final.icu76 ];
+          # });
 
           unstable = import nixpkgs-unstable { system = prev.system; };
           tree-sitter-grammars = prev.tree-sitter-grammars // {
@@ -171,7 +233,7 @@
                 tree-sitter generate --abi 13 src/grammar.json
               '';
             });
-            tree-sitter-go = prev.tree-sitter-grammars.tree-sitter-tsx.overrideAttrs (_: {
+            tree-sitter-go = prev.tree-sitter-grammars.tree-sitter-go.overrideAttrs (_: {
               nativeBuildInputs = [ final.tree-sitter ];
               configurePhase = ''
                 tree-sitter generate --abi 13 src/grammar.json
@@ -196,7 +258,7 @@
 
           ghostty = ghostty.packages.${prev.system}.default;
 
-          # nixvim = inputs.nixvim.packages.${pkgs.system}.default;
+          nixvim = inputs.nixvim.packages.${prev.system}.default;
           # nixvim = inputs.nixvim.packages.${pkgs.system}.default.overrideAttrs (oldAttrs: {
           #   package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
           # });

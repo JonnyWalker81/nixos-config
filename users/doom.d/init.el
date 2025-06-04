@@ -6,7 +6,7 @@
 (doom! :feature
 
        :completion
-       (corfu 
+       (corfu
         +icons
         +orderless
         +dabbrev
@@ -108,7 +108,9 @@
 
        jr
        make              ; run make tasks from Emacs
-       (magit +forge)          ;
+       (magit
+         +forge
+        )          ;
                                         ;password-store    ; password manager for nerds
        pdf               ; pdf enhancements
        ;; spellcheck        ; tasing you for misspelling mispelling
@@ -120,7 +122,7 @@
        ;;   +childframe)     ; use childframes for error popups (Emacs 26+ only)
                                         ;prodigy           ; FIXME managing external services & code builders
        rgb               ; creating color strings
-       (terraform 
+       (terraform
         ;; +lsp
         )
        ;; tree-sitter
@@ -152,7 +154,7 @@
        ;; go
                                         ; the hipster dialect
        graphql
-       (haskell 
+       (haskell
         ;; +lsp
         )  ; a language that's lazier than I am
                                         ;hy                ; readability of scheme w/ speed of python
@@ -162,11 +164,11 @@
        ;;  ;; +tree-sitter
        ;;  )
                                         ; JS, but good
-       (javascript 
+       (javascript
         +lsp
         ;; +tree-sitter
         )        ; all(hope(abandon(ye(who(enter(here))))))
-       (json 
+       (json
         ;; +lsp
         ;; +tree-sitter
         )
@@ -178,10 +180,10 @@
         )                                        ; one-based indices? one-based indices
        markdown          ; writing docs for people to ignore
                                         ;nim               ; python + lisp at the speed of c
-       (nix 
+       (nix
         ;; +lsp
         )               ; I hereby declare "nix geht mehr!"
-       (ocaml 
+       (ocaml
         ;; +lsp
         ;; +tree-sitter
         )            ; an objective camel
@@ -201,24 +203,25 @@
                                         ;qt                ; the 'cutest' gui framework ever
        ;; rest              ; Emacs as a REST client
                                         ;ruby              ; 1.step do {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
-       (rust 
+       (rust
         ;; +lsp
         )               ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
        ;; (rust
        ;;  +lsp)
                                         ;scala             ; java, but good
-       (sh 
+       (sh
         ;; +lsp
         )               ; she sells (ba|z)sh shells on the C xor
                                         ;solidity          ; do you need a blockchain? No.
        ;; swift             ; who asked for emoji variables?
-       (yaml 
+       (yaml
         ;; +lsp
         )
-       (web 
-        ;; +lsp
+       (web
+        +lsp
         )               ; the tubes
        zig
+       (sql +postgres)
 
        ;; Applications are complex and opinionated modules that transform Emacs
        ;; toward a specific purpose. They may have additional dependencies and

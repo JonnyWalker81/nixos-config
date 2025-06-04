@@ -120,7 +120,7 @@
 
 (package! denote)
 
-(package! window-stool :recipe (:host github :repo "jaszhe/window-stool" :files ("*.el")))
+;; (package! window-stool :recipe (:host github :repo "jaszhe/window-stool" :files ("*.el")))
 
 (package! dap-mode)
 
@@ -214,5 +214,12 @@
 (package! gptel :recipe (:nonrecursive t))
 
 (package! elysium)
+
+(package! treesitter-context
+  :recipe (:host github :repo "zbelial/treesitter-context.el"))
+
+(package! topsy)
+
+(package! direnv)
 
 ;;; packages.el ends here

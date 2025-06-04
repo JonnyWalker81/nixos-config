@@ -95,7 +95,7 @@
   };
 
   # services.picom = {
-  #   enable = false;
+  # enable = false;
   #   activeOpacity = 0.8;
   #   inactiveOpacity = 0.5;
   #   backend = "xr_glx_hybrid";
@@ -272,12 +272,14 @@
   fonts = {
     fontDir.enable = true;
 
-    packages = with pkgs; [
-      fira-code
-      fira-code-symbols
-      nerdfonts
-      jetbrains-mono
-    ];
+    packages =
+      with pkgs;
+      [
+        fira-code
+        fira-code-symbols
+        jetbrains-mono
+      ]
+      ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
   };
 
   # List packages installed in system profile. To search, run:
