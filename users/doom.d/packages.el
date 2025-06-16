@@ -205,6 +205,7 @@
 
 (package! ox-pandoc)
 (package! ox-reveal)
+(package! org-re-reveal)
 
 (package! jinx)
 
@@ -221,5 +222,15 @@
 (package! topsy)
 
 (package! direnv)
+
+(package! claude-code
+          :recipe (:type git :host github :repo "stevemolitor/claude-code.el" :branch "main"
+                   :files ("*.el" (:exclude "demo.gif")))
+          )
+
+(package! emacs-claude-code
+          :recipe (:type git :host github :repo "ywatanabe1989/emacs-claude-code" :branch "main"
+                   :files ("*.el"))
+          )
 
 ;;; packages.el ends here

@@ -217,6 +217,7 @@ in
       # pkgs.nixvim
 
       inputs.nixvim.packages.${pkgs.system}.default
+      pkgs.claude-code
     ]
     ++ lib.optionals (!pkgs.stdenv.isDarwin) [
       pkgs.libreoffice
@@ -441,7 +442,7 @@ in
       core.askPass = ""; # needs to be empty to use terminal for ask pass
       # credential.helper = "store --file ~/.config/git-credentials";
       # credential.helper = "store";
-      credential.helper = "cache --timeout 720000";
+      credential.helper = "cache --timeout 36000";
       push.default = "current";
       # branch.autosetuprebase = "always";
       # url."git@github.com".insteadOf = "https://github.com";

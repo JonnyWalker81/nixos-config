@@ -38,8 +38,6 @@
 
 (require 'vc-git)
 
-(require 'ox-reveal)
-
 (toggle-frame-maximized)
 
 (add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
@@ -142,7 +140,6 @@
 ;; Or for plain html-mode:
 ;; (add-hook 'html-mode-hook #'lsp-deferred)
 
-
 (after! editorconfig
   (add-to-list 'editorconfig-indentation-alist '(typescript-tsx-mode typescript-indent-level)))
 
@@ -153,6 +150,13 @@
 (setq doom-line-numbers-style 'relative)
 
 (after! org
+
+  (require 'org-re-reveal)
+  (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js@5")
+
+  (require 'ox-presenterm)
+  (add-to-list 'org-export-backends 'presenterm)
+  
   (add-to-list 'org-capture-templates
                '("w" "Work Todo"  entry
                  (file "work.org")
@@ -170,6 +174,11 @@
           ))
 
   (define-key org-mode-map (kbd "C-c C-r") verb-command-map)
+
+  (map! :map org-mode-map
+        :localleader
+        (:prefix ("e" . "export")
+         :desc "Export to Presenterm" "P" #'org-presenterm-export-to-markdown))
 
   )
 
@@ -371,7 +380,6 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-elisp-block)
   )
-
 
 ;; ;; Use the `orderless' completion style.
 ;; ;; Enable `partial-completion' for files to allow path expansion.
@@ -831,7 +839,6 @@ tab-indent."
         (line (number-to-string (line-number-at-pos))))               ; line number at point :contentReference[oaicite:17]{index=17}
     (concat base "#L" line)))                                        ; append line anchor :contentReference[oaicite:18]{index=18}
 
-
 ;; (use-package! treesit-auto
 ;;   :config
 
@@ -858,7 +865,6 @@ tab-indent."
   ;; Add all *-ts-modes to `auto-mode-alist'
   (global-treesit-auto-mode 1)
   (treesit-auto-add-to-auto-mode-alist 'all))
-
 
 (use-package treesit
   :mode (("\\.tsx\\'" . tsx-ts-mode)
@@ -929,7 +935,6 @@ tab-indent."
     (add-to-list 'major-mode-remap-alist mapping))
   :config
   (os/setup-install-grammars))
-
 
 (message "after treeesit-auto...")
 
@@ -1026,8 +1031,50 @@ tab-indent."
   :config
   (direnv-mode))
 
+;;; ~/.doom.d/config.el
+(setq org-export-in-background nil)
 
-(message "done loading config.el...")
+;; 3. (OPTIONAL) DEFINE MACROS FOR COMMON DIRECTIVES
+(after! org
+  (setq org-export-global-macros
+        '(("pause" . "@@html:@@")
+          ("reset_layout" . "@@html:@@"))))
 
-(provide 'config)
+(use-package! claude-code
+  :bind
+  ("C-c c" . claude-code-command-map)
+  :config
+  (claude-code-mode)
+
+(add-to-list 'display-buffer-alist
+             '("^\\*claude"
+               (display-buffer-in-side-window)
+               (side . right)
+               (window-width . 0.33)))
+  )
+
+(use-package! emacs-claude-code
+              :config
+
+(setq --ecc-auto-response-responses
+  '((:y/n . "1")                              ; Respond "1" to Y/N prompts
+    (:y/y/n . "2")                            ; Respond "2" to Y/Y/N prompts
+    (:waiting . "/user:auto")                 ; Send /user:auto when waiting
+    (:initial-waiting . "/user:understand-guidelines"))) ; Initial waiting response
+
+;; Enable useful features
+(ecc-auto-periodical-toggle)                  ; Enable auto-periodical commands
+(--ecc-vterm-utils-enable-yank-advice)        ; Enable yank-as-file for large content
+
+;; Fine-tune behavior (optional)
+(setq --ecc-vterm-yank-as-file-threshold 100)    ; Prompt threshold for yank-as-file
+(setq --ecc-auto-response-periodic-interval 300) ; 5 minutes periodic return
+(setq ecc-auto-periodical-commands              ; Commands to run periodically
+  '((10 . "/compact")                            ; Run /compact every 10 interactions
+    (20 . "/user:auto")))                        ; Run /user:auto every 20 interactions
+)
+
+(message "done loading config.el..."
+
+         (provide 'config)
 ;;; config.el

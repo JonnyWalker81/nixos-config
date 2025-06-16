@@ -221,6 +221,10 @@
             nativeBuildInputs = oldAttrs.nativeBuildInputs ++ [ prev.asciidoc ];
           });
 
+          clude-code = prev.claude-code.overrideAttrs (old: {
+            version = "1.0.24";
+          });
+
           # firefox-beta-unwrapped = prev.firefox-beta-unwrapped.overrideAttrs (old: {
           #   nativeBuildInputs = old.nativeBuildInputs ++ [ final.icu76 ];
           # });
