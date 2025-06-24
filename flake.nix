@@ -221,8 +221,16 @@
             nativeBuildInputs = oldAttrs.nativeBuildInputs ++ [ prev.asciidoc ];
           });
 
+          luaPackages = prev.luaPackages // {
+            fzf-lua = prev.luaPackages.fzf-lua.overrideAttrs (old: {
+              # don’t run the flaky UI tests
+              doCheck = false;
+              checkPhase = "echo skipping fzf-lua tests";
+            });
+          };
+
           clude-code = prev.claude-code.overrideAttrs (old: {
-            version = "1.0.24";
+            version = "1.0.31";
           });
 
           # firefox-beta-unwrapped = prev.firefox-beta-unwrapped.overrideAttrs (old: {

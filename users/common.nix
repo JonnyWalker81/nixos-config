@@ -112,7 +112,7 @@ in
 
   programs.emacs = {
     enable = true;
-    package = pkgs.emacs-unstable;
+    package = pkgs.emacs;
     extraPackages = (
       epkgs: [
         epkgs.vterm
@@ -210,7 +210,7 @@ in
       pkgs.yazi
       pkgs.qemu
 
-      inputs.zen-browser.packages."${system}".default
+      # inputs.zen-browser.packages."${system}".default
       # inputs.Neve.packages.${pkgs.system}.default
       # inputs.nvix.packages.${pkgs.system}.full
       # neovimNightly
@@ -499,6 +499,8 @@ in
       cd = "z";
       ys = "yarn install && yarn start";
       ff = ''cd "$(find $(git rev-parse --show-toplevel 2>/dev/null || pwd) -mindepth 1 -type d | fzf)"'';
+
+      claude = "/home/cipher/.claude/local/claude";
     };
 
     # interactiveShellInit = lib.strings.concatStrings

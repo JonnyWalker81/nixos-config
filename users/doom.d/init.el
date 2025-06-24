@@ -159,10 +159,10 @@
         )  ; a language that's lazier than I am
                                         ;hy                ; readability of scheme w/ speed of python
                                         ;(java +meghanada) ; the poster child for carpal tunnel syndrome
-       ;; (typescript
-       ;;  +lsp
-       ;;  ;; +tree-sitter
-       ;;  )
+       (typescript
+        +lsp
+        ;; +tree-sitter
+        )
                                         ; JS, but good
        (javascript
         +lsp

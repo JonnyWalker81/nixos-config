@@ -2,6 +2,9 @@
 ;; ~/.doom.d/config.el -*- lexical-binding: t; -*-
 
 (message "loading...")
+
+;; Force HTML files to use web-mode
+(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
 (defun load-directory (dir)
   (let ((load-it (lambda (f)
 		   (load-file (concat (file-name-as-directory dir) f)))
@@ -101,6 +104,9 @@
 (message "loadded prettier-js...")
 
 (add-to-list 'auto-mode-alist '("\\.proto$" . protobuf-mode))
+
+;; Let Doom handle file associations automatically
+
 (set-fill-column 120)
 
 (message "before lsp-mode...")
@@ -112,6 +118,8 @@
   (add-hook 'go-ts-mode-hook #'lsp-deferred)
   (add-hook 'tsx-ts-mode-hook #'lsp-deferred)
   (add-hook 'typescript-ts-mode-hook #'lsp-deferred)
+  (add-hook 'js-ts-mode-hook #'lsp-deferred)
+  (add-hook 'html-ts-mode-hook #'lsp-deferred)
   (setq lsp-enable-file-watchers t)
   (setq lsp-file-watch-threshold 3000)
 
@@ -122,23 +130,47 @@
         lsp-html-format-wrap-line-length 0
         lsp-html-format-unformatted      nil)
 
-  (setq-hook! '(typescript-mode-hook typescript-tsx-mode-hook)
-    +format-with-lsp nil)
-
-  (setq-hook! '(typescript-ts-mode-hook typescript-tsx-mode-hook)
-    +format-with-lsp nil)
-
-  (setq-hook! '(tsx-mode-hook typescript-tsx-mode-hook)
-    +format-with-lsp nil)
+  ;; These formatting hooks are now handled by the unified typescript-js-setup-hook
 
   (add-hook 'graphql-mode-hook #'lsp)
 
   )
 
-;; In ~/.doom.d/config.el
-(add-hook 'web-mode-hook #'lsp-deferred)
-;; Or for plain html-mode:
-;; (add-hook 'html-mode-hook #'lsp-deferred)
+(after! forge
+  (setq forge-topic-list-limit '(60 . 0))     ; show more PRs in list buffers
+  (setq forge-owned-queries
+        '(("Waiting For My Review" . "is:open review-requested:@me")
+          ("Nightshade"            . "is:open label:nightshade-pod"))))
+
+;; ============================================================================
+;; HTML/WEB CONFIGURATION
+;; ============================================================================
+;; HTML and web mode configuration with LSP support
+
+;; HTML setup function with error handling
+(defun html-web-setup-hook ()
+  "Setup function for HTML and web modes."
+  (condition-case err
+      (progn
+        (setq-local +format-with 'prettier)
+        ;; Enable Emmet for HTML if available
+        (when (featurep 'emmet-mode)
+          (emmet-mode 1)))
+    (error
+     (message "Error in html-web-setup-hook: %s" err))))
+
+;; HTML mode configuration - deferred for performance
+(with-eval-after-load 'html-mode
+  (add-hook 'html-mode-hook #'lsp-deferred)
+  (add-hook 'html-mode-hook #'html-web-setup-hook))
+(with-eval-after-load 'html-ts-mode
+  (add-hook 'html-ts-mode-hook #'lsp-deferred)
+  (add-hook 'html-ts-mode-hook #'html-web-setup-hook))
+
+;; Web mode configuration - deferred for performance
+(with-eval-after-load 'web-mode
+  (add-hook 'web-mode-hook #'lsp-deferred)
+  (add-hook 'web-mode-hook #'html-web-setup-hook))
 
 (after! editorconfig
   (add-to-list 'editorconfig-indentation-alist '(typescript-tsx-mode typescript-indent-level)))
@@ -156,7 +188,7 @@
 
   (require 'ox-presenterm)
   (add-to-list 'org-export-backends 'presenterm)
-  
+
   (add-to-list 'org-capture-templates
                '("w" "Work Todo"  entry
                  (file "work.org")
@@ -198,77 +230,101 @@
 
 (message "after magit...")
 
+;; ============================================================================
+;; TYPESCRIPT/JAVASCRIPT CONFIGURATION
+;; ============================================================================
+;; Consolidated TypeScript and JavaScript configuration to avoid conflicts
+
+;; Global LSP formatting settings - disable LSP formatting to avoid conflicts
+(setq lsp-format-buffer-on-save nil
+      lsp-javascript-format-enable nil
+      lsp-typescript-format-enable nil
+      +format-with-lsp nil)
+
+;; Unified setup function for TypeScript/JavaScript modes with error handling
+(defun typescript-js-setup-hook ()
+  "Unified setup function for TypeScript and JavaScript modes."
+  (condition-case err
+      (progn
+        (setq-local +format-with-lsp nil
+                    +format-with 'prettier)
+        ;; Remove LSP formatting hooks to avoid conflicts
+        (remove-hook 'before-save-hook #'lsp-format-buffer t)
+        (remove-hook 'before-save-hook #'lsp-organize-imports t))
+    (error
+     (message "Error in typescript-js-setup-hook: %s" err))))
+
+;; TypeScript mode configuration
 (after! typescript-mode
-  (add-hook 'typescript-mode-hook (lambda ()
-                                    ;; (format-all-mode -1)
-                                    ;; (prettier-js-mode)
-                                    (setq +format-with-lsp nil)
-                                    (setq +format-with 'prettier)
-                                    ))
-
-  ;; (add-hook 'before-save-hook (lambda ()
-  ;;                               (prettier-js)
-  ;;                               ))
-
-  (remove-hook 'before-save-hook #'lsp-format-buffer t)
-  (remove-hook 'before-save-hook #'lsp-organize-imports t)
-
-  (setq-hook! 'typescript-mode-hook +format-with-lsp nil)
   (setq typescript-indent-level 2)
-  )
+  (add-hook 'typescript-mode-hook #'typescript-js-setup-hook))
 
+;; TypeScript TSX mode configuration
 (after! typescript-tsx-mode
-
-  (add-hook 'typescript-tsx-mode-hook (lambda ()
-                                        ;; (format-all-mode -1)
-                                        ;; (prettier-js-mode)
-                                        (setq +format-with-lsp nil)
-                                        (setq +format-with 'prettier)
-                                        ))
-
-  ;; (add-hook 'before-save-hook (lambda ()
-  ;;                               (prettier-js)
-  ;;                               ))
-
-  (setq-hook! 'typescript-tsx-mode-hook +format-with-lsp nil)
-  (remove-hook 'before-save-hook #'lsp-format-buffer t)
-  (remove-hook 'before-save-hook #'lsp-organize-imports t)
   (setq typescript-indent-level 2)
-  )
+  (add-hook 'typescript-tsx-mode-hook #'typescript-js-setup-hook))
 
-(setq-hook! 'typescript-tsx-mode-hook +format-with-lsp nil)
-(remove-hook 'before-save-hook #'lsp-format-buffer t)
-(remove-hook 'before-save-hook #'lsp-organize-imports t)
-(setq typescript-indent-level 2)
+;; Tree-sitter mode configuration - added with defer for performance
+(with-eval-after-load 'typescript-ts-mode
+  (add-hook 'typescript-ts-mode-hook #'typescript-js-setup-hook))
+(with-eval-after-load 'tsx-ts-mode
+  (add-hook 'tsx-ts-mode-hook #'typescript-js-setup-hook))
+(with-eval-after-load 'js-ts-mode
+  (add-hook 'js-ts-mode-hook #'typescript-js-setup-hook))
 
-(message "after typescript-tsx-mode")
+;; TypeScript Language Server configuration
+(after! lsp-mode
+  ;; Tell tsserver to prefer non-relative paths and auto-update imports
+  (setq lsp-clients-typescript-init-opts
+        '(:typescript (:preferences (:importModuleSpecifier "non-relative"))
+          :javascript (:preferences (:importModuleSpecifier "non-relative"))
+          :preferences (:updateImportsOnFileMove "always"))))
 
-(setq-hook! 'typescript-tsx-mode-hook
-  typescript-indent-level 2)
+;; These settings are now handled by the unified setup function
 
-(setq-hook! 'typescript-mode-hook
-  typescript-indent-level 2)
+;; ============================================================================
+;; DEBUGGING AND TROUBLESHOOTING HELPERS
+;; ============================================================================
 
-(message "after web-mode")
+(defun debug-mode-setup ()
+  "Debug function to check current mode setup and configurations."
+  (interactive)
+  (let ((mode-info (list
+                    (cons "Major Mode" major-mode)
+                    (cons "Format With" (bound-and-true-p +format-with))
+                    (cons "Format With LSP" (bound-and-true-p +format-with-lsp))
+                    (cons "LSP Active" (bound-and-true-p lsp-mode))
+                    (cons "Tree-sitter Available" (and (fboundp 'treesit-available-p) (treesit-available-p)))
+                    (cons "Buffer File" (buffer-file-name)))))
+    (message "Mode Debug Info: %s" mode-info)
+    (with-current-buffer (get-buffer-create "*Mode Debug*")
+      (erase-buffer)
+      (insert "Current Mode Debug Information\n")
+      (insert "==================================\n\n")
+      (dolist (info mode-info)
+        (insert (format "%-20s: %s\n" (car info) (cdr info))))
+      (display-buffer (current-buffer)))))
 
-(add-hook 'typescript-mode-hook
-          (lambda ()
-            ;; Remove LSP’s format and organize-imports on save
-            (remove-hook 'before-save-hook #'lsp-format-buffer t)
-            (remove-hook 'before-save-hook #'lsp-organize-imports t)))
+(message "Configuration setup completed - TypeScript/JavaScript/HTML modes optimized")
 
-(add-hook 'typescript-tsx-mode-hook
-          (lambda ()
-            ;; Remove LSP’s format and organize-imports on save
-            (remove-hook 'before-save-hook #'lsp-format-buffer t)
-            (remove-hook 'before-save-hook #'lsp-organize-imports t)))
-
-(setq +format-with-lsp nil)
-
-(setq lsp-format-buffer-on-save nil)
-
-(setq lsp-javascript-format-enable nil
-      lsp-typescript-format-enable nil)
+;; (add-hook 'typescript-mode-hook
+;;           (lambda ()
+;;             ;; Remove LSP’s format and organize-imports on save
+;;             (remove-hook 'before-save-hook #'lsp-format-buffer t)
+;;             (remove-hook 'before-save-hook #'lsp-organize-imports t)))
+;;
+;; (add-hook 'typescript-tsx-mode-hook
+;;           (lambda ()
+;;             ;; Remove LSP’s format and organize-imports on save
+;;             (remove-hook 'before-save-hook #'lsp-format-buffer t)
+;;             (remove-hook 'before-save-hook #'lsp-organize-imports t)))
+;;
+;; (setq +format-with-lsp nil)
+;;
+;; (setq lsp-format-buffer-on-save nil)
+;;
+;; (setq lsp-javascript-format-enable nil
+;;       lsp-typescript-format-enable nil)
 
 (auto-composition-mode t)
 
@@ -816,28 +872,62 @@ tab-indent."
   (let* ((remote-url
           (string-trim
            (shell-command-to-string
-            "git config --get remote.origin.url")))             ; get origin URL :contentReference[oaicite:13]{index=13}
+            "git config --get remote.origin.url")))
+         ;; Handle different formats of remote URLs
          (https-url
-          (-> remote-url
-              (replace-regexp-in-string "\\`git@\\(.*?\\):" "https://\\1/") ; SSH→HTTPS
-              (replace-regexp-in-string "\\.git\\'" "")))               ; drop .git suffix
-         (branch (magit-get-current-branch))                             ; current branch :contentReference[oaicite:14]{index=14}
+          (cond
+           ;; Case: SSH URL like git@github.com:user/repo.git
+           ((string-match "\\`git@\\([^:]+\\):\\([^/]+\\)/\\([^.]+\\)\\(?:\\.git\\)?\\'" remote-url)
+            (format "https://%s/%s/%s"
+                    (match-string 1 remote-url)
+                    (match-string 2 remote-url)
+                    (match-string 3 remote-url)))
+           ;; Case: HTTPS URL like https://github.com/user/repo.git
+           ((string-match "\\`https://\\([^/]+\\)/\\([^/]+\\)/\\([^.]+\\)\\(?:\\.git\\)?\\'" remote-url)
+            (format "https://%s/%s/%s"
+                    (match-string 1 remote-url)
+                    (match-string 2 remote-url)
+                    (match-string 3 remote-url)))
+           ;; Fallback case
+           (t
+            (message "Warning: Unrecognized remote URL format: %s" remote-url)
+            remote-url)))
+         (branch (magit-get-current-branch))
          (root
-          (or (magit-toplevel default-directory)                      ; Magit repo root :contentReference[oaicite:15]{index=15}
+          (or (magit-toplevel default-directory)
               (vc-call-backend (vc-responsible-backend default-directory)
                                'root default-directory)))
-         (relative-path (file-relative-name buffer-file-name root))      ; relative path :contentReference[oaicite:16]{index=16}
-         (full-url (concat https-url "blob/" branch "/" relative-path)))
-    (kill-new full-url)                                          ; copy URL to kill ring
-    (message "GitHub URL: %s" full-url)                              ; print URL
-    ))
+         (relative-path (file-relative-name buffer-file-name root))
+         (full-url (concat https-url "/blob/" branch "/" relative-path)))
+    (kill-new full-url)
+    (message "GitHub URL: %s" full-url)
+    full-url))
 
 (defun jr/github-file-line-link ()
   "Return a GitHub URL pointing to the current file and line at point."
   (interactive)
-  (let ((base (my/github-file-link))
-        (line (number-to-string (line-number-at-pos))))               ; line number at point :contentReference[oaicite:17]{index=17}
-    (concat base "#L" line)))                                        ; append line anchor :contentReference[oaicite:18]{index=18}
+  (let* ((base (jr/github-file-link))
+         (line (number-to-string (line-number-at-pos))))               ; line number at point :contentReference[oaicite:17]{index=17}
+    (let ((line-url (concat base "#L" line)))                           ; append line anchor :contentReference[oaicite:18]{index=18}
+      (kill-new line-url)
+      (message "GitHub URL with line: %s" line-url)
+      line-url)))
+
+(defun jr/copy-github-file-link ()
+  "Copy GitHub URL for current file to kill ring."
+  (interactive)
+  (jr/github-file-link))
+
+(defun jr/copy-github-file-line-link ()
+  "Copy GitHub URL for current file and line to kill ring."
+  (interactive)
+  (jr/github-file-line-link))
+
+;; Keybindings for GitHub link functions using Doom conventions
+(map! :leader
+      (:prefix ("g" . "git")
+       :desc "Copy GitHub file link" "y" #'jr/copy-github-file-link
+       :desc "Copy GitHub file+line link" "Y" #'jr/copy-github-file-line-link))
 
 ;; (use-package! treesit-auto
 ;;   :config
@@ -867,14 +957,15 @@ tab-indent."
   (treesit-auto-add-to-auto-mode-alist 'all))
 
 (use-package treesit
+  :if (and (fboundp 'treesit-available-p) (treesit-available-p))
   :mode (("\\.tsx\\'" . tsx-ts-mode)
-         ("\\.js\\'"  . typescript-ts-mode)
-         ("\\.mjs\\'" . typescript-ts-mode)
-         ("\\.mts\\'" . typescript-ts-mode)
-         ("\\.cjs\\'" . typescript-ts-mode)
          ("\\.ts\\'"  . typescript-ts-mode)
+         ("\\.js\\'"  . js-ts-mode)
+         ("\\.mjs\\'" . js-ts-mode)
          ("\\.jsx\\'" . tsx-ts-mode)
          ("\\.json\\'" .  json-ts-mode)
+         ("\\.html\\'" . web-mode)
+         ("\\.htm\\'" . web-mode)
          ("\\.Dockerfile\\'" . dockerfile-ts-mode)
          ("\\.prisma\\'" . prisma-ts-mode)
          ;; More modes defined here...
@@ -883,31 +974,39 @@ tab-indent."
   (defun os/setup-install-grammars ()
     "Install Tree-sitter grammars if they are absent."
     (interactive)
-    (dolist (grammar
-             '((css . ("https://github.com/tree-sitter/tree-sitter-css" "v0.20.0"))
-               (bash "https://github.com/tree-sitter/tree-sitter-bash")
-               (html . ("https://github.com/tree-sitter/tree-sitter-html" "v0.20.1"))
-               (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript" "v0.21.2" "src"))
-               (json . ("https://github.com/tree-sitter/tree-sitter-json" "v0.20.2"))
-               (python . ("https://github.com/tree-sitter/tree-sitter-python" "v0.20.4"))
-               (go "https://github.com/tree-sitter/tree-sitter-go" "v0.20.0")
-               (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-               (make "https://github.com/alemuller/tree-sitter-make")
-               (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-               (cmake "https://github.com/uyha/tree-sitter-cmake")
-               (c "https://github.com/tree-sitter/tree-sitter-c")
-               (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
-               (toml "https://github.com/tree-sitter/tree-sitter-toml")
-               (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "tsx/src"))
-               (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "typescript/src"))
-               (yaml . ("https://github.com/ikatyang/tree-sitter-yaml" "v0.5.0"))
-               (prisma "https://github.com/victorhqc/tree-sitter-prisma")))
-      (add-to-list 'treesit-language-source-alist grammar)
-      ;; Only install `grammar' if we don't already have it
-      ;; installed. However, if you want to *update* a grammar then
-      ;; this obviously prevents that from happening.
-      (unless (treesit-language-available-p (car grammar))
-        (treesit-install-language-grammar (car grammar)))))
+    (when (fboundp 'treesit-available-p)
+      (condition-case err
+          (dolist (grammar
+                   '((css . ("https://github.com/tree-sitter/tree-sitter-css" "v0.20.0"))
+                     (bash "https://github.com/tree-sitter/tree-sitter-bash")
+                     (html . ("https://github.com/tree-sitter/tree-sitter-html" "v0.20.1"))
+                     (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript" "v0.21.2" "src"))
+                     (json . ("https://github.com/tree-sitter/tree-sitter-json" "v0.20.2"))
+                     (python . ("https://github.com/tree-sitter/tree-sitter-python" "v0.20.4"))
+                     (go "https://github.com/tree-sitter/tree-sitter-go" "v0.20.0")
+                     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+                     (make "https://github.com/alemuller/tree-sitter-make")
+                     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+                     (cmake "https://github.com/uyha/tree-sitter-cmake")
+                     (c "https://github.com/tree-sitter/tree-sitter-c")
+                     (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+                     (toml "https://github.com/tree-sitter/tree-sitter-toml")
+                     (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "tsx/src"))
+                     (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "typescript/src"))
+                     (yaml . ("https://github.com/ikatyang/tree-sitter-yaml" "v0.5.0"))
+                     (prisma "https://github.com/victorhqc/tree-sitter-prisma")))
+            (condition-case grammar-err
+                (progn
+                  (add-to-list 'treesit-language-source-alist grammar)
+                  ;; Only install `grammar' if we don't already have it
+                  ;; installed. However, if you want to *update* a grammar then
+                  ;; this obviously prevents that from happening.
+                  (unless (treesit-language-available-p (car grammar))
+                    (treesit-install-language-grammar (car grammar))))
+              (error
+               (message "Failed to install tree-sitter grammar %s: %s" (car grammar) grammar-err))))
+        (error
+         (message "Error setting up tree-sitter grammars: %s" err))))))
 
   ;; Optional, but recommended. Tree-sitter enabled major modes are
   ;; distinct from their ordinary counterparts.
@@ -920,13 +1019,14 @@ tab-indent."
              (css-mode . css-ts-mode)
              (typescript-mode . typescript-ts-mode)
              (typescript-tsx-mode . tsx-ts-mode)
-             (js-mode . typescript-ts-mode)
-             (js2-mode . typescript-ts-mode)
+             (js-mode . js-ts-mode)
+             (js2-mode . js-ts-mode)
+             (javascript-mode . js-ts-mode)
+             (html-mode . web-mode)
              (c-mode . c-ts-mode)
              (c++-mode . c++-ts-mode)
              (c-or-c++-mode . c-or-c++-ts-mode)
              (bash-mode . bash-ts-mode)
-             (css-mode . css-ts-mode)
              (go-mode . go-ts-mode)
              (json-mode . json-ts-mode)
              (js-json-mode . json-ts-mode)
@@ -989,8 +1089,18 @@ tab-indent."
   ;; Associate graphql-mode with our formatter
   (add-to-list 'apheleia-mode-alist '(graphql-mode . prettier-graphql))
 
-  ;; (setf (alist-get 'web-mode apheleia-formatters)
-  ;;       '("prettier" "--stdin-filepath" input-file "--prose-wrap=preserve" "--object-wrap=preserve" "--html-whitespace-sensitivity=strict"))
+  ;; HTML formatting with Prettier
+  (setf (alist-get 'prettier-html apheleia-formatters)
+        '("prettier" "--stdin-filepath" filepath "--parser" "html"
+          "--html-whitespace-sensitivity" "strict" "--print-width" "120"))
+  ;; Associate HTML modes with prettier formatter
+  (add-to-list 'apheleia-mode-alist '(html-mode . prettier-html))
+  (add-to-list 'apheleia-mode-alist '(web-mode . prettier-html))
+
+  ;; Associate tree-sitter modes with formatters
+  (add-to-list 'apheleia-mode-alist '(typescript-ts-mode . typescript-mode))
+  (add-to-list 'apheleia-mode-alist '(tsx-ts-mode . typescript-tsx-mode))
+  (add-to-list 'apheleia-mode-alist '(html-ts-mode . prettier-html))
   )
 
 ;; (after! apheleia

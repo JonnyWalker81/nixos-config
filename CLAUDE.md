@@ -77,24 +77,67 @@ The `mksystem.nix` library function creates a NixOS system configuration with:
 - Home-manager integration
 - Support for WSL and Darwin variants
 
+## Flake Configuration Details
+
+The flake defines several system configurations:
+- `vm-aarch64-prl`: ARM64 Parallels VM configuration
+- `vm-aarch64`: ARM64 VM using older kernel (for VMware compatibility)
+- `vm-intel`: x86_64 Intel VM configuration  
+- `vm-darwin`: macOS Darwin configuration
+
+### Key Inputs and Dependencies
+
+- **nixpkgs**: Stable NixOS 25.05 channel
+- **nixpkgs-unstable**: Latest packages for specific tools (Go, Kitty, etc.)
+- **home-manager**: User environment management
+- **nix-darwin**: macOS system configuration
+- **nixvim**: Custom Neovim configuration
+- **ghostty**: Terminal emulator
+- **zen-browser**: Alternative browser
+- **hyprland**: Wayland compositor
+
+### Package Overlays
+
+The configuration uses overlays to:
+- Override specific package versions (picom, tree-sitter grammars)
+- Pull packages from unstable (kitty, awscli2, go)
+- Apply custom patches and configurations
+- Integrate third-party flake packages
+
 ## Working with the Codebase
 
-When modifying configurations:
+### Available System Configurations
+
+Check `flake.nix` outputs section for all available configurations. Current systems:
+- `nixosConfigurations.*`: Linux systems
+- `darwinConfigurations.*`: macOS systems
+
+### Modifying Configurations
 
 1. **Adding a new machine**:
-   - Create a new file in `machines/` directory
-   - Reference appropriate hardware configuration
-   - Configure system settings specific to the machine
+   - Create configuration file in `machines/` directory
+   - Add corresponding hardware file in `hardware/` directory  
+   - Reference in `flake.nix` outputs section using `mkSystem` or `mkVM`
 
-2. **Modifying user configuration**:
-   - Edit files in `users/<username>/` directory
-   - System-specific settings go in `nixos.nix` or `darwin.nix`
-   - User-specific packages and dotfiles go in `home-manager.nix`
+2. **User configuration structure**:
+   - `users/<username>/nixos.nix`: NixOS system-level user settings
+   - `users/<username>/darwin.nix`: macOS system-level user settings  
+   - `users/<username>/home-manager.nix`: User packages, dotfiles, and home environment
 
 3. **Adding custom packages**:
-   - Add new package definitions to `pkgs/` directory
-   - Reference these packages in machine or user configurations
+   - Define in `pkgs/` directory following existing patterns
+   - Reference in overlays or directly in user/machine configurations
+   - For Terraform providers, see `pkgs/terraform-bin.nix` pattern
 
-4. **Applying changes**:
-   - Use `make switch` to apply configuration locally
-   - For VMs, use `make vm/copy` followed by `make vm/switch`
+4. **Configuration workflow**:
+   - Make changes to relevant nix files
+   - Test with `make test NIXNAME=<config>` before applying
+   - Apply with `make switch NIXNAME=<config>` locally
+   - For VMs: `make vm/copy` then `make vm/switch`
+
+### Development Environment
+
+- **Neovim configurations**: Multiple variants in `users/` (nvim, lazy, lazyvim, nvim-kickstart)
+- **Shell configurations**: ZSH config in `users/config.zsh`
+- **Terminal emulators**: Ghostty, Kitty, Wezterm configurations available
+- **Window managers**: XMonad, Hyprland configurations included

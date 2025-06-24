@@ -9,7 +9,7 @@
   (gradle-mode 1))
 
 (use-package! evil-org
-  :when (module! :feature evil +everywhere)
+  :when (modulep! :feature evil +everywhere)
   :hook (org-mode . evil-org-mode)
   :init
   (add-hook 'evil-org-mode-hook
