@@ -313,7 +313,7 @@ in
   };
 
   programs.firefox = {
-    package = pkgs.firefox-bin;
+    package = pkgs.firefox;
     enable = false;
     profiles = {
       default = {
@@ -327,9 +327,9 @@ in
         };
         search = {
           force = true;
-          default = "Google";
+          default = "google";
           order = [
-            "Google"
+            "google"
             "Searx"
           ];
           engines = {
@@ -365,7 +365,7 @@ in
               definedAliases = [ "@searx" ];
             };
             "Bing".metaData.hidden = true;
-            "Google".metaData.alias = "@g"; # builtin engines only support specifying one additional alias
+            "google".metaData.alias = "@g"; # builtin engines only support specifying one additional alias
           };
         };
         # extensions = with pkgs.nur.repos.rycee.firefox-addons; [

@@ -18,6 +18,7 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.EwmhDesktops
+import XMonad.Hooks.SetWMName
 
 import qualified XMonad.StackSet as SS
 import XMonad.Layout.MultiToggle as MT
@@ -446,10 +447,11 @@ myStartupHook = do
   -- spawnOnce "feh --bg-scale ~/Downloads/wallpaper/wallpaper2.jpg &"
   -- spawnOnce "feh --bg-scale ~/Downloads/wallpaper/natures-beauty-reflected-tranquil-mountain-waters-generative-ai.jpg &"
   spawnOnce "feh --bg-scale ~/Downloads/wallpaper/building_city_japan_tokyo_during_nighttime_hd_travel-1920x1080.jpg &"
-  -- spawnOnce "picom --experimental-backends --config ~/.config/picom/picom.conf &"
+  -- picom is now managed by home-manager service
   spawnOnce "greenclip daemon &"
   spawnOnce "clipcatd &"
   spawnOnce "emacs --daemon" -- emacs daemon for the emacsclient
+  setWMName "LG3D" -- Helps with Java app compatibility
 
 setTransparentHook :: Event -> X All
 setTransparentHook ConfigureEvent{ev_event_type = createNotify, ev_window = id} = do
@@ -492,7 +494,15 @@ toggleStrutsKey XConfig {XMonad.modMask = modMask} = (modMask, xK_b)
 --
 -- No need to modify this.
 --
-defaults h = ewmh def {
+-- Custom EWMH activation hook for performance
+myEwmhActivateHook :: ManageHook
+myEwmhActivateHook = composeOne
+    [ className =? "Firefox" -?> doFocus
+    , className =? "chromium" -?> doFocus
+    , pure True -?> doFocus
+    ]
+
+defaults h = setEwmhActivateHook myEwmhActivateHook $ ewmhFullscreen $ ewmh def {
       -- simple stuff
         terminal           = myTerminal,
         focusFollowsMouse  = myFocusFollowsMouse,

@@ -225,12 +225,12 @@
 
       # windowManager.dwm = { enable = true; };
 
-      # windowManager.awesome = {
-      #   # i3.enable = true;
-      #   enable = true;
-      #
-      #   luaModules = with pkgs.luaPackages; [ luarocks luadbi-mysql ];
-      # };
+      windowManager.awesome = {
+        # i3.enable = true;
+        enable = true;
+
+        luaModules = with pkgs.luaPackages; [ luarocks luadbi-mysql ];
+      };
     };
   };
 
@@ -275,6 +275,7 @@
       # gitAndTools.gitFull
 
       dmenu
+      picom-pijulius
       # xorg.xrandr
       # xorg.xprop
       # haskellPackages.libmpd
