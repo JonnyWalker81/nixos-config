@@ -21,7 +21,18 @@ make switch NIXNAME=<configuration-name>
 
 # Examples for specific configurations
 sudo nixos-rebuild switch --flake ".#vm-aarch64-prl"  # ARM64 Parallels VM
+sudo nixos-rebuild switch --flake ".#vm-aarch64"      # ARM64 VM (older kernel for VMware)
 sudo nixos-rebuild switch --flake ".#vm-intel"        # x86_64 Intel VM
+```
+
+### Testing Configuration
+
+```bash
+# Test a configuration without applying it
+make test NIXNAME=<configuration-name>
+
+# Test build a configuration directly
+sudo nixos-rebuild test --flake ".#<configuration-name>"
 ```
 
 ### VM Management (via Makefile)
@@ -38,13 +49,15 @@ make vm/switch NIXADDR=<vm-ip-address> NIXPORT=<ssh-port> NIXUSER=<username> NIX
 # Bootstrap a new VM (two-step process)
 make vm/bootstrap0 NIXADDR=<vm-ip-address> NIXPORT=<ssh-port> NIXBLOCKDEVICE=<device>
 make vm/bootstrap NIXADDR=<vm-ip-address> NIXPORT=<ssh-port>
+
+# Default values: NIXPORT=22, NIXUSER=jrothberg, NIXNAME=vm-intel
 ```
 
-### Testing Configuration
+### Building ISO Images
 
 ```bash
-# Test a configuration without applying it
-make test NIXNAME=<configuration-name>
+# Build a NixOS ISO image
+make iso/nixos.iso
 ```
 
 ## Architecture and Structure
@@ -59,10 +72,10 @@ make test NIXNAME=<configuration-name>
    - `machines/`: Contains machine-specific NixOS configurations
    - `hardware/`: Hardware-specific NixOS modules
    - `users/`: User-specific configurations (NixOS and home-manager)
-   - `lib/`: Helper functions for creating configurations
+   - `lib/`: Helper functions for creating configurations (`mksystem.nix`)
    - `overlays/`: Package overrides and customizations
    - `modules/`: Reusable NixOS modules
-   - `pkgs/`: Custom packages
+   - `pkgs/`: Custom packages (e.g., terraform-bin)
 
 3. **Configuration Pattern**:
    - Each machine configuration imports relevant hardware and user configurations
@@ -81,7 +94,7 @@ The `mksystem.nix` library function creates a NixOS system configuration with:
 
 The flake defines several system configurations:
 - `vm-aarch64-prl`: ARM64 Parallels VM configuration
-- `vm-aarch64`: ARM64 VM using older kernel (for VMware compatibility)
+- `vm-aarch64`: ARM64 VM using older kernel (6.1) for VMware compatibility
 - `vm-intel`: x86_64 Intel VM configuration  
 - `vm-darwin`: macOS Darwin configuration
 
@@ -89,6 +102,7 @@ The flake defines several system configurations:
 
 - **nixpkgs**: Stable NixOS 25.05 channel
 - **nixpkgs-unstable**: Latest packages for specific tools (Go, Kitty, etc.)
+- **nixpkgs-old-kernel**: Older kernel (6.1) for VMware compatibility
 - **home-manager**: User environment management
 - **nix-darwin**: macOS system configuration
 - **nixvim**: Custom Neovim configuration
@@ -100,9 +114,23 @@ The flake defines several system configurations:
 
 The configuration uses overlays to:
 - Override specific package versions (picom, tree-sitter grammars)
-- Pull packages from unstable (kitty, awscli2, go)
+- Pull packages from unstable (kitty, awscli2, go_1_23, fzf, etc.)
 - Apply custom patches and configurations
-- Integrate third-party flake packages
+- Integrate third-party flake packages (ghostty, zen-browser)
+
+Common overlay patterns:
+```nix
+# Pull package from unstable
+kitty = unstable.kitty;
+
+# Override with custom derivation
+picom = prev.picom.overrideAttrs (old: {
+  src = prev.fetchFromGitHub { ... };
+});
+
+# Use specific nixpkgs input
+kernel = inputs.nixpkgs-old-kernel.legacyPackages.${system}.kernel;
+```
 
 ## Working with the Codebase
 
@@ -137,7 +165,26 @@ Check `flake.nix` outputs section for all available configurations. Current syst
 
 ### Development Environment
 
-- **Neovim configurations**: Multiple variants in `users/` (nvim, lazy, lazyvim, nvim-kickstart)
+- **Neovim configurations**: Multiple variants available
+  - `nvim`: Standard configuration
+  - `lazy`: LazyVim-based configuration
+  - `lazyvim`: Full LazyVim setup
+  - `nixvim`: Nix-based Neovim configuration
+  - `nvim-kickstart`: Kickstart.nvim configuration
+- **Emacs**: Doom Emacs configuration with Rust support
 - **Shell configurations**: ZSH config in `users/config.zsh`
 - **Terminal emulators**: Ghostty, Kitty, Wezterm configurations available
 - **Window managers**: XMonad, Hyprland configurations included
+
+### Testing and Development Scripts
+
+- `run.sh`: Docker script for testing LazyVim configuration
+- `test_emacs.sh`: Emacs testing script
+- `test_interactive.sh`: Interactive testing script
+
+## Makefile Default Values
+
+When using Makefile commands without parameters:
+- `NIXNAME`: defaults to `vm-intel`
+- `NIXUSER`: defaults to `jrothberg`
+- `NIXPORT`: defaults to `22`

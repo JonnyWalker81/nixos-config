@@ -3,7 +3,7 @@
 
 (message "loading...")
 
-;; Force HTML files to use web-mode
+;; Fc498fed98a6df8adca33e87433b4084c0340fb4aorce HTML files to use web-mode
 (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
 (defun load-directory (dir)
   (let ((load-it (lambda (f)
@@ -20,24 +20,25 @@
 (message "loaded path config...")
 
 (if (eq system-type 'darwin)
-    ;; something for OS X if true
-    ;; optional something if not
-    (exec-path-from-shell-copy-env "GOPATH")
-  (exec-path-from-shell-copy-env "RUST_SRC_PATH")
-  )
+    (progn
+      (exec-path-from-shell-copy-env "GOPATH")
+      (exec-path-from-shell-copy-env "RUST_SRC_PATH")
+      (exec-path-from-shell-copy-env "RUSTUP_HOME")
+      (exec-path-from-shell-copy-env "CARGO_HOME")))
 
 (if (eq system-type 'linux)
-    ;; something for OS X if true
-    ;; optional something if not
-    (exec-path-from-shell-copy-env "GOPATH")
-  (exec-path-from-shell-copy-env "RUST_SRC_PATH")
-  )
+    (progn
+      (exec-path-from-shell-copy-env "GOPATH")
+      (exec-path-from-shell-copy-env "RUST_SRC_PATH")
+      (exec-path-from-shell-copy-env "RUSTUP_HOME")
+      (exec-path-from-shell-copy-env "CARGO_HOME")))
 
 (add-to-list 'treesit-extra-load-path "~/.tree-sitter/bin")
 
 (load! "config-misc")
 (load! "config-font")
 (load! "config-bindings")
+(load! "config-rust")
 
 (require 'vc-git)
 
@@ -222,7 +223,9 @@
 (setq nlinum-highlight-current-line t)
 
 (after! magit
-  (evil-collection-init 'magit))
+  (evil-collection-init 'magit)
+  (setq git-commit-summary-max-length 72)
+ )
 
 (add-hook 'protobuf-mode-hook (lambda ()
                                 (format-all-mode t)
@@ -1006,35 +1009,35 @@ tab-indent."
               (error
                (message "Failed to install tree-sitter grammar %s: %s" (car grammar) grammar-err))))
         (error
-         (message "Error setting up tree-sitter grammars: %s" err))))))
+         (message "Error setting up tree-sitter grammars: %s" err)))))
 
-  ;; Optional, but recommended. Tree-sitter enabled major modes are
-  ;; distinct from their ordinary counterparts.
-  ;;
-  ;; You can remap major modes with `major-mode-remap-alist'. Note
-  ;; that this does *not* extend to hooks! Make sure you migrate them
-  ;; also
-  (dolist (mapping
-           '((python-mode . python-ts-mode)
-             (css-mode . css-ts-mode)
-             (typescript-mode . typescript-ts-mode)
-             (typescript-tsx-mode . tsx-ts-mode)
-             (js-mode . js-ts-mode)
-             (js2-mode . js-ts-mode)
-             (javascript-mode . js-ts-mode)
-             (html-mode . web-mode)
-             (c-mode . c-ts-mode)
-             (c++-mode . c++-ts-mode)
-             (c-or-c++-mode . c-or-c++-ts-mode)
-             (bash-mode . bash-ts-mode)
-             (go-mode . go-ts-mode)
-             (json-mode . json-ts-mode)
-             (js-json-mode . json-ts-mode)
-             (sh-mode . bash-ts-mode)
-             (sh-base-mode . bash-ts-mode)))
-    (add-to-list 'major-mode-remap-alist mapping))
-  :config
-  (os/setup-install-grammars))
+;; Optional, but recommended. Tree-sitter enabled major modes are
+;; distinct from their ordinary counterparts.
+;;
+;; You can remap major modes with `major-mode-remap-alist'. Note
+;; that this does *not* extend to hooks! Make sure you migrate them
+;; also
+(dolist (mapping
+         '((python-mode . python-ts-mode)
+           (css-mode . css-ts-mode)
+           (typescript-mode . typescript-ts-mode)
+           (typescript-tsx-mode . tsx-ts-mode)
+           (js-mode . js-ts-mode)
+           (js2-mode . js-ts-mode)
+           (javascript-mode . js-ts-mode)
+           (html-mode . web-mode)
+           (c-mode . c-ts-mode)
+           (c++-mode . c++-ts-mode)
+           (c-or-c++-mode . c-or-c++-ts-mode)
+           (bash-mode . bash-ts-mode)
+           (go-mode . go-ts-mode)
+           (json-mode . json-ts-mode)
+           (js-json-mode . json-ts-mode)
+           (sh-mode . bash-ts-mode)
+           (sh-base-mode . bash-ts-mode)))
+  (add-to-list 'major-mode-remap-alist mapping))
+:config
+(os/setup-install-grammars))
 
 (message "after treeesit-auto...")
 
@@ -1127,6 +1130,57 @@ tab-indent."
   (gptel-make-gh-copilot "Copilot")
   )
 
+;; ============================================================================
+;; AI COMMIT MESSAGE GENERATION
+;; ============================================================================
+
+(defun jr/ai-generate-commit-message ()
+  "Generate a commit message using AI based on the current git diff."
+  (interactive)
+  (let* ((diff-output (shell-command-to-string "git diff --staged"))
+         (prompt (concat "Generate a concise commit message for these changes. Focus on what was changed and why. Keep it under 72 characters for the first line:\n\n" diff-output)))
+    (if (string-empty-p (string-trim diff-output))
+        (message "No staged changes found. Stage some changes first.")
+      (gptel-request prompt
+                     :callback (lambda (response info)
+                                 (if response
+                                     (let ((commit-msg (string-trim response)))
+                                       (with-current-buffer (get-buffer-create "*AI Commit Message*")
+                                         (erase-buffer)
+                                         (insert commit-msg)
+                                         (display-buffer (current-buffer)))
+                                       (message "AI commit message generated! Check *AI Commit Message* buffer."))
+                                   (message "Failed to generate commit message: %s" info))))))
+  )
+
+(defun jr/ai-insert-commit-message ()
+  "Insert AI-generated commit message into current buffer."
+  (interactive)
+  (let* ((diff-output (shell-command-to-string "git diff --staged"))
+         (prompt (concat "Generate a concise commit message for these changes. Focus on what was changed and why. Keep it under 72 characters for the first line:\n\n" diff-output)))
+    (if (string-empty-p (string-trim diff-output))
+        (message "No staged changes found. Stage some changes first.")
+      (gptel-request prompt
+                     :callback (lambda (response info)
+                                 (if response
+                                     (let ((commit-msg (string-trim response)))
+                                       (insert commit-msg))
+                                   (message "Failed to generate commit message: %s" info))))))
+  )
+
+;; Add keybindings for AI commit message generation
+(map! :leader
+      (:prefix ("g" . "git")
+       :desc "Generate AI commit message" "m" #'jr/ai-generate-commit-message))
+
+;; Add magit-specific keybinding
+(after! magit
+  (transient-append-suffix 'magit-commit "c"
+    '("m" "AI commit message" jr/ai-insert-commit-message))
+
+  ;; Add keybinding in commit message buffer
+  (define-key git-commit-mode-map (kbd "C-c C-a") #'jr/ai-insert-commit-message))
+
 (message "after gptel...")
 
 (use-package elysium
@@ -1145,46 +1199,46 @@ tab-indent."
 (setq org-export-in-background nil)
 
 ;; 3. (OPTIONAL) DEFINE MACROS FOR COMMON DIRECTIVES
-(after! org
-  (setq org-export-global-macros
-        '(("pause" . "@@html:@@")
-          ("reset_layout" . "@@html:@@"))))
+; (after! org
+;   (setq org-export-global-macros
+;         '(("pause" . "@@html:@@")
+;           ("reset_layout" . "@@html:@@"))))
 
-(use-package! claude-code
-  :bind
-  ("C-c c" . claude-code-command-map)
-  :config
-  (claude-code-mode)
+; (use-package! claude-code
+;   :bind
+;   ("C-c c" . claude-code-command-map)
+;   :config
+;   (claude-code-mode)
+;
+;   (add-to-list 'display-buffer-alist
+;                '("^\\*claude"
+;                  (display-buffer-in-side-window)
+;                  (side . right)
+;                  (window-width . 0.33)))
+;   )
+;
+; (use-package! emacs-claude-code
+;   :config
+;
+;   (setq --ecc-auto-response-responses
+;         '((:y/n . "1")                              ; Respond "1" to Y/N prompts
+;           (:y/y/n . "2")                            ; Respond "2" to Y/Y/N prompts
+;           (:waiting . "/user:auto")                 ; Send /user:auto when waiting
+;           (:initial-waiting . "/user:understand-guidelines"))) ; Initial waiting response
+;
+;   ;; Enable useful features
+;   (ecc-auto-periodical-toggle)                  ; Enable auto-periodical commands
+;   (--ecc-vterm-utils-enable-yank-advice)        ; Enable yank-as-file for large content
+;
+;   ;; Fine-tune behavior (optional)
+;   (setq --ecc-vterm-yank-as-file-threshold 100)    ; Prompt threshold for yank-as-file
+;   (setq --ecc-auto-response-periodic-interval 300) ; 5 minutes periodic return
+;   (setq ecc-auto-periodical-commands              ; Commands to run periodically
+;         '((10 . "/compact")                            ; Run /compact every 10 interactions
+;           (20 . "/user:auto")))                        ; Run /user:auto every 20 interactions
+;   )
 
-(add-to-list 'display-buffer-alist
-             '("^\\*claude"
-               (display-buffer-in-side-window)
-               (side . right)
-               (window-width . 0.33)))
-  )
+(message "done loading config.el...")
 
-(use-package! emacs-claude-code
-              :config
-
-(setq --ecc-auto-response-responses
-  '((:y/n . "1")                              ; Respond "1" to Y/N prompts
-    (:y/y/n . "2")                            ; Respond "2" to Y/Y/N prompts
-    (:waiting . "/user:auto")                 ; Send /user:auto when waiting
-    (:initial-waiting . "/user:understand-guidelines"))) ; Initial waiting response
-
-;; Enable useful features
-(ecc-auto-periodical-toggle)                  ; Enable auto-periodical commands
-(--ecc-vterm-utils-enable-yank-advice)        ; Enable yank-as-file for large content
-
-;; Fine-tune behavior (optional)
-(setq --ecc-vterm-yank-as-file-threshold 100)    ; Prompt threshold for yank-as-file
-(setq --ecc-auto-response-periodic-interval 300) ; 5 minutes periodic return
-(setq ecc-auto-periodical-commands              ; Commands to run periodically
-  '((10 . "/compact")                            ; Run /compact every 10 interactions
-    (20 . "/user:auto")))                        ; Run /user:auto every 20 interactions
-)
-
-(message "done loading config.el..."
-
-         (provide 'config)
+(provide 'config)
 ;;; config.el

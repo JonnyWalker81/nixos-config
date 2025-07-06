@@ -56,11 +56,15 @@
 ;; (unpin! tuareg)
                                         ; (unpin! magit forge)
                                         ; (package! magit :pin "48818355728c48d986d74dde8b1e9fba25f0fd53")
-                                        ; (package! forge :pin "fd586e106effa456defc94c6fd21a2f9ac185d09")
+(package! forge :pin "c498fed98a6df8adca33e87433b4084c0340fb4a")
+
 ;; (package! flycheck)
 (package! graphql-mode)
-;; (package! rust-mode)
-;; (package! flycheck-rust)
+;; Rust development packages
+(package! rustic)
+(package! cargo)
+(package! flycheck-rust)
+(package! toml-mode)
 ;; (package! lsp-mode)
 ;; (package! lsp-ui)
 (package! dockerfile-mode)
@@ -224,13 +228,13 @@
 (package! direnv)
 
 (package! claude-code
-          :recipe (:type git :host github :repo "stevemolitor/claude-code.el" :branch "main"
-                   :files ("*.el" (:exclude "demo.gif")))
-          )
+  :recipe (:type git :host github :repo "stevemolitor/claude-code.el" :branch "main"
+           :files ("*.el" (:exclude "demo.gif")))
+  )
 
 (package! emacs-claude-code
-          :recipe (:type git :host github :repo "ywatanabe1989/emacs-claude-code" :branch "main"
-                   :files ("*.el"))
-          )
+  :recipe (:type git :host github :repo "ywatanabe1989/emacs-claude-code" :branch "main"
+           :files ("*.el"))
+  )
 
 ;;; packages.el ends here
