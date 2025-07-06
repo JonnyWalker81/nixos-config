@@ -268,7 +268,8 @@
 
           awscli2 = inputs.nixpkgs-unstable.legacyPackages.${prev.system}.awscli2;
 
-          ghostty = ghostty.packages.${prev.system}.default;
+          # Use the pre-built ReleaseFast variant from the ghostty flake
+          ghostty = ghostty.packages.${prev.system}.ghostty-releasefast;
 
           nixvim = inputs.nixvim.packages.${prev.system}.default;
           # nixvim = inputs.nixvim.packages.${pkgs.system}.default.overrideAttrs (oldAttrs: {

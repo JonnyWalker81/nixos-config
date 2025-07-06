@@ -29,7 +29,10 @@ in
 # ];
 {
 
-  imports = [ common ];
+  imports = [ 
+    common 
+    ../hyprland.nix
+  ];
 
   programs.git.userEmail = "jon@join.build";
 
@@ -64,6 +67,14 @@ in
 
   home.file.".config/xmobar/.xmobarrc" = {
     source = ../xmobar/.xmobarrc;
+  };
+  
+  home.file.".config/waybar/config" = {
+    source = ../waybar/config;
+  };
+  
+  home.file.".config/waybar/style.css" = {
+    source = ../waybar/style.css;
   };
 
   # programs.neovim = {

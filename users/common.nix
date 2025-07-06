@@ -285,6 +285,18 @@ in
       pkgs.warp-terminal
       pkgs.neofetch
       pkgs.pandoc
+      
+      # Wayland/Hyprland tools
+      pkgs.waybar
+      pkgs.wl-clipboard
+      pkgs.cliphist
+      pkgs.swww
+      pkgs.wofi
+      pkgs.grim
+      pkgs.slurp
+      pkgs.swaylock
+      pkgs.swayidle
+      pkgs.swaynotificationcenter
     ];
 
   home.sessionVariables = {
@@ -294,6 +306,10 @@ in
     EDITOR = "nvim";
     PAGER = "less -FirSwX";
     MANPAGER = "${manpager}/bin/manpager";
+  };
+  
+  home.shellAliases = {
+    code = "code --enable-features=UseOzonePlatform --ozone-platform=wayland";
   };
 
   programs.firefox = {

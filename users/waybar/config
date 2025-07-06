@@ -1,0 +1,65 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 24,
+    "spacing": 0,
+    
+    "modules-left": ["hyprland/workspaces", "hyprland/window"],
+    "modules-center": [],
+    "modules-right": [
+        "cpu",
+        "memory",
+        "disk",
+        "custom/uptime",
+        "clock"
+    ],
+    
+    "hyprland/workspaces": {
+        "format": "{name}",
+        "on-click": "activate",
+        "sort-by-number": false
+    },
+    
+    "hyprland/window": {
+        "format": "{title}",
+        "max-length": 60,
+        "separate-outputs": true
+    },
+    
+    "cpu": {
+        "format": "  cpu: {usage}%",
+        "tooltip": false,
+        "on-click": "ghostty -e htop"
+    },
+    
+    "memory": {
+        "format": "  mem: {used:0.1f}G ({percentage}%)",
+        "tooltip": false,
+        "on-click": "ghostty -e htop"
+    },
+    
+    "disk": {
+        "interval": 60,
+        "format": "  hdd: {free} free",
+        "path": "/"
+    },
+    
+    "custom/uptime": {
+        "exec": "uptime | awk '{print $3\" \"$4}'| sed 's/,//g'",
+        "format": "  uptime: {}",
+        "interval": 360
+    },
+    
+    "custom/weather": {
+        "exec": "~/scripts/wttr.sh",
+        "format": "  {}",
+        "interval": 360,
+        "on-click": "~/scripts/wttr.sh"
+    },
+    
+    "clock": {
+        "format": "  {:%b %d %Y - (%H:%M)}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "on-click": "emacsclient -c -a 'emacs' --eval '(doom/window-maximize-buffer(dt/year-calendar))'"
+    }
+}

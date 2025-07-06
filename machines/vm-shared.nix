@@ -143,11 +143,11 @@
   #   });
   # };
 
-  # programs.hyprland = {
-  #   enable = true;
-  #   # package = inputs.hyprland.packages.${pkgs.system}.hyprland;
-  #   xwayland.enable = true;
-  # };
+  programs.hyprland = {
+    enable = true;
+    # package = inputs.hyprland.packages.${pkgs.system}.hyprland;
+    xwayland.enable = true;
+  };
 
   # programs.sway.enable = true;
   # security.polkit.enable = true;
@@ -159,43 +159,17 @@
   services = {
     displayManager = {
       defaultSession = "none+xmonad";
+      sddm = {
+        enable = true;
+        wayland.enable = true;
+        theme = "breeze";
+      };
     };
 
     xserver = {
-      # enable = true;
-      # xkb = {
-      #   variant = "";
-      #   layout = "us";
-      # };
-      # libinput.enable = true;
-      # displayManager.sddm = {
-      #   enable = true;
-      #   autoNumlock = true;
-      #   wayland.enable = true;
-      #   theme = "tokyo-night-sddm";
-      # };
-
       enable = true;
-      # xkb.layout = "us";
       xkb.layout = "us";
       dpi = 220;
-
-      #desktopManager = {
-      #  xterm.enable = false;
-      #  wallpaper.mode = "scale";
-      #};
-
-      # resolutions = [
-      #   #  # { x = 2560; y = 1600;}
-      #   # { x = 2880; y = 1800;}
-      #   (if currentSystem == "aarch64-linux" then {
-      #     x = 3840;
-      #     y = 2160;
-      #   } else {
-      #     x = 2560;
-      #     y = 1600;
-      #   })
-      # ];
 
       desktopManager = {
         xterm.enable = false;
@@ -203,11 +177,7 @@
       };
 
       displayManager = {
-        # defaultSession = "none+i3";
-        # sddm.enable = true;
-
-        # startx.enable = true;
-        lightdm.enable = true;
+        # lightdm.enable = true;
         # defaultSession = "none+awesome";
         # defaultSession = "none+xmonad";
         # ${pkgs.xorg.xrandr}/bin/xrandr -s '1920x1080'
