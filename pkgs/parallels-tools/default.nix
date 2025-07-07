@@ -16,11 +16,12 @@
   undmg,
   perl,
   autoPatchelfHook,
+  gconf,
 }:
 
 stdenv.mkDerivation rec {
   # version = "18.3.1-53614";
-  version = "20.1.3-55743";
+  version = "20.3.0-55895";
   pname = "prl-tools";
 
   # We download the full distribution to extract prl-tools-lin.iso from
@@ -28,7 +29,7 @@ stdenv.mkDerivation rec {
   src = fetchurl {
     url = "https://download.parallels.com/desktop/v${lib.versions.major version}/${version}/ParallelsDesktop-${version}.dmg";
     # sha256 = "sha256-MZtNxByY2GSoPFeH9mPieCPPNfUgfla+lYgpeD+SgOc=";
-    sha256 = "sha256-5lbTTQucop/jnsVudoqTO9bESR5tdn8NFu9Nm2WphU4=";
+    sha256 = "1xl9v0s8mkhysxl7bh1s4xxj18ws1sr1mmv363cd9jzr9a063k86";
   };
 
   # patches = [ ./prl-tools-6.1.patch ];
@@ -59,11 +60,13 @@ stdenv.mkDerivation rec {
       glib
       dbus-glib
       zlib
+      gconf
     ];
 
   runtimeDependencies = [
     glib
     xorg.libXrandr
+    gconf
   ];
 
   inherit libsOnly;

@@ -3,4 +3,9 @@
 final: prev: {
   # waypoint = final.callPackage ../pkgs/waypoint.nix { };
   terraform = final.callPackage ../pkgs/terraform-bin.nix { };
+  
+  # Override kernel packages to use our custom prl-tools
+  linuxPackages = prev.linuxPackages.extend (lpfinal: lpprev: {
+    prl-tools = lpfinal.callPackage ../pkgs/parallels-tools { };
+  });
 }
