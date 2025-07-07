@@ -35,7 +35,7 @@ let
 
 in
 {
-  home.stateVersion = "18.09";
+  home.stateVersion = "25.05";
   xdg.enable = true;
 
   home.file.".doom.d" = {
@@ -285,7 +285,7 @@ in
       pkgs.warp-terminal
       pkgs.neofetch
       pkgs.pandoc
-      
+
       # Wayland/Hyprland tools
       pkgs.waybar
       pkgs.wl-clipboard
@@ -307,14 +307,14 @@ in
     PAGER = "less -FirSwX";
     MANPAGER = "${manpager}/bin/manpager";
   };
-  
+
   home.shellAliases = {
     code = "code --enable-features=UseOzonePlatform --ozone-platform=wayland";
   };
 
   programs.firefox = {
     package = pkgs.firefox;
-    enable = false;
+    enable = true;
     profiles = {
       default = {
         id = 0;

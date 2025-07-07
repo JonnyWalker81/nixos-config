@@ -50,7 +50,7 @@ in
     source = ../clipcat/clipcat-menu.toml;
   };
 
-  home.file.".config/picom/picom.conf" = { source = ../picom-jonaburg.conf; };
+  home.file.".config/picom/picom.conf" = { source = ../picom-jonaburg-stable.conf; };
 
   home.file.".xmonad/xmonad.hs" = {
     source = ../xmonad/xmonad.hs;
@@ -93,7 +93,7 @@ in
   # Custom systemd user service for picom
   systemd.user.services.picom-custom = {
     Unit = {
-      Description = "Picom compositor with jonaburg fork";
+      Description = "Picom compositor (jonaburg fork with animations)";
       After = [ "graphical-session-pre.target" ];
       PartOf = [ "graphical-session.target" ];
     };

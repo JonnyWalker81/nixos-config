@@ -750,15 +750,32 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
 
 (defun jr/set-copilot-node-executable ()
   (interactive)
-  (message "Setting copilot node executable to %s" (executable-find "node"))
-  (setq copilot-node-executable (executable-find "node"))
-  )
+  (let ((node-path (executable-find "node")))
+    (if node-path
+        (progn
+          (message "Setting copilot node executable to %s" node-path)
+          (setq copilot-node-executable node-path))
+      (message "Warning: Node.js not found in PATH. Cannot set copilot node executable."))))
 
 (map! :localleader  :desc "jr/prettify" "s" #'jr/prettify-and-save)
 
+;; Define function to conditionally enable copilot
+(defun jr/copilot-maybe-enable ()
+  "Enable copilot-mode if node is available in the current environment."
+  (when (and (executable-find "node")
+             (fboundp 'copilot-mode))
+    (setq copilot-node-executable (executable-find "node"))
+    (copilot-mode 1)
+    (message "Copilot enabled with node: %s" copilot-node-executable)))
+
 ;; accept completion from copilot and fallback to company
 (use-package! copilot
-  :hook (prog-mode . copilot-mode)
+  :hook ((prog-mode . jr/copilot-maybe-enable)
+         (yaml-mode . jr/copilot-maybe-enable)
+         (yaml-ts-mode . jr/copilot-maybe-enable)
+         (json-mode . jr/copilot-maybe-enable)
+         (json-ts-mode . jr/copilot-maybe-enable)
+         (xml-mode . jr/copilot-maybe-enable))
   :bind (:map copilot-completion-map
               ;; ("M-C-<return>" . 'copilot-accept-completion)
               ;; ("M-C-<tab>" . 'copilot-accept-completion)
@@ -769,18 +786,24 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
               )
   :config
   (setq copilot-indent-offset-warning-disable nil)
-  (message "Node executable: %s" (executable-find "node"))
-  (setq copilot-node-executable (executable-find "node"))
-
+  
+  ;; Check node availability when package loads
+  (if (executable-find "node")
+      (message "Node executable found at load time: %s" (executable-find "node"))
+    (message "Warning: Node.js not found at load time. Copilot will activate if node becomes available."))
   )
 
-(message "after copilot...")
+;; Copilot package is now always loaded, but only activates when node is available
+(message "after copilot... (Package loaded, will activate when node is available)")
 (defun jr/copilot-tab ()
   "Tab command that will complete with copilot if a completion is
 available. Otherwise will try company, yasnippet or normal
 tab-indent."
   (interactive)
-  (copilot-accept-completion)
+  (if (and (fboundp 'copilot-accept-completion)
+           (executable-find "node"))
+      (copilot-accept-completion)
+    (message "Copilot not available (Node.js might be missing)"))
   ;; (or (copilot-accept-completion)
   ;;     (and (company--active-p) (company-complete))
   ;;     (evil-insert 1)
@@ -789,7 +812,13 @@ tab-indent."
   )
 
 (defun jr/nix-post-activate-check ()
+  "Check for node availability after entering nix-shell and enable copilot if appropriate."
   (jr/set-copilot-node-executable)
+  ;; If we're in a prog-mode buffer and copilot isn't active, try to enable it
+  (when (and (derived-mode-p 'prog-mode 'yaml-mode 'yaml-ts-mode 'json-mode 'json-ts-mode 'xml-mode)
+             (not (bound-and-true-p copilot-mode))
+             (executable-find "node"))
+    (jr/copilot-maybe-enable))
   )
 
 (add-hook 'nix-shell-post-activate-hooks 'jr/nix-post-activate-check)
@@ -971,6 +1000,8 @@ tab-indent."
          ("\\.htm\\'" . web-mode)
          ("\\.Dockerfile\\'" . dockerfile-ts-mode)
          ("\\.prisma\\'" . prisma-ts-mode)
+         ("\\.yml\\'" . yaml-ts-mode)
+         ("\\.yaml\\'" . yaml-ts-mode)
          ;; More modes defined here...
          )
   :preface
@@ -1033,8 +1064,10 @@ tab-indent."
            (go-mode . go-ts-mode)
            (json-mode . json-ts-mode)
            (js-json-mode . json-ts-mode)
+           (jsonc-mode . json-ts-mode)
            (sh-mode . bash-ts-mode)
-           (sh-base-mode . bash-ts-mode)))
+           (sh-base-mode . bash-ts-mode)
+           (yaml-mode . yaml-ts-mode)))
   (add-to-list 'major-mode-remap-alist mapping))
 :config
 (os/setup-install-grammars))

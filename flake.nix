@@ -210,31 +210,28 @@
 
         inputs.zig.overlays.default
         (final: prev: {
-          # Use jonaburg's picom fork for animations and rounded corners
+          # Use jonaburg's picom fork for animations and stability
           picom = prev.picom.overrideAttrs (oldAttrs: rec {
-            pname = "picom";  # Keep original pname to match binary name
-            version = "unstable-2023";
+            pname = "picom";
+            version = "unstable-2021";
             src = prev.fetchFromGitHub {
               owner = "jonaburg";
               repo = "picom";
-              rev = "e3c19cd7d1108d114552267f302548c113278d45";  # Latest commit
+              rev = "e3c19cd7d1108d114552267f302548c113278d45";  # Latest stable commit
               sha256 = "sha256-4voCAYd0fzJHQjJo4x3RoWz5l3JJbRvgIXn1Kg6nz6Y=";
             };
-            # Add all required dependencies for jonaburg fork
-            buildInputs = (oldAttrs.buildInputs or []) ++ [ 
-              prev.pcre 
+            buildInputs = (oldAttrs.buildInputs or [ ]) ++ [
+              prev.pcre
               prev.libconfig
               prev.libev
               prev.uthash
             ];
-            nativeBuildInputs = (oldAttrs.nativeBuildInputs or []) ++ [ 
-              prev.asciidoc 
+            nativeBuildInputs = (oldAttrs.nativeBuildInputs or [ ]) ++ [
+              prev.asciidoc
               prev.pkg-config
               prev.meson
               prev.ninja
             ];
-            
-            # Disable version checks
             doCheck = false;
             doInstallCheck = false;
           });
