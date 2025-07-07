@@ -50,7 +50,7 @@ in
     source = ../clipcat/clipcat-menu.toml;
   };
 
-  home.file.".config/picom/picom.conf" = { source = ../picom-jonaburg-stable.conf; };
+  home.file.".config/picom/picom.conf" = { source = ../picom-yushi.conf; };
 
   home.file.".xmonad/xmonad.hs" = {
     source = ../xmonad/xmonad.hs;
@@ -98,7 +98,7 @@ in
       PartOf = [ "graphical-session.target" ];
     };
     Service = {
-      ExecStart = "${pkgs.picom}/bin/picom --config %h/.config/picom/picom.conf --experimental-backends";
+      ExecStart = "${pkgs.picom}/bin/picom --config %h/.config/picom/picom.conf";
       Restart = "on-failure";
       RestartSec = 3;
     };
