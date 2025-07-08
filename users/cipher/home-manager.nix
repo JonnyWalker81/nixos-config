@@ -50,7 +50,7 @@ in
     source = ../clipcat/clipcat-menu.toml;
   };
 
-  home.file.".config/picom/picom.conf" = { source = ../picom-yushi.conf; };
+  home.file.".config/picom/picom.conf" = { source = ../picom-omarchy.conf; };
 
   home.file.".xmonad/xmonad.hs" = {
     source = ../xmonad/xmonad.hs;

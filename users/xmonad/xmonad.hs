@@ -110,7 +110,13 @@ myNormalBorderColor  = "#24283B" -- Omarchy code background
 myFocusedBorderColor = "#B4F9F8" -- Omarchy bright cyan
 
 mySpace :: Integer
-mySpace = 2
+mySpace = 4
+
+-- Window spacing configuration
+myWindowSpacing :: Integer
+myWindowSpacing = 8  -- Default spacing between windows
+myLargeWindowSpacing :: Integer
+myLargeWindowSpacing = 12  -- Larger spacing for 'space' layout
 
 clipboardy :: MonadIO m => m () -- Don't question it
 -- clipboardy = spawn "rofi -modi \"\63053 :greenclip print\" -show \"\63053 \" -run-command '{cmd}'"
@@ -257,7 +263,7 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 -- Layouts:
 
 mySpacing :: Integer -> l a -> XMonad.Layout.LayoutModifier.ModifiedLayout Spacing l a
-mySpacing i = spacingRaw False (Border i 0 i 0) True (Border 0 i 0 i) True
+mySpacing i = spacingRaw False (Border i i i i) True (Border i i i i) True
 
 mySpacing' :: Integer -> l a -> XMonad.Layout.LayoutModifier.ModifiedLayout Spacing l a
 mySpacing' i = spacingRaw True (Border i 0 i 0) True (Border 0 i 0 i) True
@@ -310,14 +316,14 @@ myLayout = avoidStruts
                  myDefaultLayout = tall ||| grid ||| threeCol ||| threeColMid ||| threeRow ||| oneBig ||| noBorders monocle ||| space ||| floats
 
 
-tall          = renamed [Replace "tall"]     $ spacing 2 $ ResizableTall 1 (3/100) (1/2) []
-grid          = renamed [Replace "grid"]     $ spacing 2 $ mkToggle (single MIRROR) $ Grid (16/10)
-threeCol      = renamed [Replace "threeCol"] $ spacing 2 $ ThreeCol 1 (3/100) (1/2)
-threeColMid   = renamed [Replace "threeColMid"]  $ spacing 2 $ ThreeColMid 1 (3/100) (1/2)
-threeRow      = renamed [Replace "threeRow"] $ limitWindows 3  $ Mirror $ mkToggle (single MIRROR) zoomRow
-oneBig        = renamed [Replace "oneBig"]   $ limitWindows 6  $ Mirror $ mkToggle (single MIRROR) $ mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $ OneBig (5/9) (8/12)
+tall          = renamed [Replace "tall"]     $ spacingWithEdge 8 $ ResizableTall 1 (3/100) (1/2) []
+grid          = renamed [Replace "grid"]     $ spacingWithEdge 8 $ mkToggle (single MIRROR) $ Grid (16/10)
+threeCol      = renamed [Replace "threeCol"] $ spacingWithEdge 8 $ ThreeCol 1 (3/100) (1/2)
+threeColMid   = renamed [Replace "threeColMid"]  $ spacingWithEdge 8 $ ThreeColMid 1 (3/100) (1/2)
+threeRow      = renamed [Replace "threeRow"] $ limitWindows 3  $ spacingWithEdge 8 $ Mirror $ mkToggle (single MIRROR) zoomRow
+oneBig        = renamed [Replace "oneBig"]   $ limitWindows 6  $ spacingWithEdge 8 $ Mirror $ mkToggle (single MIRROR) $ mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $ OneBig (5/9) (8/12)
 monocle       = renamed [Replace "monocle"]  $ limitWindows 20 $ Full
-space         = renamed [Replace "space"]    $ limitWindows 4  $ spacing 12 $ Mirror $ mkToggle (single MIRROR) $ mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $ OneBig (2/3) (2/3)
+space         = renamed [Replace "space"]    $ limitWindows 4  $ spacingWithEdge 12 $ Mirror $ mkToggle (single MIRROR) $ mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $ OneBig (2/3) (2/3)
 floats        = renamed [Replace "floats"]   $ limitWindows 20 $ simplestFloat
 
 -- myLayout = avoidStruts
@@ -519,7 +525,7 @@ defaults h = setEwmhActivateHook myEwmhActivateHook $ ewmhFullscreen $ ewmh def 
       -- hooks, layouts
         layoutHook         = avoidStruts $  myLayout,
         manageHook         = myManageHook,
-        handleEventHook    = setTransparentHook <+> handleEventHook def,
+        handleEventHook    = handleEventHook def, -- setTransparentHook <+> handleEventHook def,
         logHook            = myLogHook h,
         startupHook        = myStartupHook
     }
