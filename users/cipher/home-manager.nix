@@ -21,8 +21,8 @@ let
 in
 {
 
-  imports = [ 
-    common 
+  imports = [
+    common
     ../hyprland.nix
   ];
 
@@ -50,7 +50,9 @@ in
     source = ../clipcat/clipcat-menu.toml;
   };
 
-  home.file.".config/picom/picom.conf" = { source = ../picom-omarchy.conf; };
+  home.file.".config/picom/picom.conf" = {
+    source = ../picom-omarchy.conf;
+  };
 
   home.file.".xmonad/xmonad.hs" = {
     source = ../xmonad/xmonad.hs;
@@ -59,11 +61,11 @@ in
   home.file.".config/xmobar/.xmobarrc" = {
     source = ../xmobar/.xmobarrc;
   };
-  
+
   home.file.".config/waybar/config" = {
     source = ../waybar/config;
   };
-  
+
   home.file.".config/waybar/style.css" = {
     source = ../waybar/style.css;
   };
@@ -87,9 +89,9 @@ in
   };
 
   services.picom = {
-    enable = lib.mkForce false;  # Disabled - using custom config file instead
+    enable = lib.mkForce false; # Disabled - using custom config file instead
   };
-  
+
   # Custom systemd user service for picom
   systemd.user.services.picom-custom = {
     Unit = {
@@ -106,9 +108,35 @@ in
       WantedBy = [ "graphical-session.target" ];
     };
   };
-  
+
+  # Service to ensure Parallels clipboard works after X11 restart
+  systemd.user.services.parallels-clipboard-fix = {
+    Unit = {
+      Description = "Fix Parallels clipboard integration after X11 restart";
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.writeShellScript "fix-parallels-clipboard" ''
+        # Give X11 time to fully initialize
+        sleep 3
+        
+        # Restart the main Parallels Tools service
+        sudo systemctl restart prltoolsd || true
+        
+        # Ensure clipboard functionality is working
+        echo "Parallels clipboard initialized" | ${pkgs.xclip}/bin/xclip -selection clipboard 2>/dev/null || true
+      ''}";
+      RemainAfterExit = true;
+    };
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
+    };
+  };
+
   services.clipcat = {
-    enable = false;  # Disabled to avoid config conflicts, using manual config files
+    enable = false; # Disabled to avoid config conflicts, using manual config files
   };
 
   # Wallpaper setup service
@@ -139,3 +167,4 @@ in
     x11.enable = true;
   };
 }
+

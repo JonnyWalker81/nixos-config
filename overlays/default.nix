@@ -3,6 +3,7 @@
 final: prev: {
   # waypoint = final.callPackage ../pkgs/waypoint.nix { };
   terraform = final.callPackage ../pkgs/terraform-bin.nix { };
+  opencode = final.callPackage ../pkgs/opencode-fhs.nix { };
   
   # Override kernel packages to use our custom prl-tools
   linuxPackages = prev.linuxPackages.extend (lpfinal: lpprev: {

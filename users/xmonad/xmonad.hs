@@ -316,15 +316,15 @@ myLayout = avoidStruts
                  myDefaultLayout = tall ||| grid ||| threeCol ||| threeColMid ||| threeRow ||| oneBig ||| noBorders monocle ||| space ||| floats
 
 
-tall          = renamed [Replace "tall"]     $ spacingWithEdge 8 $ ResizableTall 1 (3/100) (1/2) []
-grid          = renamed [Replace "grid"]     $ spacingWithEdge 8 $ mkToggle (single MIRROR) $ Grid (16/10)
-threeCol      = renamed [Replace "threeCol"] $ spacingWithEdge 8 $ ThreeCol 1 (3/100) (1/2)
-threeColMid   = renamed [Replace "threeColMid"]  $ spacingWithEdge 8 $ ThreeColMid 1 (3/100) (1/2)
+tall          = renamed [Replace "tall"]     $ spacingWithEdge 5 $ ResizableTall 1 (3/100) (1/2) []
+grid          = renamed [Replace "grid"]     $ spacingWithEdge 5 $ mkToggle (single MIRROR) $ Grid (16/10)
+threeCol      = renamed [Replace "threeCol"] $ spacingWithEdge 5 $ ThreeCol 1 (3/100) (1/2)
+threeColMid   = renamed [Replace "threeColMid"]  $ spacingWithEdge 5 $ ThreeColMid 1 (3/100) (1/2)
 threeRow      = renamed [Replace "threeRow"] $ limitWindows 3  $ spacingWithEdge 8 $ Mirror $ mkToggle (single MIRROR) zoomRow
 oneBig        = renamed [Replace "oneBig"]   $ limitWindows 6  $ spacingWithEdge 8 $ Mirror $ mkToggle (single MIRROR) $ mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $ OneBig (5/9) (8/12)
-monocle       = renamed [Replace "monocle"]  $ limitWindows 20 $ Full
+monocle       = renamed [Replace "monocle"]  $ limitWindows 15 $ Full
 space         = renamed [Replace "space"]    $ limitWindows 4  $ spacingWithEdge 12 $ Mirror $ mkToggle (single MIRROR) $ mkToggle (single REFLECTX) $ mkToggle (single REFLECTY) $ OneBig (2/3) (2/3)
-floats        = renamed [Replace "floats"]   $ limitWindows 20 $ simplestFloat
+floats        = renamed [Replace "floats"]   $ limitWindows 15 $ simplestFloat
 
 -- myLayout = avoidStruts
 --     -- $ onWorkspace "Programming" layout_toggle_emacs

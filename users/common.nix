@@ -218,6 +218,7 @@ in
 
       inputs.nixvim.packages.${pkgs.system}.default
       pkgs.claude-code
+      pkgs.opencode
     ]
     ++ lib.optionals (!pkgs.stdenv.isDarwin) [
       pkgs.libreoffice
@@ -310,6 +311,8 @@ in
 
   home.shellAliases = {
     code = "code --enable-features=UseOzonePlatform --ozone-platform=wayland";
+    fix-clipboard = "/home/cipher/nixos-config/scripts/fix-parallels-clipboard.sh";
+    prl-clip-fix = "/home/cipher/nixos-config/scripts/fix-parallels-clipboard.sh";
   };
 
   programs.firefox = {
