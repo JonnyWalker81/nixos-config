@@ -111,6 +111,23 @@ in
     enable = false;  # Disabled to avoid config conflicts, using manual config files
   };
 
+  # Wallpaper setup service
+  systemd.user.services.wallpaper-setup = {
+    Unit = {
+      Description = "Setup desktop wallpaper";
+      After = [ "graphical-session-pre.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.bash}/bin/bash /home/cipher/nixos-config/scripts/setup-wallpaper.sh";
+      RemainAfterExit = true;
+    };
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
+    };
+  };
+
   # Make cursor not tiny on HiDPI screens
   home.pointerCursor = {
     name = "Adwaita";

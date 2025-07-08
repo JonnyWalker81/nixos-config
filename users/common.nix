@@ -354,17 +354,17 @@ in
             };
             "NixOS Wiki" = {
               urls = [ { template = "https://nixos.wiki/index.php?search={searchTerms}"; } ];
-              iconUpdateURL = "https://nixos.wiki/favicon.png";
+              icon = "https://nixos.wiki/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
               definedAliases = [ "@nw" ];
             };
             "Searx" = {
               urls = [ { template = "https://searx.aicampground.com/?q={searchTerms}"; } ];
-              iconUpdateURL = "https://nixos.wiki/favicon.png";
+              icon = "https://nixos.wiki/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
               definedAliases = [ "@searx" ];
             };
-            "Bing".metaData.hidden = true;
+            bing.metaData.hidden = true;
             "google".metaData.alias = "@g"; # builtin engines only support specifying one additional alias
           };
         };
@@ -547,6 +547,7 @@ in
       EDITOR = "nvim"; # $EDITOR use Emacs in terminal
       # VISUAL = "emacsclient -c -a emacs"; # $VISUAL use Emacs in GUI mode
       VISUAL = "$EDITOR"; # $VISUAL use Emacs in GUI mode
+      AWS_PAGER = "";
     };
 
     initContent = ''

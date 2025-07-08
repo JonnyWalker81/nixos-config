@@ -6,3 +6,6 @@
 /test_interactive.sh
 /users/nvim-bak/
 /users/nvim-kickstart/
+
+# Wallpapers (downloaded by setup script)
+/.local/share/wallpapers/

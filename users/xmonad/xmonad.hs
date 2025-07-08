@@ -442,11 +442,10 @@ myLogHook h = dynamicLogWithPP $ def
 -- By default, do nothing.
 
 myStartupHook = do
-  -- spawnOnce "feh --bg-scale ~/Downloads/wallpaper/GRDZSqf-most-popular-computer-wallpaper.jpg &"
-  --
-  -- spawnOnce "feh --bg-scale ~/Downloads/wallpaper/wallpaper2.jpg &"
-  -- spawnOnce "feh --bg-scale ~/Downloads/wallpaper/natures-beauty-reflected-tranquil-mountain-waters-generative-ai.jpg &"
-  spawnOnce "feh --bg-scale ~/Downloads/wallpaper/building_city_japan_tokyo_during_nighttime_hd_travel-1920x1080.jpg &"
+  -- Run wallpaper setup script to ensure wallpaper is downloaded and set
+  spawnOnce "sh /home/cipher/nixos-config/scripts/setup-wallpaper.sh &"
+  -- Also run .fehbg to set wallpaper (created by setup script)
+  spawnOnce "sh ~/.fehbg &"
   -- picom is now managed by home-manager service
   spawnOnce "greenclip daemon &"
   spawnOnce "clipcatd &"
