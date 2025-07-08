@@ -1,10 +1,10 @@
-Config { font            = "xft:FiraCode:weight=bold:pixelsize=16:antialias=true:hinting=true"
-       , additionalFonts = [ "xft:Mononoki:pixelsize=16:antialias=true:hinting=true"
-                           , "xft:Font Awesome 5 Free Solid:pixelsize=17"
-                           , "xft:Font Awesome 5 Brands:pixelsize=17"
+Config { font            = "xft:FiraCode:weight=bold:pixelsize=14:antialias=true:hinting=true"
+       , additionalFonts = [ "xft:Mononoki:pixelsize=14:antialias=true:hinting=true"
+                           , "xft:Font Awesome 5 Free Solid:pixelsize=14"
+                           , "xft:Font Awesome 5 Brands:pixelsize=14"
                            ]
-       , bgColor      = "#282c34"
-       , fgColor      = "#ff6c6b"
+       , bgColor      = "#1a1b26"  -- Omarchy dark navy background
+       , fgColor      = "#a9b1d6"  -- Omarchy soft blue-gray text
        -- Position TopSize and BottomSize take 3 arguments:
        --   an alignment parameter (L/R/C) for Left, Right or Center.
        --   an integer for the percentage width, so 100 would be 100%.
@@ -17,35 +17,22 @@ Config { font            = "xft:FiraCode:weight=bold:pixelsize=16:antialias=true
        , persistent   = True
        , iconRoot     = ".xmonad/xpm/"  -- default: "."
        , commands = [
-                   -- weather monitor
-                  Run Com "echo" ["<fn=2>\xf2c9</fn>"] "tempicon" 360
-                  , Run Com "scripts/wttr.sh" [] "weather" 360
-                  -- , Run Com "echo" ["-e \u2109"] "degree" 360
-                -- Run Weather “STFC1” [“-t”,”<station>: <tempF>F”,”-L”,”18”,”-H”,”25”,”—normal”,”green”,”—high”,”red”,”—low”,”lightblue”] 36000
-                -- , Run Weather "STFC1" [ "--template", "<station> : <skyCondition> | <fc=#39D7E5><tempC></fc>°C | <fc=#2461B7><rh></fc>% | <fc=#2461B7><pressure></fc>hPa"
-                --             ] 36000
-                        -- Cpu usage in percent
-                    , Run Cpu ["-t", "<fn=2>\xf108</fn>  cpu: (<total>%)","-H","50","--high","red"] 20
-                        -- Ram used number and percent
-                   , Run Memory ["-t", "<fn=2>\xf233</fn>  mem: <used>M (<usedratio>%)"] 20
-                   -- Disk space free
-                   , Run DiskU [("/", "<fn=2>\xf0c7</fn>  hdd: <free> free")] [] 60
-                   -- -- Echos an "up arrow" icon in front of the uptime output.
-                   , Run Com "echo" ["<fn=2>\xf0aa</fn>"] "uparrow" 3600
-                   -- -- Uptime
-                   , Run Uptime ["-t", "uptime: <days>d <hours>h"] 360
-                   -- -- Echos a "battery" icon in front of the pacman updates.
-                   -- , Run Com "echo" ["<fn=2>\xf242</fn>"] "baticon" 3600
-                   -- -- Battery
-                   -- , Run BatteryP ["BAT0"] ["-t", "<acstatus><watts> (<left>%)"] 360
-                   -- -- Time and date
-                   , Run Date "<fn=2>\xf017</fn>  %b %d %Y - (%H:%M) " "date" 50
-                   -- -- Script that dynamically adjusts xmobar padding depending on number of trayer icons.
-                   -- , Run Com ".config/xmobar/trayer-padding-icon.sh" [] "trayerpad" 20
-                        -- Prints out the left side items such as workspaces, layout, etc.
-                    , Run UnsafeStdinReader
-                    ]
+                  -- weather monitor
+                  Run Com "scripts/wttr.sh" [] "weather" 360
+                  -- Cpu usage in percent
+                  , Run Cpu ["-t", "cpu: <total>%","-H","50","--high","red"] 20
+                  -- Ram used number and percent
+                  , Run Memory ["-t", "mem: <usedratio>%"] 20
+                  -- Disk space free
+                  , Run DiskU [("/", "disk: <free>")] [] 60
+                  -- Uptime
+                  , Run Uptime ["-t", "<days>d <hours>h"] 360
+                  -- Time and date
+                  , Run Date "%b %d %Y · %H:%M " "date" 50
+                  -- Prints out the left side items such as workspaces, layout, etc.
+                  , Run UnsafeStdinReader
+                  ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "   <fc=#666666>|</fc> %UnsafeStdinReader% }{ <box type=Bottom width=2 mb=2 color=#98be65><fc=#98be65><action=`~/scripts/wttr.sh`>%tempicon% %weather%</action></fc></box>    <box type=Bottom width=2 mb=2 color=#ecbe7b><fc=#ecbe7b><action=`alacritty -e htop`>%cpu%</action></fc></box>    <box type=Bottom width=2 mb=2 color=#ff6c6b><fc=#ff6c6b><action=`alacritty -e htop`>%memory%</action></fc></box>    <box type=Bottom width=2 mb=2 color=#a9a1e1><fc=#a9a1e1>%disku%</fc></box>    <box type=Bottom width=2 mb=2 color=#98be65><fc=#98be65>%uparrow% %uptime%</fc></box>    <box type=Bottom width=2 mb=2 color=#46d9ff><fc=#46d9ff><action=`emacsclient -c -a 'emacs' --eval '(doom/window-maximize-buffer(dt/year-calendar))'`>%date%</action></fc></box>   "
+       , template = " %UnsafeStdinReader% }{ <fc=#B4F9F8>%weather%</fc> · <fc=#9ECE6A>%cpu%</fc> · <fc=#a9b1d6>%memory%</fc> · <fc=#a9b1d6>%disku%</fc> · <fc=#B4F9F8>%uptime%</fc> · <fc=#9ECE6A>%date%</fc> "
        }

@@ -105,9 +105,9 @@ myWorkspaces    = ["coding", "web", "services", "work", "misc"] ++ map show ["6"
 
 -- Border colors for unfocused and focused windows, respectively.
 --
-myNormalBorderColor  = "#2c698d" -- "#56b6c2"  -- "#6A657C"
+myNormalBorderColor  = "#24283B" -- Omarchy code background
 -- myFocusedBorderColor = "#98c379"  -- "#567568"
-myFocusedBorderColor = "#5DFFFF"
+myFocusedBorderColor = "#B4F9F8" -- Omarchy bright cyan
 
 mySpace :: Integer
 mySpace = 2
@@ -406,9 +406,9 @@ myManageHook = composeAll
 -- myEventHook = mempty
 
 
-xmobarTitleColor = "#FFB6B0"
+xmobarTitleColor = "#a9b1d6" -- Omarchy soft blue-gray
 
-xmobarCurrentWorkspaceColor = "#CEFFAC"
+xmobarCurrentWorkspaceColor = "#B4F9F8" -- Omarchy bright cyan
 ------------------------------------------------------------------------
 -- Status bars and logging
 
@@ -426,11 +426,11 @@ xmobarCurrentWorkspaceColor = "#CEFFAC"
 
 myLogHook h = dynamicLogWithPP $ def 
   { ppOutput = hPutStrLn h
-   , ppCurrent = xmobarColor "#21E31C" "" . wrap "{" "}"
-   , ppHidden = xmobarColor "#5296F0" ""
-   , ppHiddenNoWindows = xmobarColor "#f8080" ""
+   , ppCurrent = xmobarColor "#B4F9F8" "" . wrap "{" "}" -- Omarchy bright cyan
+   , ppHidden = xmobarColor "#a9b1d6" "" -- Omarchy soft blue-gray
+   , ppHiddenNoWindows = xmobarColor "#24283B" "" -- Omarchy darker navy
    , ppTitle = xmobarColor xmobarTitleColor "" . shorten 60
-   , ppUrgent = xmobarColor "#E3411C" ""
+   , ppUrgent = xmobarColor "#9ECE6A" "" -- Omarchy accent green
   }
 
 ------------------------------------------------------------------------
