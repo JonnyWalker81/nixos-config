@@ -41,7 +41,17 @@
   };
 
   # We expect to run the VM on hidpi machines.
-  # hardware.opengl = { enable = true; };
+  hardware.graphics = {
+    enable = true;
+    
+    # For VM environments, ensure software rendering fallback
+    extraPackages = with pkgs; [
+      mesa
+      mesa.drivers
+      libvdpau-va-gl
+      vaapiVdpau
+    ];
+  };
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -78,6 +88,18 @@
 
   # Virtualization settings
   virtualisation.docker.enable = true;
+  
+  # VM performance optimizations
+  boot.kernel.sysctl = {
+    "vm.swappiness" = 1;
+    "vm.dirty_background_ratio" = 5;
+    "vm.dirty_ratio" = 10;
+    "vm.vfs_cache_pressure" = 50;
+  };
+  
+  # Memory optimization
+  zramSwap.enable = true;
+  zramSwap.memoryPercent = 25;
 
   # Select internationalisation properties.
   # i18n.defaultLocale = "en_US.UTF-8";

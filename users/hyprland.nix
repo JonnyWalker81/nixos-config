@@ -25,10 +25,11 @@ with lib;
       in
       concatStrings [
         ''
-          monitor=,preferred,auto,1
+          # Monitor configuration - using 1.0 scale for normal sizing
+          monitor=,3840x2025@60,0x0,1.0
 
-          # Window rules
-          windowrulev2 = opacity 0.9, class:.*
+          # Window rules - restored to original values
+          windowrulev2 = opacity 0.85, class:.*
           windowrulev2 = opacity 1.0, class:firefox
           windowrulev2 = opacity 1.0, class:Firefox
           # windowrule = float, ^(steam)$
@@ -37,6 +38,7 @@ with lib;
           # windowrule = float, ^(MPlayer)$
           # windowrule = float, ^(Gimp)$
 
+          # General settings - restored to original values
           general {
             gaps_in = 5
             gaps_out = 5
@@ -47,13 +49,16 @@ with lib;
             resize_on_border = true
           }
 
+          # Input settings - restored to original values
           input {
             kb_layout = us
             kb_options = caps:super
             follow_mouse = 1
+            
             touchpad {
               natural_scroll = false
             }
+            
             sensitivity = 0
             accel_profile = flat
           }
@@ -74,6 +79,9 @@ with lib;
           env = QT_WAYLAND_DISABLE_WINDOWDECORATION, 1
           env = WLR_NO_HARDWARE_CURSORS, 1
           env = WLR_RENDERER_ALLOW_SOFTWARE, 1
+          
+          # VM-specific performance optimizations
+          env = XCURSOR_THEME, Adwaita
 
           gestures {
             workspace_swipe = true
@@ -87,6 +95,7 @@ with lib;
             disable_splash_rendering = true
           }
 
+          # Animations - restored to original values
           animations {
             enabled = yes
             bezier = myBezier, 0.05, 0.9, 0.1, 1.05
@@ -98,9 +107,14 @@ with lib;
             animation = workspaces, 1, 3, default
           }
 
+          # Decoration settings - restored to original values
           decoration {
             rounding = 5
-            # drop_shadow = false
+            
+            shadow {
+              enabled = false
+            }
+            
             blur {
               enabled = false
             }
@@ -178,7 +192,7 @@ with lib;
 
           # Floating
           bind = ${modifier},t,togglefloating
-          bind = ${modifier},m,fullscreen,0
+          bind = ${modifier},m,fullscreen,1
 
           # Master area control
           bind = ${modifier},comma,layoutmsg,addmaster
