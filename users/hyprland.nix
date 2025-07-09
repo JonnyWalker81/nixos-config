@@ -22,6 +22,9 @@ with lib;
           monitor=,preferred,auto,1
 
           # Window rules
+          windowrulev2 = opacity 0.9, class:.*
+          windowrulev2 = opacity 1.0, class:firefox
+          windowrulev2 = opacity 1.0, class:Firefox
           # windowrule = float, ^(steam)$
           # windowrule = size 1080 900, ^(steam)$
           # windowrule = center, ^(steam)$
@@ -112,22 +115,22 @@ with lib;
           }
 
           # Workspace definitions (matching XMonad)
-          workspace = name:coding, persistent:true
-          workspace = name:web, persistent:true
-          workspace = name:services, persistent:true
-          workspace = name:work, persistent:true
-          workspace = name:misc, persistent:true
-          workspace = name:6, persistent:true
-          workspace = name:7, persistent:true
-          workspace = name:8, persistent:true
-          workspace = name:9, persistent:true
+          workspace = 1, persistent:true
+          workspace = 2, persistent:true
+          workspace = 3, persistent:true
+          workspace = 4, persistent:true
+          workspace = 5, persistent:true
+          workspace = 6, persistent:true
+          workspace = 7, persistent:true
+          workspace = 8, persistent:true
+          workspace = 9, persistent:true
 
           # Startup applications
           exec-once = $POLKIT_BIN
           exec-once = dbus-update-activation-environment --systemd --all
           exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
           exec-once = swww init
-          exec-once = sleep 1 && swww img ~/Downloads/wallpaper/building_city_japan_tokyo_during_nighttime_hd_travel-1920x1080.jpg
+          exec-once = sleep 1 && /home/cipher/nixos-config/scripts/setup-wallpaper.sh
           exec-once = waybar
           exec-once = swaync
           exec-once = wl-paste --type text --watch cliphist store
@@ -151,8 +154,8 @@ with lib;
           bind = ${modifier}SHIFT,space,exec,hyprctl reload
 
           # Focus movement (vim-style like XMonad)
-          bind = ${modifier},j,movefocus,d
-          bind = ${modifier},k,movefocus,u
+          bind = ${modifier},j,cyclenext,
+          bind = ${modifier},k,cyclenext,prev
           bind = ${modifier},h,movefocus,l
           bind = ${modifier},l,movefocus,r
           bind = ${modifier},Tab,cyclenext
@@ -193,26 +196,26 @@ with lib;
           bind = ${modifier}SHIFT,m,exec,waybar
 
           # Workspaces
-          bind = ${modifier},1,workspace,name:coding
-          bind = ${modifier},2,workspace,name:web
-          bind = ${modifier},3,workspace,name:services
-          bind = ${modifier},4,workspace,name:work
-          bind = ${modifier},5,workspace,name:misc
-          bind = ${modifier},6,workspace,name:6
-          bind = ${modifier},7,workspace,name:7
-          bind = ${modifier},8,workspace,name:8
-          bind = ${modifier},9,workspace,name:9
+          bind = ${modifier},1,workspace,1
+          bind = ${modifier},2,workspace,2
+          bind = ${modifier},3,workspace,3
+          bind = ${modifier},4,workspace,4
+          bind = ${modifier},5,workspace,5
+          bind = ${modifier},6,workspace,6
+          bind = ${modifier},7,workspace,7
+          bind = ${modifier},8,workspace,8
+          bind = ${modifier},9,workspace,9
 
           # Move to workspace
-          bind = ${modifier}SHIFT,1,movetoworkspace,name:coding
-          bind = ${modifier}SHIFT,2,movetoworkspace,name:web
-          bind = ${modifier}SHIFT,3,movetoworkspace,name:services
-          bind = ${modifier}SHIFT,4,movetoworkspace,name:work
-          bind = ${modifier}SHIFT,5,movetoworkspace,name:misc
-          bind = ${modifier}SHIFT,6,movetoworkspace,name:6
-          bind = ${modifier}SHIFT,7,movetoworkspace,name:7
-          bind = ${modifier}SHIFT,8,movetoworkspace,name:8
-          bind = ${modifier}SHIFT,9,movetoworkspace,name:9
+          bind = ${modifier}SHIFT,1,movetoworkspace,1
+          bind = ${modifier}SHIFT,2,movetoworkspace,2
+          bind = ${modifier}SHIFT,3,movetoworkspace,3
+          bind = ${modifier}SHIFT,4,movetoworkspace,4
+          bind = ${modifier}SHIFT,5,movetoworkspace,5
+          bind = ${modifier}SHIFT,6,movetoworkspace,6
+          bind = ${modifier}SHIFT,7,movetoworkspace,7
+          bind = ${modifier}SHIFT,8,movetoworkspace,8
+          bind = ${modifier}SHIFT,9,movetoworkspace,9
 
           # Mouse bindings (matching XMonad)
           bindm = ${modifier},mouse:272,movewindow

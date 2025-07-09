@@ -6,7 +6,8 @@
 WALLPAPER_DIR="$HOME/.local/share/wallpapers"
 # WALLPAPER_URL="https://raw.githubusercontent.com/D3Ext/aesthetic-wallpapers/main/images/pastel-japanese-temple.png"
 WALLPAPER_URL="https://raw.githubusercontent.com/basecamp/omakub/refs/heads/master/themes/nord/background.png"
-WALLPAPER_NAME="pastel-japanese-temple.png"
+# WALLPAPER_NAME="pastel-japanese-temple.png"
+WALLPAPER_NAME="nord.png"
 WALLPAPER_PATH="$WALLPAPER_DIR/$WALLPAPER_NAME"
 CURRENT_WALLPAPER_LINK="$WALLPAPER_DIR/current"
 
@@ -30,13 +31,22 @@ fi
 # Create symlink to current wallpaper
 ln -sf "$WALLPAPER_PATH" "$CURRENT_WALLPAPER_LINK"
 
-# Set wallpaper using feh if available
-if command -v feh &>/dev/null; then
+# Set wallpaper using swww for Wayland/Hyprland
+if command -v swww &>/dev/null; then
+    # Initialize swww daemon if not running
+    if ! pgrep -f "swww-daemon" > /dev/null; then
+        swww init &
+        sleep 1
+    fi
+    swww img "$WALLPAPER_PATH"
+    echo "Wallpaper set with swww"
+elif command -v feh &>/dev/null; then
+    # Fallback to feh for X11
     feh --bg-fill "$WALLPAPER_PATH"
     echo "Wallpaper set with feh"
 fi
 
-# Create .fehbg script for persistence
+# Create .fehbg script for X11 persistence
 cat >"$HOME/.fehbg" <<EOF
 #!/bin/sh
 feh --no-fehbg --bg-fill '$WALLPAPER_PATH'
