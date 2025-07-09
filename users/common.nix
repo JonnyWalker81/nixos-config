@@ -119,6 +119,17 @@ in
         epkgs.jinx
       ]
     );
+    extraConfig = ''
+      ;; Ensure SSH agent environment is available
+      (setenv "SSH_AUTH_SOCK" "/run/user/1000/ssh-agent")
+      
+      ;; Copy SSH environment variables from systemd user environment
+      (when (and (eq system-type 'linux)
+                 (executable-find "systemctl"))
+        (let ((ssh-auth-sock (shell-command-to-string "systemctl --user show-environment | grep SSH_AUTH_SOCK | cut -d'=' -f2-")))
+          (when (and ssh-auth-sock (not (string-empty-p (string-trim ssh-auth-sock))))
+            (setenv "SSH_AUTH_SOCK" (string-trim ssh-auth-sock)))))
+    '';
   };
 
   home.packages =
@@ -591,6 +602,11 @@ in
         source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
         eval "$(${zoxideBin} init zsh)"
         
+        # Import SSH environment from systemd user environment
+        if command -v systemctl >/dev/null 2>&1; then
+          export SSH_AUTH_SOCK="/run/user/1000/ssh-agent"
+        fi
+        
         # SSH key management - only load keys if SSH agent is available and keys aren't already loaded
         if [[ -n "$SSH_AUTH_SOCK" ]] && command -v ssh-add >/dev/null 2>&1; then
           # Check if keys are already loaded
@@ -878,5 +894,22 @@ in
   # SSH Agent Service
   services.ssh-agent = {
     enable = true;
+  };
+
+  # Systemd service to set SSH_AUTH_SOCK for all user services
+  systemd.user.services.ssh-agent-env = {
+    Unit = {
+      Description = "Set SSH_AUTH_SOCK environment variable for user services";
+      After = [ "ssh-agent.service" ];
+      Wants = [ "ssh-agent.service" ];
+    };
+    Service = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "${pkgs.systemd}/bin/systemctl --user set-environment SSH_AUTH_SOCK=/run/user/1000/ssh-agent";
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
   };
 }

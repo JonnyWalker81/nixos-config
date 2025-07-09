@@ -8,6 +8,12 @@
 
 with lib;
 {
+  # Enable waybar with systemd service
+  programs.waybar = {
+    enable = true;
+    systemd.enable = true;
+  };
+
   wayland.windowManager.hyprland = {
     enable = true;
     xwayland.enable = true;
@@ -131,7 +137,6 @@ with lib;
           exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
           exec-once = swww init
           exec-once = sleep 1 && /home/cipher/nixos-config/scripts/setup-wallpaper.sh
-          exec-once = waybar
           exec-once = swaync
           exec-once = wl-paste --type text --watch cliphist store
           exec-once = wl-paste --type image --watch cliphist store
