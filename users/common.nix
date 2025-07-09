@@ -307,6 +307,7 @@ in
     EDITOR = "nvim";
     PAGER = "less -FirSwX";
     MANPAGER = "${manpager}/bin/manpager";
+    SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
   };
 
   home.shellAliases = {
@@ -550,6 +551,9 @@ in
       
       # Firefox HiDPI fix
       firefox-hidpi = "GDK_SCALE=1 GDK_DPI_SCALE=1.8 firefox";
+      
+      # SSH agent management
+      ssh-cleanup = "/home/cipher/nixos-config/scripts/cleanup-ssh-agents.sh";
     };
 
     # interactiveShellInit = lib.strings.concatStrings
@@ -586,7 +590,20 @@ in
     initContent = ''
         source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
         eval "$(${zoxideBin} init zsh)"
-        eval "$(ssh-agent -s)"
+        
+        # SSH key management - only load keys if SSH agent is available and keys aren't already loaded
+        if [[ -n "$SSH_AUTH_SOCK" ]] && command -v ssh-add >/dev/null 2>&1; then
+          # Check if keys are already loaded
+          if ! ssh-add -l >/dev/null 2>&1; then
+            # Load SSH keys if they exist
+            for key in ~/.ssh/id_ed25519 ~/.ssh/id_rsa ~/.ssh/id_github; do
+              if [[ -f "$key" ]]; then
+                ssh-add "$key" >/dev/null 2>&1 || true
+              fi
+            done
+          fi
+        fi
+        
         source ~/.bash_join_db
 
         [[ ! -r /home/cipher/.opam/opam-init/init.zsh ]] || source /home/cipher/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
@@ -758,6 +775,7 @@ in
 
     forwardAgent = true;
     serverAliveInterval = 60;
+    addKeysToAgent = "yes";
 
     hashKnownHosts = true;
     userKnownHostsFile = "~/.ssh/known_hosts";
@@ -855,5 +873,10 @@ in
       #   }
       # ];
     };
+  };
+
+  # SSH Agent Service
+  services.ssh-agent = {
+    enable = true;
   };
 }
