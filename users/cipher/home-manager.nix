@@ -70,6 +70,14 @@ in
     source = ../waybar/style.css;
   };
 
+  home.file.".config/wofi/config" = {
+    source = ../wofi/config;
+  };
+
+  home.file.".config/wofi/style.css" = {
+    source = ../wofi/style.css;
+  };
+
   home.file.".config/awesome/rc.lua" = {
     source = ../awesome/rc.lua;
   };

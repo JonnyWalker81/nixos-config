@@ -1,0 +1,89 @@
+/* Official Omarchy Nord Theme for Wofi */
+
+window {
+    padding: 20px;
+    border: none;
+    border-radius: 0px;
+    background-color: #2E3440;
+    font-family: "JetBrains Mono", "CaskaydiaMono Nerd Font", monospace;
+    font-size: 18px;
+    opacity: 0.95;
+}
+
+#input {
+    padding: 0px;
+    border: none;
+    border-radius: 0px;
+    background-color: transparent;
+    color: #D8DEE9;
+    font-size: 18px;
+    font-weight: normal;
+}
+
+#input:focus {
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+#inner-box {
+    margin: 0px;
+    border: none;
+    background-color: transparent;
+}
+
+#outer-box {
+    padding: 20px;
+    border: none;
+    background-color: transparent;
+}
+
+#scroll {
+    margin: 0px;
+    border: none;
+    background-color: transparent;
+}
+
+#text {
+    margin: 0px;
+    border: none;
+    color: #D8DEE9;
+    font-weight: normal;
+}
+
+#text:selected {
+    color: #88C0D0;
+    font-weight: normal;
+}
+
+#entry {
+    margin: 0px;
+    padding: 0px;
+    border: none;
+    border-radius: 0px;
+    background-color: transparent;
+    color: #D8DEE9;
+}
+
+#entry:selected {
+    background-color: transparent;
+    color: #D8DEE9;
+    border-radius: 0px;
+}
+
+#entry:hover {
+    background-color: transparent;
+    color: #D8DEE9;
+    border-radius: 0px;
+}
+
+#entry:selected:hover {
+    background-color: transparent;
+    color: #D8DEE9;
+}
+
+#img {
+    margin-right: 10px;
+    background-color: transparent;
+    -gtk-icon-transform: scale(0.7);
+}

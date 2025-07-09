@@ -35,8 +35,8 @@ with lib;
             gaps_in = 5
             gaps_out = 5
             border_size = 2
-            col.active_border = rgba(5DFFFFff)
-            col.inactive_border = rgba(2c698dff)
+            col.active_border = rgba(D8DEE9ff)
+            col.inactive_border = rgba(4c566aff)
             layout = master
             resize_on_border = true
           }
