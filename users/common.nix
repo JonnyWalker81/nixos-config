@@ -319,6 +319,11 @@ in
     PAGER = "less -FirSwX";
     MANPAGER = "${manpager}/bin/manpager";
     SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
+    
+    # Firefox/Mozilla HiDPI scaling
+    MOZ_ENABLE_WAYLAND = "1";
+    MOZ_USE_XINPUT2 = "1";
+    MOZ_DBUS_REMOTE = "1";
   };
 
   home.shellAliases = {
@@ -337,9 +342,6 @@ in
     dp-current = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh current";
     dp-list = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh list";
     prl-display = "parallels-display-info";
-    
-    # Firefox HiDPI fix
-    firefox-hidpi = "GDK_SCALE=1 GDK_DPI_SCALE=1.8 firefox";
   };
 
   programs.firefox = {
@@ -354,6 +356,25 @@ in
           # "browser.startup.homepage" = "https://searx.aicampground.com";
           # "browser.search.defaultenginename" = "Searx";
           # "browser.search.order.1" = "Searx";
+          
+          # HiDPI/4K display scaling settings
+          "layout.css.devPixelsPerPx" = "1.25";
+          "browser.display.use_system_colors" = false;
+          "browser.display.use_document_fonts" = 1;
+          "font.size.variable.x-western" = 18;
+          "font.size.fixed.x-western" = 14;
+          "font.minimum-size.x-western" = 14;
+          
+          # Zoom settings
+          "browser.zoom.full" = true;
+          "zoom.minPercent" = 100;
+          "zoom.maxPercent" = 500;
+          "toolkit.zoomManager.zoomValues" = "0.5,0.75,1,1.25,1.5,1.75,2,2.5,3";
+          
+          # Better readability
+          "gfx.webrender.enabled" = true;
+          "layers.acceleration.force-enabled" = true;
+          "layout.frame_rate" = 60;
         };
         search = {
           force = true;
@@ -559,9 +580,6 @@ in
       dp-current = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh current";
       dp-list = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh list";
       prl-display = "parallels-display-info";
-      
-      # Firefox HiDPI fix
-      firefox-hidpi = "GDK_SCALE=1 GDK_DPI_SCALE=1.8 firefox";
       
       # SSH agent management
       ssh-cleanup = "/home/cipher/nixos-config/scripts/cleanup-ssh-agents.sh";
