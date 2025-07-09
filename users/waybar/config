@@ -52,26 +52,26 @@
     },
     
     "cpu": {
-        "format": "  cpu: {usage}%",
+        "format": "󰻠 cpu: {usage}%",
         "tooltip": false,
         "on-click": "ghostty -e htop"
     },
     
     "memory": {
-        "format": "  mem: {used:0.1f}G ({percentage}%)",
+        "format": "󰍛 mem: {used:0.1f}G ({percentage}%)",
         "tooltip": false,
         "on-click": "ghostty -e htop"
     },
     
     "disk": {
         "interval": 60,
-        "format": "  hdd: {free} free",
+        "format": "󰋊 disk: {free} free",
         "path": "/"
     },
     
     "custom/uptime": {
         "exec": "uptime | awk '{print $3\" \"$4}'| sed 's/,//g'",
-        "format": "  uptime: {}",
+        "format": "󰅐 uptime: {}",
         "interval": 360
     },
     
@@ -83,21 +83,21 @@
     },
     
     "clock": {
-        "format": "  {:%b %d %Y - (%H:%M)}",
+        "format": "󰃭 {:%b %d %Y - (%H:%M)}",
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
         "on-click": "emacsclient -c -a 'emacs' --eval '(doom/window-maximize-buffer(dt/year-calendar))'"
     },
     
     "custom/utc-time": {
         "exec": "date -u '+%H:%M UTC'",
-        "format": "  {}",
+        "format": "󰥔 {}",
         "interval": 60,
         "tooltip": false
     },
     
     "custom/layout": {
         "exec": "hyprctl getoption general:layout | head -1 | cut -d' ' -f2",
-        "format": "  {}",
+        "format": "󰕰 layout: {}",
         "interval": 1,
         "tooltip": false
     }
