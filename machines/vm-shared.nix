@@ -181,7 +181,7 @@
   # setup windowing environment
   services = {
     displayManager = {
-      defaultSession = "none+xmonad";
+      defaultSession = "hyprland";
       sddm = {
         enable = true;
         wayland.enable = true;
