@@ -313,6 +313,21 @@ in
     code = "code --enable-features=UseOzonePlatform --ozone-platform=wayland";
     fix-clipboard = "/home/cipher/nixos-config/scripts/fix-parallels-clipboard.sh";
     prl-clip-fix = "/home/cipher/nixos-config/scripts/fix-parallels-clipboard.sh";
+    
+    # Display profile shortcuts
+    dp = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh";
+    dp-hidpi = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh hidpi";
+    dp-retina = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh retina";
+    dp-standard = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh standard";
+    dp-present = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh present";
+    dp-ultrawide = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh ultrawide";
+    dp-auto = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh auto";
+    dp-current = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh current";
+    dp-list = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh list";
+    prl-display = "parallels-display-info";
+    
+    # Firefox HiDPI fix
+    firefox-hidpi = "GDK_SCALE=1 GDK_DPI_SCALE=1.8 firefox";
   };
 
   programs.firefox = {
@@ -520,6 +535,21 @@ in
       ff = ''cd "$(find $(git rev-parse --show-toplevel 2>/dev/null || pwd) -mindepth 1 -type d | fzf)"'';
 
       claude = "/home/cipher/.claude/local/claude";
+
+      # Display profile management
+      dp = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh";
+      dp-hidpi = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh hidpi";
+      dp-retina = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh retina";
+      dp-standard = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh standard";
+      dp-present = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh present";
+      dp-ultrawide = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh ultrawide";
+      dp-auto = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh auto";
+      dp-current = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh current";
+      dp-list = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh list";
+      prl-display = "parallels-display-info";
+      
+      # Firefox HiDPI fix
+      firefox-hidpi = "GDK_SCALE=1 GDK_DPI_SCALE=1.8 firefox";
     };
 
     # interactiveShellInit = lib.strings.concatStrings

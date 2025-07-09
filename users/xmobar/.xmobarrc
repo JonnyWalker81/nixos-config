@@ -19,6 +19,8 @@ Config { font            = "xft:FiraCode:weight=bold:pixelsize=14:antialias=true
        , commands = [
                   -- weather monitor
                   Run Com "scripts/wttr.sh" [] "weather" 360
+                  -- Display profile monitor
+                  , Run Com "/home/cipher/nixos-config/scripts/display-profiles/get-current-profile.sh" [] "display" 30
                   -- Cpu usage in percent
                   , Run Cpu ["-t", "cpu: <total>%","-H","50","--high","red"] 20
                   -- Ram used number and percent
@@ -34,5 +36,5 @@ Config { font            = "xft:FiraCode:weight=bold:pixelsize=14:antialias=true
                   ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %UnsafeStdinReader% }{ <fc=#B4F9F8>%weather%</fc> · <fc=#9ECE6A>%cpu%</fc> · <fc=#a9b1d6>%memory%</fc> · <fc=#a9b1d6>%disku%</fc> · <fc=#B4F9F8>%uptime%</fc> · <fc=#9ECE6A>%date%</fc> "
+       , template = " %UnsafeStdinReader% }{ <fc=#ff9e64>%display%</fc> · <fc=#B4F9F8>%weather%</fc> · <fc=#9ECE6A>%cpu%</fc> · <fc=#a9b1d6>%memory%</fc> · <fc=#a9b1d6>%disku%</fc> · <fc=#B4F9F8>%uptime%</fc> · <fc=#9ECE6A>%date%</fc> "
        }

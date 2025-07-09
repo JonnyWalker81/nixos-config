@@ -285,8 +285,8 @@
       # haskellPackages.greenclip
 
       (writeShellScriptBin "xrandr-auto" ''
-          xrandr --output Virtual-1 --auto
-        #   # xrandr --output Virtual-1 --mode 3840x2097
+          # Use the new display profile system for auto-detection
+          ${../scripts/display-profiles/display-switcher.sh} auto
       '')
     ]
     ++ lib.optionals (currentSystemName == "vm-aarch64") [
