@@ -12,6 +12,7 @@ nixpkgs.lib.nixosSystem rec {
     # the overlays are available globally.
     {
       nixpkgs.overlays = overlays;
+      nixpkgs.config.allowUnfree = true;
     }
 
     # ./greetd.nix

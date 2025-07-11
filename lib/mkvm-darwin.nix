@@ -12,6 +12,7 @@ darwin.lib.darwinSystem rec {
     # the overlays are available globally.
     {
       nixpkgs.overlays = overlays;
+      nixpkgs.config.allowUnfree = true;
     }
 
     # ../hardware/${name}.nix
