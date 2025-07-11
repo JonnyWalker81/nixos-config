@@ -32,19 +32,24 @@ with lib;
           windowrulev2 = opacity 0.85, class:.*
           windowrulev2 = opacity 1.0, class:firefox
           windowrulev2 = opacity 1.0, class:Firefox
+          
+          # Parallels VM specific rules
+          windowrulev2 = float, title:Parallels Shared Clipboard
+          windowrulev2 = size 1 1, title:Parallels Shared Clipboard
+          windowrulev2 = move -1 -1, title:Parallels Shared Clipboard
           # windowrule = float, ^(steam)$
           # windowrule = size 1080 900, ^(steam)$
           # windowrule = center, ^(steam)$
           # windowrule = float, ^(MPlayer)$
           # windowrule = float, ^(Gimp)$
 
-          # General settings - restored to original values
+          # General settings - bright active window borders
           general {
             gaps_in = 5
             gaps_out = 5
-            border_size = 2
-            col.active_border = rgba(D8DEE9ff)
-            col.inactive_border = rgba(4c566aff)
+            border_size = 3
+            col.active_border = rgba(0099ffff) rgba(0066ccff) 45deg
+            col.inactive_border = rgba(2e3440ff)
             layout = master
             resize_on_border = true
           }
@@ -172,9 +177,9 @@ with lib;
           bind = ${modifier},space,layoutmsg,togglesplit
           bind = ${modifier}SHIFT,space,exec,hyprctl reload
 
-          # Focus movement (vim-style like XMonad)
-          bind = ${modifier},j,cyclenext,
-          bind = ${modifier},k,cyclenext,prev
+          # Focus movement (XMonad-style stack navigation)
+          bind = ${modifier},j,layoutmsg,cyclenext
+          bind = ${modifier},k,layoutmsg,cycleprev
           bind = ${modifier},h,movefocus,l
           bind = ${modifier},l,movefocus,r
           bind = ${modifier},Tab,cyclenext
@@ -241,6 +246,10 @@ with lib;
           bindm = ${modifier},mouse:273,resizewindow
           bind = ${modifier},mouse_down,workspace,e+1
           bind = ${modifier},mouse_up,workspace,e-1
+
+          # Screenshot bindings
+          bind = ${modifier},s,exec,grim ~/Pictures/screenshot-$(date +%Y-%m-%d_%H-%M-%S).png
+          bind = ${modifier}SHIFT,s,exec,grim -g "$(slurp)" ~/Pictures/screenshot-$(date +%Y-%m-%d_%H-%M-%S).png
 
           # Additional functionality
           bind = ${modifier},n,exec,hyprctl dispatch togglefloating active; hyprctl dispatch centerwindow

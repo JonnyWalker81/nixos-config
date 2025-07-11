@@ -786,7 +786,7 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
               )
   :config
   (setq copilot-indent-offset-warning-disable nil)
-  
+
   ;; Check node availability when package loads
   (if (executable-find "node")
       (message "Node executable found at load time: %s" (executable-find "node"))
@@ -1143,6 +1143,25 @@ tab-indent."
 ;;   (add-hook 'web-mode-hook
 ;;             (lambda ()
 ;;               (apheleia-mode -1))))
+
+(after! projectile
+;; For Projectile
+  (setq projectile-indexing-method 'alien) ; Use external tools like git
+  (setq projectile-enable-caching t)
+  (setq projectile-file-exists-remote-cache-expire nil)
+
+  ;; For Consult
+  (setq consult-project-function #'projectile-project-root)
+  (setq consult-find-args "find . -not ( -path '*/.*' -prune )")
+
+  ;; For ripgrep
+  (setq rg-ignore-case 'smart)
+  (setq rg-group-result t)
+  (setq rg-show-columns t)
+
+  ;; Refresh projectile cache
+  (define-key projectile-mode-map (kbd "C-c p I") 'projectile-invalidate-cache)
+)
 
 (use-package! org
   :mode ("\\.org\\'" . org-mode)
