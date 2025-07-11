@@ -104,6 +104,7 @@
 
     # DankMono font
     dankmono.url = "github:JonnyWalker81/dankmono-font";
+    dankmono.inputs.nixpkgs.follows = "nixpkgs";
 
     # yazi.url = "github:sxyazi/yazi";
   };
@@ -276,7 +277,10 @@
           #   nativeBuildInputs = old.nativeBuildInputs ++ [ final.icu76 ];
           # });
 
-          unstable = import nixpkgs-unstable { system = prev.system; };
+          unstable = import nixpkgs-unstable { 
+            system = prev.system; 
+            config.allowUnfree = true;
+          };
           tree-sitter-grammars = prev.tree-sitter-grammars // {
             tree-sitter-tsx = prev.tree-sitter-grammars.tree-sitter-tsx.overrideAttrs (_: {
               nativeBuildInputs = [ final.tree-sitter ];
@@ -313,6 +317,50 @@
             else inputs.nixpkgs-unstable.legacyPackages.${prev.system}.ghostty-bin;
 
           nixvim = inputs.nixvim.packages.${prev.system}.default;
+          
+          # DankMono font - build it with our nixpkgs that allows unfree
+          dankmono = prev.stdenv.mkDerivation rec {
+            pname = "dankmono";
+            version = "1.0.0";
+            
+            src = inputs.dankmono;
+            
+            installPhase = ''
+              runHook preInstall
+              
+              # Install TrueType fonts
+              install -D -m644 -t $out/share/fonts/truetype/dankmono OpenType-TT/*.ttf
+              
+              # Install OpenType fonts
+              install -D -m644 -t $out/share/fonts/opentype/dankmono OpenType-PS/*.otf
+              
+              # Install web fonts
+              install -D -m644 -t $out/share/fonts/woff2/dankmono Web-PS/*.woff2
+              install -D -m644 Web-PS/dmvendor.css $out/share/fonts/woff2/dankmono/dmvendor.css
+              
+              # Install documentation
+              install -D -m644 README.txt $out/share/doc/dankmono/README.txt
+              install -D -m644 EULA.txt $out/share/licenses/dankmono/EULA.txt
+              
+              runHook postInstall
+            '';
+            
+            # Add font configuration for fontconfig (Linux)
+            postInstall = prev.lib.optionalString prev.stdenv.isLinux ''
+              # Generate fontconfig cache for Linux
+              ${prev.fontconfig}/bin/fc-cache -f $out/share/fonts/
+            '';
+            
+            meta = with prev.lib; {
+              description = "DankMono programming font";
+              longDescription = ''
+                Dank Mono is a monospaced font designed for coding with
+                ligatures and a distinctive style.
+              '';
+              license = licenses.unfree;
+              platforms = platforms.all;
+            };
+          };
           # nixvim = inputs.nixvim.packages.${pkgs.system}.default.overrideAttrs (oldAttrs: {
           #   package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
           # });
