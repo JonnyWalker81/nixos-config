@@ -628,10 +628,14 @@ in
         # Prepend home-manager bin to PATH for Darwin
         if [[ "$(uname)" == "Darwin" ]]; then
           export PATH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin:$PATH"
+          
+          # macOS SSH agent setup - use the system SSH agent
+          # The SSH agent on macOS is managed by launchd and the socket is dynamic
+          # No need to set SSH_AUTH_SOCK as macOS handles it automatically
         fi
         
-        # Import SSH environment from systemd user environment
-        if command -v systemctl >/dev/null 2>&1; then
+        # Import SSH environment from systemd user environment (Linux only)
+        if [[ "$(uname)" == "Linux" ]] && command -v systemctl >/dev/null 2>&1; then
           export SSH_AUTH_SOCK="/run/user/1000/ssh-agent"
         fi
         
@@ -640,11 +644,21 @@ in
           # Check if keys are already loaded
           if ! ssh-add -l >/dev/null 2>&1; then
             # Load SSH keys if they exist
-            for key in ~/.ssh/id_ed25519 ~/.ssh/id_rsa ~/.ssh/id_github; do
-              if [[ -f "$key" ]]; then
-                ssh-add "$key" >/dev/null 2>&1 || true
-              fi
-            done
+            if [[ "$(uname)" == "Darwin" ]]; then
+              # On macOS, use --apple-use-keychain to store passphrase in keychain
+              for key in ~/.ssh/id_ed25519 ~/.ssh/id_rsa ~/.ssh/id_github; do
+                if [[ -f "$key" ]]; then
+                  ssh-add --apple-use-keychain "$key" >/dev/null 2>&1 || true
+                fi
+              done
+            else
+              # On Linux, just add the keys normally
+              for key in ~/.ssh/id_ed25519 ~/.ssh/id_rsa ~/.ssh/id_github; do
+                if [[ -f "$key" ]]; then
+                  ssh-add "$key" >/dev/null 2>&1 || true
+                fi
+              done
+            fi
           fi
         fi
         

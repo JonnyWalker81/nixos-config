@@ -46,8 +46,8 @@
     # Override Linux-specific variables
     BROWSER = "open";
     
-    # macOS doesn't use the Linux SSH agent path
-    SSH_AUTH_SOCK = lib.mkForce "";  # Let macOS handle SSH agent natively
+    # Remove the Linux SSH agent path override - let macOS handle it
+    # SSH_AUTH_SOCK is managed by macOS launchd
   };
   
   # Ensure home-manager bin is in PATH before homebrew
