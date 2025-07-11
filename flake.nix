@@ -385,5 +385,17 @@
         user = "jrothberg";
       };
 
+      darwinConfigurations.macbook-phantom = mkVMDarwin "macbook-phantom" rec {
+        inherit
+          overlays
+          home-manager
+          darwin
+          inputs
+          ;
+        nixpkgs = nixpkgs-darwin;
+        system = "aarch64-darwin";  # Apple Silicon - change to "x86_64-darwin" if Intel Mac
+        user = "phantom";
+      };
+
     };
 }

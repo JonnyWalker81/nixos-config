@@ -7,7 +7,7 @@
 }:
 
 with lib;
-{
+lib.mkIf (!pkgs.stdenv.isDarwin) {
   # Enable waybar with systemd service
   programs.waybar = {
     enable = true;

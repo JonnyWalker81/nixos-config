@@ -298,7 +298,7 @@ in
       pkgs.neofetch
       pkgs.pandoc
 
-      # Wayland/Hyprland tools
+      # Wayland/Hyprland tools (Linux only)
       pkgs.waybar
       pkgs.wl-clipboard
       pkgs.cliphist
@@ -344,7 +344,7 @@ in
     prl-display = "parallels-display-info";
   };
 
-  programs.firefox = {
+  programs.firefox = lib.mkIf (!pkgs.stdenv.isDarwin) {
     package = pkgs.firefox;
     enable = true;
     profiles = {
@@ -909,13 +909,13 @@ in
     };
   };
 
-  # SSH Agent Service
-  services.ssh-agent = {
+  # SSH Agent Service (Linux only - macOS uses native SSH agent)
+  services.ssh-agent = lib.mkIf (!pkgs.stdenv.isDarwin) {
     enable = true;
   };
 
-  # Systemd service to set SSH_AUTH_SOCK for all user services
-  systemd.user.services.ssh-agent-env = {
+  # Systemd service to set SSH_AUTH_SOCK for all user services (Linux only)
+  systemd.user.services.ssh-agent-env = lib.mkIf (!pkgs.stdenv.isDarwin) {
     Unit = {
       Description = "Set SSH_AUTH_SOCK environment variable for user services";
       After = [ "ssh-agent.service" ];

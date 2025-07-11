@@ -1,0 +1,95 @@
+{ config, lib, pkgs, ... }:
+
+{
+  # Import common configuration but with Darwin-specific conditionals
+  imports = [ ../common.nix ];
+
+  # User-specific git configuration for phantom
+  programs.git.userEmail = "phantom@example.com"; # Update with your actual email
+
+  # macOS-specific shell aliases
+  home.shellAliases = {
+    # Darwin rebuild shortcuts
+    dm = "darwin-rebuild switch --flake ~/nixos-config#macbook-phantom";
+    dh = "home-manager switch --flake ~/nixos-config#macbook-phantom";
+    
+    # macOS-specific aliases
+    brewup = "brew update && brew upgrade";
+    finder = "open -a Finder";
+    
+    # Override Linux-specific aliases for macOS
+    pbcopy = "pbcopy";  # Use native macOS pbcopy
+    pbpaste = "pbpaste"; # Use native macOS pbpaste
+  };
+
+  # macOS-specific packages (in addition to common.nix)
+  home.packages = with pkgs; lib.optionals pkgs.stdenv.isDarwin [
+    # macOS-specific development tools
+    rectangle  # Window management
+    
+    # Native macOS alternatives to Linux tools
+    # (common.nix handles the platform-agnostic tools)
+  ];
+
+  # Override/disable Linux-specific configurations
+  programs.waybar = lib.mkForce { enable = false; };
+  
+  # Disable all Wayland/Hyprland configurations on Darwin
+  wayland.windowManager.hyprland.enable = lib.mkForce false;
+
+  # macOS-specific session variables  
+  home.sessionVariables = {
+    # Override Linux-specific variables
+    BROWSER = "open";
+    
+    # macOS doesn't use the Linux SSH agent path
+    SSH_AUTH_SOCK = lib.mkForce "";  # Let macOS handle SSH agent natively
+  };
+
+  # macOS-specific services (disable Linux systemd services)
+  systemd.user.services = lib.mkForce {};
+
+  # macOS Terminal and shell optimization
+  programs.alacritty.settings = lib.mkIf pkgs.stdenv.isDarwin {
+    window = {
+      decorations = "buttonless";
+      option_as_alt = "Both";
+    };
+    
+    key_bindings = [
+      { key = "C"; mods = "Command"; action = "Copy"; }
+      { key = "V"; mods = "Command"; action = "Paste"; }
+      { key = "Q"; mods = "Command"; action = "Quit"; }
+      { key = "N"; mods = "Command"; action = "SpawnNewInstance"; }
+    ];
+  };
+
+  # Configure git for macOS
+  programs.git = {
+    extraConfig = {
+      # macOS-specific git settings
+      credential.helper = "osxkeychain";
+    };
+  };
+
+  # SSH configuration for macOS
+  programs.ssh = {
+    extraConfig = lib.mkIf pkgs.stdenv.isDarwin ''
+      # macOS-specific SSH settings
+      UseKeychain yes
+      AddKeysToAgent yes
+      
+      # Store SSH keys in macOS Keychain
+      IdentityFile ~/.ssh/id_ed25519
+      IdentityFile ~/.ssh/id_rsa
+    '';
+  };
+
+  # Disable X11/Linux cursor configuration on macOS
+  home.pointerCursor = lib.mkIf (!pkgs.stdenv.isDarwin) {
+    name = "Adwaita";
+    package = pkgs.adwaita-icon-theme;
+    size = 32;
+    x11.enable = true;
+  };
+}
