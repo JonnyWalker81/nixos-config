@@ -19,12 +19,28 @@
 
 (message "loaded path config...")
 
+;; Ensure exec-path-from-shell is available early
+(when (memq window-system '(mac ns x))
+  (require 'exec-path-from-shell nil t))
+
 (if (eq system-type 'darwin)
     (progn
-      (exec-path-from-shell-copy-env "GOPATH")
-      (exec-path-from-shell-copy-env "RUST_SRC_PATH")
-      (exec-path-from-shell-copy-env "RUSTUP_HOME")
-      (exec-path-from-shell-copy-env "CARGO_HOME")))
+      ;; Add nix paths to exec-path for macOS using dynamic home directory
+      (let ((home (expand-file-name "~")))
+        (add-to-list 'exec-path (concat home "/.local/state/nix/profiles/home-manager/home-path/bin"))
+        (add-to-list 'exec-path (concat home "/.nix-profile/bin")))
+      (add-to-list 'exec-path "/nix/var/nix/profiles/default/bin")
+      (add-to-list 'exec-path "/run/current-system/sw/bin")
+      ;; Initialize exec-path-from-shell if available
+      (when (fboundp 'exec-path-from-shell-initialize)
+        (exec-path-from-shell-initialize))
+      ;; Copy environment variables
+      (when (fboundp 'exec-path-from-shell-copy-env)
+        (exec-path-from-shell-copy-env "GOPATH")
+        (exec-path-from-shell-copy-env "RUST_SRC_PATH")
+        (exec-path-from-shell-copy-env "RUSTUP_HOME")
+        (exec-path-from-shell-copy-env "CARGO_HOME")
+        (exec-path-from-shell-copy-env "PATH"))))
 
 (if (eq system-type 'linux)
     (progn
