@@ -16,6 +16,10 @@
 ;; (setq doom-big-font (font-spec :family "JetBrains Mono" :size 19))
 ;; (setq doom-font (font-spec :family "JetBrains Mono" :size 16))
 
+;; DankMono font configuration (active in config.el)
+;; (setq doom-big-font (font-spec :family "Dank Mono" :size 24))
+;; (setq doom-font (font-spec :family "Dank Mono" :size 16))
+
 ;; (setq doom-big-font (font-spec :family "Victor Mono" :size 19))
 ;; (setq doom-font (font-spec :family "Victor Mono" :size 16))
 ;; (set-face-attribute 'default nil :family "Fira Code" :height 165 :weight 'medium)

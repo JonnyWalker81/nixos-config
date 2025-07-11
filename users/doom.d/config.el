@@ -347,12 +347,15 @@
 
 (auto-composition-mode t)
 
-doom-font (font-spec :family "JetBrains Mono" :size 5)
+doom-font (font-spec :family "Dank Mono" :size 5)
 
 ;; Font configuration that works on both macOS and Linux
-(let ((font-family (if (member "JetBrains Mono" (font-family-list))
-                       "JetBrains Mono"
-                     "JetBrainsMono"))) ; Fallback for systems where it's registered without space
+(let ((font-family (cond 
+                    ((member "Dank Mono" (font-family-list)) "Dank Mono")
+                    ((member "DankMono" (font-family-list)) "DankMono")
+                    ((member "Dank Mono Regular" (font-family-list)) "Dank Mono Regular")
+                    ((member "JetBrains Mono" (font-family-list)) "JetBrains Mono")
+                    (t "JetBrainsMono")))) ; Ultimate fallback
   (setq doom-font (font-spec :family font-family :size 16)
         doom-big-font (font-spec :family font-family :size 24)))
 
