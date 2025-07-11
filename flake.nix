@@ -102,6 +102,9 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    # DankMono font
+    dankmono.url = "github:JonnyWalker81/dankmono-font";
+
     # yazi.url = "github:sxyazi/yazi";
   };
 

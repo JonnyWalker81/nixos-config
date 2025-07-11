@@ -235,6 +235,9 @@ in
       # pkgs.neovim  # Using default neovim temporarily
       pkgs.claude-code
       pkgs.opencode
+      
+      # DankMono font - available on both Linux and macOS
+      inputs.dankmono.packages.${pkgs.system}.dankmono
     ]
     ++ lib.optionals (!pkgs.stdenv.isDarwin) [
       pkgs.libreoffice
