@@ -639,20 +639,34 @@ in
           export SSH_AUTH_SOCK="/run/user/1000/ssh-agent"
         fi
         
-        # SSH key management - only load keys if SSH agent is available and keys aren't already loaded
-        if [[ -n "$SSH_AUTH_SOCK" ]] && command -v ssh-add >/dev/null 2>&1; then
-          # Check if keys are already loaded
-          if ! ssh-add -l >/dev/null 2>&1; then
-            # Load SSH keys if they exist
-            if [[ "$(uname)" == "Darwin" ]]; then
-              # On macOS, use --apple-use-keychain to store passphrase in keychain
-              for key in ~/.ssh/id_ed25519 ~/.ssh/id_rsa ~/.ssh/id_github; do
-                if [[ -f "$key" ]]; then
-                  ssh-add --apple-use-keychain "$key" >/dev/null 2>&1 || true
-                fi
-              done
-            else
-              # On Linux, just add the keys normally
+        # SSH key management - ensure SSH agent is available on macOS
+        if [[ "$(uname)" == "Darwin" ]]; then
+          # On macOS, the SSH agent is managed by launchd
+          # Ensure we have a valid SSH_AUTH_SOCK
+          if [[ -z "$SSH_AUTH_SOCK" ]] || [[ ! -S "$SSH_AUTH_SOCK" ]]; then
+            # Try to get the SSH agent socket from launchctl
+            export SSH_AUTH_SOCK=$(launchctl getenv SSH_AUTH_SOCK 2>/dev/null)
+          fi
+          
+          # If we still don't have a valid socket, use the default macOS SSH agent
+          if [[ -z "$SSH_AUTH_SOCK" ]] || [[ ! -S "$SSH_AUTH_SOCK" ]]; then
+            export SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.*/Listeners
+          fi
+          
+          # Load SSH keys from Keychain if not already loaded
+          if command -v ssh-add >/dev/null 2>&1; then
+            # Check if any keys are loaded
+            if ! ssh-add -l >/dev/null 2>&1; then
+              # Load all SSH keys from keychain
+              ssh-add --apple-load-keychain >/dev/null 2>&1 || true
+            fi
+          fi
+        else
+          # Linux SSH key management
+          if [[ -n "$SSH_AUTH_SOCK" ]] && command -v ssh-add >/dev/null 2>&1; then
+            # Check if keys are already loaded
+            if ! ssh-add -l >/dev/null 2>&1; then
+              # Load SSH keys if they exist
               for key in ~/.ssh/id_ed25519 ~/.ssh/id_rsa ~/.ssh/id_github; do
                 if [[ -f "$key" ]]; then
                   ssh-add "$key" >/dev/null 2>&1 || true

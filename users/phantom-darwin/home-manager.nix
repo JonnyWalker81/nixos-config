@@ -87,12 +87,56 @@
       # macOS-specific SSH settings
       UseKeychain yes
       AddKeysToAgent yes
+      IdentitiesOnly yes
       
       # Store SSH keys in macOS Keychain
       IdentityFile ~/.ssh/id_ed25519
       IdentityFile ~/.ssh/id_rsa
+      IdentityFile ~/.ssh/id_ecdsa
     '';
   };
+  
+  # LaunchAgent for SSH key loading
+  launchd.agents.ssh-add = {
+    enable = true;
+    config = {
+      Label = "com.local.ssh-add";
+      ProgramArguments = [
+        "/usr/bin/ssh-add"
+        "--apple-use-keychain"
+        "--apple-load-keychain"
+      ];
+      RunAtLoad = true;
+      StandardErrorPath = "/tmp/ssh-add.err";
+      StandardOutPath = "/tmp/ssh-add.out";
+    };
+  };
+  
+  # SSH helper script
+  home.packages = with pkgs; [
+    (writeScriptBin "ssh-add-keychain" ''
+      #!/bin/bash
+      # Helper script to add SSH keys to macOS Keychain
+      
+      # Function to add a key with keychain support
+      add_key_to_keychain() {
+          local key_path="$1"
+          if [[ -f "$key_path" ]]; then
+              echo "Adding $key_path to keychain..."
+              ssh-add --apple-use-keychain "$key_path"
+          fi
+      }
+      
+      # Add common SSH keys
+      for key in "$HOME/.ssh/id_ed25519" "$HOME/.ssh/id_rsa" "$HOME/.ssh/id_ecdsa"; do
+          add_key_to_keychain "$key"
+      done
+      
+      # List loaded keys
+      echo "Currently loaded keys:"
+      ssh-add -l
+    '')
+  ];
   
   # Ensure direnv works properly on macOS
   programs.direnv = {
@@ -101,6 +145,30 @@
     enableZshIntegration = true;
   };
 
+  # SSH rc file for automatic key loading
+  home.file.".ssh/rc" = {
+    text = ''
+      #!/bin/bash
+      # SSH rc file for macOS - managed by Nix
+      
+      # Only run on macOS
+      if [[ "$(uname)" == "Darwin" ]]; then
+        # Ensure SSH agent is available
+        if [[ -z "$SSH_AUTH_SOCK" ]]; then
+          export SSH_AUTH_SOCK=$(launchctl getenv SSH_AUTH_SOCK 2>/dev/null)
+        fi
+        
+        # Load keys from keychain if not already loaded
+        if command -v ssh-add >/dev/null 2>&1; then
+          if ! ssh-add -l >/dev/null 2>&1; then
+            ssh-add --apple-load-keychain >/dev/null 2>&1 || true
+          fi
+        fi
+      fi
+    '';
+    executable = true;
+  };
+  
   # Disable X11/Linux cursor configuration on macOS
   home.pointerCursor = lib.mkIf (!pkgs.stdenv.isDarwin) {
     name = "Adwaita";
