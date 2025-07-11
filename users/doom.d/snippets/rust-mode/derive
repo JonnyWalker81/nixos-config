@@ -1,6 +1,1 @@
-# -*- mode: snippet -*-
-# name: derive
-# key: der
-# --
-#[derive(${1:Debug})]
-$0
+/nix/store/3gxya0sp4viqbrivnha96kqy0d8g11yj-home-manager-files/.doom.d/snippets/rust-mode/derive

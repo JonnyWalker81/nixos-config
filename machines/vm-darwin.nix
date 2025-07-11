@@ -18,7 +18,7 @@
   #   '';
   # };
 
-  services.nix-daemon.enable = true;
+  # services.nix-daemon.enable = true; # Removed - nix-daemon is now managed automatically by nix-darwin
 
   # We expect to run the VM on hidpi machines.
   # hardware.video.hidpi.enable = true;

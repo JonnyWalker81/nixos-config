@@ -1,5 +1,13 @@
-# theme = Firefly Traditional
-gtk-titlebar = false
-window-decoration = false
+# Cross-platform Ghostty configuration
+theme = Firefly Traditional
 copy-on-select = clipboard
+font-family = JetBrains Mono
+font-size = 14
+
+# Platform-specific settings handled by Ghostty internally
+# On macOS: native window decorations
+# On Linux: can use gtk-titlebar = false if desired
+
+# Ensure native ARM64 execution on macOS
+shell-integration-features = cursor,sudo,title
 

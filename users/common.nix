@@ -36,6 +36,7 @@ let
 in
 {
   home.stateVersion = "25.05";
+  home.enableNixpkgsReleaseCheck = false;  # Disable version mismatch warning
   xdg.enable = true;
 
   home.file.".doom.d" = {
@@ -112,7 +113,9 @@ in
 
   programs.emacs = {
     enable = true;
-    package = pkgs.emacs;
+    package = if pkgs.stdenv.isDarwin 
+      then pkgs.emacs-unstable  # Emacs 31.x with Cocoa GUI and native-comp support
+      else pkgs.emacs;
     extraPackages = (
       epkgs: [
         epkgs.vterm
@@ -140,13 +143,14 @@ in
       pkgs.monaspace
       # pkgs.rustup
       # pkgs.rust-analyzer
-      pkgs.thefuck
+      # pkgs.thefuck # Removed - incompatible with Python 3.12+, consider pay-respects
       pkgs.zoxide
       pkgs.bat
       pkgs.delta
       zoxide
       pkgs.jq
       pkgs.eza
+      pkgs.fzf
       pkgs.k9s
       pkgs.procs
       pkgs.graphviz
@@ -227,7 +231,8 @@ in
       # neovimNightly
       # pkgs.nixvim
 
-      inputs.nixvim.packages.${pkgs.system}.default
+      inputs.nixvim.packages.${pkgs.system}.default  # Re-enabled after update
+      # pkgs.neovim  # Using default neovim temporarily
       pkgs.claude-code
       pkgs.opencode
     ]
@@ -290,7 +295,7 @@ in
       # pkgs.atuin
       pkgs.bun
       pkgs.wezterm
-      # pkgs.ghostty
+      pkgs.ghostty  # Now using nixpkgs version which supports macOS
       pkgs.zellij
       pkgs.gtk3
       pkgs.teller
@@ -464,7 +469,7 @@ in
   #   };
   # };
 
-  services.picom = {
+  services.picom = lib.mkIf (!pkgs.stdenv.isDarwin) {
     enable = true;
     #   # blur = true;
 
@@ -556,8 +561,6 @@ in
       f = "history | fzf --sort --exact | sh";
       bc = "git branch | grep '*' | awk '{print $2}' | pbcopy";
 
-      pbcopy = "xclip -selection clipboard";
-      pbpaste = "xclip -o";
 
       ap = ''export AWS_PROFILE=$(aws configure list-profiles | fzf --prompt "Choose active AWS profile:")'';
       sw = ''terraform workspace list | fzf --prompt "Choose workspace:" | xargs -r terraform workspace select'';
@@ -566,8 +569,6 @@ in
       cd = "z";
       ys = "yarn install && yarn start";
       ff = ''cd "$(find $(git rev-parse --show-toplevel 2>/dev/null || pwd) -mindepth 1 -type d | fzf)"'';
-
-      claude = "/home/cipher/.claude/local/claude";
 
       # Display profile management
       dp = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh";
@@ -583,6 +584,10 @@ in
       
       # SSH agent management
       ssh-cleanup = "/home/cipher/nixos-config/scripts/cleanup-ssh-agents.sh";
+    } // lib.optionalAttrs (!pkgs.stdenv.isDarwin) {
+      # Linux-specific aliases for clipboard
+      pbcopy = "xclip -selection clipboard";
+      pbpaste = "xclip -o";
     };
 
     # interactiveShellInit = lib.strings.concatStrings
@@ -597,13 +602,13 @@ in
     enableCompletion = true;
     syntaxHighlighting.enable = true;
     sessionVariables = {
-      LC_ALL = "en_US.utf8";
+      LC_ALL = "en_US.UTF-8";
       LIBVIRT_DEFAULT_URI = "qemu:///system";
       GOPATH = "\${HOME}";
       GOPRIVATE = "github.com/JoinCAD,github.com/JonnyWalker81";
       # GOPROXY = "off";
       # PATH =
-      PATH = "\${HOME}/bin:\${HOME}/.cargo/bin:\${PATH}";
+      PATH = "\${HOME}/.local/state/nix/profiles/home-manager/home-path/bin:\${HOME}/bin:\${HOME}/.cargo/bin:\${PATH}";
       PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
 
       ZSH_TMUX_AUTOSTART = "true";
@@ -619,6 +624,11 @@ in
     initContent = ''
         source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
         eval "$(${zoxideBin} init zsh)"
+        
+        # Prepend home-manager bin to PATH for Darwin
+        if [[ "$(uname)" == "Darwin" ]]; then
+          export PATH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin:$PATH"
+        fi
         
         # Import SSH environment from systemd user environment
         if command -v systemctl >/dev/null 2>&1; then
@@ -675,7 +685,7 @@ in
       enable = true;
       plugins = [
         "git"
-        "thefuck"
+        # "thefuck" # Removed - incompatible with Python 3.12+
       ];
       theme = "robbyrussell";
     };

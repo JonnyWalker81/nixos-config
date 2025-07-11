@@ -12,11 +12,17 @@
 
   # macOS-specific system settings
   system = {
+    # Required for nix-darwin
+    stateVersion = 6;
+    
+    # Set the primary user for system defaults
+    primaryUser = "phantom";
+    
     # Set macOS system preferences
     defaults = {
       # Dock settings
       dock = {
-        autohide = true;
+        autohide = false;
         show-recents = false;
         launchanim = true;
         mouse-over-hilite-stack = true;
@@ -53,10 +59,32 @@
     };
   };
 
+  # Disable nix-darwin's Nix management for Determinate Systems compatibility
+  nix.enable = false;
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowUnsupportedSystem = true;
 
   # Import overlays (handled by mkvm-darwin.nix at the flake level)
   # nixpkgs.overlays = import ../../lib/overlays.nix;
+  
+  # System packages that should be available and linked to /Applications
+  environment.systemPackages = with pkgs; [
+    # Add Emacs to system packages so it appears in /Applications/Nix Apps
+    (if stdenv.isDarwin then emacs-unstable else emacs)
+    # Add Ghostty to system packages so it appears in /Applications/Nix Apps
+    ghostty
+  ];
+  
+  # Fonts configuration for macOS
+  fonts = {
+    packages = with pkgs; [
+      jetbrains-mono
+      monaspace
+      fira-code
+      fira-code-symbols
+      # (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
+    ];
+  };
 }

@@ -333,8 +333,12 @@
 
 doom-font (font-spec :family "JetBrains Mono" :size 5)
 
-(setq doom-font (font-spec :family "JetBrainsMono" :size 16)
-      doom-big-font (font-spec :family "JetBrainsMono" :size 24))
+;; Font configuration that works on both macOS and Linux
+(let ((font-family (if (member "JetBrains Mono" (font-family-list))
+                       "JetBrains Mono"
+                     "JetBrainsMono"))) ; Fallback for systems where it's registered without space
+  (setq doom-font (font-spec :family font-family :size 16)
+        doom-big-font (font-spec :family font-family :size 24)))
 
 ;; Load elfeed-org
 (require 'elfeed-org)

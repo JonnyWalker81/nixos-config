@@ -1,9 +1,1 @@
-# -*- mode: snippet -*-
-# name: struct
-# key: struct
-# --
-#[derive(Debug${1:, Clone})]
-struct ${2:Name} {
-    ${3:field}: ${4:Type},
-    $0
-}
+/nix/store/3gxya0sp4viqbrivnha96kqy0d8g11yj-home-manager-files/.doom.d/snippets/rust-mode/struct

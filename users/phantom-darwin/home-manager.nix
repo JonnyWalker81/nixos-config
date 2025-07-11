@@ -10,7 +10,7 @@
   # macOS-specific shell aliases
   home.shellAliases = {
     # Darwin rebuild shortcuts
-    dm = "darwin-rebuild switch --flake ~/nixos-config#macbook-phantom";
+    dm = "sudo darwin-rebuild switch --flake ~/nixos-config#macbook-phantom";
     dh = "home-manager switch --flake ~/nixos-config#macbook-phantom";
     
     # macOS-specific aliases
@@ -18,12 +18,16 @@
     finder = "open -a Finder";
     
     # Override Linux-specific aliases for macOS
-    pbcopy = "pbcopy";  # Use native macOS pbcopy
-    pbpaste = "pbpaste"; # Use native macOS pbpaste
+    pbcopy = lib.mkForce "pbcopy";  # Use native macOS pbcopy
+    pbpaste = lib.mkForce "pbpaste"; # Use native macOS pbpaste
+    
+    # Use nixvim from home-manager
+    nvim = lib.mkForce "$HOME/.local/state/nix/profiles/home-manager/home-path/bin/nvim";
+    vim = lib.mkForce "$HOME/.local/state/nix/profiles/home-manager/home-path/bin/nvim";
   };
 
   # macOS-specific packages (in addition to common.nix)
-  home.packages = with pkgs; lib.optionals pkgs.stdenv.isDarwin [
+  home.packages = with pkgs; [
     # macOS-specific development tools
     rectangle  # Window management
     
@@ -45,6 +49,11 @@
     # macOS doesn't use the Linux SSH agent path
     SSH_AUTH_SOCK = lib.mkForce "";  # Let macOS handle SSH agent natively
   };
+  
+  # Ensure home-manager bin is in PATH before homebrew
+  home.sessionPath = [
+    "$HOME/.local/state/nix/profiles/home-manager/home-path/bin"
+  ];
 
   # macOS-specific services (disable Linux systemd services)
   systemd.user.services = lib.mkForce {};
@@ -68,7 +77,7 @@
   programs.git = {
     extraConfig = {
       # macOS-specific git settings
-      credential.helper = "osxkeychain";
+      credential.helper = lib.mkForce "osxkeychain";
     };
   };
 
@@ -83,6 +92,13 @@
       IdentityFile ~/.ssh/id_ed25519
       IdentityFile ~/.ssh/id_rsa
     '';
+  };
+  
+  # Ensure direnv works properly on macOS
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+    enableZshIntegration = true;
   };
 
   # Disable X11/Linux cursor configuration on macOS
