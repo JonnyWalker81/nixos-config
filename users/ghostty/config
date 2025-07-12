@@ -1,13 +1,29 @@
 # Cross-platform Ghostty configuration
-theme = Firefly Traditional
+theme = UltraDark
 copy-on-select = clipboard
-font-family = JetBrains Mono
+font-family = Fira Code
 font-size = 14
 
-# Platform-specific settings handled by Ghostty internally
-# On macOS: native window decorations
-# On Linux: can use gtk-titlebar = false if desired
+# Window decoration settings
+gtk-titlebar = false
+window-decoration = false
 
-# Ensure native ARM64 execution on macOS
+# Color scheme (cyberpunk theme colors)
+background = #000b1e
+foreground = #0abdc6
+cursor-color = #0abdc6
+
+# Terminal behavior
+confirm-close-surface = false
+mouse-hide-while-typing = true
+
+# Shell integration
 shell-integration-features = cursor,sudo,title
+
+# Window padding
+window-padding-x = 10
+window-padding-y = 10
+
+# Transparency
+background-opacity = 0.95
 

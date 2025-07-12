@@ -47,7 +47,6 @@
     # For VM environments, ensure software rendering fallback
     extraPackages = with pkgs; [
       mesa
-      mesa.drivers
       libvdpau-va-gl
       vaapiVdpau
     ];

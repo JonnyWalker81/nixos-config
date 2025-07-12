@@ -380,6 +380,15 @@ in
           "gfx.webrender.enabled" = true;
           "layers.acceleration.force-enabled" = true;
           "layout.frame_rate" = 60;
+          
+          # Disable mouse button 4/5 navigation (fixes Parallels VM focus issue)
+          # This prevents Firefox from interpreting focus clicks as back/forward navigation
+          "mousebutton.4th.enabled" = false;
+          "mousebutton.5th.enabled" = false;
+          
+          # Also disable swipe gestures to prevent accidental navigation
+          "browser.gesture.swipe.left" = "";
+          "browser.gesture.swipe.right" = "";
         };
         search = {
           force = true;

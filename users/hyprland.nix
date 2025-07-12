@@ -7,7 +7,7 @@
 }:
 
 with lib;
-lib.mkIf (!pkgs.stdenv.isDarwin) {
+{
   # Enable waybar with systemd service
   programs.waybar = {
     enable = true;
@@ -37,6 +37,8 @@ lib.mkIf (!pkgs.stdenv.isDarwin) {
           windowrulev2 = float, title:Parallels Shared Clipboard
           windowrulev2 = size 1 1, title:Parallels Shared Clipboard
           windowrulev2 = move -1 -1, title:Parallels Shared Clipboard
+          
+          # Simple window rules
           # windowrule = float, ^(steam)$
           # windowrule = size 1080 900, ^(steam)$
           # windowrule = center, ^(steam)$
@@ -48,17 +50,17 @@ lib.mkIf (!pkgs.stdenv.isDarwin) {
             gaps_in = 5
             gaps_out = 5
             border_size = 3
-            col.active_border = rgba(0099ffff) rgba(0066ccff) 45deg
+            col.active_border = rgba(00ddffff) rgba(00ff99ff) 45deg
             col.inactive_border = rgba(2e3440ff)
             layout = master
             resize_on_border = true
           }
 
-          # Input settings - restored to original values
+          # Input settings - optimized for VM usage
           input {
             kb_layout = us
             kb_options = caps:super
-            follow_mouse = 1
+            follow_mouse = 0  # Disable mouse focus following - critical for VMs
             
             touchpad {
               natural_scroll = false
@@ -66,6 +68,14 @@ lib.mkIf (!pkgs.stdenv.isDarwin) {
             
             sensitivity = 0
             accel_profile = flat
+            float_switch_override_focus = 2  # Prevent focus switching between floating windows
+          }
+          
+          
+          # Binds configuration
+          binds {
+            scroll_event_delay = 0
+            allow_workspace_cycles = true
           }
 
           # Wayland environment variables
@@ -98,6 +108,11 @@ lib.mkIf (!pkgs.stdenv.isDarwin) {
             key_press_enables_dpms = false
             disable_hyprland_logo = true
             disable_splash_rendering = true
+            # Critical settings for Parallels VM
+            focus_on_activate = false  # Prevent apps from stealing focus
+            layers_hog_keyboard_focus = false  # Don't let layers steal keyboard
+            animate_manual_resizes = false
+            animate_mouse_windowdragging = false
           }
 
           # Animations - restored to original values
@@ -246,6 +261,9 @@ lib.mkIf (!pkgs.stdenv.isDarwin) {
           bindm = ${modifier},mouse:273,resizewindow
           bind = ${modifier},mouse_down,workspace,e+1
           bind = ${modifier},mouse_up,workspace,e-1
+          
+          # Focus control
+          bind = ${modifier},f,exec,hyprctl dispatch focuswindow mouse
 
           # Screenshot bindings
           bind = ${modifier},s,exec,grim ~/Pictures/screenshot-$(date +%Y-%m-%d_%H-%M-%S).png
