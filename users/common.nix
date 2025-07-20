@@ -36,7 +36,7 @@ let
 in
 {
   home.stateVersion = "25.05";
-  home.enableNixpkgsReleaseCheck = false;  # Disable version mismatch warning
+  home.enableNixpkgsReleaseCheck = false; # Disable version mismatch warning
   xdg.enable = true;
 
   home.file.".doom.d" = {
@@ -113,9 +113,11 @@ in
 
   programs.emacs = {
     enable = true;
-    package = if pkgs.stdenv.isDarwin 
-      then pkgs.emacs-unstable  # Emacs 31.x with Cocoa GUI and native-comp support
-      else pkgs.emacs;
+    package =
+      if pkgs.stdenv.isDarwin then
+        pkgs.emacs-unstable # Emacs 31.x with Cocoa GUI and native-comp support
+      else
+        pkgs.emacs;
     extraPackages = (
       epkgs: [
         epkgs.vterm
@@ -125,13 +127,38 @@ in
     extraConfig = ''
       ;; Ensure SSH agent environment is available
       (setenv "SSH_AUTH_SOCK" "/run/user/1000/ssh-agent")
-      
+
       ;; Copy SSH environment variables from systemd user environment
       (when (and (eq system-type 'linux)
                  (executable-find "systemctl"))
         (let ((ssh-auth-sock (shell-command-to-string "systemctl --user show-environment | grep SSH_AUTH_SOCK | cut -d'=' -f2-")))
           (when (and ssh-auth-sock (not (string-empty-p (string-trim ssh-auth-sock))))
             (setenv "SSH_AUTH_SOCK" (string-trim ssh-auth-sock)))))
+
+      ;; Fix clipboard for Wayland
+      (when (and (eq system-type 'linux)
+                 (getenv "WAYLAND_DISPLAY"))
+        ;; Use wl-copy and wl-paste for clipboard operations
+        (setq wl-copy-process nil)
+        (defun wl-copy (text)
+          (setq wl-copy-process (make-process :name "wl-copy"
+                                              :buffer nil
+                                              :command '("wl-copy" "-f" "-n")
+                                              :connection-type 'pipe))
+          (process-send-string wl-copy-process text)
+          (process-send-eof wl-copy-process))
+        (defun wl-paste ()
+          (if (and wl-copy-process (process-live-p wl-copy-process))
+              nil ; should return nil if we're the current paste owner
+            (shell-command-to-string "wl-paste -n | tr -d \r")))
+        
+        ;; Advise Emacs to use Wayland clipboard
+        (setq interprogram-cut-function 'wl-copy)
+        (setq interprogram-paste-function 'wl-paste)
+        
+        ;; Also set selection functions
+        (setq select-enable-clipboard t)
+        (setq select-enable-primary t))
     '';
   };
 
@@ -231,9 +258,9 @@ in
       # neovimNightly
       # pkgs.nixvim
 
-      inputs.nixvim.packages.${pkgs.system}.default  # Re-enabled after update
+      inputs.nixvim.packages.${pkgs.system}.default # Re-enabled after update
       # pkgs.neovim  # Using default neovim temporarily
-      pkgs.claude-code
+      # pkgs.claude-code
       pkgs.opencode
     ]
     ++ lib.optionals (!pkgs.stdenv.isDarwin) [
@@ -295,7 +322,7 @@ in
       # pkgs.atuin
       pkgs.bun
       pkgs.wezterm
-      pkgs.ghostty  # Now using nixpkgs version which supports macOS
+      pkgs.ghostty # Now using nixpkgs version which supports macOS
       pkgs.zellij
       pkgs.gtk3
       pkgs.teller
@@ -306,6 +333,7 @@ in
       # Wayland/Hyprland tools (Linux only)
       pkgs.waybar
       pkgs.wl-clipboard
+      pkgs.xclip  # Also include xclip for X11 compatibility
       pkgs.cliphist
       pkgs.swww
       pkgs.wofi
@@ -316,26 +344,42 @@ in
       pkgs.swaynotificationcenter
     ];
 
+  home.sessionPath = [
+    "$HOME/.claude/local"
+    "$HOME/bin"
+    "$HOME/.cargo/bin"
+  ];
+
   home.sessionVariables = {
     LANG = "en_US.UTF-8";
     LC_CTYPE = "en_US.UTF-8";
     LC_ALL = "en_US.UTF-8";
     EDITOR = "nvim";
+    VISUAL = "nvim";
     PAGER = "less -FirSwX";
     MANPAGER = "${manpager}/bin/manpager";
     SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
-    
+
     # Firefox/Mozilla HiDPI scaling
     MOZ_ENABLE_WAYLAND = "1";
     MOZ_USE_XINPUT2 = "1";
     MOZ_DBUS_REMOTE = "1";
+    
+    # Development
+    GOPATH = "\${HOME}";
+    GOPRIVATE = "github.com/JoinCAD,github.com/JonnyWalker81";
+    PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
+    LIBVIRT_DEFAULT_URI = "qemu:///system";
+    AWS_PAGER = "";
+    TERM = "xterm-256color";
   };
 
   home.shellAliases = {
     code = "code --enable-features=UseOzonePlatform --ozone-platform=wayland";
-    fix-clipboard = "/home/cipher/nixos-config/scripts/fix-parallels-clipboard.sh";
+    fix-clipboard = "fix-parallels-clipboard";
+    fix-clipboard-old = "/home/cipher/nixos-config/scripts/fix-parallels-clipboard.sh";
     prl-clip-fix = "/home/cipher/nixos-config/scripts/fix-parallels-clipboard.sh";
-    
+
     # Display profile shortcuts
     dp = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh";
     dp-hidpi = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh hidpi";
@@ -361,7 +405,7 @@ in
           # "browser.startup.homepage" = "https://searx.aicampground.com";
           # "browser.search.defaultenginename" = "Searx";
           # "browser.search.order.1" = "Searx";
-          
+
           # HiDPI/4K display scaling settings
           "layout.css.devPixelsPerPx" = "1.25";
           "browser.display.use_system_colors" = false;
@@ -369,23 +413,23 @@ in
           "font.size.variable.x-western" = 18;
           "font.size.fixed.x-western" = 14;
           "font.minimum-size.x-western" = 14;
-          
+
           # Zoom settings
           "browser.zoom.full" = true;
           "zoom.minPercent" = 100;
           "zoom.maxPercent" = 500;
           "toolkit.zoomManager.zoomValues" = "0.5,0.75,1,1.25,1.5,1.75,2,2.5,3";
-          
+
           # Better readability
           "gfx.webrender.enabled" = true;
           "layers.acceleration.force-enabled" = true;
           "layout.frame_rate" = 60;
-          
+
           # Disable mouse button 4/5 navigation (fixes Parallels VM focus issue)
           # This prevents Firefox from interpreting focus clicks as back/forward navigation
           "mousebutton.4th.enabled" = false;
           "mousebutton.5th.enabled" = false;
-          
+
           # Also disable swipe gestures to prevent accidental navigation
           "browser.gesture.swipe.left" = "";
           "browser.gesture.swipe.right" = "";
@@ -560,44 +604,49 @@ in
 
   programs.zsh = {
     enable = true;
-    shellAliases = {
-      ll = "eza -l";
-      l = "eza -lah";
-      rebuild = "sudo NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1 nixos-rebuild switch --flake .#vm-aarch64";
-      rp = "sudo nixos-rebuild switch --flake .#vm-aarch64-prl";
-      ri = "sudo nixos-rebuild switch --flake .#vm-intel";
-      rdd = "sudo darwin-rebuild switch --flake .#vm-darwin";
-      f = "history | fzf --sort --exact | sh";
-      bc = "git branch | grep '*' | awk '{print $2}' | pbcopy";
+    shellAliases =
+      {
+        ll = "eza -l";
+        l = "eza -lah";
+        rebuild = "sudo NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1 nixos-rebuild switch --flake .#vm-aarch64";
+        rp = "sudo nixos-rebuild switch --flake .#vm-aarch64-prl";
+        ri = "sudo nixos-rebuild switch --flake .#vm-intel";
+        rdd = "sudo darwin-rebuild switch --flake .#vm-darwin";
+        f = "history | fzf --sort --exact | sh";
+        bc = "git branch | grep '*' | awk '{print $2}' | pbcopy";
 
+        ap = ''export AWS_PROFILE=$(aws configure list-profiles | fzf --prompt "Choose active AWS profile:")'';
+        sw = ''terraform workspace list | fzf --prompt "Choose workspace:" | xargs -r terraform workspace select'';
+        ka = ''ps -aux | fzf | awk '{print $2}' | xargs -r kill -9'';
 
-      ap = ''export AWS_PROFILE=$(aws configure list-profiles | fzf --prompt "Choose active AWS profile:")'';
-      sw = ''terraform workspace list | fzf --prompt "Choose workspace:" | xargs -r terraform workspace select'';
-      ka = ''ps -aux | fzf | awk '{print $2}' | xargs -r kill -9'';
+        cd = "z";
+        ys = "yarn install && yarn start";
+        ff = ''cd "$(find $(git rev-parse --show-toplevel 2>/dev/null || pwd) -mindepth 1 -type d | fzf)"'';
 
-      cd = "z";
-      ys = "yarn install && yarn start";
-      ff = ''cd "$(find $(git rev-parse --show-toplevel 2>/dev/null || pwd) -mindepth 1 -type d | fzf)"'';
+        # Display profile management
+        dp = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh";
+        dp-hidpi = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh hidpi";
+        dp-retina = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh retina";
+        dp-standard = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh standard";
+        dp-present = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh present";
+        dp-ultrawide = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh ultrawide";
+        dp-auto = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh auto";
+        dp-current = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh current";
+        dp-list = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh list";
+        prl-display = "parallels-display-info";
 
-      # Display profile management
-      dp = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh";
-      dp-hidpi = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh hidpi";
-      dp-retina = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh retina";
-      dp-standard = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh standard";
-      dp-present = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh present";
-      dp-ultrawide = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh ultrawide";
-      dp-auto = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh auto";
-      dp-current = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh current";
-      dp-list = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh list";
-      prl-display = "parallels-display-info";
-      
-      # SSH agent management
-      ssh-cleanup = "/home/cipher/nixos-config/scripts/cleanup-ssh-agents.sh";
-    } // lib.optionalAttrs (!pkgs.stdenv.isDarwin) {
-      # Linux-specific aliases for clipboard
-      pbcopy = "xclip -selection clipboard";
-      pbpaste = "xclip -o";
-    };
+        # SSH agent management
+        ssh-cleanup = "/home/cipher/nixos-config/scripts/cleanup-ssh-agents.sh";
+      }
+      // lib.optionalAttrs (!pkgs.stdenv.isDarwin) {
+        # Linux-specific aliases for clipboard
+        # Use wl-copy/wl-paste for Wayland, with xclip fallback
+        pbcopy = "wl-copy";
+        pbpaste = "wl-paste";
+        # X11 fallback aliases
+        xpbcopy = "xclip -selection clipboard";
+        xpbpaste = "xclip -o";
+      };
 
     # interactiveShellInit = lib.strings.concatStrings
     #   (lib.strings.intersperse "\n" [ (builtins.readFile ./config.zsh) ]);
@@ -611,26 +660,15 @@ in
     enableCompletion = true;
     syntaxHighlighting.enable = true;
     sessionVariables = {
-      LC_ALL = "en_US.UTF-8";
-      LIBVIRT_DEFAULT_URI = "qemu:///system";
-      GOPATH = "\${HOME}";
-      GOPRIVATE = "github.com/JoinCAD,github.com/JonnyWalker81";
-      # GOPROXY = "off";
-      # PATH =
-      PATH = "\${HOME}/.local/state/nix/profiles/home-manager/home-path/bin:\${HOME}/bin:\${HOME}/.cargo/bin:\${PATH}";
-      PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
-
+      # Only ZSH-specific variables here, general ones are in home.sessionVariables
       ZSH_TMUX_AUTOSTART = "true";
       ZSH_TMUX_AUTOCONNECT = "true";
-      TERM = "xterm-256color";
-      # EDITOR = "emacsclient -t -a ''"; # $EDITOR use Emacs in terminal
-      EDITOR = "nvim"; # $EDITOR use Emacs in terminal
-      # VISUAL = "emacsclient -c -a emacs"; # $VISUAL use Emacs in GUI mode
-      VISUAL = "$EDITOR"; # $VISUAL use Emacs in GUI mode
-      AWS_PAGER = "";
     };
 
     initContent = ''
+        # Ensure claude is in PATH
+        export PATH="$HOME/.claude/local:$PATH"
+        
         source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
         eval "$(${zoxideBin} init zsh)"
         

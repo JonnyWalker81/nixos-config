@@ -13,6 +13,7 @@
 
     ../hardware/vm-aarch64-prl.nix
     # ../modules/parallels-guest.nix
+    ../modules/parallels-clipboard-fix.nix
     ./vm-shared.nix
   ];
 
@@ -23,6 +24,14 @@
   hardware.parallels = {
     enable = true;
     # package = (config.boot.kernelPackages.callPackage ../pkgs/parallels-tools/default.nix { });
+    
+    # Clipboard optimization to prevent hangs
+    clipboard = {
+      optimization = true;
+      maxSize = 524288; # 512KB - smaller size to prevent hangs
+      monitor = true; # Enable monitoring to clear large clipboard content
+      plainTextOnly = false; # Set to true if you continue to have issues
+    };
   };
 
   # Interface is this on my M1

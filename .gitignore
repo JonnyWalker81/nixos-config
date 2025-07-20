@@ -9,3 +9,32 @@
 
 # Wallpapers (downloaded by setup script)
 /.local/share/wallpapers/
+
+# Nix build results
+result
+result-*
+
+# Temporary files and directories
+tmp/
+*.swp
+*.swo
+*~
+
+# Test scripts (not part of config)
+test-*.sh
+users/test-*.sh
+
+# Backup files
+*.bak
+*.orig
+
+# Editor files
+.vscode/
+.idea/
+
+# Misc development files
+claude-notes.txt
+scripts/*.c
+
+# User-specific test files
+users/hyprland-threecolmid.sh

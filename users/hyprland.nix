@@ -45,13 +45,15 @@ with lib;
           # windowrule = float, ^(MPlayer)$
           # windowrule = float, ^(Gimp)$
 
-          # General settings - bright active window borders
+          # General settings - Tokyo Night Storm theme with bright active window borders
           general {
             gaps_in = 5
             gaps_out = 5
-            border_size = 3
-            col.active_border = rgba(00ddffff) rgba(00ff99ff) 45deg
-            col.inactive_border = rgba(2e3440ff)
+            border_size = 4
+            # Bright blue/purple gradient for active windows (Tokyo Night accent colors)
+            col.active_border = rgba(7aa2f7ff) rgba(bb9af7ff) rgba(7dcfffff) 45deg
+            # Muted dark border for inactive windows
+            col.inactive_border = rgba(414868ff)
             layout = master
             resize_on_border = true
           }
@@ -60,7 +62,8 @@ with lib;
           input {
             kb_layout = us
             kb_options = caps:super
-            follow_mouse = 0  # Disable mouse focus following - critical for VMs
+            follow_mouse = 1  # Enable focus follows mouse (1 = focus on hover)
+            mouse_refocus = true  # Refocus window when mouse moves between windows
             
             touchpad {
               natural_scroll = false
@@ -127,16 +130,26 @@ with lib;
             animation = workspaces, 1, 3, default
           }
 
-          # Decoration settings - restored to original values
+          # Decoration settings - Tokyo Night Storm theme
           decoration {
-            rounding = 5
+            rounding = 10
             
             shadow {
-              enabled = false
+              enabled = true
+              range = 8
+              render_power = 2
+              color = rgba(1a1b26ee)
             }
             
             blur {
-              enabled = false
+              enabled = true
+              size = 4
+              passes = 2
+              new_optimizations = true
+              xray = true
+              noise = 0.01
+              contrast = 0.9
+              brightness = 0.8
             }
           }
 

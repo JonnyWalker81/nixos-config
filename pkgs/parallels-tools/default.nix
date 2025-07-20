@@ -21,14 +21,13 @@
 
 stdenv.mkDerivation rec {
   # version = "18.3.1-53614";
-  version = "20.3.0-55895";
+  version = "20.4.0-55980";
   pname = "prl-tools";
 
   # We download the full distribution to extract prl-tools-lin.iso from
   # => ${dmg}/Parallels\ Desktop.app/Contents/Resources/Tools/prl-tools-lin.iso
   src = fetchurl {
     url = "https://download.parallels.com/desktop/v${lib.versions.major version}/${version}/ParallelsDesktop-${version}.dmg";
-    # sha256 = "sha256-MZtNxByY2GSoPFeH9mPieCPPNfUgfla+lYgpeD+SgOc=";
     sha256 = "1xl9v0s8mkhysxl7bh1s4xxj18ws1sr1mmv363cd9jzr9a063k86";
   };
 
@@ -39,12 +38,15 @@ stdenv.mkDerivation rec {
     "format"
   ];
 
-  nativeBuildInputs = [
-    p7zip
-    undmg
-    perl
-    autoPatchelfHook
-  ] ++ lib.optionals (!libsOnly) [ makeWrapper ] ++ kernel.moduleBuildDependencies;
+  nativeBuildInputs =
+    [
+      p7zip
+      undmg
+      perl
+      autoPatchelfHook
+    ]
+    ++ lib.optionals (!libsOnly) [ makeWrapper ]
+    ++ kernel.moduleBuildDependencies;
 
   buildInputs =
     with xorg;
