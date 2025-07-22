@@ -1,48 +1,76 @@
-# Parallels VM Click-Through Fix for Hyprland
+# Parallels Clipboard Fix - Beach Ball Prevention
 
-## The Problem
-When you click on the Parallels VM window to focus it from macOS, that click is passed through to Hyprland, causing random clicks in the Linux guest.
+## Summary of Changes
 
-## Root Cause
-This is a known issue with Parallels Desktop's Wayland support. Parallels Tools doesn't properly handle Wayland's input protocol, causing the focus click to be passed to the guest OS.
+I've implemented comprehensive fixes to prevent beach balls when switching between your Parallels VM and macOS (especially with Slack). The key improvements include:
 
-## Solutions (in order of effectiveness)
+### 1. **Force X11 Mode for prlcp**
+- Added environment variables to force X11 backend
+- Prevents Wayland compatibility crashes that were causing segfaults
 
-### 1. **Change Parallels Mouse Settings (MOST EFFECTIVE)**
-In macOS, configure Parallels Desktop:
-- Open Parallels Desktop
-- Go to your VM settings: **Actions → Configure → Hardware → Mouse & Keyboard**
-- Change "Mouse & Keyboard" from "Auto-detect" to **"Optimize for games"**
-- This will require using **Cmd+Ctrl** to capture/release the mouse
-- This completely prevents click-through but requires manual mouse capture
+### 2. **Clipboard Size Limits**
+- Reduced maximum clipboard size to 256KB
+- Enabled plain text only mode to avoid format conversion issues
+- Active monitoring that clears oversized clipboard content
 
-### 2. **Use Keyboard to Focus (Recommended Workaround)**
-Instead of clicking to focus the VM:
-- Use **Cmd+Tab** to switch to Parallels Desktop
-- The VM window will gain focus without a click
-- Now you can click normally inside the VM
+### 3. **Focus Management**
+- Created a focus guard service that monitors window focus changes
+- Automatically clears clipboard on rapid focus changes
+- Prevents the clipboard sync from hanging during VM/host switches
 
-### 3. **Use Hyprland VM Mode**
-I've configured a special mode in Hyprland:
-- When switching to the VM, press **Alt+V** to enter "VM Focus Mode"
-- This mode captures the first click without passing it through
-- The mode automatically exits after the first click
+### 4. **Service Optimization**
+- Added memory limits (256MB) and CPU quotas (50%)
+- Implemented automatic restart with backoff
+- Better error handling and recovery
 
-### 4. **Use Focus Commands**
-- **Alt+F**: Focus window under cursor (no click needed)
-- **Alt+Ctrl+F**: Lock focus settings to prevent issues
+## Available Commands
 
-### 5. **Switch to X11 (Last Resort)**
-If nothing else works:
-- Log out
-- Select an X11 session instead of Wayland
-- X11 doesn't have this issue with Parallels
+### Quick Fix (When Experiencing Beach Balls)
+```bash
+# Keyboard shortcut: Super+Shift+X
+fix-clipboard
 
-## Why This Happens
-- Parallels Desktop was designed primarily for X11
-- Wayland handles input events differently
-- Parallels Tools hasn't been updated for proper Wayland support
-- The macOS host's click event is being translated incorrectly
+# Or run directly:
+fix-parallels-clipboard
+```
 
-## Permanent Fix
-The only permanent fix is for Parallels to update their Linux Tools with proper Wayland protocol support. Until then, using "Optimize for games" mouse mode or keyboard focusing are the most reliable workarounds.
+### Health Check
+```bash
+# Check status of all Parallels services
+/home/cipher/nixos-config/scripts/parallels-health-check.sh
+
+# Auto-fix any issues found
+/home/cipher/nixos-config/scripts/parallels-health-check.sh --fix
+```
+
+### Manual Service Management
+```bash
+# Restart clipboard services
+systemctl --user restart prlcp parallels-clipboard-monitor
+
+# Check service status
+systemctl --user status prlcp
+systemctl --user status parallels-clipboard-monitor
+```
+
+## Configuration
+
+The configuration is in `/home/cipher/nixos-config/machines/vm-aarch64-prl.nix`:
+- `plainTextOnly = true` - Forces plain text clipboard (more stable)
+- `maxSize = 262144` - 256KB limit to prevent hangs
+- `monitor = true` - Active monitoring enabled
+
+## Logs
+
+Check logs if issues persist:
+- `/tmp/prlcp-wrapper.log` - prlcp wrapper logs
+- `/tmp/parallels-clipboard-monitor.log` - Clipboard monitor logs
+- `/tmp/parallels-focus-guard.log` - Focus guard logs
+- `/tmp/parallels-health-check.log` - Health check results
+
+## Tips
+
+1. If you still experience beach balls, use the keyboard shortcut `Super+Shift+X` to quickly fix
+2. The system now automatically clears large clipboard content
+3. Focus changes are monitored to prevent sync issues
+4. Consider disabling "Preserve text formatting" in Parallels Desktop preferences for additional stability

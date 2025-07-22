@@ -284,6 +284,9 @@ with lib;
 
           # Additional functionality
           bind = ${modifier},n,exec,hyprctl dispatch togglefloating active; hyprctl dispatch centerwindow
+          
+          # Parallels clipboard fix - manually trigger when experiencing beach balls
+          bind = ${modifier}SHIFT,x,exec,fix-parallels-clipboard
         ''
       ];
   };

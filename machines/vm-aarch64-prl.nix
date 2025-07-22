@@ -28,9 +28,9 @@
     # Clipboard optimization to prevent hangs
     clipboard = {
       optimization = true;
-      maxSize = 524288; # 512KB - smaller size to prevent hangs
+      maxSize = 262144; # 256KB - reduced to prevent beach balls
       monitor = true; # Enable monitoring to clear large clipboard content
-      plainTextOnly = false; # Set to true if you continue to have issues
+      plainTextOnly = true; # Force plain text to avoid format conversion issues
     };
   };
 

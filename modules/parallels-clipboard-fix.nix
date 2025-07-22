@@ -9,8 +9,11 @@ let
   clipboardMonitor = pkgs.writeShellScript "parallels-clipboard-monitor" ''
     #!/usr/bin/env bash
     
-    # Maximum clipboard size in bytes (1MB default)
-    MAX_SIZE=''${PARALLELS_CLIPBOARD_MAX_SIZE:-1048576}
+    # Maximum clipboard size in bytes
+    MAX_SIZE=''${PARALLELS_CLIPBOARD_MAX_SIZE:-262144}
+    
+    # Log file
+    LOG_FILE="/tmp/parallels-clipboard-monitor.log"
     
     # Function to get clipboard size
     get_clipboard_size() {
@@ -23,26 +26,58 @@ let
       fi
     }
     
-    # Function to clear clipboard if too large
-    check_and_clear() {
-      local size=$(get_clipboard_size)
-      if [ "$size" -gt "$MAX_SIZE" ]; then
-        echo "Clipboard content too large ($size bytes), clearing..."
-        if command -v wl-copy &> /dev/null; then
-          echo -n "" | wl-copy
-          echo -n "" | wl-copy --primary
-        elif command -v xclip &> /dev/null; then
-          echo -n "" | xclip -selection clipboard
-          echo -n "" | xclip -selection primary
-        fi
+    # Function to clear clipboard
+    clear_clipboard() {
+      echo "[$(date)] Clearing clipboard" >> "$LOG_FILE"
+      if command -v wl-copy &> /dev/null; then
+        echo -n "" | wl-copy 2>/dev/null || true
+        echo -n "" | wl-copy --primary 2>/dev/null || true
+      fi
+      if command -v xclip &> /dev/null; then
+        echo -n "" | xclip -selection clipboard 2>/dev/null || true
+        echo -n "" | xclip -selection primary 2>/dev/null || true
       fi
     }
     
-    # Monitor clipboard changes
-    while true; do
-      check_and_clear
-      sleep 2
-    done
+    # Function to check and clear clipboard if too large
+    check_and_clear() {
+      local size=$(get_clipboard_size)
+      if [ "$size" -gt "$MAX_SIZE" ]; then
+        echo "[$(date)] Clipboard too large ($size bytes), clearing..." >> "$LOG_FILE"
+        clear_clipboard
+      fi
+    }
+    
+    # Monitor for focus events if running under Hyprland
+    if [ -n "$HYPRLAND_INSTANCE_SIGNATURE" ] && command -v socat &> /dev/null; then
+      # Monitor clipboard and focus events in parallel
+      (
+        # Clipboard size monitor
+        while true; do
+          check_and_clear
+          sleep 1
+        done
+      ) &
+      
+      # Focus event monitor - clear clipboard on window focus changes
+      socat -U - UNIX-CONNECT:/tmp/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock 2>/dev/null | while read -r line; do
+        case "$line" in
+          *"activewindow>>"*)
+            # Window focus changed - could be switching from macOS
+            echo "[$(date)] Focus change detected: $line" >> "$LOG_FILE"
+            # Small delay to let clipboard sync complete
+            sleep 0.2
+            check_and_clear
+            ;;
+        esac
+      done
+    else
+      # Fallback: just monitor clipboard size
+      while true; do
+        check_and_clear
+        sleep 1
+      done
+    fi
   '';
   
   # Quick fix script
@@ -113,9 +148,16 @@ in {
         PARALLELS_CLIPBOARD_MAX_SIZE = toString cfg.maxSize;
         # Disable rich text if configured
         PARALLELS_CLIPBOARD_PLAIN_TEXT = if cfg.plainTextOnly then "1" else "0";
+        # Force X11 to prevent Wayland crashes
+        GDK_BACKEND = "x11";
+        QT_QPA_PLATFORM = "xcb";
+        WAYLAND_DISPLAY = "";
+        XDG_SESSION_TYPE = "x11";
+        LIBGL_ALWAYS_SOFTWARE = "1";
       };
       
       serviceConfig = {
+        # Use prlcp directly with proper path
         ExecStart = "${config.hardware.parallels.package}/bin/prlcp";
         Restart = "always";
         RestartSec = 5;
@@ -129,6 +171,9 @@ in {
         MemoryLimit = "256M";
         # CPU quota to prevent hanging from using too much CPU
         CPUQuota = "50%";
+        # Prevent rapid restarts
+        StartLimitBurst = 3;
+        StartLimitInterval = 60;
       };
       
       # Restart if it uses too much memory
@@ -159,5 +204,23 @@ in {
     # Add shell alias for quick fix
     programs.bash.shellAliases.fix-clipboard = "fix-parallels-clipboard";
     programs.zsh.shellAliases.fix-clipboard = "fix-parallels-clipboard";
+    
+    # Focus guard service to prevent beach balls
+    systemd.user.services.parallels-focus-guard = mkIf (config.programs.hyprland.enable or false) {
+      description = "Parallels Focus Guard - Prevents beach balls when switching";
+      wantedBy = [ "graphical-session.target" ];
+      after = [ "graphical-session.target" ];
+      
+      environment = {
+        HYPRLAND_INSTANCE_SIGNATURE = "$HYPRLAND_INSTANCE_SIGNATURE";
+      };
+      
+      serviceConfig = {
+        ExecStart = "/home/cipher/nixos-config/scripts/parallels-focus-guard.sh";
+        Restart = "always";
+        RestartSec = 5;
+        Nice = 10;
+      };
+    };
   };
 }
