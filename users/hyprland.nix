@@ -14,6 +14,14 @@ with lib;
     systemd.enable = true;
   };
 
+  # Ensure waybar starts after Hyprland is fully initialized
+  systemd.user.services.waybar = {
+    Unit = {
+      After = [ "hyprland-session.target" ];
+      PartOf = [ "hyprland-session.target" ];
+    };
+  };
+
   wayland.windowManager.hyprland = {
     enable = true;
     xwayland.enable = true;
