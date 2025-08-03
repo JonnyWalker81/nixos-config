@@ -226,6 +226,7 @@
 (package! topsy)
 
 (package! direnv)
+(package! nix-mode)
 
 (package! claude-code
   :recipe (:type git :host github :repo "stevemolitor/claude-code.el" :branch "main"

@@ -1243,6 +1243,91 @@ tab-indent."
                                    (message "Failed to generate commit message: %s" info))))))
   )
 
+;; Claude Code commit message generation functions
+(defun jr/claude-code-generate-commit-message ()
+  "Generate a commit message using Claude Code based on the current git diff."
+  (interactive)
+  (if (not (executable-find "claude"))
+      (progn
+        (message "Claude Code not found. Falling back to gptel.")
+        (jr/ai-generate-commit-message))
+    (let* ((diff-output (shell-command-to-string "git diff --staged"))
+           (prompt (format "Generate a concise git commit message for these changes. Output ONLY the commit message text, nothing else. No explanations, no quotes, no formatting. Focus on what was changed and why. Keep it under 72 characters for the first line. If you need multiple lines, add a blank line after the first line and then continue with more details.\n\nChanges:\n%s" diff-output)))
+      (if (string-empty-p (string-trim diff-output))
+          (message "No staged changes found. Stage some changes first.")
+        (let* ((project-root (or (projectile-project-root) default-directory))
+               (has-flake (file-exists-p (expand-file-name "flake.nix" project-root)))
+               (nix-command (if has-flake
+                                 "cd %s && nix develop -c claude --print '%s' 2>/dev/null"
+                                 "nix-shell -p nodejs --run \"claude --print '%s'\" 2>&1"))
+               (formatted-command (if has-flake
+                                      (format nix-command 
+                                              (shell-quote-argument project-root)
+                                              (replace-regexp-in-string "'" "'\"'\"'" prompt))
+                                    (format nix-command 
+                                            (replace-regexp-in-string "'" "'\"'\"'" prompt))))
+               (claude-output (shell-command-to-string formatted-command))
+               ;; Clean up any nix warnings that might have slipped through
+               ;; Split output into lines and filter out nix warnings
+               (output-lines (split-string claude-output "\n"))
+               (cleaned-lines (seq-remove 
+                               (lambda (line)
+                                 (or (string-match-p "^\\(path\\|warning\\):" line)
+                                     (string-match-p "does not contain a 'flake.nix'" line)
+                                     (string-match-p "Git tree.*is dirty" line)
+                                     (string-match-p "^searching up" line)))
+                               output-lines))
+               (cleaned-output (string-join cleaned-lines "\n"))
+               (commit-msg (string-trim cleaned-output)))
+          (if (or (string-empty-p commit-msg)
+                  (string-match-p "^Error:" commit-msg))
+              (message "Failed to generate commit message: %s" commit-msg)
+            (with-current-buffer (get-buffer-create "*AI Commit Message*")
+              (erase-buffer)
+              (insert commit-msg)
+              (display-buffer (current-buffer)))
+            (message "AI commit message generated! Check *AI Commit Message* buffer.")))))))
+
+(defun jr/claude-code-insert-commit-message ()
+  "Insert Claude Code-generated commit message into current buffer."
+  (interactive)
+  (if (not (executable-find "claude"))
+      (progn
+        (message "Claude Code not found. Falling back to gptel.")
+        (jr/ai-insert-commit-message))
+    (let* ((diff-output (shell-command-to-string "git diff --staged"))
+           (prompt (format "Generate a concise git commit message for these changes. Output ONLY the commit message text, nothing else. No explanations, no quotes, no formatting. Focus on what was changed and why. Keep it under 72 characters for the first line. If you need multiple lines, add a blank line after the first line and then continue with more details.\n\nChanges:\n%s" diff-output)))
+      (if (string-empty-p (string-trim diff-output))
+          (message "No staged changes found. Stage some changes first.")
+        (let* ((project-root (or (projectile-project-root) default-directory))
+               (has-flake (file-exists-p (expand-file-name "flake.nix" project-root)))
+               (nix-command (if has-flake
+                                 "cd %s && nix develop -c claude --print '%s' 2>/dev/null"
+                                 "nix-shell -p nodejs --run \"claude --print '%s'\" 2>&1"))
+               (formatted-command (if has-flake
+                                      (format nix-command 
+                                              (shell-quote-argument project-root)
+                                              (replace-regexp-in-string "'" "'\"'\"'" prompt))
+                                    (format nix-command 
+                                            (replace-regexp-in-string "'" "'\"'\"'" prompt))))
+               (claude-output (shell-command-to-string formatted-command))
+               ;; Clean up any nix warnings that might have slipped through
+               ;; Split output into lines and filter out nix warnings
+               (output-lines (split-string claude-output "\n"))
+               (cleaned-lines (seq-remove 
+                               (lambda (line)
+                                 (or (string-match-p "^\\(path\\|warning\\):" line)
+                                     (string-match-p "does not contain a 'flake.nix'" line)
+                                     (string-match-p "Git tree.*is dirty" line)
+                                     (string-match-p "^searching up" line)))
+                               output-lines))
+               (cleaned-output (string-join cleaned-lines "\n"))
+               (commit-msg (string-trim cleaned-output)))
+          (if (or (string-empty-p commit-msg)
+                  (string-match-p "^Error:" commit-msg))
+              (message "Failed to generate commit message: %s" commit-msg)
+            (insert commit-msg)))))))
+
 ;; Add keybindings for AI commit message generation
 (map! :leader
       (:prefix ("g" . "git")
@@ -1251,10 +1336,13 @@ tab-indent."
 ;; Add magit-specific keybinding
 (after! magit
   (transient-append-suffix 'magit-commit "c"
-    '("m" "AI commit message" jr/ai-insert-commit-message))
+    '("m" "AI commit message (Claude Code)" jr/claude-code-insert-commit-message))
+  (transient-append-suffix 'magit-commit "m"
+    '("M" "AI commit message (gptel)" jr/ai-insert-commit-message))
 
   ;; Add keybinding in commit message buffer
-  (define-key git-commit-mode-map (kbd "C-c C-a") #'jr/ai-insert-commit-message))
+  (define-key git-commit-mode-map (kbd "C-c C-a") #'jr/claude-code-insert-commit-message)
+  (define-key git-commit-mode-map (kbd "C-c C-g") #'jr/ai-insert-commit-message))
 
 (message "after gptel...")
 
@@ -1269,6 +1357,135 @@ tab-indent."
 (use-package direnv
   :config
   (direnv-mode))
+
+;; ============================================================================
+;; FLAKE.NIX SUPPORT
+;; ============================================================================
+;; Enhanced Nix flake support for automatic environment management
+
+;; Automatic .envrc creation for flake.nix projects
+(defun jr/create-envrc-for-flake ()
+  "Create a .envrc file for flake.nix if it doesn't exist."
+  (interactive)
+  (let ((flake-file (expand-file-name "flake.nix" (projectile-project-root)))
+        (envrc-file (expand-file-name ".envrc" (projectile-project-root))))
+    (when (and (file-exists-p flake-file)
+               (not (file-exists-p envrc-file)))
+      (with-temp-file envrc-file
+        (insert "use flake\n"))
+      (message "Created .envrc file for flake.nix project"))))
+
+;; Hook to automatically create .envrc when opening flake.nix projects
+(defun jr/flake-project-setup ()
+  "Setup flake.nix project when entering."
+  (when (and (projectile-project-p)
+             (file-exists-p (expand-file-name "flake.nix" (projectile-project-root))))
+    (jr/create-envrc-for-flake)
+    ;; Allow direnv if .envrc was just created
+    (when (and (fboundp 'direnv-allow)
+               (file-exists-p (expand-file-name ".envrc" (projectile-project-root))))
+      (direnv-allow))))
+
+;; Add hook for projectile mode
+(add-hook 'projectile-after-switch-project-hook #'jr/flake-project-setup)
+
+;; Enhanced nix-shell support with flake awareness
+(use-package! nix-mode
+  :mode ("\\.nix\\'" "\\.nix.in\\'"))
+
+;; Function to enter flake development shell
+(defun jr/nix-develop ()
+  "Enter nix develop shell for current flake project."
+  (interactive)
+  (let ((default-directory (or (projectile-project-root) default-directory)))
+    (if (file-exists-p "flake.nix")
+        (progn
+          (message "Entering nix develop shell...")
+          (vterm-send-string "nix develop\n"))
+      (message "No flake.nix found in project root"))))
+
+;; Function to update flake inputs
+(defun jr/nix-flake-update ()
+  "Update nix flake inputs."
+  (interactive)
+  (let ((default-directory (or (projectile-project-root) default-directory)))
+    (if (file-exists-p "flake.nix")
+        (compile "nix flake update")
+      (message "No flake.nix found in project root"))))
+
+;; Function to check flake
+(defun jr/nix-flake-check ()
+  "Check nix flake."
+  (interactive)
+  (let ((default-directory (or (projectile-project-root) default-directory)))
+    (if (file-exists-p "flake.nix")
+        (compile "nix flake check")
+      (message "No flake.nix found in project root"))))
+
+;; Enhanced environment variable management for flakes
+(defun jr/refresh-flake-env ()
+  "Refresh environment variables from flake develop shell."
+  (interactive)
+  (when (and (projectile-project-p)
+             (file-exists-p (expand-file-name "flake.nix" (projectile-project-root))))
+    (direnv-update-environment)
+    (jr/nix-post-activate-check)
+    (message "Refreshed flake environment")))
+
+;; Function to show current Nix environment status
+(defun jr/nix-env-status ()
+  "Show current Nix environment status."
+  (interactive)
+  (let* ((project-root (or (projectile-project-root) default-directory))
+         (has-flake (file-exists-p (expand-file-name "flake.nix" project-root)))
+         (has-envrc (file-exists-p (expand-file-name ".envrc" project-root)))
+         (in-direnv (getenv "DIRENV_DIR"))
+         (nix-store-path (getenv "NIX_STORE")))
+    (with-current-buffer (get-buffer-create "*Nix Environment Status*")
+      (erase-buffer)
+      (insert "=== Nix Environment Status ===\n\n")
+      (insert (format "Project root: %s\n" project-root))
+      (insert (format "Has flake.nix: %s\n" (if has-flake "Yes" "No")))
+      (insert (format "Has .envrc: %s\n" (if has-envrc "Yes" "No")))
+      (insert (format "In direnv environment: %s\n" (if in-direnv "Yes" "No")))
+      (when in-direnv
+        (insert (format "Direnv directory: %s\n" in-direnv)))
+      (insert "\n=== Key Environment Variables ===\n")
+      (dolist (var '("PATH" "NIX_PATH" "NIX_STORE" "NODE_PATH" "PYTHONPATH"))
+        (let ((value (getenv var)))
+          (when value
+            (insert (format "\n%s:\n  %s\n" var (replace-regexp-in-string ":" "\n  " value))))))
+      (display-buffer (current-buffer)))
+    (message "Nix environment status displayed")))
+
+;; Keybindings for flake operations
+(map! :leader
+      (:prefix ("n" . "nix")
+       :desc "Enter nix develop" "d" #'jr/nix-develop
+       :desc "Update flake" "u" #'jr/nix-flake-update
+       :desc "Check flake" "c" #'jr/nix-flake-check
+       :desc "Refresh flake env" "r" #'jr/refresh-flake-env
+       :desc "Create .envrc for flake" "e" #'jr/create-envrc-for-flake
+       :desc "Show env status" "s" #'jr/nix-env-status))
+
+;; Auto-refresh environment when saving flake.nix
+(defun jr/flake-nix-save-hook ()
+  "Hook to run when saving flake.nix files."
+  (when (string-match-p "flake\\.nix$" (buffer-file-name))
+    (message "Flake.nix saved. Run 'SPC n r' to refresh environment if needed.")))
+
+(add-hook 'after-save-hook #'jr/flake-nix-save-hook)
+
+;; Better integration with existing nix-shell configuration
+(after! nix-shell
+  ;; Prefer flakes when available
+  (defadvice! jr/prefer-flake-develop (orig-fun &rest args)
+    "Use 'nix develop' instead of 'nix-shell' when flake.nix exists."
+    :around #'nix-shell-command
+    (if (file-exists-p (expand-file-name "flake.nix" (or (projectile-project-root) default-directory)))
+        (let ((nix-shell-command "nix develop -c"))
+          (apply orig-fun args))
+      (apply orig-fun args))))
 
 ;;; ~/.doom.d/config.el
 (setq org-export-in-background nil)
