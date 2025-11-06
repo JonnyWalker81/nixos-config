@@ -35,21 +35,6 @@ in
     @theme "${pkgs.rofi-unwrapped}/share/rofi/themes/glue_pro_blue.rasi"
   '';
 
-  home.file.".config/greenclip.toml" = {
-    source = ../greenclip/greenclip.toml;
-  };
-
-  # Clipcat config files (service disabled to use custom configs)
-  home.file.".config/clipcat/clipcatd.toml" = {
-    source = ../clipcat/clipcatd.toml;
-  };
-  home.file.".config/clipcat/clipcatctl.toml" = {
-    source = ../clipcat/clipcatctl.toml;
-  };
-  home.file.".config/clipcat/clipcat-menu.toml" = {
-    source = ../clipcat/clipcat-menu.toml;
-  };
-
   home.file.".config/picom/picom.conf" = {
     source = ../picom-omarchy.conf;
   };
@@ -100,6 +85,7 @@ in
     enable = lib.mkForce false; # Disabled - using custom config file instead
   };
 
+
   # Custom systemd user service for picom
   systemd.user.services.picom-custom = {
     Unit = {
@@ -117,35 +103,6 @@ in
     };
   };
 
-  # Service to ensure Parallels clipboard works after X11 restart
-  systemd.user.services.parallels-clipboard-fix = {
-    Unit = {
-      Description = "Fix Parallels clipboard integration after X11 restart";
-      After = [ "graphical-session.target" ];
-      PartOf = [ "graphical-session.target" ];
-    };
-    Service = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.writeShellScript "fix-parallels-clipboard" ''
-        # Give X11 time to fully initialize
-        sleep 3
-        
-        # Restart the main Parallels Tools service
-        sudo systemctl restart prltoolsd || true
-        
-        # Ensure clipboard functionality is working
-        echo "Parallels clipboard initialized" | ${pkgs.xclip}/bin/xclip -selection clipboard 2>/dev/null || true
-      ''}";
-      RemainAfterExit = true;
-    };
-    Install = {
-      WantedBy = [ "graphical-session.target" ];
-    };
-  };
-
-  services.clipcat = {
-    enable = false; # Disabled to avoid config conflicts, using manual config files
-  };
 
   # Wallpaper setup service
   systemd.user.services.wallpaper-setup = {
@@ -174,5 +131,85 @@ in
     # size = 64;
     x11.enable = true;
   };
+
+  # Email configuration - DISABLED to prevent GPG password prompts
+  # # Email configuration - mbsync for Gmail IMAP
+  # home.file.".mbsyncrc".text = ''
+  #   # Gmail IMAP configuration
+  #   IMAPAccount gmail
+  #   Host imap.gmail.com
+  #   User jon@join.build
+  #   PassCmd "pass email/gmail/app-password"
+  #   SSLType IMAPS
+  #   CertificateFile /etc/ssl/certs/ca-certificates.crt
+  #
+  #   IMAPStore gmail-remote
+  #   Account gmail
+  #
+  #   MaildirStore gmail-local
+  #   Path ~/mail/
+  #   Inbox ~/mail/Inbox
+  #   SubFolders Verbatim
+  #
+  #   Channel gmail
+  #   Far :gmail-remote:
+  #   Near :gmail-local:
+  #   Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail" "[Gmail]/Drafts" "[Gmail]/Trash"
+  #   Create Both
+  #   Expunge Both
+  #   SyncState *
+  # '';
+
+  # # Email configuration - msmtp for SMTP
+  # home.file.".msmtprc".text = ''
+  #   defaults
+  #   auth on
+  #   tls on
+  #   tls_trust_file /etc/ssl/certs/ca-certificates.crt
+  #   logfile ~/.msmtp.log
+  #
+  #   account gmail
+  #   host smtp.gmail.com
+  #   port 587
+  #   from jon@join.build
+  #   user jon@join.build
+  #   passwordeval "pass email/gmail/app-password"
+  #
+  #   account default : gmail
+  # '';
+  #
+  # # Set permissions for msmtprc (msmtp requires 0600)
+  # home.activation.msmtpPermissions = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  #   chmod 0600 ~/.msmtprc || true
+  # '';
+
+  # # Systemd service for mbsync
+  # systemd.user.services.mbsync = {
+  #   Unit = {
+  #     Description = "mbsync synchronization";
+  #     After = [ "network-online.target" ];
+  #   };
+  #   Service = {
+  #     Type = "oneshot";
+  #     ExecStart = "${pkgs.isync}/bin/mbsync -a";
+  #     StandardOutput = "journal";
+  #     StandardError = "journal";
+  #   };
+  # };
+
+  # # Systemd timer for mbsync
+  # systemd.user.timers.mbsync = {
+  #   Unit = {
+  #     Description = "mbsync timer";
+  #   };
+  #   Timer = {
+  #     OnBootSec = "2m";
+  #     OnUnitActiveSec = "5m";
+  #     Unit = "mbsync.service";
+  #   };
+  #   Install = {
+  #     WantedBy = [ "timers.target" ];
+  #   };
+  # };
 }
 

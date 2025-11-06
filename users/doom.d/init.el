@@ -235,8 +235,8 @@
                                         ; +wordnut         ; wordnet (wn) search
                                         ; +langtool)       ; a proofreader (grammar/style check) for Emacs
 
-       :email
-       mu4e
+       ;; :email  ; DISABLED to prevent GPG password prompts
+       ;; mu4e
        :collab
                                         ;floobits          ; peer programming for a price
                                         ;impatient-mode    ; show off code over HTTP

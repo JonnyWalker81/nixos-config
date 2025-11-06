@@ -87,7 +87,7 @@
       # macOS-specific SSH settings
       UseKeychain yes
       AddKeysToAgent yes
-      
+
       # Store SSH keys in macOS Keychain
       IdentityFile ~/.ssh/id_ed25519
       IdentityFile ~/.ssh/id_rsa

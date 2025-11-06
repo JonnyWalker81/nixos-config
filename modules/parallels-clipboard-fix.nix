@@ -9,7 +9,7 @@ let
   clipboardMonitor = pkgs.writeShellScript "parallels-clipboard-monitor" ''
     #!/usr/bin/env bash
     
-    # Maximum clipboard size in bytes
+    # Maximum clipboard size in bytes (256KB)
     MAX_SIZE=''${PARALLELS_CLIPBOARD_MAX_SIZE:-262144}
     
     # Log file
@@ -100,30 +100,29 @@ let
       echo -n "" | xclip -selection primary
     fi
     
-    # Wait and restart
-    sleep 1
+    # Restart the service
     systemctl --user start prlcp
     
-    echo "Clipboard service restarted."
+    echo "Clipboard service restarted!"
   '';
-
-in {
+in
+{
   options.hardware.parallels.clipboard = {
     optimization = mkOption {
       type = types.bool;
-      default = config.hardware.parallels.enable;
-      description = "Enable Parallels clipboard optimization to prevent hangs";
+      default = true;
+      description = "Enable clipboard optimization for Parallels Tools";
     };
     
     maxSize = mkOption {
       type = types.int;
-      default = 1048576; # 1MB
+      default = 262144; # 256KB
       description = "Maximum clipboard size in bytes before automatic clearing";
     };
     
     monitor = mkOption {
       type = types.bool;
-      default = false;
+      default = true;
       description = "Enable clipboard monitoring service to prevent large content issues";
     };
     
@@ -142,23 +141,23 @@ in {
     systemd.user.services.prlcp = mkForce {
       description = "Parallels CopyPaste Tool (Optimized)";
       wantedBy = [ "graphical-session.target" ];
+      after = [ "graphical-session.target" ];
       
       # Add environment variables for optimization
       environment = {
         PARALLELS_CLIPBOARD_MAX_SIZE = toString cfg.maxSize;
         # Disable rich text if configured
         PARALLELS_CLIPBOARD_PLAIN_TEXT = if cfg.plainTextOnly then "1" else "0";
-        # Force X11 to prevent Wayland crashes
-        GDK_BACKEND = "x11";
-        QT_QPA_PLATFORM = "xcb";
-        WAYLAND_DISPLAY = "";
-        XDG_SESSION_TYPE = "x11";
-        LIBGL_ALWAYS_SOFTWARE = "1";
+        # Use X11 display
+        DISPLAY = ":0";
+        # Don't override Wayland, let it coexist
+        # This allows prlcp to work with both X11 and Wayland
       };
       
       serviceConfig = {
-        # Use prlcp directly with proper path
+        # Use prlcp directly with proper environment
         ExecStart = "${config.hardware.parallels.package}/bin/prlcp";
+        
         Restart = "always";
         RestartSec = 5;
         # Kill hanging processes after 10 seconds
@@ -168,7 +167,7 @@ in {
         # Nice level to prevent CPU hogging
         Nice = 10;
         # Memory limit to prevent runaway memory usage
-        MemoryLimit = "256M";
+        MemoryMax = "256M";
         # CPU quota to prevent hanging from using too much CPU
         CPUQuota = "50%";
         # Prevent rapid restarts
@@ -179,7 +178,6 @@ in {
       # Restart if it uses too much memory
       unitConfig = {
         ConditionMemory = ">128M";
-        RestartKillSignal = "SIGKILL";
       };
     };
     
@@ -191,6 +189,7 @@ in {
       
       environment = {
         PARALLELS_CLIPBOARD_MAX_SIZE = toString cfg.maxSize;
+        HYPRLAND_INSTANCE_SIGNATURE = "\${HYPRLAND_INSTANCE_SIGNATURE}";
       };
       
       serviceConfig = {
@@ -212,14 +211,21 @@ in {
       after = [ "graphical-session.target" ];
       
       environment = {
-        HYPRLAND_INSTANCE_SIGNATURE = "$HYPRLAND_INSTANCE_SIGNATURE";
+        HYPRLAND_INSTANCE_SIGNATURE = "\${HYPRLAND_INSTANCE_SIGNATURE}";
       };
       
-      serviceConfig = {
-        ExecStart = "/home/cipher/nixos-config/scripts/parallels-focus-guard.sh";
+      serviceConfig = let
+        focusGuardScript = "/home/cipher/nixos-config/scripts/parallels-focus-guard.sh";
+      in {
+        ExecStart = focusGuardScript;
         Restart = "always";
         RestartSec = 5;
         Nice = 10;
+      };
+      
+      # Only enable if the script exists
+      unitConfig = {
+        ConditionPathExists = "/home/cipher/nixos-config/scripts/parallels-focus-guard.sh";
       };
     };
   };

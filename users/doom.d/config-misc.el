@@ -30,6 +30,13 @@
 
 (setq helm-ag-base-command "rg --vimgrep --no-heading")
 
+;; Configure gopls to use the "testing" build tag
+;; This tells gopls to ignore files with //go:build !testing or // +build !testing
+(after! lsp-mode
+  (setq lsp-go-build-flags ["-tags=testing"])
+  ;; Also set GOFLAGS environment variable for consistency
+  (setenv "GOFLAGS" "-tags=testing"))
+
 
 ;;(with-eval-after-load 'smartparens-config
 ;;  (show-smartparens-mode t)

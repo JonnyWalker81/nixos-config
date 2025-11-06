@@ -136,216 +136,220 @@ in
             (setenv "SSH_AUTH_SOCK" (string-trim ssh-auth-sock)))))
 
       ;; Fix clipboard for Wayland
-      (when (and (eq system-type 'linux)
-                 (getenv "WAYLAND_DISPLAY"))
-        ;; Use wl-copy and wl-paste for clipboard operations
-        (setq wl-copy-process nil)
-        (defun wl-copy (text)
-          (setq wl-copy-process (make-process :name "wl-copy"
-                                              :buffer nil
-                                              :command '("wl-copy" "-f" "-n")
-                                              :connection-type 'pipe))
-          (process-send-string wl-copy-process text)
-          (process-send-eof wl-copy-process))
-        (defun wl-paste ()
-          (if (and wl-copy-process (process-live-p wl-copy-process))
-              nil ; should return nil if we're the current paste owner
-            (shell-command-to-string "wl-paste -n | tr -d \r")))
-        
-        ;; Advise Emacs to use Wayland clipboard
-        (setq interprogram-cut-function 'wl-copy)
-        (setq interprogram-paste-function 'wl-paste)
-        
-        ;; Also set selection functions
-        (setq select-enable-clipboard t)
-        (setq select-enable-primary t))
+      ;; (when (and (eq system-type 'linux)
+      ;;            (getenv "WAYLAND_DISPLAY"))
+      ;;   ;; Use wl-copy and wl-paste for clipboard operations
+      ;;   (setq wl-copy-process nil)
+      ;;   (defun wl-copy (text)
+      ;;     (setq wl-copy-process (make-process :name "wl-copy"
+      ;;                                         :buffer nil
+      ;;                                         :command '("wl-copy" "-f")
+      ;;                                         :connection-type 'pipe))
+      ;;     (process-send-string wl-copy-process text)
+      ;;     (process-send-eof wl-copy-process))
+      ;;   (defun wl-paste ()
+      ;;     (if (and wl-copy-process (process-live-p wl-copy-process))
+      ;;         nil ; should return nil if we're the current paste owner
+      ;;       (shell-command-to-string "wl-paste -n | tr -d \r")))
+      ;;
+      ;;   ;; Advise Emacs to use Wayland clipboard
+      ;;   (setq interprogram-cut-function 'wl-copy)
+      ;;   (setq interprogram-paste-function 'wl-paste)
+      ;;
+      ;;   ;; Also set selection functions
+      ;;   (setq select-enable-clipboard t)
+      ;;   (setq select-enable-primary t))
     '';
   };
 
-  home.packages =
-    [
-      pkgs.jetbrains-mono
-      pkgs.ripgrep
-      pkgs.fd
-      pkgs.monaspace
-      # pkgs.rustup
-      # pkgs.rust-analyzer
-      # pkgs.thefuck # Removed - incompatible with Python 3.12+, consider pay-respects
-      pkgs.zoxide
-      pkgs.bat
-      pkgs.delta
-      zoxide
-      pkgs.jq
-      pkgs.eza
-      pkgs.fzf
-      pkgs.k9s
-      pkgs.procs
-      pkgs.graphviz
-      pkgs.fira-code
-      pkgs.fira-code-symbols
-      # pkgs.gcc_latest
-      pkgs.llvm
-      # pkgs.jetbrains.datagrip
-      pkgs.gitui
-      pkgs.bind
-      # pkgs.firefox-bin
-      # pkgs.firefox-esr-102-unwrapped
-      # pkgs.firefox-devedition-unwrapped
-      pkgs.pgmanage
-      pkgs.pgadmin4
-      pkgs.pandoc
-      pkgs.terraform-ls
-      pkgs.tree-sitter
-      pkgs.file
-      pkgs.nil
-      pkgs.nixpkgs-fmt
-      pkgs.nixfmt-rfc-style
-      pkgs.shfmt
-      # pkgs.opam
-      # pkgs.ocamlPackages.ocaml-lsp
-      # pkgs.ocamlPackages.findlib
-      # pkgs.tree-sitter.withPlugins
-      # (p: [ p.tree-sitter-tsx p.tree-sitter-go ])
-      # pkgs.tree-sitter-grammars.tree-sitter-c
-      # pkgs.tree-sitter-grammars.tree-sitter-go
-      # pkgs.tree-sitter-grammars.tree-sitter-tsx
-      # pkgs.tree-sitter-grammars.tree-sitter-sql
-      # pkgs.tree-sitter-grammars.tree-sitter-nix
-      # pkgs.tree-sitter-grammars.tree-sitter-hcl
-      # pkgs.tree-sitter-grammars.tree-sitter-css
-      # pkgs.tree-sitter-grammars.tree-sitter-cpp
-      # pkgs.tree-sitter-grammars.tree-sitter-yaml
-      # pkgs.tree-sitter-grammars.tree-sitter-rust
-      # pkgs.tree-sitter-grammars.tree-sitter-json
-      # pkgs.tree-sitter-grammars.tree-sitter-html
-      # pkgs.tree-sitter-grammars.tree-sitter-bash
-      # pkgs.tree-sitter-grammars.tree-sitter-typescript
-      # pkgs.tree-sitter-grammars.tree-sitter-javascript
-      (pkgs.python3.withPackages (
-        p: with p; [
-          epc
-          orjson
-          sexpdata
-          six
-          setuptools
-          paramiko
-          rapidfuzz
-        ]
-      ))
-      # pkgs.python3
-      # pkgs.python311Packages.epc
-      # pkgs.python311Packages.orjson
-      # pkgs.python311Packages.sexpdata
-      # pkgs.python311Packages.six
-      # pkgs.python311Packages.setuptools
-      # pkgs.python311Packages.paramiko
-      # pkgs.python311Packages.rapidfuzz
+  home.packages = [
+    pkgs.jetbrains-mono
+    pkgs.ripgrep
+    pkgs.fd
+    pkgs.monaspace
+    # pkgs.rustup
+    # pkgs.rust-analyzer
+    # pkgs.thefuck # Removed - incompatible with Python 3.12+, consider pay-respects
+    pkgs.zoxide
+    pkgs.bat
+    pkgs.delta
+    zoxide
+    pkgs.jq
+    pkgs.eza
+    pkgs.fzf
+    pkgs.k9s
+    pkgs.procs
+    pkgs.graphviz
+    pkgs.fira-code
+    pkgs.fira-code-symbols
+    # pkgs.gcc_latest
+    pkgs.llvm
+    # pkgs.jetbrains.datagrip
+    pkgs.gitui
+    pkgs.bind
+    # pkgs.firefox-bin
+    # pkgs.firefox-esr-102-unwrapped
+    # pkgs.firefox-devedition-unwrapped
+    pkgs.pgmanage
+    pkgs.pgadmin4
+    pkgs.pandoc
+    pkgs.terraform-ls
+    pkgs.tree-sitter
+    pkgs.file
+    pkgs.nil
+    pkgs.nixpkgs-fmt
+    pkgs.nixfmt-rfc-style
+    pkgs.shfmt
+    # pkgs.opam
+    # pkgs.ocamlPackages.ocaml-lsp
+    # pkgs.ocamlPackages.findlib
+    # pkgs.tree-sitter.withPlugins
+    # (p: [ p.tree-sitter-tsx p.tree-sitter-go ])
+    # pkgs.tree-sitter-grammars.tree-sitter-c
+    # pkgs.tree-sitter-grammars.tree-sitter-go
+    # pkgs.tree-sitter-grammars.tree-sitter-tsx
+    # pkgs.tree-sitter-grammars.tree-sitter-sql
+    # pkgs.tree-sitter-grammars.tree-sitter-nix
+    # pkgs.tree-sitter-grammars.tree-sitter-hcl
+    # pkgs.tree-sitter-grammars.tree-sitter-css
+    # pkgs.tree-sitter-grammars.tree-sitter-cpp
+    # pkgs.tree-sitter-grammars.tree-sitter-yaml
+    # pkgs.tree-sitter-grammars.tree-sitter-rust
+    # pkgs.tree-sitter-grammars.tree-sitter-json
+    # pkgs.tree-sitter-grammars.tree-sitter-html
+    # pkgs.tree-sitter-grammars.tree-sitter-bash
+    # pkgs.tree-sitter-grammars.tree-sitter-typescript
+    # pkgs.tree-sitter-grammars.tree-sitter-javascript
+    (pkgs.python3.withPackages (
+      p: with p; [
+        epc
+        orjson
+        sexpdata
+        six
+        setuptools
+        paramiko
+        rapidfuzz
+      ]
+    ))
+    # pkgs.python3
+    # pkgs.python311Packages.epc
+    # pkgs.python311Packages.orjson
+    # pkgs.python311Packages.sexpdata
+    # pkgs.python311Packages.six
+    # pkgs.python311Packages.setuptools
+    # pkgs.python311Packages.paramiko
+    # pkgs.python311Packages.rapidfuzz
 
-      pkgs.difftastic
-      pkgs.nixd
-      pkgs.luaformatter
-      pkgs.lua-language-server
-      pkgs.stylua
-      pkgs.nodePackages.sql-formatter
-      pkgs.nodePackages.typescript-language-server
-      pkgs.sqls
-      pkgs.yazi
-      pkgs.qemu
+    pkgs.difftastic
+    pkgs.nixd
+    pkgs.luaformatter
+    pkgs.lua-language-server
+    pkgs.stylua
+    pkgs.nodePackages.sql-formatter
+    pkgs.nodePackages.typescript-language-server
+    pkgs.sqls
+    pkgs.yazi
+    pkgs.qemu
 
-      # inputs.zen-browser.packages."${system}".default
-      # inputs.Neve.packages.${pkgs.system}.default
-      # inputs.nvix.packages.${pkgs.system}.full
-      # neovimNightly
-      # pkgs.nixvim
+    # inputs.zen-browser.packages."${system}".default
+    # inputs.Neve.packages.${pkgs.system}.default
+    # inputs.nvix.packages.${pkgs.system}.full
+    # neovimNightly
+    # pkgs.nixvim
 
-      inputs.nixvim.packages.${pkgs.system}.default # Re-enabled after update
-      # pkgs.neovim  # Using default neovim temporarily
-      # pkgs.claude-code
-      pkgs.opencode
-    ]
-    ++ lib.optionals (!pkgs.stdenv.isDarwin) [
-      pkgs.libreoffice
-      pkgs.chromium
-      # pkgs.gopls
-      # pkgs.gotools
-      # pkgs.gotestsum
-      pkgs.rustup
-      # pkgs.rust-analyzer
-      pkgs.clang
-      pkgs.just
-      pkgs.docker-compose
-      # pkgs.awscli2
-      pkgs.postgresql_14
-      pkgs.feh
-      pkgs.xplr
-      pkgs.kitty
-      pkgs.font-awesome_5
-      pkgs.powerline-fonts
-      pkgs.powerline-symbols
-      pkgs.cascadia-code
-      # pkgs.fzf
-      pkgs.openssl
-      pkgs.lsof
-      pkgs.gnupg
-      pkgs.hunspell
-      pkgs.hunspellDicts.en-us
-      pkgs.croc
-      # pkgs.zigpkgs.master
-      pkgs.bottom
-      pkgs.kubernetes-helm
-      # pkgs.waypoint
-      # pkgs.helix
-      pkgs.unzip
-      # pkgs.sublime-merge
-      pkgs.lapce
-      pkgs.terraform
-      pkgs.enchant
-      pkgs.gh
+    inputs.nixvim.packages.${pkgs.system}.default # Re-enabled after update
+    # pkgs.neovim  # Using default neovim temporarily
+    # pkgs.claude-code
+    pkgs.opencode
+  ]
+  ++ lib.optionals (!pkgs.stdenv.isDarwin) [
+    pkgs.libreoffice
+    pkgs.chromium
+    # pkgs.gopls
+    # pkgs.gotools
+    # pkgs.gotestsum
+    pkgs.rustup
+    # pkgs.rust-analyzer
+    pkgs.clang
+    pkgs.just
+    pkgs.docker-compose
+    # pkgs.awscli2
+    pkgs.postgresql_14
+    pkgs.feh
+    pkgs.xplr
+    pkgs.kitty
+    pkgs.font-awesome_5
+    pkgs.powerline-fonts
+    pkgs.powerline-symbols
+    pkgs.cascadia-code
+    # pkgs.fzf
+    pkgs.openssl
+    pkgs.lsof
+    pkgs.gnupg
+    pkgs.pinentry
+    pkgs.hunspell
+    pkgs.hunspellDicts.en-us
+    pkgs.croc
+    # Email packages - DISABLED to prevent GPG password prompts
+    # pkgs.mu       # Email indexer (requires GPG for pass)
+    # pkgs.isync    # mbsync - IMAP sync (uses pass for passwords)
+    # pkgs.msmtp    # SMTP client (uses pass for passwords)
+    # pkgs.pass     # Password manager (requires GPG)
+    # pkgs.zigpkgs.master
+    pkgs.bottom
+    pkgs.kubernetes-helm
+    # pkgs.waypoint
+    # pkgs.helix
+    pkgs.unzip
+    # pkgs.sublime-merge
+    pkgs.lapce
+    pkgs.terraform
+    pkgs.enchant
+    pkgs.gh
 
-      # pkgs.lazygit
-      # pkgs.diskonaut
-      pkgs.sqlite
-      pkgs.acpi
-      pkgs.golangci-lint
-      pkgs.kubernetes
-      pkgs.pcmanfm
-      pkgs.nemo
-      pkgs.rofi
-      pkgs.clipcat
-      pkgs.vscode
-      pkgs.haskellPackages.libmpd
-      pkgs.haskellPackages.xmobar
-      pkgs.haskellPackages.xmonad
-      pkgs.haskellPackages.greenclip
-      pkgs.nyxt
-      pkgs.ssm-session-manager-plugin
-      # pkgs.atuin
-      pkgs.bun
-      pkgs.wezterm
-      pkgs.ghostty # Now using nixpkgs version which supports macOS
-      pkgs.zellij
-      pkgs.gtk3
-      pkgs.teller
-      pkgs.warp-terminal
-      pkgs.neofetch
-      pkgs.pandoc
+    # pkgs.lazygit
+    # pkgs.diskonaut
+    pkgs.sqlite
+    pkgs.acpi
+    pkgs.golangci-lint
+    pkgs.kubernetes
+    pkgs.pcmanfm
+    pkgs.nemo
+    pkgs.rofi
+    pkgs.vscode
+    pkgs.haskellPackages.libmpd
+    pkgs.haskellPackages.xmobar
+    pkgs.haskellPackages.xmonad
+    pkgs.nyxt
+    pkgs.ssm-session-manager-plugin
+    # pkgs.atuin
+    pkgs.bun
+    pkgs.wezterm
+    pkgs.ghostty # Now using nixpkgs version which supports macOS
+    pkgs.zellij
+    pkgs.gtk3
+    pkgs.teller
+    pkgs.warp-terminal
+    pkgs.neofetch
+    pkgs.pandoc
 
-      # Wayland/Hyprland tools (Linux only)
-      pkgs.waybar
-      pkgs.wl-clipboard
-      pkgs.xclip  # Also include xclip for X11 compatibility
-      pkgs.cliphist
-      pkgs.swww
-      pkgs.wofi
-      pkgs.grim
-      pkgs.slurp
-      pkgs.swaylock
-      pkgs.swayidle
-      pkgs.swaynotificationcenter
-    ];
+    # Wayland/Hyprland tools (Linux only)
+    pkgs.waybar
+    pkgs.wl-clipboard # Essential for Wayland clipboard
+    pkgs.xclip # Essential for X11 clipboard compatibility
+    pkgs.swww
+    pkgs.wofi
+    pkgs.cliphist # Clipboard history manager
+    pkgs.grim
+    pkgs.slurp
+    pkgs.swaylock
+    pkgs.swayidle
+    pkgs.swaynotificationcenter
+  ];
 
   home.sessionPath = [
     "$HOME/.claude/local"
+    "$HOME/.local/bin"
     "$HOME/bin"
     "$HOME/.cargo/bin"
   ];
@@ -364,7 +368,7 @@ in
     MOZ_ENABLE_WAYLAND = "1";
     MOZ_USE_XINPUT2 = "1";
     MOZ_DBUS_REMOTE = "1";
-    
+
     # Development
     GOPATH = "\${HOME}";
     GOPRIVATE = "github.com/JoinCAD,github.com/JonnyWalker81";
@@ -376,9 +380,6 @@ in
 
   home.shellAliases = {
     code = "code --enable-features=UseOzonePlatform --ozone-platform=wayland";
-    fix-clipboard = "fix-parallels-clipboard";
-    fix-clipboard-old = "/home/cipher/nixos-config/scripts/fix-parallels-clipboard.sh";
-    prl-clip-fix = "/home/cipher/nixos-config/scripts/fix-parallels-clipboard.sh";
 
     # Display profile shortcuts
     dp = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh";
@@ -391,6 +392,11 @@ in
     dp-current = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh current";
     dp-list = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh list";
     prl-display = "parallels-display-info";
+
+    # SSH key management
+    ssh-keys = "/home/cipher/nixos-config/scripts/ssh-key-manager.sh";
+    ssh-add-keys = "/home/cipher/nixos-config/scripts/ssh-key-manager.sh add";
+    ssh-status = "/home/cipher/nixos-config/scripts/ssh-key-manager.sh status";
   };
 
   programs.firefox = lib.mkIf (!pkgs.stdenv.isDarwin) {
@@ -564,7 +570,13 @@ in
       pull.rebase = false;
       init.defaultBranch = "main";
       color.ui = true;
-      core.askPass = ""; # needs to be empty to use terminal for ask pass
+      core = {
+        askPass = ""; # needs to be empty to use terminal for ask pass
+        fsmonitor = true; # enables built-in fsmonitor daemon
+        untrackedCache = true; # speeds up scanning untracked files
+        # splitIndex = true; # faster index writes on big repos
+      };
+
       # credential.helper = "store --file ~/.config/git-credentials";
       # credential.helper = "store";
       credential.helper = "cache --timeout 36000";
@@ -604,49 +616,42 @@ in
 
   programs.zsh = {
     enable = true;
-    shellAliases =
-      {
-        ll = "eza -l";
-        l = "eza -lah";
-        rebuild = "sudo NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1 nixos-rebuild switch --flake .#vm-aarch64";
-        rp = "sudo nixos-rebuild switch --flake .#vm-aarch64-prl";
-        ri = "sudo nixos-rebuild switch --flake .#vm-intel";
-        rdd = "sudo darwin-rebuild switch --flake .#vm-darwin";
-        f = "history | fzf --sort --exact | sh";
-        bc = "git branch | grep '*' | awk '{print $2}' | pbcopy";
+    shellAliases = {
+      ll = "eza -l";
+      l = "eza -lah";
+      rebuild = "sudo NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1 nixos-rebuild switch --flake .#vm-aarch64";
+      rp = "sudo nixos-rebuild switch --flake .#vm-aarch64-prl";
+      ri = "sudo nixos-rebuild switch --flake .#vm-intel";
+      rdd = "sudo darwin-rebuild switch --flake .#vm-darwin";
+      f = "history | fzf --sort --exact | sh";
+      bc = "git branch | grep '*' | awk '{print $2}' | pbcopy";
 
-        ap = ''export AWS_PROFILE=$(aws configure list-profiles | fzf --prompt "Choose active AWS profile:")'';
-        sw = ''terraform workspace list | fzf --prompt "Choose workspace:" | xargs -r terraform workspace select'';
-        ka = ''ps -aux | fzf | awk '{print $2}' | xargs -r kill -9'';
+      ap = ''export AWS_PROFILE=$(aws configure list-profiles | fzf --prompt "Choose active AWS profile:")'';
+      sw = ''terraform workspace list | fzf --prompt "Choose workspace:" | xargs -r terraform workspace select'';
+      ka = ''ps -aux | fzf | awk '{print $2}' | xargs -r kill -9'';
 
-        cd = "z";
-        ys = "yarn install && yarn start";
-        ff = ''cd "$(find $(git rev-parse --show-toplevel 2>/dev/null || pwd) -mindepth 1 -type d | fzf)"'';
+      cd = "z";
+      ys = "yarn install && yarn start";
+      ff = ''cd "$(find $(git rev-parse --show-toplevel 2>/dev/null || pwd) -mindepth 1 -type d | fzf)"'';
 
-        # Display profile management
-        dp = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh";
-        dp-hidpi = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh hidpi";
-        dp-retina = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh retina";
-        dp-standard = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh standard";
-        dp-present = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh present";
-        dp-ultrawide = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh ultrawide";
-        dp-auto = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh auto";
-        dp-current = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh current";
-        dp-list = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh list";
-        prl-display = "parallels-display-info";
+      # Display profile management
+      dp = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh";
+      dp-hidpi = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh hidpi";
+      dp-retina = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh retina";
+      dp-standard = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh standard";
+      dp-present = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh present";
+      dp-ultrawide = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh ultrawide";
+      dp-auto = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh auto";
+      dp-current = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh current";
+      dp-list = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh list";
+      prl-display = "parallels-display-info";
 
-        # SSH agent management
-        ssh-cleanup = "/home/cipher/nixos-config/scripts/cleanup-ssh-agents.sh";
-      }
-      // lib.optionalAttrs (!pkgs.stdenv.isDarwin) {
-        # Linux-specific aliases for clipboard
-        # Use wl-copy/wl-paste for Wayland, with xclip fallback
-        pbcopy = "wl-copy";
-        pbpaste = "wl-paste";
-        # X11 fallback aliases
-        xpbcopy = "xclip -selection clipboard";
-        xpbpaste = "xclip -o";
-      };
+      # SSH agent management
+      ssh-cleanup = "/home/cipher/nixos-config/scripts/cleanup-ssh-agents.sh";
+
+      # CodeRabbit CLI
+      cr = "coderabbit";
+    };
 
     # interactiveShellInit = lib.strings.concatStrings
     #   (lib.strings.intersperse "\n" [ (builtins.readFile ./config.zsh) ]);
@@ -668,24 +673,29 @@ in
     initContent = ''
         # Ensure claude is in PATH
         export PATH="$HOME/.claude/local:$PATH"
-        
+
         source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
         eval "$(${zoxideBin} init zsh)"
-        
+
         # Prepend home-manager bin to PATH for Darwin
         if [[ "$(uname)" == "Darwin" ]]; then
           export PATH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin:$PATH"
-          
+
           # macOS SSH agent setup - use the system SSH agent
           # The SSH agent on macOS is managed by launchd and the socket is dynamic
           # No need to set SSH_AUTH_SOCK as macOS handles it automatically
         fi
-        
+
+        # Ensure ~/.local/bin is in PATH for Linux (in case session vars aren't loaded properly)
+        if [[ "$(uname)" == "Linux" ]]; then
+          export PATH="$HOME/.local/bin:$PATH"
+        fi
+
         # Import SSH environment from systemd user environment (Linux only)
         if [[ "$(uname)" == "Linux" ]] && command -v systemctl >/dev/null 2>&1; then
           export SSH_AUTH_SOCK="/run/user/1000/ssh-agent"
         fi
-        
+
         # SSH key management - only load keys if SSH agent is available and keys aren't already loaded
         if [[ -n "$SSH_AUTH_SOCK" ]] && command -v ssh-add >/dev/null 2>&1; then
           # Check if keys are already loaded
@@ -708,7 +718,7 @@ in
             fi
           fi
         fi
-        
+
         source ~/.bash_join_db
 
         [[ ! -r /home/cipher/.opam/opam-init/init.zsh ]] || source /home/cipher/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
@@ -888,9 +898,23 @@ in
     extraConfig = ''
       HostkeyAlgorithms +ssh-rsa
 
+      # Prevent SSH from trying all available keys for every connection
+      IdentitiesOnly yes
+
+      # Increase timeout for SSH agent to reduce password prompts
+      PasswordAuthentication no
+      PubkeyAuthentication yes
+
       # SSH over AWS Systems Manager Session Manager
       Host i-* mi-*
         ProxyCommand sh -c "aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
+
+      # Wildcard pattern for hosts that may use Jenkins buildfarm key
+      Host *.jenkins.* *.buildfarm.* jenkins-* buildfarm-*
+        IdentitiesOnly no
+        AddKeysToAgent yes
+        PasswordAuthentication no
+        PubkeyAuthentication yes
     '';
 
     matchBlocks = {

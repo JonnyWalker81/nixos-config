@@ -287,8 +287,6 @@
       killall
       niv
       rxvt-unicode-unwrapped
-      xsel
-      xclip
       vimHugeX
       # nixfmt-classic
       nixfmt-rfc-style

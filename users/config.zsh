@@ -1,4 +1,9 @@
 #-------------------------------------------------------------------------------
+# GPG Configuration
+#-------------------------------------------------------------------------------
+export GPG_TTY=$(tty)
+
+#-------------------------------------------------------------------------------
 # SSH Agent
 #-------------------------------------------------------------------------------
 function __ssh_agent_is_started -d "check if ssh agent is already started"
@@ -48,3 +53,8 @@ if set -q KITTY_INSTALLATION_DIR
     source "$KITTY_INSTALLATION_DIR/shell-integration/fish/vendor_conf.d/kitty-shell-integration.fish"
     set --prepend fish_complete_path "$KITTY_INSTALLATION_DIR/shell-integration/fish/vendor_completions.d"
 end
+
+#-------------------------------------------------------------------------------
+# CodeRabbit CLI
+#-------------------------------------------------------------------------------
+alias cr="coderabbit"

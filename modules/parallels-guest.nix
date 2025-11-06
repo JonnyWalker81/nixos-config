@@ -49,10 +49,16 @@ in {
 
     environment.systemPackages = [ prl-tools ];
 
+    # For driverless Parallels Tools 26.1+, extraModulePackages may be empty
     boot.extraModulePackages = [ prl-tools ];
 
-    boot.kernelModules = [ "prl_fs" "prl_fs_freeze" "prl_tg" ]
-      ++ optional aarch64 "prl_notifier";
+    # Load kernel modules:
+    # - virtio-vsock modules for driverless Parallels Tools 26.1+
+    # - prl_notifier only on aarch64 (for older versions if modules exist)
+    boot.kernelModules = [
+      "vhost_vsock"
+      "vmw_vsock_virtio_transport_common"
+    ] ++ optional aarch64 "prl_notifier";
 
     services.timesyncd.enable = false;
 
@@ -69,8 +75,8 @@ in {
       mkIf config.hardware.parallels.autoMountShares {
         description = "Parallels Shared Folders Daemon";
         wantedBy = [ "multi-user.target" ];
-        serviceConfig = rec {
-          ExecStart = "${prl-tools}/sbin/prlfsmountd ${PIDFile}";
+        serviceConfig = {
+          ExecStart = "${prl-tools}/sbin/prlfsmountd -f";
           ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p /media";
           ExecStopPost = "${prl-tools}/sbin/prlfsmountd -u";
           PIDFile = "/run/prlfsmountd.pid";
@@ -106,11 +112,11 @@ in {
           Restart = "always";
         };
       };
-      prlsga = {
-        description = "Parallels Shared Guest Applications Tool";
-        wantedBy = [ "graphical-session.target" ];
-        serviceConfig = { ExecStart = "${prl-tools}/bin/prlsga"; };
-      };
+      # prlsga = {
+      #   description = "Parallels Shared Guest Applications Tool";
+      #   wantedBy = [ "graphical-session.target" ];
+      #   serviceConfig = { ExecStart = "${prl-tools}/bin/prlsga"; };
+      # };
       prlshprof = {
         description = "Parallels Shared Profile Tool";
         wantedBy = [ "graphical-session.target" ];

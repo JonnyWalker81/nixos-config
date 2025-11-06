@@ -7,8 +7,8 @@
 (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
 (defun load-directory (dir)
   (let ((load-it (lambda (f)
-		   (load-file (concat (file-name-as-directory dir) f)))
-		 ))
+                   (load-file (concat (file-name-as-directory dir) f)))
+                 ))
     (mapc load-it (directory-files dir nil "\\.el$"))))
 
 ;; Add personal doom config directory to load-path
@@ -16,9 +16,6 @@
 (add-to-list 'load-path "~/.elisp")
 (add-to-list 'exec-path "~/.cargo/bin")
 (add-to-list 'load-path "~/Repositories/org-reveal")
-
-;; Load clipboard fix for Wayland
-(load! "modules/clipboard-fix")
 
 (message "loaded path config...")
 
@@ -61,6 +58,24 @@
 
 (require 'vc-git)
 
+;; Global setting - use spaces instead of tabs
+(setq-default indent-tabs-mode nil)  ; Use spaces instead of tabs globally
+
+;; Ensure electric-indent uses spaces
+(setq electric-indent-inhibit nil)
+
+;; Hook for all programming modes to use spaces by default
+;; (Go mode will override this with its own settings)
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (unless (derived-mode-p 'go-mode 'go-ts-mode)
+              (setq indent-tabs-mode nil))))
+
+;; Text mode should also use spaces
+(add-hook 'text-mode-hook
+          (lambda ()
+            (setq indent-tabs-mode nil)))
+
 (toggle-frame-maximized)
 
 (add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
@@ -82,7 +97,7 @@
 (setq visual-fill-column-width 80)
 
 (setq user-full-name "Jonathan Rothberg"
-      user-mail-address "jon@geneva.com")
+      user-mail-address "jon@join.build")
 
 (use-package! blamer
   :defer 20
@@ -203,6 +218,19 @@
 
 (after! org
 
+  ;; Enable PlantUML, D2, and Mermaid in org-babel
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((plantuml . t)
+     (d2 . t)
+     (mermaid . t)))
+
+  ;; Use plantuml command (works with NixOS flake environment)
+  (setq org-plantuml-exec-mode 'plantuml)
+
+  ;; Don't ask for confirmation when executing PlantUML/D2/Mermaid blocks
+  (setq org-confirm-babel-evaluate nil)
+
   (require 'org-re-reveal)
   (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js@5")
 
@@ -234,6 +262,30 @@
 
   )
 
+;; D2 diagram support for org-babel
+(use-package! ob-d2
+  :after org
+  :config
+  ;; Ensure D2 is available in org-babel
+  (add-to-list 'org-babel-load-languages '(d2 . t))
+  (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
+
+;; Mermaid diagram support for org-babel
+(use-package! ob-mermaid
+  :after org
+  :config
+  ;; Set the command to use mermaid-cli (mmdc)
+  (setq ob-mermaid-cli-path "mmdc")
+  ;; Set default arguments for mmdc (avoid the -i issue)
+  (setq org-babel-default-header-args:mermaid
+        '((:results . "file")
+          (:exports . "results")))
+  ;; Ensure the execute function is available
+  (require 'ob-mermaid)
+  ;; Ensure Mermaid is available in org-babel
+  (add-to-list 'org-babel-load-languages '(mermaid . t))
+  (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages))
+
 (after! smartparens
   (dolist (brace '("(" "{" "["))
     (sp-pair brace nil :unless '(:rem sp-point-before-word-p sp-point-before-same-p))))
@@ -244,7 +296,162 @@
 (after! magit
   (evil-collection-init 'magit)
   (setq git-commit-summary-max-length 72)
- )
+
+  ;; ============================================================================
+  ;; MAGIT PERFORMANCE OPTIMIZATIONS
+  ;; ============================================================================
+  ;; These optimizations improve Magit performance for large repositories
+
+  ;; Core performance settings
+  (setq magit-refresh-status-buffer nil          ; Only refresh status buffer when current
+        magit-refresh-verbose nil                 ; Disable verbose refresh by default
+        magit-auto-revert-mode-lighter ""        ; Hide mode lighter
+        magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+
+  ;; Disable Magit's own long line warnings and optimizations
+  (setq magit-show-long-lines-warning nil       ; Disable the long lines warning message
+        magit-long-line-threshold 100000        ; Increase threshold to 100k chars (very high)
+        magit-process-popup-time -1)            ; Don't auto-show process buffers
+
+  ;; Set git executable path for better performance (especially on macOS)
+  (when-let ((git-path (executable-find "git")))
+    (setq magit-git-executable git-path))
+
+  ;; Remove slow status sections (uncomment as needed for large repos)
+  ;; These sections can be very slow in large repositories
+  (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)      ; Usually the slowest
+  ;; (remove-hook 'magit-status-sections-hook 'magit-insert-untracked-files) ; For many untracked files
+  ;; (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent)
+  ;; (remove-hook 'magit-refs-sections-hook 'magit-insert-tags)             ; Remove tags from refs buffer)
+
+  ;; Diff performance optimizations
+  ;; Disable expensive diff highlighting features for better performance
+  (setq magit-diff-highlight-indentation nil        ; Disable indentation highlighting
+        magit-diff-highlight-trailing nil           ; Disable trailing whitespace highlighting
+        magit-diff-paint-whitespace nil             ; Disable whitespace painting
+        magit-diff-highlight-hunk-body nil          ; Disable hunk body highlighting
+        magit-diff-refine-hunk nil)                 ; Disable hunk refinement (word-level diffs)
+
+  ;; Log and graph performance optimizations
+  ;; Disable colored and graphical log output which can be very slow
+  (setq magit-log-arguments '("--graph" "--color" "--decorate" "-n256")  ; Limit initial commits
+        magit-log-select-arguments '("-n2048" "--decorate")              ; Limit log selection
+        magit-log-show-refname-after-summary t)                         ; Show refnames efficiently
+
+  ;; Disable slow graph coloring for large histories
+  (remove-hook 'magit-log-mode-hook 'magit-show-commit-buffer-in-revision-buffer)
+
+  ;; Performance monitoring and debugging helpers
+  ;; Functions to help identify performance bottlenecks
+  (defun magit-toggle-performance-mode ()
+    "Toggle Magit performance optimizations on/off."
+    (interactive)
+    (if magit-refresh-verbose
+        (progn
+          (setq magit-refresh-verbose nil)
+          (message "Magit verbose refresh disabled"))
+      (progn
+        (setq magit-refresh-verbose t)
+        (message "Magit verbose refresh enabled - check *Messages* for timing info"))))
+
+  ;; Keybinding for performance toggle
+  (define-key magit-mode-map (kbd "C-c C-p") #'magit-toggle-performance-mode)
+
+  ;; Repository size detection for conditional optimizations
+  (defun magit-repo-is-large-p ()
+    "Check if current repository is large (>1000 files in status)."
+    (when (magit-toplevel)
+      (let ((file-count (length (magit-untracked-files))))
+        (> file-count 1000))))
+
+  ;; Conditional optimization based on repo size
+  (when (magit-repo-is-large-p)
+    (remove-hook 'magit-status-sections-hook 'magit-insert-untracked-files)
+    (message "Large repository detected: disabled untracked files section"))
+
+  ;; ============================================================================
+  ;; LARGE FILE AND LONG LINE OPTIMIZATIONS
+  ;; ============================================================================
+  ;; Address "Enabling long lines shortcuts" messages and large file performance
+
+  ;; Configure so-long-mode for Magit buffers
+  (with-eval-after-load 'so-long
+    ;; Prevent so-long from interfering with Magit buffers
+    (add-to-list 'so-long-minor-modes 'magit-diff-mode)
+    (add-to-list 'so-long-minor-modes 'magit-status-mode)
+    (add-to-list 'so-long-minor-modes 'magit-log-mode)
+
+    ;; Increase thresholds before so-long kicks in
+    (setq so-long-threshold 2000              ; Increase line length threshold
+          so-long-max-lines 500               ; Check fewer lines initially
+          so-long-skip-leading-comments t))   ; Skip comment-only lines
+
+  ;; Large file handling in diffs
+  (setq magit-diff-buffer-file-p nil          ; Don't show full file content in diff buffers
+        magit-revision-insert-related-refs nil ; Don't show related refs for performance
+        large-file-warning-threshold 50000000) ; 50MB threshold for warnings
+
+  ;; Optimize diff display for large files
+  (defun magit-diff-visit-file-with-large-file-check ()
+    "Visit file but check for large files first."
+    (interactive)
+    (let ((file (magit-file-at-point)))
+      (when file
+        (if (and (file-exists-p file)
+                 (> (file-attribute-size (file-attributes file)) 10000000)) ; 10MB
+            (when (y-or-n-p (format "File %s is large (>10MB). Open anyway? "
+                                    (file-name-nondirectory file)))
+              (find-file file))
+          (magit-diff-visit-file-worktree file)))))
+
+  ;; Diff context and hunk size limits for performance
+  (setq magit-diff-context-lines 3             ; Reduce context lines shown
+        magit-diff-hunk-region-functions        ; Optimize hunk processing
+        '(magit-diff-hunk-region-dim-outside
+          magit-diff-hunk-region-highlight-inside))
+
+  ;; Suppress long line warnings in Magit buffers specifically
+  (defun magit-suppress-long-lines-warning ()
+    "Suppress long lines warnings in Magit buffers."
+    (when (derived-mode-p 'magit-mode)
+      (setq-local so-long-function 'so-long-mode)
+      (setq-local so-long-threshold 5000)      ; Higher threshold for Magit
+      (setq-local warning-suppress-types
+                  (append warning-suppress-types '((so-long))))))
+
+  (add-hook 'magit-mode-hook #'magit-suppress-long-lines-warning)
+
+  ;; Additional file size and diff limits
+  (setq magit-diff-max-stat-graph-width 50    ; Limit stat graph width
+        magit-log-margin-show-committer-date t ; Show committer date efficiently
+        magit-revision-show-gravatars nil)     ; Disable gravatars for performance
+
+  ;; Skip large binary files in diffs entirely
+  (defadvice magit-insert-diff (around skip-large-files activate)
+    "Skip showing diffs for very large files."
+    (let ((file (magit-file-at-point)))
+      (if (and file
+               (file-exists-p file)
+               (> (file-attribute-size (file-attributes file)) 5000000)) ; 5MB limit
+          (insert (propertize (format "Diff skipped for large file: %s (>5MB)\n"
+                                      (file-name-nondirectory file))
+                              'face 'magit-diff-file-heading))
+        ad-do-it)))
+
+  ;; Optimize buffer display and refresh behavior
+  (setq magit-display-buffer-noselect t        ; Don't auto-select Magit windows
+        magit-bury-buffer-function 'quit-window ; Quick buffer disposal
+        magit-save-repository-buffers 'dontask) ; Auto-save without asking
+
+  ;; Custom advice to prevent long line processing in status buffer
+  (defun magit-status-around-advice (orig-fun &rest args)
+    "Advice around magit-status to optimize for large files."
+    (let ((so-long-threshold 10000)            ; Much higher threshold
+          (inhibit-field-text-motion t)        ; Faster text navigation
+          (jit-lock-defer-time 0.1))          ; Faster syntax highlighting
+      (apply orig-fun args)))
+
+  (advice-add 'magit-status :around #'magit-status-around-advice))
 
 (add-hook 'protobuf-mode-hook (lambda ()
                                 (format-all-mode t)
@@ -350,7 +557,8 @@
 
 (auto-composition-mode t)
 
-doom-font (font-spec :family "JetBrains Mono" :size 5)
+;; This line seems to be a typo - commenting it out
+;; doom-font (font-spec :family "JetBrains Mono" :size 5)
 
 ;; Font configuration that works on both macOS and Linux
 (let ((font-family (if (member "JetBrains Mono" (font-family-list))
@@ -583,6 +791,36 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
 
 (message "after topsy...")
 
+;; ============================================================================
+;; WHITESPACE CONFIGURATION
+;; ============================================================================
+;; Show whitespace characters in programming modes
+
+;; Configure whitespace display
+(use-package! whitespace
+  :config
+  ;; Configure which whitespace to show
+  (setq whitespace-style '(face tabs tab-mark spaces space-mark trailing))
+  
+  ;; Configure whitespace display characters
+  (setq whitespace-display-mappings
+        '((space-mark 32 [183] [46])    ; 32 SPACE → · (middle dot) or .
+          (space-mark 160 [164] [95])   ; 160 NO-BREAK SPACE → ¤ or _
+          (tab-mark 9 [187 9] [92 9]))) ; 9 TAB → » followed by tab or \ followed by tab
+  
+  ;; Set faces for whitespace using face-spec-set instead of custom-set-faces
+  (face-spec-set 'whitespace-space '((t (:foreground "gray30"))))
+  (face-spec-set 'whitespace-tab '((t (:foreground "gray30"))))
+  (face-spec-set 'whitespace-trailing '((t (:background "red1" :foreground "yellow"))))
+  
+  ;; Enable whitespace mode in all programming modes
+  (add-hook 'prog-mode-hook #'whitespace-mode))
+
+;; Alternative simpler configuration - just show trailing whitespace
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (setq show-trailing-whitespace t)))
+
 (use-package! fzf
   :ensure
   :init
@@ -692,7 +930,7 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
   ;;(setq window-resize-pixelwise t)
   (require 'dap-hydra)
   ;; old version
-  ;;  (require 'dap-go)		; download and expand vscode-go-extenstion to the =~/.extensions/go=
+  ;;  (require 'dap-go)                ; download and expand vscode-go-extenstion to the =~/.extensions/go=
   ;;  (dap-go-setup)
   ;; new version
   (require 'dap-dlv-go)
@@ -718,24 +956,113 @@ doom-font (font-spec :family "JetBrains Mono" :size 5)
 ;;   (add-hook 'before-save-hook #'ocamlformat-before-save)
 ;; )
 
+;; ============================================================================
+;; GO/GOLANG CONFIGURATION WITH GOPLS
+;; ============================================================================
+;; Configuration matching VSCode Go extension settings
+
 (use-package! go-mode
   :config
+  ;; Use goimports as the format tool (matches "go.formatTool": "goimports")
   (setq gofmt-command "goimports")
-  )
-
-(after! lsp-go
-  (setq lsp-format-buffer-on-save nil    ; disable LSP’s formatter on save
-        lsp-go-format-tool    "goimports")) ; tell gopls to use goimports
-
-(set-formatter! 'gofmt '("goimports") :modes '(go-ts-mode))
-
-(after! go-mode
-  ;; 1. Use goimports instead of gofmt
-  (setq gofmt-command "goimports")                             ; :contentReference[oaicite:2]{index=2}
-  ;; 2. Format buffer (and update imports) on save, buffer-local
+  
+  ;; Configure golangci-lint as the linter (matches "go.lintTool": "golangci-lint")
+  (setq flycheck-go-golint-executable "golangci-lint")
+  
+  ;; IMPORTANT: Go uses tabs, not spaces for indentation
+  ;; Set proper tab width for Go (standard is 4 or 8)
+  (setq go-tab-width 4)
+  
+  ;; Hook for Go mode setup
   (add-hook 'go-mode-hook
             (lambda ()
-              (add-hook 'before-save-hook #'gofmt-before-save nil t))))
+              ;; Enable LSP
+              (lsp-deferred)
+              (setq indent-tabs-mode nil)
+              ;; Ensure Go uses tabs for indentation
+              (setq tab-width 4)
+              ;; Disable sql-indent-mode if it gets activated
+              (when (bound-and-true-p sql-indent-mode)
+                (sql-indent-mode -1))
+              ;; Format on save (matches "[go]": {"editor.formatOnSave": true})
+              (add-hook 'before-save-hook #'gofmt-before-save nil t)
+              ;; Organize imports on save (matches "source.organizeImports": true)
+              (add-hook 'before-save-hook #'lsp-organize-imports nil t)))
+  
+  ;; Also configure go-ts-mode (tree-sitter mode)
+  (add-hook 'go-ts-mode-hook
+            (lambda ()
+              ;; Enable LSP
+              (lsp-deferred)
+              ;; Ensure Go uses tabs for indentation
+              (setq indent-tabs-mode nil)
+              (setq tab-width 4)
+              ;; Disable sql-indent-mode if it gets activated
+              (when (bound-and-true-p sql-indent-mode)
+                (sql-indent-mode -1))
+              ;; Format on save
+              (add-hook 'before-save-hook #'gofmt-before-save nil t)
+              ;; Organize imports on save
+              (add-hook 'before-save-hook #'lsp-organize-imports nil t))))
+
+(after! lsp-go
+  ;; Tell gopls to use goimports
+  (setq lsp-go-format-tool "goimports")
+  
+  ;; Configure gopls settings to match VSCode config
+  (setq lsp-go-gopls-server-args
+        '("-remote=auto"))
+  
+  ;; Set gopls build directory filters (matches gopls "build.directoryFilters")
+  (setq lsp-go-directory-filters
+        ["-**/node_modules"
+         "-**/testdata"])
+  
+  ;; Set local module for import organization (matches gopls "formatting.local")
+  (setq lsp-go-imports-local-prefix "github.com/JoinCAD/komodo")
+  
+  ;; Enable all analyses
+  (setq lsp-go-analyses
+        '((fieldalignment . t)
+          (nilness . t)
+          (shadow . t)
+          (unusedparams . t)
+          (unusedwrite . t)
+          (useany . t)
+          (unusedvariable . t))))
+
+;; Configure golangci-lint integration
+(after! flycheck
+  (add-hook 'go-mode-hook
+            (lambda ()
+              ;; Set golangci-lint config file path (matches "go.lintFlags")
+              (setq-local flycheck-golangci-lint-config "./.golangci-github.toml")
+              ;; Enable flycheck mode for linting
+              (flycheck-mode 1))))
+
+;; Set formatter for tree-sitter Go mode
+(set-formatter! 'gofmt '("goimports") :modes '(go-mode go-ts-mode))
+
+;; Additional gopls configuration via LSP
+(after! lsp-mode
+  ;; Add Go-specific LSP settings
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]node_modules\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]testdata\\'")
+  
+  ;; Configure gopls through LSP initialization options
+  (setq lsp-gopls-server-args '("-remote=auto"))
+  (setq lsp-gopls-staticcheck t)
+  (setq lsp-gopls-complete-unimported t)
+  (setq lsp-gopls-use-placeholders t)
+  
+  ;; Custom gopls settings matching VSCode configuration
+  (lsp-register-custom-settings
+   '(("gopls.formatting.local" "github.com/JoinCAD/komodo")
+     ("gopls.build.directoryFilters" ["-**/node_modules" "-**/testdata"])
+     ("gopls.analyses.fieldalignment" t)
+     ("gopls.analyses.unusedparams" t)
+     ("gopls.analyses.unusedwrite" t)
+     ("gopls.analyses.useany" t))))
 
 ;; (after! go-mode
 ;;   (setq gofmt-command "goimports")
@@ -1065,35 +1392,35 @@ tab-indent."
         (error
          (message "Error setting up tree-sitter grammars: %s" err)))))
 
-;; Optional, but recommended. Tree-sitter enabled major modes are
-;; distinct from their ordinary counterparts.
-;;
-;; You can remap major modes with `major-mode-remap-alist'. Note
-;; that this does *not* extend to hooks! Make sure you migrate them
-;; also
-(dolist (mapping
-         '((python-mode . python-ts-mode)
-           (css-mode . css-ts-mode)
-           (typescript-mode . typescript-ts-mode)
-           (typescript-tsx-mode . tsx-ts-mode)
-           (js-mode . js-ts-mode)
-           (js2-mode . js-ts-mode)
-           (javascript-mode . js-ts-mode)
-           (html-mode . web-mode)
-           (c-mode . c-ts-mode)
-           (c++-mode . c++-ts-mode)
-           (c-or-c++-mode . c-or-c++-ts-mode)
-           (bash-mode . bash-ts-mode)
-           (go-mode . go-ts-mode)
-           (json-mode . json-ts-mode)
-           (js-json-mode . json-ts-mode)
-           (jsonc-mode . json-ts-mode)
-           (sh-mode . bash-ts-mode)
-           (sh-base-mode . bash-ts-mode)
-           (yaml-mode . yaml-ts-mode)))
-  (add-to-list 'major-mode-remap-alist mapping))
-:config
-(os/setup-install-grammars))
+  ;; Optional, but recommended. Tree-sitter enabled major modes are
+  ;; distinct from their ordinary counterparts.
+  ;;
+  ;; You can remap major modes with `major-mode-remap-alist'. Note
+  ;; that this does *not* extend to hooks! Make sure you migrate them
+  ;; also
+  (dolist (mapping
+           '((python-mode . python-ts-mode)
+             (css-mode . css-ts-mode)
+             (typescript-mode . typescript-ts-mode)
+             (typescript-tsx-mode . tsx-ts-mode)
+             (js-mode . js-ts-mode)
+             (js2-mode . js-ts-mode)
+             (javascript-mode . js-ts-mode)
+             (html-mode . web-mode)
+             (c-mode . c-ts-mode)
+             (c++-mode . c++-ts-mode)
+             (c-or-c++-mode . c-or-c++-ts-mode)
+             (bash-mode . bash-ts-mode)
+             (go-mode . go-ts-mode)
+             (json-mode . json-ts-mode)
+             (js-json-mode . json-ts-mode)
+             (jsonc-mode . json-ts-mode)
+             (sh-mode . bash-ts-mode)
+             (sh-base-mode . bash-ts-mode)
+             (yaml-mode . yaml-ts-mode)))
+    (add-to-list 'major-mode-remap-alist mapping))
+  :config
+  (os/setup-install-grammars))
 
 (message "after treeesit-auto...")
 
@@ -1162,13 +1489,362 @@ tab-indent."
   (add-to-list 'apheleia-mode-alist '(html-ts-mode . prettier-html))
   )
 
+(message "after apheleia config...")
+
 ;; (after! apheleia
 ;;   (add-hook 'web-mode-hook
 ;;             (lambda ()
 ;;               (apheleia-mode -1))))
 
+(message "starting SQL configuration section...")
+
+;; SQL in String Formatting Configuration
+;; Support for formatting SQL queries within string constants
+
+(message "SQL config: after initial comments...")
+
+;; Polymode configuration for SQL in strings
+;; NOTE: Temporarily disabled due to loading issues
+;; TODO: Re-enable once polymode package is properly configured
+
+(message "SQL config: before disabled polymode block...")
+
+(when nil ;; Disabled for now
+  (message "This should never print")
+  (with-eval-after-load 'polymode
+    (message "Configuring polymode for SQL strings...")
+
+    ;; Python configuration
+    (with-eval-after-load 'python-mode
+      ;; Define Python host mode
+      (define-hostmode poly-python-hostmode :mode 'python-mode)
+
+      ;; Define SQL inner mode for Python triple-quoted strings
+      (define-innermode poly-sql-python-innermode
+        :mode 'sql-mode
+        :head-matcher (rx (or (seq "\"\"\"" (* space) (or "-- SQL" "SELECT" "INSERT" "UPDATE" "DELETE" "CREATE" "DROP" "ALTER"))
+                              (seq "'''" (* space) (or "-- SQL" "SELECT" "INSERT" "UPDATE" "DELETE" "CREATE" "DROP" "ALTER"))
+                              (seq "sql = \"\"\"")
+                              (seq "query = \"\"\"")
+                              (seq "SQL = \"\"\"")
+                              (seq "QUERY = \"\"\"")))
+        :tail-matcher (rx (or "\"\"\"" "'''"))
+        :head-mode 'host
+        :tail-mode 'host)
+
+      ;; Define the polymode for Python with SQL
+      (define-polymode poly-python-sql-mode
+        :hostmode 'poly-python-hostmode
+        :innermodes '(poly-sql-python-innermode)))
+    
+    ;; JavaScript/TypeScript configuration
+    (with-eval-after-load 'js-mode
+      ;; JavaScript host mode
+      (define-hostmode poly-js-hostmode :mode 'js-mode)
+
+      ;; SQL inner mode for template literals
+      (define-innermode poly-sql-js-innermode
+        :mode 'sql-mode
+        :head-matcher (rx "`" (* space) (or "-- SQL" "SELECT" "INSERT" "UPDATE" "DELETE" "CREATE" "DROP" "ALTER"))
+        :tail-matcher "`"
+        :head-mode 'host
+        :tail-mode 'host)
+
+      ;; Polymode for JS with SQL
+      (define-polymode poly-js-sql-mode
+        :hostmode 'poly-js-hostmode
+        :innermodes '(poly-sql-js-innermode)))
+    
+    (with-eval-after-load 'typescript-mode
+      ;; TypeScript host mode
+      (define-hostmode poly-ts-hostmode :mode 'typescript-mode)
+
+      ;; Polymode for TS with SQL (reusing JS inner mode)
+      (define-polymode poly-ts-sql-mode
+        :hostmode 'poly-ts-hostmode
+        :innermodes '(poly-sql-js-innermode)))))
+;; End of disabled polymode block
+
+(message "SQL config: after disabled polymode block...")
+
+(message "SQL config: before edit-indirect...")
+
+;; Edit-indirect configuration for editing SQL strings
+(use-package! edit-indirect
+  :defer t
+  :commands (edit-indirect-region)
+  :init
+  (message "SQL config: edit-indirect init...")
+  :config
+  (message "SQL config: edit-indirect config...")
+  ;; Custom function to edit SQL in string at point
+  (defun jr/edit-sql-string-at-point ()
+    "Edit the SQL string at point in a separate buffer with SQL mode."
+    (interactive)
+    (let* ((string-bounds (bounds-of-thing-at-point 'string))
+           (start (if string-bounds (1+ (car string-bounds)) (region-beginning)))
+           (end (if string-bounds (1- (cdr string-bounds)) (region-end))))
+      (when (or string-bounds (use-region-p))
+        (let ((buf (edit-indirect-region start end t)))
+          (with-current-buffer buf
+            (sql-mode)
+            ;; Set up SQL formatting
+            (when (fboundp 'sqlformat-on-save-mode)
+              (sqlformat-on-save-mode -1)) ; Disable auto-format on save in indirect buffer
+            (local-set-key (kbd "C-c C-f") 'jr/format-sql-buffer))))))
+  
+  ;; Helper function to format SQL in indirect buffer
+  (defun jr/format-sql-buffer ()
+    "Format the current SQL buffer."
+    (interactive)
+    (cond
+     ((fboundp 'sqlformat-buffer) (sqlformat-buffer))
+     ((fboundp 'format-all-buffer) (format-all-buffer))
+     (t (message "No SQL formatter available")))))
+
+(message "after edit-indirect...")
+
+;; SQL formatting configuration  
+(use-package! sqlformat
+  :defer t
+  :commands (sqlformat sqlformat-buffer sqlformat-region)
+  :config
+  ;; Configure SQL formatter (pgformatter, sqlformat, or sql-formatter)
+  ;; Try to detect available formatter
+  (cond
+   ((executable-find "pg_format")
+    (setq sqlformat-command 'pgformatter
+          sqlformat-args '("-s" "2" "-g" "-U" "1")))
+   ((executable-find "sqlformat")
+    (setq sqlformat-command 'sqlformat
+          sqlformat-args '("-r" "-k" "upper")))
+   ((executable-find "sql-formatter")
+    (setq sqlformat-command 'sql-formatter
+          sqlformat-args '("-l" "postgresql")))
+   (t
+    (message "No SQL formatter found. Install pg_format, sqlformat, or sql-formatter"))))
+
+(message "after sqlformat...")
+
+(message "before apheleia SQL config...")
+
+;; Apheleia configuration for SQL
+(after! apheleia
+  (message "inside apheleia SQL config...")
+  ;; Add SQL formatters to apheleia
+  (message "Setting up pgformatter...")
+  (setf (alist-get 'pgformatter apheleia-formatters)
+        '("pg_format" "-"))
+  (message "Setting up sqlformat...")
+  (setf (alist-get 'sqlformat apheleia-formatters)
+        '("sqlformat" "-r" "-k" "upper" "-"))
+  (message "Setting up sql-formatter...")
+  (setf (alist-get 'sql-formatter apheleia-formatters)
+        '("sql-formatter" "-l" "postgresql"))
+  
+  (message "Associating SQL mode with formatter...")
+  ;; Associate SQL mode with formatter
+  (add-to-list 'apheleia-mode-alist 
+               (cons 'sql-mode 
+                     (cond
+                      ((executable-find "pg_format") 'pgformatter)
+                      ((executable-find "sqlformat") 'sqlformat)
+                      ((executable-find "sql-formatter") 'sql-formatter))))
+  (message "Apheleia SQL config completed"))
+
+(message "after apheleia SQL config setup...")
+
+;; Helper functions for SQL string formatting
+(message "defining SQL helper functions...")
+
+(message "defining jr/format-sql-string-at-point...")
+(defun jr/format-sql-string-at-point ()
+  "Format the SQL string at point."
+  (interactive)
+  (save-excursion
+    (let* ((string-bounds (bounds-of-thing-at-point 'string))
+           (start (if string-bounds (1+ (car string-bounds)) (region-beginning)))
+           (end (if string-bounds (1- (cdr string-bounds)) (region-end)))
+           (sql-text (buffer-substring-no-properties start end))
+           (formatted-sql (jr/format-sql-string sql-text)))
+      (when formatted-sql
+        (delete-region start end)
+        (goto-char start)
+        (insert formatted-sql)))))
+
+(message "defining jr/format-sql-string...")
+(defun jr/format-sql-string (sql-string)
+  "Format SQL-STRING using available formatter."
+  (with-temp-buffer
+    (insert sql-string)
+    (sql-mode)
+    (cond
+     ((fboundp 'sqlformat-buffer)
+      (sqlformat-buffer)
+      (buffer-string))
+     ((fboundp 'format-all-buffer)
+      (format-all-buffer)
+      (buffer-string))
+     (t
+      (message "No SQL formatter available")
+      nil))))
+
+(message "defining jr/format-all-sql-strings...")
+;; Function to detect and format SQL strings in buffer
+(defun jr/format-all-sql-strings ()
+  "Format all SQL strings in the current buffer."
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (let ((sql-pattern (rx (or "SELECT" "INSERT" "UPDATE" "DELETE" "CREATE" "DROP" "ALTER" "-- SQL"))))
+      (while (re-search-forward sql-pattern nil t)
+        (when (nth 3 (syntax-ppss)) ; Check if we're in a string
+          (jr/format-sql-string-at-point)
+          (forward-char))))))
+
+(message "setting up SQL keybindings...")
+;; Keybindings for SQL formatting - using "c q" for SQL (query) to avoid conflict
+(condition-case err
+    (map! :leader
+          (:prefix ("c q" . "SQL/Query")
+           :desc "Edit SQL string" "e" #'jr/edit-sql-string-at-point
+           :desc "Format SQL string" "f" #'jr/format-sql-string-at-point
+           :desc "Format all SQL strings" "F" #'jr/format-all-sql-strings))
+  (error (message "Error setting up SQL keybindings: %s" err)))
+
+(message "after SQL keybindings...")
+
+;; For Go mode SQL strings
+(after! go-mode
+  (defun jr/go-format-sql-string ()
+    "Format SQL string in Go code, handling Go's backtick strings."
+    (interactive)
+    (save-excursion
+      (let* ((start (save-excursion
+                      (re-search-backward "`" nil t)
+                      (1+ (point))))
+             (end (save-excursion
+                    (re-search-forward "`" nil t)
+                    (1- (point))))
+             (sql-text (when (and start end)
+                         (buffer-substring-no-properties start end)))
+             (formatted-sql (when sql-text (jr/format-sql-string sql-text))))
+        (when formatted-sql
+          (delete-region start end)
+          (goto-char start)
+          (insert formatted-sql)))))
+  
+  ;; Add Go-specific keybinding
+  (map! :map go-mode-map
+        :localleader
+        (:prefix ("s" . "SQL")
+         :desc "Format SQL string" "f" #'jr/go-format-sql-string)))
+
+;; Enhanced SQL mode configuration
+(after! sql
+  ;; Set default SQL product to PostgreSQL
+  (setq sql-product 'postgres)
+  
+  ;; Improve SQL indentation
+  (setq sql-indent-offset 2)
+  
+  ;; Enable SQL mode for common SQL file extensions
+  (add-to-list 'auto-mode-alist '("\\.sql\\'" . sql-mode))
+  (add-to-list 'auto-mode-alist '("\\.psql\\'" . sql-mode))
+  (add-to-list 'auto-mode-alist '("\\.plsql\\'" . sql-mode))
+  
+  ;; Configure SQL mode hooks
+  (add-hook 'sql-mode-hook
+            (lambda ()
+              ;; Enable better indentation
+              (when (fboundp 'sql-indent-mode)
+                (sql-indent-mode))
+              ;; Show whitespace in SQL files
+              (setq show-trailing-whitespace t)
+              ;; Enable format on save for SQL files
+              (when (fboundp 'sqlformat-on-save-mode)
+                (sqlformat-on-save-mode))))
+  
+  ;; PostgreSQL specific settings
+  (setq sql-postgres-program "psql")
+  (setq sql-postgres-options '("-P" "pager=off")))
+
+;; SQL indent configuration
+(use-package! sql-indent
+  :after sql
+  :config
+  (setq sql-indent-offset 2)
+  ;; Only activate sql-indent-mode in actual SQL buffers, not in other modes
+  (add-hook 'sql-mode-hook 
+            (lambda ()
+              (when (eq major-mode 'sql-mode)
+                (sql-indent-mode)))))
+
+;; Quick function to test SQL formatting
+(defun jr/test-sql-formatter ()
+  "Test if SQL formatter is working."
+  (interactive)
+  (let ((test-sql "SELECT * FROM users WHERE id = 1"))
+    (message "Testing SQL formatter...")
+    (message "Original: %s" test-sql)
+    (message "Formatted: %s" (or (jr/format-sql-string test-sql) "Formatter not available"))))
+
+;; Visual indication for SQL strings
+(defface sql-string-face
+  '((t :inherit font-lock-string-face :background "#1a1a2e"))
+  "Face for SQL strings"
+  :group 'sql)
+
+(defun jr/highlight-sql-strings ()
+  "Add highlighting for SQL keywords in strings."
+  (interactive)
+  (font-lock-add-keywords
+   nil
+   '(("\\(\"\\|'\\|`\\).*?\\(SELECT\\|INSERT\\|UPDATE\\|DELETE\\|CREATE\\|DROP\\|ALTER\\).*?\\1"
+      0 'sql-string-face t))))
+
+;; Enable SQL string highlighting in programming modes
+(dolist (mode '(python-mode go-mode js-mode typescript-mode))
+  (add-hook (intern (concat (symbol-name mode) "-hook"))
+            'jr/highlight-sql-strings))
+
+;; Toggle polymode for current buffer
+(defun jr/toggle-polymode ()
+  "Toggle polymode for SQL strings in current buffer."
+  (interactive)
+  (cond
+   ((eq major-mode 'poly-python-sql-mode)
+    (python-mode)
+    (message "Polymode disabled"))
+   ((eq major-mode 'python-mode)
+    (poly-python-sql-mode)
+    (message "Polymode enabled for Python/SQL"))
+   ((eq major-mode 'poly-js-sql-mode)
+    (js-mode)
+    (message "Polymode disabled"))
+   ((eq major-mode 'js-mode)
+    (poly-js-sql-mode)
+    (message "Polymode enabled for JS/SQL"))
+   ((eq major-mode 'poly-ts-sql-mode)
+    (typescript-mode)
+    (message "Polymode disabled"))
+   ((eq major-mode 'typescript-mode)
+    (poly-ts-sql-mode)
+    (message "Polymode enabled for TypeScript/SQL"))
+   (t
+    (message "Polymode not available for %s" major-mode))))
+
+;; Add keybinding for toggling polymode - using "c q" to match other SQL bindings
+(condition-case err
+    (map! :leader
+          (:prefix ("c q" . "SQL/Query")
+           :desc "Toggle polymode" "p" #'jr/toggle-polymode))
+  (error (message "Error setting up polymode keybinding: %s" err)))
+
+(message "before projectile config...")
+
 (after! projectile
-;; For Projectile
+  ;; For Projectile
   (setq projectile-indexing-method 'alien) ; Use external tools like git
   (setq projectile-enable-caching t)
   (setq projectile-file-exists-remote-cache-expire nil)
@@ -1184,7 +1860,9 @@ tab-indent."
 
   ;; Refresh projectile cache
   (define-key projectile-mode-map (kbd "C-c p I") 'projectile-invalidate-cache)
-)
+  )
+
+(message "after projectile config...")
 
 (use-package! org
   :mode ("\\.org\\'" . org-mode)
@@ -1198,6 +1876,355 @@ tab-indent."
   )
 
 (message "after komodo...")
+
+;; ============================================================================
+;; UUID GENERATION
+;; ============================================================================
+
+(defun jr/generate-uuidv4 ()
+  "Generate a random UUIDv4."
+  (let* ((random-bytes (make-string 16 0))
+         (i 0))
+    ;; Fill with random bytes
+    (while (< i 16)
+      (aset random-bytes i (random 256))
+      (setq i (1+ i)))
+    ;; Set version (4) and variant bits
+    (aset random-bytes 6 (logior (logand (aref random-bytes 6) #x0f) #x40))
+    (aset random-bytes 8 (logior (logand (aref random-bytes 8) #x3f) #x80))
+    ;; Format as UUID string
+    (format "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x"
+            (aref random-bytes 0) (aref random-bytes 1)
+            (aref random-bytes 2) (aref random-bytes 3)
+            (aref random-bytes 4) (aref random-bytes 5)
+            (aref random-bytes 6) (aref random-bytes 7)
+            (aref random-bytes 8) (aref random-bytes 9)
+            (aref random-bytes 10) (aref random-bytes 11)
+            (aref random-bytes 12) (aref random-bytes 13)
+            (aref random-bytes 14) (aref random-bytes 15))))
+
+(defun jr/generate-uuidv7 ()
+  "Generate a time-ordered UUIDv7 per RFC 9562.
+UUIDv7 format: unix_ts_ms (48 bits) + ver (4) + rand_a (12) + var (2) + rand_b (62)."
+  (let* (;; Get current time and convert to milliseconds since Unix epoch
+         (time (current-time))
+         (high (car time))
+         (low (cadr time))
+         (usec (or (nth 2 time) 0))
+         ;; Calculate total seconds: high * 2^16 + low
+         (seconds (+ (* high 65536) low))
+         ;; Convert to milliseconds
+         (timestamp-ms (+ (* seconds 1000) (/ usec 1000)))
+         ;; Create 16 bytes for UUID
+         (bytes (make-string 16 0)))
+
+    ;; Bytes 0-5: 48-bit timestamp in big-endian format
+    (aset bytes 0 (logand (ash timestamp-ms -40) #xFF))
+    (aset bytes 1 (logand (ash timestamp-ms -32) #xFF))
+    (aset bytes 2 (logand (ash timestamp-ms -24) #xFF))
+    (aset bytes 3 (logand (ash timestamp-ms -16) #xFF))
+    (aset bytes 4 (logand (ash timestamp-ms -8) #xFF))
+    (aset bytes 5 (logand timestamp-ms #xFF))
+
+    ;; Bytes 6-7: version + 12 bits random
+    ;; Byte 6: version 7 in high nibble (0111) + 4 bits random
+    (aset bytes 6 (logior #x70 (logand (random 256) #x0F)))
+    ;; Byte 7: 8 bits random
+    (aset bytes 7 (random 256))
+
+    ;; Bytes 8-15: variant + 62 bits random
+    ;; Byte 8: variant (10) in high 2 bits + 6 bits random
+    (aset bytes 8 (logior #x80 (logand (random 256) #x3F)))
+    ;; Bytes 9-15: 7 bytes of random data
+    (let ((i 9))
+      (while (< i 16)
+        (aset bytes i (random 256))
+        (setq i (1+ i))))
+
+    ;; Format as UUID string (8-4-4-4-12)
+    (format "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x"
+            (aref bytes 0) (aref bytes 1) (aref bytes 2) (aref bytes 3)
+            (aref bytes 4) (aref bytes 5)
+            (aref bytes 6) (aref bytes 7)
+            (aref bytes 8) (aref bytes 9)
+            (aref bytes 10) (aref bytes 11) (aref bytes 12)
+            (aref bytes 13) (aref bytes 14) (aref bytes 15))))
+
+(defun jr/insert-uuidv4 ()
+  "Insert a UUIDv4 at point."
+  (interactive)
+  (insert (jr/generate-uuidv4)))
+
+(defun jr/insert-uuidv7 ()
+  "Insert a UUIDv7 at point."
+  (interactive)
+  (insert (jr/generate-uuidv7)))
+
+(defun jr/copy-uuidv4 ()
+  "Generate a UUIDv4 and copy it to the kill ring."
+  (interactive)
+  (let ((uuid (jr/generate-uuidv4)))
+    (kill-new uuid)
+    (message "UUIDv4 copied: %s" uuid)))
+
+(defun jr/copy-uuidv7 ()
+  "Generate a UUIDv7 and copy it to the kill ring."
+  (interactive)
+  (let ((uuid (jr/generate-uuidv7)))
+    (kill-new uuid)
+    (message "UUIDv7 copied: %s" uuid)))
+
+(defun jr/replace-uuid-at-point-with-v4 ()
+  "Replace the UUID at point or in region with a new UUIDv4."
+  (interactive)
+  (let* ((uuid-regex "[0-9a-f]\\{8\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{12\\}")
+         (bounds (if (use-region-p)
+                     (cons (region-beginning) (region-end))
+                   (save-excursion
+                     (let ((start (progn
+                                    (re-search-backward "[^0-9a-f-]" nil t)
+                                    (forward-char)
+                                    (point)))
+                           (end (progn
+                                  (re-search-forward "[^0-9a-f-]" nil t)
+                                  (backward-char)
+                                  (point))))
+                       (cons start end))))))
+    (when bounds
+      (let ((text (buffer-substring-no-properties (car bounds) (cdr bounds))))
+        (if (string-match-p uuid-regex text)
+            (progn
+              (delete-region (car bounds) (cdr bounds))
+              (goto-char (car bounds))
+              (insert (jr/generate-uuidv4))
+              (message "Replaced UUID with UUIDv4"))
+          (message "No UUID found at point"))))))
+
+(defun jr/replace-uuid-at-point-with-v7 ()
+  "Replace the UUID at point or in region with a new UUIDv7."
+  (interactive)
+  (let* ((uuid-regex "[0-9a-f]\\{8\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{12\\}")
+         (bounds (if (use-region-p)
+                     (cons (region-beginning) (region-end))
+                   (save-excursion
+                     (let ((start (progn
+                                    (re-search-backward "[^0-9a-f-]" nil t)
+                                    (forward-char)
+                                    (point)))
+                           (end (progn
+                                  (re-search-forward "[^0-9a-f-]" nil t)
+                                  (backward-char)
+                                  (point))))
+                       (cons start end))))))
+    (when bounds
+      (let ((text (buffer-substring-no-properties (car bounds) (cdr bounds))))
+        (if (string-match-p uuid-regex text)
+            (progn
+              (delete-region (car bounds) (cdr bounds))
+              (goto-char (car bounds))
+              (insert (jr/generate-uuidv7))
+              (message "Replaced UUID with UUIDv7"))
+          (message "No UUID found at point"))))))
+
+;; Readable UUID generation with pronounceable first segment
+(defvar jr/readable-words
+  '("facade" "decade" "beaded" "accede" "deface" "backed" "baffed" "beefed"
+    "cabbed" "cabled" "cached" "caddie" "cafed0" "caged0" "calced" "called"
+    "dabbed" "danced" "decaf0" "decode" "deeded" "defeat" "defied" "ebbed0"
+    "edged0" "faced0" "faded0" "failed" "falled" "fedde0" "feed00" "abacab"
+    "abase0" "abased" "abated" "abbace" "accede" "access" "acedia" "acned0"
+    "badass" "baffle" "baffed" "balled" "beaded" "beadle" "beefed" "cabala"
+    "cabale" "cabled" "cadded" "caecal" "ceased" "dabble" "dabbed" "decade"
+    "decaff" "deface" "defade" "ebbede" "efface" "fabled" "facade" "facede"
+    "fadded" "bedbad" "bedded" "beebee" "beefed" "cabbed" "caffee" "canned"
+    "deaded" "deaden" "deadbe" "decade" "decaff" "decede" "accede" "aceded"
+    "addeda" "baccab" "baffed" "beefed" "caffed" "daffed" "efface" "faccee"
+    "abcdef" "acebad" "accede" "badeaf" "baffed" "bedead" "caffed" "decade"
+    "defbad" "efface" "fabade" "fadcab" "acefac" "badfad" "bedbad" "cabfed"
+    "dabfad" "deface" "efface" "fabbed" "badfac" "bedfac" "caffac" "dadfac"
+    "deafac" "efffac" "f00d00" "facade" "baddad" "beef00" "cafe00" "dead00"
+    "deaf00" "decaf0" "decade" "feed00" "babe00" "dada00" "fade00" "face00"
+    "abad00" "acace0" "added0" "baaed0" "cabba0" "dabba0" "fabba0" "ebb000"
+    "acc000" "add000" "aff000" "baa000" "bad000" "bee000" "cab000" "dab000"
+    "dad000" "ebb000" "fad000" "fee000" "abba00" "acdc00" "bada00" "bead00"
+    "cafe00" "dada00" "dead00" "deaf00" "fade00" "face00" "feed00" "deed00"
+    "aaa000" "bbb000" "ccc000" "ddd000" "eee000" "fff000" "aba000" "aca000"
+    "ada000" "afa000" "aea000" "bab000" "bac000" "bad000" "cac000" "cad000"
+    "dab000" "dac000" "dad000" "fab000" "fac000" "fad000" "ebb000" "ecc000"
+    "abcabc" "defdef" "fedcba" "bcdefa" "cdefab" "acabab" "fadede" "bebebe"
+    "cecece" "dedede" "efefef" "afafaf" "bababa" "cacaca" "dadada" "fabfab"
+    "deface" "beface" "caface" "daface" "efface" "baface" "acface" "adface")
+  "List of readable hex-valid words for UUID prefixes (all exactly 6 chars).")
+
+(defun jr/get-random-readable-word ()
+  "Get a random readable word from the list."
+  (nth (random (length jr/readable-words)) jr/readable-words))
+
+(defun jr/generate-readable-uuidv4 ()
+  "Generate a UUIDv4 with a readable first segment."
+  (let* ((readable-word (jr/get-random-readable-word))
+         (random-bytes (make-string 10 0))
+         (i 0))
+    ;; Fill remaining random bytes (not including first 8 hex chars)
+    (while (< i 10)
+      (aset random-bytes i (random 256))
+      (setq i (1+ i)))
+    ;; Set version (4) and variant bits in CORRECT positions per RFC 9562
+    ;; Version must be at position 14 (third group first char) = random-bytes[2]
+    ;; Variant must be at position 19 (fourth group first char) = random-bytes[4]
+    (aset random-bytes 2 (logior (logand (aref random-bytes 2) #x0f) #x40))
+    (aset random-bytes 4 (logior (logand (aref random-bytes 4) #x3f) #x80))
+    ;; Format with readable prefix (word is 6 chars, add 2 hex to make 8)
+    ;; Format: word+2hex-4hex-4hex-4hex-12hex = 8-4-4-4-12 UUID format
+    (format "%s%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x"
+            readable-word
+            (random 256)           ; Add 1 byte (2 hex) to make first group 8 chars
+            (aref random-bytes 0)  ; Second group: 2 bytes
+            (aref random-bytes 1)
+            (aref random-bytes 2)  ; Third group: version 4 in high nibble + 4 random bits
+            (aref random-bytes 3)
+            (aref random-bytes 4)  ; Fourth group: variant 10 in high 2 bits + 6 random bits
+            (aref random-bytes 5)
+            (aref random-bytes 6)  ; Fifth group: 6 bytes = 12 hex chars
+            (aref random-bytes 7)
+            (aref random-bytes 8)
+            (aref random-bytes 9)
+            (random 256)           ; Add 2 more bytes for proper 36-char length
+            (random 256))))
+
+(defun jr/generate-readable-uuidv7 ()
+  "Generate a UUIDv7 with a readable first segment."
+  (let* ((readable-word (jr/get-random-readable-word))
+         ;; Create 10 bytes for the non-timestamp part
+         (bytes (make-string 10 0)))
+
+    ;; Fill all 10 bytes with random data first
+    (let ((i 0))
+      (while (< i 10)
+        (aset bytes i (random 256))
+        (setq i (1+ i))))
+
+    ;; Set version (7) and variant bits in CORRECT positions per RFC 9562
+    ;; Version must be at position 14 (third group first char) = bytes[2]
+    ;; Variant must be at position 19 (fourth group first char) = bytes[4]
+    ;; Byte 2: version 7 in high nibble + 4 bits random
+    (aset bytes 2 (logior #x70 (logand (aref bytes 2) #x0F)))
+    ;; Byte 4: variant (10) in high 2 bits + 6 bits random
+    (aset bytes 4 (logior #x80 (logand (aref bytes 4) #x3F)))
+
+    ;; Format with readable prefix (word is 6 chars, add 2 hex to make 8)
+    ;; Format: word+2hex-4hex-4hex-4hex-12hex = 8-4-4-4-12 UUID format
+    (format "%s%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x"
+            readable-word
+            (random 256)           ; Add 1 byte (2 hex) to make first group 8 chars
+            (aref bytes 0) (aref bytes 1)
+            (aref bytes 2) (aref bytes 3)
+            (aref bytes 4) (aref bytes 5)
+            (aref bytes 6) (aref bytes 7) (aref bytes 8) (aref bytes 9)
+            (random 256) (random 256))))
+
+(defun jr/insert-readable-uuidv4 ()
+  "Insert a readable UUIDv4 at point."
+  (interactive)
+  (insert (jr/generate-readable-uuidv4)))
+
+(defun jr/insert-readable-uuidv7 ()
+  "Insert a readable UUIDv7 at point."
+  (interactive)
+  (insert (jr/generate-readable-uuidv7)))
+
+(defun jr/copy-readable-uuidv4 ()
+  "Generate a readable UUIDv4 and copy it to the kill ring."
+  (interactive)
+  (let ((uuid (jr/generate-readable-uuidv4)))
+    (kill-new uuid)
+    (message "Readable UUIDv4 copied: %s" uuid)))
+
+(defun jr/copy-readable-uuidv7 ()
+  "Generate a readable UUIDv7 and copy it to the kill ring."
+  (interactive)
+  (let ((uuid (jr/generate-readable-uuidv7)))
+    (kill-new uuid)
+    (message "Readable UUIDv7 copied: %s" uuid)))
+
+(defun jr/replace-uuid-at-point-with-readable-v4 ()
+  "Replace the UUID at point or in region with a new readable UUIDv4."
+  (interactive)
+  (let* ((uuid-regex "[0-9a-f]\\{8\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{12\\}")
+         (bounds (if (use-region-p)
+                     (cons (region-beginning) (region-end))
+                   (save-excursion
+                     (let ((start (progn
+                                    (re-search-backward "[^0-9a-f-]" nil t)
+                                    (forward-char)
+                                    (point)))
+                           (end (progn
+                                  (re-search-forward "[^0-9a-f-]" nil t)
+                                  (backward-char)
+                                  (point))))
+                       (cons start end))))))
+    (when bounds
+      (let ((text (buffer-substring-no-properties (car bounds) (cdr bounds))))
+        (if (string-match-p uuid-regex text)
+            (progn
+              (delete-region (car bounds) (cdr bounds))
+              (goto-char (car bounds))
+              (insert (jr/generate-readable-uuidv4))
+              (message "Replaced UUID with readable UUIDv4"))
+          (message "No UUID found at point"))))))
+
+(defun jr/replace-uuid-at-point-with-readable-v7 ()
+  "Replace the UUID at point or in region with a new readable UUIDv7."
+  (interactive)
+  (let* ((uuid-regex "[0-9a-f]\\{8\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{12\\}")
+         (bounds (if (use-region-p)
+                     (cons (region-beginning) (region-end))
+                   (save-excursion
+                     (let ((start (progn
+                                    (re-search-backward "[^0-9a-f-]" nil t)
+                                    (forward-char)
+                                    (point)))
+                           (end (progn
+                                  (re-search-forward "[^0-9a-f-]" nil t)
+                                  (backward-char)
+                                  (point))))
+                       (cons start end))))))
+    (when bounds
+      (let ((text (buffer-substring-no-properties (car bounds) (cdr bounds))))
+        (if (string-match-p uuid-regex text)
+            (progn
+              (delete-region (car bounds) (cdr bounds))
+              (goto-char (car bounds))
+              (insert (jr/generate-readable-uuidv7))
+              (message "Replaced UUID with readable UUIDv7"))
+          (message "No UUID found at point"))))))
+
+(message "after UUID generation...")
+
+;; Keybindings for UUID generation (placed after function definitions)
+;; Using SPC o u (open → UUID) to avoid conflict with SPC i u (insert unicode)
+(map! :leader
+      (:prefix ("o" . "open")
+               (:prefix ("u" . "UUID")
+                :desc "Insert UUIDv4" "4" #'jr/insert-uuidv4
+                :desc "Insert UUIDv7" "7" #'jr/insert-uuidv7
+                (:prefix ("R" . "readable")
+                 :desc "Insert readable UUIDv4" "4" #'jr/insert-readable-uuidv4
+                 :desc "Insert readable UUIDv7" "7" #'jr/insert-readable-uuidv7)
+                (:prefix ("y" . "copy/yank")
+                 :desc "Copy UUIDv4" "4" #'jr/copy-uuidv4
+                 :desc "Copy UUIDv7" "7" #'jr/copy-uuidv7
+                 (:prefix ("R" . "readable")
+                  :desc "Copy readable UUIDv4" "4" #'jr/copy-readable-uuidv4
+                  :desc "Copy readable UUIDv7" "7" #'jr/copy-readable-uuidv7))
+                (:prefix ("r" . "replace")
+                 :desc "Replace with UUIDv4" "4" #'jr/replace-uuid-at-point-with-v4
+                 :desc "Replace with UUIDv7" "7" #'jr/replace-uuid-at-point-with-v7
+                 (:prefix ("R" . "readable")
+                  :desc "Replace with readable UUIDv4" "4" #'jr/replace-uuid-at-point-with-readable-v4
+                  :desc "Replace with readable UUIDv7" "7" #'jr/replace-uuid-at-point-with-readable-v7)))))
+
+(message "after UUID keybindings...")
 
 (use-package! gptel
   :config
@@ -1217,15 +2244,15 @@ tab-indent."
     (if (string-empty-p (string-trim diff-output))
         (message "No staged changes found. Stage some changes first.")
       (gptel-request prompt
-                     :callback (lambda (response info)
-                                 (if response
-                                     (let ((commit-msg (string-trim response)))
-                                       (with-current-buffer (get-buffer-create "*AI Commit Message*")
-                                         (erase-buffer)
-                                         (insert commit-msg)
-                                         (display-buffer (current-buffer)))
-                                       (message "AI commit message generated! Check *AI Commit Message* buffer."))
-                                   (message "Failed to generate commit message: %s" info))))))
+        :callback (lambda (response info)
+                    (if response
+                        (let ((commit-msg (string-trim response)))
+                          (with-current-buffer (get-buffer-create "*AI Commit Message*")
+                            (erase-buffer)
+                            (insert commit-msg)
+                            (display-buffer (current-buffer)))
+                          (message "AI commit message generated! Check *AI Commit Message* buffer."))
+                      (message "Failed to generate commit message: %s" info))))))
   )
 
 (defun jr/ai-insert-commit-message ()
@@ -1236,11 +2263,11 @@ tab-indent."
     (if (string-empty-p (string-trim diff-output))
         (message "No staged changes found. Stage some changes first.")
       (gptel-request prompt
-                     :callback (lambda (response info)
-                                 (if response
-                                     (let ((commit-msg (string-trim response)))
-                                       (insert commit-msg))
-                                   (message "Failed to generate commit message: %s" info))))))
+        :callback (lambda (response info)
+                    (if response
+                        (let ((commit-msg (string-trim response)))
+                          (insert commit-msg))
+                      (message "Failed to generate commit message: %s" info))))))
   )
 
 ;; Claude Code commit message generation functions
@@ -1258,8 +2285,8 @@ tab-indent."
         (let* ((project-root (or (projectile-project-root) default-directory))
                (has-flake (file-exists-p (expand-file-name "flake.nix" project-root)))
                (nix-command (if has-flake
-                                 "cd %s && nix develop -c claude --print '%s' 2>/dev/null"
-                                 "nix-shell -p nodejs --run \"claude --print '%s'\" 2>&1"))
+                                "cd %s && nix develop -c claude --print '%s' 2>/dev/null"
+                              "nix-shell -p nodejs --run \"claude --print '%s'\" 2>&1"))
                (formatted-command (if has-flake
                                       (format nix-command 
                                               (shell-quote-argument project-root)
@@ -1302,8 +2329,8 @@ tab-indent."
         (let* ((project-root (or (projectile-project-root) default-directory))
                (has-flake (file-exists-p (expand-file-name "flake.nix" project-root)))
                (nix-command (if has-flake
-                                 "cd %s && nix develop -c claude --print '%s' 2>/dev/null"
-                                 "nix-shell -p nodejs --run \"claude --print '%s'\" 2>&1"))
+                                "cd %s && nix develop -c claude --print '%s' 2>/dev/null"
+                              "nix-shell -p nodejs --run \"claude --print '%s'\" 2>&1"))
                (formatted-command (if has-flake
                                       (format nix-command 
                                               (shell-quote-argument project-root)
@@ -1345,6 +2372,146 @@ tab-indent."
   (define-key git-commit-mode-map (kbd "C-c C-g") #'jr/ai-insert-commit-message))
 
 (message "after gptel...")
+
+;; ============================================================================
+;; EMAIL CONFIGURATION WITH MU4E
+;; ============================================================================
+
+;; (after! mu4e
+;;   ;; Basic mu4e configuration
+;;   (setq mu4e-maildir "~/mail"
+;;         mu4e-attachment-dir "~/Downloads"
+;;         mu4e-get-mail-command "mbsync -a"
+;;         mu4e-update-interval 300  ; Update every 5 minutes
+;;         mu4e-compose-context-policy 'ask
+;;         mu4e-context-policy 'pick-first
+;;         mu4e-view-prefer-html t
+;;         mu4e-compose-format-flowed t
+;;         mu4e-change-filenames-when-moving t
+;;         mu4e-headers-include-related nil
+;;         mu4e-headers-skip-duplicates t
+;;         ;; Configure sending mail
+;;         message-send-mail-function 'message-send-mail-with-sendmail
+;;         sendmail-program (executable-find "msmtp")
+;;         message-sendmail-extra-arguments '("--read-envelope-from")
+;;         message-sendmail-f-is-evil t
+;;         ;; Don't keep message buffers around
+;;         message-kill-buffer-on-exit t)
+
+;;   ;; Gmail account context
+;;   (setq mu4e-contexts
+;;         `(,(make-mu4e-context
+;;             :name "Gmail"
+;;             :match-func (lambda (msg)
+;;                           (when msg
+;;                             (mu4e-message-contact-field-matches msg :to "jon@join.build")))
+;;             :vars '((user-mail-address . "jon@join.build")
+;;                     (user-full-name . "Jonathan Rothberg")
+;;                     (mu4e-sent-folder . "/[Gmail]/Sent Mail")
+;;                     (mu4e-drafts-folder . "/[Gmail]/Drafts")
+;;                     (mu4e-trash-folder . "/[Gmail]/Trash")
+;;                     (mu4e-refile-folder . "/[Gmail]/All Mail")))))
+
+;;   ;; Bookmarks for common searches
+;;   (setq mu4e-bookmarks
+;;         '((:name "Unread messages" :query "flag:unread AND NOT flag:trashed" :key ?u)
+;;           (:name "Today's messages" :query "date:today..now" :key ?t)
+;;           (:name "Last 7 days" :query "date:7d..now" :key ?w)
+;;           (:name "Messages with attachments" :query "flag:attach" :key ?a))))
+
+;; ;; Email alerts and notifications
+;; (use-package! mu4e-alert
+;;   :after mu4e
+;;   :config
+;;   (mu4e-alert-enable-mode-line-display)
+;;   (mu4e-alert-enable-notifications)
+;;   (setq mu4e-alert-email-notification-types '(subjects))
+;;   (mu4e-alert-set-default-style 'libnotify))
+
+;; ;; ============================================================================
+;; ;; GOOGLE CALENDAR INTEGRATION WITH ORG-GCAL
+;; ;; ============================================================================
+
+;; ;; Configure auth-source to use pass
+;; (require 'auth-source-pass)
+;; (auth-source-pass-enable)
+
+;; ;; Set org-gcal variables early to prevent warnings
+;; ;; Use shell command to get secret from pass since auth-source-pass may not be fully initialized yet
+;; (setq org-gcal-client-id "382762621855-6kflrt6kdl7fel022mqq0ac66lg0aftg.apps.googleusercontent.com"
+;;       org-gcal-client-secret (string-trim (shell-command-to-string "pass gcal/client-secret 2>/dev/null"))
+;;       org-gcal-fetch-file-alist '(("jon@join.build" . "~/org/gcal.org"))
+;;       org-gcal-notify-p t
+;;       org-gcal-remove-cancelled-events t
+;;       ;; Use external browser for OAuth
+;;       browse-url-browser-function 'browse-url-generic
+;;       browse-url-generic-program "xdg-open"
+;;       ;; Set token storage location
+;;       org-gcal-token-file (expand-file-name "~/.cache/org-gcal/.org-gcal-token")
+;;       ;; Disable oauth2-auto to avoid the plstore issue
+;;       org-gcal-use-oauth2-auto nil)
+
+;; ;; Prevent oauth2-auto from interfering
+;; (with-eval-after-load 'org-gcal
+;;   (advice-add 'org-gcal--get-token :around
+;;               (lambda (orig-fun &rest args)
+;;                 "Force org-gcal to use standard token mechanism."
+;;                 (let ((org-gcal-use-oauth2-auto nil))
+;;                   (apply orig-fun args)))))
+
+;; (use-package! org-gcal
+;;   :after org
+;;   :init
+;;   ;; Create cache directory for tokens
+;;   (let ((cache-dir (expand-file-name "~/.cache/org-gcal")))
+;;     (unless (file-exists-p cache-dir)
+;;       (make-directory cache-dir t)))
+;;   :config
+;;   ;; Force org-gcal to use its own token storage, not oauth2-auto
+;;   (setq org-gcal-use-oauth2-auto nil)
+;;   ;; Ensure we're using the standard org-gcal token mechanism
+;;   (setq org-gcal-token-file (expand-file-name "~/.cache/org-gcal/.org-gcal-token"))
+
+;;   ;; Verify configuration
+;;   (if (and org-gcal-client-id 
+;;            org-gcal-client-secret
+;;            (not (string-empty-p org-gcal-client-secret)))
+;;       (progn
+;;         ;; Automatic sync hooks
+;;         (add-hook 'org-agenda-mode-hook 'org-gcal-fetch)
+;;         (add-hook 'org-capture-after-finalize-hook 'org-gcal-sync)
+;;         (message "org-gcal configured successfully with client secret from pass"))
+;;     (message "org-gcal: Failed to load client secret from pass")))
+
+;; ;; Calendar capture template
+;; (after! org-capture
+;;   (add-to-list 'org-capture-templates
+;;                '("c" "Calendar Event" entry (file "~/org/gcal.org")
+;;                  "* %?\n:PROPERTIES:\n:calendar-id: jon@join.build\n:END:\n:org-gcal:\n%^T--%^T\n:END:\n\n" :empty-lines 1))
+;;   (add-to-list 'org-capture-templates
+;;                '("e" "Email TODO" entry (file "~/org/inbox.org")
+;;                  "* TODO %:subject\n:PROPERTIES:\n:EMAIL: %:from\n:DATE: %:date\n:END:\n\n%a\n\n%?" :empty-lines 1)))
+
+;; ;; ============================================================================
+;; ;; EMAIL AND CALENDAR KEYBINDINGS
+;; ;; ============================================================================
+
+;; (map! :leader
+;;       (:prefix ("m" . "mail/calendar")
+;;        :desc "Open mu4e" "m" #'mu4e
+;;        :desc "Compose email" "c" #'mu4e-compose-new
+;;        :desc "Update mail" "u" #'mu4e-update-mail-and-index
+;;        :desc "Search email" "s" #'mu4e-search
+;;        :desc "Jump to maildir" "j" #'mu4e-headers-search-bookmark
+;;        :desc "Sync calendar" "S" #'org-gcal-sync
+;;        :desc "Fetch calendar" "f" #'org-gcal-fetch
+;;        :desc "Post to calendar" "p" #'org-gcal-post-at-point))
+
+;; Integration with org-agenda
+(after! org-agenda
+  (setq org-agenda-files (append org-agenda-files '("~/org/gcal.org"))))
+
+(message "after email and calendar setup...")
 
 (use-package elysium
   :config
@@ -1491,44 +2658,44 @@ tab-indent."
 (setq org-export-in-background nil)
 
 ;; 3. (OPTIONAL) DEFINE MACROS FOR COMMON DIRECTIVES
-; (after! org
-;   (setq org-export-global-macros
-;         '(("pause" . "@@html:@@")
-;           ("reset_layout" . "@@html:@@"))))
+                                        ; (after! org
+                                        ;   (setq org-export-global-macros
+                                        ;         '(("pause" . "@@html:@@")
+                                        ;           ("reset_layout" . "@@html:@@"))))
 
-; (use-package! claude-code
-;   :bind
-;   ("C-c c" . claude-code-command-map)
-;   :config
-;   (claude-code-mode)
-;
-;   (add-to-list 'display-buffer-alist
-;                '("^\\*claude"
-;                  (display-buffer-in-side-window)
-;                  (side . right)
-;                  (window-width . 0.33)))
-;   )
-;
-; (use-package! emacs-claude-code
-;   :config
-;
-;   (setq --ecc-auto-response-responses
-;         '((:y/n . "1")                              ; Respond "1" to Y/N prompts
-;           (:y/y/n . "2")                            ; Respond "2" to Y/Y/N prompts
-;           (:waiting . "/user:auto")                 ; Send /user:auto when waiting
-;           (:initial-waiting . "/user:understand-guidelines"))) ; Initial waiting response
-;
-;   ;; Enable useful features
-;   (ecc-auto-periodical-toggle)                  ; Enable auto-periodical commands
-;   (--ecc-vterm-utils-enable-yank-advice)        ; Enable yank-as-file for large content
-;
-;   ;; Fine-tune behavior (optional)
-;   (setq --ecc-vterm-yank-as-file-threshold 100)    ; Prompt threshold for yank-as-file
-;   (setq --ecc-auto-response-periodic-interval 300) ; 5 minutes periodic return
-;   (setq ecc-auto-periodical-commands              ; Commands to run periodically
-;         '((10 . "/compact")                            ; Run /compact every 10 interactions
-;           (20 . "/user:auto")))                        ; Run /user:auto every 20 interactions
-;   )
+                                        ; (use-package! claude-code
+                                        ;   :bind
+                                        ;   ("C-c c" . claude-code-command-map)
+                                        ;   :config
+                                        ;   (claude-code-mode)
+                                        ;
+                                        ;   (add-to-list 'display-buffer-alist
+                                        ;                '("^\\*claude"
+                                        ;                  (display-buffer-in-side-window)
+                                        ;                  (side . right)
+                                        ;                  (window-width . 0.33)))
+                                        ;   )
+                                        ;
+                                        ; (use-package! emacs-claude-code
+                                        ;   :config
+                                        ;
+                                        ;   (setq --ecc-auto-response-responses
+                                        ;         '((:y/n . "1")                              ; Respond "1" to Y/N prompts
+                                        ;           (:y/y/n . "2")                            ; Respond "2" to Y/Y/N prompts
+                                        ;           (:waiting . "/user:auto")                 ; Send /user:auto when waiting
+                                        ;           (:initial-waiting . "/user:understand-guidelines"))) ; Initial waiting response
+                                        ;
+                                        ;   ;; Enable useful features
+                                        ;   (ecc-auto-periodical-toggle)                  ; Enable auto-periodical commands
+                                        ;   (--ecc-vterm-utils-enable-yank-advice)        ; Enable yank-as-file for large content
+                                        ;
+                                        ;   ;; Fine-tune behavior (optional)
+                                        ;   (setq --ecc-vterm-yank-as-file-threshold 100)    ; Prompt threshold for yank-as-file
+                                        ;   (setq --ecc-auto-response-periodic-interval 300) ; 5 minutes periodic return
+                                        ;   (setq ecc-auto-periodical-commands              ; Commands to run periodically
+                                        ;         '((10 . "/compact")                            ; Run /compact every 10 interactions
+                                        ;           (20 . "/user:auto")))                        ; Run /user:auto every 20 interactions
+                                        ;   )
 
 ;;; Terminal Management Configuration
 ;; Enhanced terminal management for staying within Emacs
@@ -1719,6 +2886,114 @@ tab-indent."
   (setq eat-kill-buffer-on-exit t)
   :hook
   (eshell-mode . eat-eshell-mode))
+
+(defun jr/magit-files-changed-vs-master (&optional ref)
+  "Show files changed on current branch vs REF (default: master) using merge-base (three dots)."
+  (interactive)
+  (let* ((ref (or ref "origin/master"))
+         (default-directory (or (ignore-errors (magit-toplevel))
+                                default-directory))
+         (files (magit-git-lines "diff" "--name-only" (format "%s...HEAD" ref))))
+    (with-current-buffer (get-buffer-create "*Changed files vs master*")
+      (erase-buffer)
+      (insert (mapconcat #'identity files "\n"))
+      (goto-char (point-min))
+      (display-buffer (current-buffer)))))
+
+(defun jr/git-diff-file-at-point-vs-master (&optional ref)
+  "Show git diff of file at point compared to REF (default: origin/master).
+Works with file paths under cursor in any context (dired, magit, regular buffers)."
+  (interactive)
+  (require 'magit)
+  (let* ((ref (or ref "origin/master"))
+         (git-root (magit-toplevel))
+         (file-path (or
+                     ;; Try to get file from various contexts
+                     (and (eq major-mode 'dired-mode)
+                          (dired-get-filename nil t))
+                     (and (derived-mode-p 'magit-mode)
+                          (magit-file-at-point))
+                     ;; Get file path from thing-at-point
+                     (thing-at-point 'filename t)
+                     ;; Current buffer file
+                     (buffer-file-name))))
+    (if (not git-root)
+        (user-error "Not in a git repository")
+      (if (not file-path)
+          (user-error "No file path found at point")
+        ;; Make file-path absolute if it's relative
+        (let* ((absolute-path (expand-file-name file-path default-directory))
+               ;; Get path relative to git root
+               (relative-path (file-relative-name absolute-path git-root))
+               (default-directory git-root))
+          (if (not (file-exists-p absolute-path))
+              (user-error "File does not exist: %s" absolute-path)
+            ;; Use diff-mode with proper colors and dedicated window parameter for quit
+            (let* ((buffer-name (format "*diff: %s vs %s*" relative-path ref))
+                   (diff-command (format "git diff --no-ext-diff %s -- %s"
+                                         (shell-quote-argument ref)
+                                         (shell-quote-argument relative-path))))
+              (with-current-buffer (get-buffer-create buffer-name)
+                (let ((inhibit-read-only t))
+                  (erase-buffer)
+                  (insert (shell-command-to-string diff-command))
+                  (if (= (buffer-size) 0)
+                      (progn
+                        (kill-buffer)
+                        (user-error "No differences found for %s vs %s" relative-path ref))
+                    (diff-mode)
+                    (setq-local font-lock-defaults diff-font-lock-defaults)
+                    (font-lock-mode 1)
+                    (font-lock-flush)
+                    (font-lock-ensure (point-min) (point-max))
+                    (goto-char (point-min))
+                    (setq buffer-read-only t)
+                    ;; Add evil mode keybinding for 'q'
+                    (evil-local-set-key 'normal (kbd "q")
+                                        (lambda ()
+                                          (interactive)
+                                          (quit-window t))))))
+              ;; Display buffer with quit-window compatible settings
+              (let* ((diff-buf (get-buffer buffer-name))
+                     (original-window (selected-window)))
+                ;; Check if already displayed
+                (if-let ((existing-window (get-buffer-window diff-buf)))
+                    (select-window existing-window)
+                  ;; Create new window on the right
+                  (let ((new-window (split-window original-window nil 'right)))
+                    ;; Mark the window as dedicated and set quit-restore parameter
+                    (set-window-buffer new-window diff-buf)
+                    (set-window-parameter new-window 'quit-restore
+                                          (list 'window 'window original-window diff-buf))
+                    (set-window-dedicated-p new-window t)
+                    (select-window new-window))))
+              (message "Showing diff for %s vs %s" relative-path ref))))))))
+
+(defun my/magit-diff-file-at-point-vs-origin-master ()
+  "Open a Magit diff for the file at point: origin/master...HEAD, limited to that file."
+  (interactive)
+  (require 'magit)
+  (let* ((root (or (ignore-errors (magit-toplevel))
+                   (vc-root-dir)
+                   (locate-dominating-file default-directory ".git")
+                   (user-error "Not inside a Git repo")))
+         (raw  (or (thing-at-point 'filename t)
+                   (string-trim (buffer-substring (line-beginning-position)
+                                                  (line-end-position)))))
+         (abs  (if (file-name-absolute-p raw) raw (expand-file-name raw root)))
+         (rel  (file-relative-name abs root))
+         (range "origin/master...HEAD"))
+    (let ((default-directory root))
+      ;; Produce a proper Magit diff buffer with pathspec
+      (magit-diff-range range nil (list rel))
+      ;; Optional niceties
+      (setq-local magit-diff-refine-hunk 'all)
+      (magit-refresh))))
+
+
+;; Optional keybinding for your “list of files” major-mode:
+;; (map! :map my-files-list-mode-map "D" #'my/magit-diff-file-at-point-vs-origin-master)
+
 
 (message "done loading config.el...")
 
