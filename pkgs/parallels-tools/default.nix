@@ -16,37 +16,40 @@
   undmg,
   perl,
   autoPatchelfHook,
-  gconf,
+  gnome2,
+  fuse,
 }:
 
 stdenv.mkDerivation rec {
   # version = "18.3.1-53614";
-  version = "20.4.0-55980";
+  # version = "20.4.1-55996"; # Old version with kernel modules
+  version = "26.1.1-57288"; # New driverless version with virtio-vsock
   pname = "prl-tools";
 
   # We download the full distribution to extract prl-tools-lin.iso from
   # => ${dmg}/Parallels\ Desktop.app/Contents/Resources/Tools/prl-tools-lin.iso
   src = fetchurl {
     url = "https://download.parallels.com/desktop/v${lib.versions.major version}/${version}/ParallelsDesktop-${version}.dmg";
-    sha256 = "1xl9v0s8mkhysxl7bh1s4xxj18ws1sr1mmv363cd9jzr9a063k86";
+    # sha256 = "sha256-M9E6aGH3ssPvI3XS7YlRdEKXMCt2yAcBRF/D2Cp4dik=";
+    # sha256 = "sha256-CEyP8YZPLzjVAAjOaUqwQ4Ilzk9ybAtTTZUGZbSRrKQ="; # 20.4.1-55996
+    sha256 = "sha256-11IyKI2oOffzSPTB65XksZI3PD9W2+0SPZIfpb0RLuU="; # 26.1.1-57288
   };
 
-  # patches = [ ./prl-tools-6.1.patch ];
+  # patches = [ ./prl-tools-6.1.patch ]; # May not be needed with driverless virtio-vsock tools
 
   hardeningDisable = [
     "pic"
     "format"
   ];
 
-  nativeBuildInputs =
-    [
-      p7zip
-      undmg
-      perl
-      autoPatchelfHook
-    ]
-    ++ lib.optionals (!libsOnly) [ makeWrapper ]
-    ++ kernel.moduleBuildDependencies;
+  nativeBuildInputs = [
+    p7zip
+    undmg
+    perl
+    autoPatchelfHook
+  ]
+  ++ lib.optionals (!libsOnly) [ makeWrapper ]
+  ++ kernel.moduleBuildDependencies;
 
   buildInputs =
     with xorg;
@@ -62,13 +65,14 @@ stdenv.mkDerivation rec {
       glib
       dbus-glib
       zlib
-      gconf
+      gnome2.GConf
+      fuse
     ];
 
   runtimeDependencies = [
     glib
     xorg.libXrandr
-    gconf
+    gnome2.GConf
   ];
 
   inherit libsOnly;
@@ -77,7 +81,8 @@ stdenv.mkDerivation rec {
     undmg "${src}"
     export sourceRoot=prl-tools-build
     7z x "Parallels Desktop.app/Contents/Resources/Tools/prl-tools-lin${lib.optionalString stdenv.isAarch64 "-arm"}.iso" -o$sourceRoot
-    if test -z "$libsOnly"; then
+    # Version 26+ uses driverless virtio-vsock, no kernel modules to extract
+    if test -z "$libsOnly" && test -d "$sourceRoot/kmods"; then
       ( cd $sourceRoot/kmods; tar -xaf prl_mod.tar.gz )
     fi
   '';
@@ -92,8 +97,9 @@ stdenv.mkDerivation rec {
   );
 
   buildPhase = ''
-    if test -z "$libsOnly"; then
-      ( # kernel modules
+    # Version 26+ uses driverless virtio-vsock, no kernel modules to build
+    if test -z "$libsOnly" && test -d "kmods"; then
+      ( # kernel modules (only for older versions)
         cd kmods
         make -f Makefile.kmods \
           KSRC=$kernelDir/source \
@@ -106,8 +112,9 @@ stdenv.mkDerivation rec {
   '';
 
   installPhase = ''
-    if test -z "$libsOnly"; then
-      ( # kernel modules
+    # Version 26+ uses driverless virtio-vsock, no kernel modules to install
+    if test -z "$libsOnly" && test -d "kmods"; then
+      ( # kernel modules (only for older versions)
         cd kmods
         mkdir -p $out/lib/modules/${kernelVersion}/extra
         cp prl_fs/SharedFolders/Guest/Linux/prl_fs/prl_fs.ko $out/lib/modules/${kernelVersion}/extra
@@ -135,12 +142,23 @@ stdenv.mkDerivation rec {
         install -Dm755 ../../tools/prlfsmountd.sh $out/sbin/prlfsmountd
         wrapProgram $out/sbin/prlfsmountd \
           --prefix PATH ':' "$scriptPath"
+
+        # Wrap GUI tools to add glib to LD_LIBRARY_PATH for dlopen support
+        for tool in prlcp prlcc prldnd prlshprof; do
+          if test -f "$out/bin/$tool"; then
+            wrapProgram "$out/bin/$tool" \
+              --prefix LD_LIBRARY_PATH ':' "${lib.makeLibraryPath [ glib gnome2.GConf xorg.libXrandr ]}"
+          fi
+        done
         for i in lib/libPrl*.0.0; do
           cp $i $out/lib
           ln -s $out/$i $out/''${i%.0.0}
         done
-        mkdir -p $out/share/man/man8
-        install -Dm644 ../mount.prl_fs.8 $out/share/man/man8
+        # Man page only exists in older versions
+        if test -f "../mount.prl_fs.8"; then
+          mkdir -p $out/share/man/man8
+          install -Dm644 ../mount.prl_fs.8 $out/share/man/man8
+        fi
         mkdir -p $out/etc/pm/sleep.d
         install -Dm644 ../99prltoolsd-hibernate $out/etc/pm/sleep.d
       fi

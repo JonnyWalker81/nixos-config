@@ -9,6 +9,11 @@
       (:desc "file" :prefix "f"
         :desc "Find File" :n "f" #'find-file))
 
+(map! :leader
+      (:desc "git" :prefix "g"
+        (:desc "diff" :prefix "d"
+          :desc "Diff file at point vs origin/master" :n "f" #'jr/git-diff-file-at-point-vs-master)))
+
 
 (provide 'config-bindings)
 ;;; config-bindings.el ends here

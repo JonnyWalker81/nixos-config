@@ -1,5 +1,5 @@
 # Cross-platform Ghostty configuration
-theme = tokyonight-storm
+theme = MaterialDesignColors
 copy-on-select = clipboard
 font-family = Fira Code
 font-size = 14

@@ -31,30 +31,6 @@
     # macOS-specific development tools
     rectangle  # Window management
     
-    # SSH helper script
-    (writeScriptBin "ssh-add-keychain" ''
-      #!/bin/bash
-      # Helper script to add SSH keys to macOS Keychain
-      
-      # Function to add a key with keychain support
-      add_key_to_keychain() {
-          local key_path="$1"
-          if [[ -f "$key_path" ]]; then
-              echo "Adding $key_path to keychain..."
-              ssh-add --apple-use-keychain "$key_path"
-          fi
-      }
-      
-      # Add common SSH keys
-      for key in "$HOME/.ssh/id_ed25519" "$HOME/.ssh/id_rsa" "$HOME/.ssh/id_ecdsa"; do
-          add_key_to_keychain "$key"
-      done
-      
-      # List loaded keys
-      echo "Currently loaded keys:"
-      ssh-add -l
-    '')
-    
     # Native macOS alternatives to Linux tools
     # (common.nix handles the platform-agnostic tools)
   ];
@@ -111,33 +87,11 @@
       # macOS-specific SSH settings
       UseKeychain yes
       AddKeysToAgent yes
-      IdentitiesOnly yes
-      
+
       # Store SSH keys in macOS Keychain
       IdentityFile ~/.ssh/id_ed25519
       IdentityFile ~/.ssh/id_rsa
-      IdentityFile ~/.ssh/id_ecdsa
     '';
-  };
-  
-  # LaunchAgent for SSH key loading
-  launchd.agents.ssh-add = {
-    enable = true;
-    config = {
-      Label = "com.local.ssh-add";
-      ProgramArguments = [
-        "/usr/bin/ssh-add"
-        "--apple-use-keychain"
-        "--apple-load-keychain"
-      ];
-      RunAtLoad = true;
-      LaunchOnlyOnce = true;
-      StandardErrorPath = "/tmp/ssh-add.err";
-      StandardOutPath = "/tmp/ssh-add.out";
-      EnvironmentVariables = {
-        PATH = "/usr/bin:/bin:/usr/sbin:/sbin";
-      };
-    };
   };
   
   # Ensure direnv works properly on macOS
@@ -147,59 +101,6 @@
     enableZshIntegration = true;
   };
 
-  # SSH rc file for automatic key loading
-  home.file.".ssh/rc" = {
-    text = ''
-      #!/bin/bash
-      # SSH rc file for macOS - managed by Nix
-      
-      # Only run on macOS
-      if [[ "$(uname)" == "Darwin" ]]; then
-        # Ensure SSH agent is available
-        if [[ -z "$SSH_AUTH_SOCK" ]]; then
-          export SSH_AUTH_SOCK=$(launchctl getenv SSH_AUTH_SOCK 2>/dev/null)
-        fi
-        
-        # Load keys from keychain if not already loaded
-        if command -v ssh-add >/dev/null 2>&1; then
-          if ! ssh-add -l >/dev/null 2>&1; then
-            ssh-add --apple-load-keychain >/dev/null 2>&1 || true
-          fi
-        fi
-      fi
-    '';
-    executable = true;
-  };
-  
-  # Ghostty configuration for macOS - override and merge with base config
-  home.file.".config/ghostty/config" = lib.mkForce {
-    text = let
-      baseConfig = builtins.readFile ../../users/ghostty/config;
-      darwinConfig = ''
-        
-        # macOS-specific keybindings for split navigation
-        # On macOS, Alt is the Option key
-        # Cycle through splits in visual order
-        keybind = opt+j=goto_split:next
-        keybind = opt+k=goto_split:previous
-        
-        # Directional navigation with h/l
-        keybind = opt+h=goto_split:left
-        keybind = opt+l=goto_split:right
-        
-        # Additional split management keybindings
-        keybind = opt+shift+j=new_split:down
-        keybind = opt+shift+k=new_split:up
-        keybind = opt+shift+h=new_split:left
-        keybind = opt+shift+l=new_split:right
-        
-        # Close split
-        keybind = opt+w=close_surface
-      '';
-    in
-    baseConfig + darwinConfig;
-  };
-  
   # Disable X11/Linux cursor configuration on macOS
   home.pointerCursor = lib.mkIf (!pkgs.stdenv.isDarwin) {
     name = "Adwaita";

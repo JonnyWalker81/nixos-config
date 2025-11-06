@@ -20,6 +20,9 @@ tmp/
 *.swo
 *~
 
+# Documentation files (local notes)
+docs/
+
 # Test scripts (not part of config)
 test-*.sh
 users/test-*.sh

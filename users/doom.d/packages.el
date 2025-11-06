@@ -56,7 +56,7 @@
 ;; (unpin! tuareg)
                                         ; (unpin! magit forge)
                                         ; (package! magit :pin "48818355728c48d986d74dde8b1e9fba25f0fd53")
-(package! forge :pin "c498fed98a6df8adca33e87433b4084c0340fb4a")
+;; (package! forge :pin "c498fed98a6df8adca33e87433b4084c0340fb4a")
 
 ;; (package! flycheck)
 (package! graphql-mode)
@@ -118,7 +118,7 @@
 (package! tree-sitter)
 (package! tree-sitter-langs)
 
-;; (package! flycheck-golangci-lint)
+(package! flycheck-golangci-lint)
 
 (package! just-mode)
 
@@ -226,6 +226,7 @@
 (package! topsy)
 
 (package! direnv)
+(package! nix-mode)
 
 (package! claude-code
   :recipe (:type git :host github :repo "stevemolitor/claude-code.el" :branch "main"
@@ -237,9 +238,33 @@
            :files ("*.el"))
   )
 
+;; D2 diagram support for org-babel
+(package! ob-d2
+  :recipe (:type git :host github :repo "xcapaldi/ob-d2" :branch "main"
+           :files ("*.el"))
+  )
+
+;; Mermaid diagram support for org-babel
+(package! ob-mermaid
+  :recipe (:type git :host github :repo "arnm/ob-mermaid" :branch "master"
+           :files ("*.el"))
+  )
+
 ;; Terminal management packages
 (package! multi-vterm)
 (package! popper)  ; For better popup window management
 (package! eat)     ; Alternative terminal emulator
+
+;; Email and calendar packages
+(package! org-gcal)        ; Google Calendar integration
+(package! mu4e-alert)      ; Email notifications
+(package! oauth2)          ; OAuth2 authentication
+(package! auth-source-pass) ; Pass integration for credentials
+
+;; SQL and multi-mode editing packages
+(package! polymode)         ; Multiple major modes in one buffer
+(package! edit-indirect)    ; Edit regions in separate buffers
+(package! sqlformat)        ; SQL formatting support
+(package! sql-indent)       ; Better SQL indentation
 
 ;;; packages.el ends here

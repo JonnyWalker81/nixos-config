@@ -167,7 +167,7 @@
 
   programs.hyprland = {
     enable = true;
-    # package = inputs.hyprland.packages.${pkgs.system}.hyprland;
+    package = inputs.hyprland.packages.${pkgs.system}.hyprland;
     xwayland.enable = true;
   };
 
@@ -287,8 +287,6 @@
       killall
       niv
       rxvt-unicode-unwrapped
-      xsel
-      xclip
       vimHugeX
       # nixfmt-classic
       nixfmt-rfc-style
