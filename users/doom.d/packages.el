@@ -237,4 +237,9 @@
            :files ("*.el"))
   )
 
+;; Terminal management packages
+(package! multi-vterm)
+(package! popper)  ; For better popup window management
+(package! eat)     ; Alternative terminal emulator
+
 ;;; packages.el ends here

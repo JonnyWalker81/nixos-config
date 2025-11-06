@@ -254,13 +254,13 @@
               # Disable the require check that's failing
               doCheck = false;
               nvimRequireCheck = "";
-              
+
               # Override the build phase to skip the check
               buildPhase = ''
                 runHook preBuild
                 runHook postBuild
               '';
-              
+
               # Skip the install check phase
               installCheckPhase = ''
                 runHook preInstallCheck
@@ -269,9 +269,9 @@
             });
           };
 
-          clude-code = prev.claude-code.overrideAttrs (old: {
-            version = "1.0.31";
-          });
+          # clude-code = prev.claude-code.overrideAttrs (old: {
+          #   version = "1.0.31";
+          # });
 
           # firefox-beta-unwrapped = prev.firefox-beta-unwrapped.overrideAttrs (old: {
           #   nativeBuildInputs = old.nativeBuildInputs ++ [ final.icu76 ];
@@ -312,9 +312,11 @@
           awscli2 = inputs.nixpkgs-unstable.legacyPackages.${prev.system}.awscli2;
 
           # Use the flake overlay for Linux (optimized build), ghostty-bin from unstable for macOS
-          ghostty = if prev.stdenv.isLinux 
-            then ghostty.packages.${prev.system}.ghostty-releasefast
-            else inputs.nixpkgs-unstable.legacyPackages.${prev.system}.ghostty-bin;
+          ghostty =
+            if prev.stdenv.isLinux then
+              ghostty.packages.${prev.system}.ghostty-releasefast
+            else
+              inputs.nixpkgs-unstable.legacyPackages.${prev.system}.ghostty-bin;
 
           nixvim = inputs.nixvim.packages.${prev.system}.default;
           
@@ -467,7 +469,7 @@
           inputs
           ;
         nixpkgs = nixpkgs-darwin;
-        system = "aarch64-darwin";  # Apple Silicon - change to "x86_64-darwin" if Intel Mac
+        system = "aarch64-darwin"; # Apple Silicon - change to "x86_64-darwin" if Intel Mac
         user = "phantom";
       };
 

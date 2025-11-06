@@ -47,7 +47,6 @@
     # For VM environments, ensure software rendering fallback
     extraPackages = with pkgs; [
       mesa
-      mesa.drivers
       libvdpau-va-gl
       vaapiVdpau
     ];
@@ -272,7 +271,7 @@
         fira-code-symbols
         jetbrains-mono
       ]
-      ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerdfonts);
+      ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
   };
 
   # List packages installed in system profile. To search, run:

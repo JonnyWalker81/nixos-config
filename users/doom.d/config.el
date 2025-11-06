@@ -17,6 +17,9 @@
 (add-to-list 'exec-path "~/.cargo/bin")
 (add-to-list 'load-path "~/Repositories/org-reveal")
 
+;; Load clipboard fix for Wayland
+(load! "modules/clipboard-fix")
+
 (message "loaded path config...")
 
 ;; Ensure exec-path-from-shell is available early
@@ -1312,6 +1315,196 @@ tab-indent."
 ;         '((10 . "/compact")                            ; Run /compact every 10 interactions
 ;           (20 . "/user:auto")))                        ; Run /user:auto every 20 interactions
 ;   )
+
+;;; Terminal Management Configuration
+;; Enhanced terminal management for staying within Emacs
+
+;; Better vterm-toggle configuration
+(use-package! vterm-toggle
+  :after vterm projectile
+  :config
+  (setq vterm-toggle-fullscreen-p nil)
+  (setq vterm-toggle-scope 'projectile)
+  (setq vterm-toggle-projectile-root t)
+  (setq vterm-toggle-reset-window-configration-after-exit nil)
+  :bind
+  (("C-c t" . vterm-toggle)
+   ("C-c T" . vterm-toggle-cd)
+   :map vterm-mode-map
+   ("s-n" . vterm-toggle-forward)
+   ("s-p" . vterm-toggle-backward)))
+
+;; Add multi-vterm for managing multiple terminals
+(use-package! multi-vterm
+  :after vterm
+  :config
+  (setq multi-vterm-buffer-name "vterm")
+  :bind
+  (("C-c v n" . multi-vterm)
+   ("C-c v p" . multi-vterm-prev)
+   ("C-c v j" . multi-vterm-next)
+   ("C-c v d" . multi-vterm-dedicated-toggle)
+   ("C-c v r" . multi-vterm-rename-buffer)))
+
+;; Configure tab-bar-mode for workspace management
+(use-package! tab-bar
+  :config
+  (setq tab-bar-show 1)
+  (setq tab-bar-close-button-show nil)
+  (setq tab-bar-new-tab-choice "*vterm*")
+  (setq tab-bar-tab-hints t)
+  (setq tab-bar-format '(tab-bar-format-tabs tab-bar-separator))
+  (tab-bar-mode 1)
+  :bind
+  (("C-x t n" . tab-bar-new-tab)
+   ("C-x t 0" . tab-bar-close-tab)
+   ("C-x t o" . tab-bar-switch-to-tab)
+   ("C-x t r" . tab-bar-rename-tab)
+   ("C-x t m" . tab-bar-move-tab)))
+
+;; Terminal-specific display rules
+;; Configure how terminal windows should be displayed
+(after! vterm
+  ;; Bottom terminal popup
+  (set-popup-rule! "^\\*vterm" 
+    :side 'bottom 
+    :size 0.30 
+    :select t 
+    :quit nil 
+    :ttl nil
+    :modeline t)
+
+  ;; Dedicated terminal on the right side
+  (set-popup-rule! "^\\*vterm-dedicated" 
+    :side 'right 
+    :size 0.40 
+    :select t 
+    :quit nil 
+    :ttl nil
+    :modeline t)
+  
+  ;; Multi-vterm buffers
+  (set-popup-rule! "^\\*vterm\\*<[0-9]+>" 
+    :side 'bottom 
+    :size 0.30 
+    :select t 
+    :quit nil 
+    :ttl nil
+    :modeline t))
+
+;; Terminal workflow functions
+;; Custom functions for efficient terminal management
+
+(defun my/vterm-in-project ()
+  "Open vterm in current project root."
+  (interactive)
+  (let ((default-directory (projectile-project-root)))
+    (multi-vterm)))
+
+(defun my/terminal-workspace ()
+  "Create or switch to a terminal workspace using tab-bar."
+  (interactive)
+  (if (member "terminals" (mapcar (lambda (tab) (alist-get 'name tab)) (tab-bar-tabs)))
+      (tab-bar-select-tab-by-name "terminals")
+    (tab-bar-new-tab)
+    (tab-bar-rename-tab "terminals")
+    (delete-other-windows)
+    (multi-vterm)
+    (split-window-right)
+    (multi-vterm)))
+
+(defun my/vterm-send-region-or-current-line ()
+  "Send the current line or selected region to vterm."
+  (interactive)
+  (let ((content (if (use-region-p)
+                     (buffer-substring-no-properties (region-beginning) (region-end))
+                   (thing-at-point 'line t))))
+    (with-current-buffer (get-buffer "*vterm*")
+      (vterm-send-string content))))
+
+(defun my/cycle-through-terminals ()
+  "Cycle through all vterm buffers."
+  (interactive)
+  (let ((vterm-buffers (seq-filter (lambda (buf)
+                                     (string-match-p "\\*vterm" (buffer-name buf)))
+                                   (buffer-list))))
+    (when vterm-buffers
+      (switch-to-buffer (car (last vterm-buffers))))))
+
+(defun my/close-all-terminals ()
+  "Close all vterm buffers."
+  (interactive)
+  (dolist (buffer (buffer-list))
+    (when (string-match-p "\\*vterm" (buffer-name buffer))
+      (kill-buffer buffer))))
+
+;; Bind the workflow functions
+(map! :leader
+      (:prefix ("v" . "terminals")
+       :desc "Open project terminal" "p" #'my/vterm-in-project
+       :desc "Terminal workspace" "w" #'my/terminal-workspace
+       :desc "Send to terminal" "s" #'my/vterm-send-region-or-current-line
+       :desc "Cycle terminals" "c" #'my/cycle-through-terminals
+       :desc "Close all terminals" "x" #'my/close-all-terminals))
+
+;; Integration with eyebrowse workspaces
+(after! eyebrowse
+  (defun my/eyebrowse-terminal-config ()
+    "Setup terminal configuration for current eyebrowse workspace."
+    (interactive)
+    (eyebrowse-create-window-config)
+    (delete-other-windows)
+    (multi-vterm)
+    (split-window-horizontally)
+    (multi-vterm)
+    (balance-windows))
+  
+  (defun my/eyebrowse-switch-to-terminal-workspace ()
+    "Switch to or create a terminal-focused eyebrowse workspace."
+    (interactive)
+    (let ((terminal-workspace-exists nil)
+          (current-slot (eyebrowse--get 'current-slot)))
+      ;; Check if we have a terminal workspace
+      (dolist (window-config (eyebrowse--get 'window-configs))
+        (when (string-match-p "terminals" (or (cdr (assoc 'tag (cdr window-config))) ""))
+          (setq terminal-workspace-exists (car window-config))))
+      (if terminal-workspace-exists
+          (eyebrowse-switch-to-window-config terminal-workspace-exists)
+        ;; Create new terminal workspace
+        (eyebrowse-create-window-config)
+        (eyebrowse-rename-window-config (eyebrowse--get 'current-slot) "terminals")
+        (my/eyebrowse-terminal-config))))
+  
+  ;; Add keybinding for terminal workspace
+  (map! :leader
+        :desc "Terminal eyebrowse workspace" "v e" #'my/eyebrowse-switch-to-terminal-workspace))
+
+;; Popper configuration for better popup management
+(use-package! popper
+  :bind (("C-`"   . popper-toggle-latest)
+         ("M-`"   . popper-cycle)
+         ("C-M-`" . popper-toggle-type))
+  :init
+  (setq popper-reference-buffers
+        '("\\*vterm.*\\*"
+          "\\*eshell.*\\*"
+          "\\*shell.*\\*"
+          "\\*term.*\\*"
+          "\\*ansi-term.*\\*"
+          "\\*Messages\\*"
+          "\\*Warnings\\*"
+          "\\*Compile-Log\\*"
+          "\\*Completions\\*"
+          "\\*Help\\*"))
+  (popper-mode +1)
+  (popper-echo-mode +1))
+
+;; Optional: eat terminal as fallback
+(use-package! eat
+  :config
+  (setq eat-kill-buffer-on-exit t)
+  :hook
+  (eshell-mode . eat-eshell-mode))
 
 (message "done loading config.el...")
 

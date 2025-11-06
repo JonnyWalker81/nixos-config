@@ -7,7 +7,7 @@
 }:
 
 with lib;
-lib.mkIf (!pkgs.stdenv.isDarwin) {
+{
   # Enable waybar with systemd service
   programs.waybar = {
     enable = true;
@@ -37,28 +37,33 @@ lib.mkIf (!pkgs.stdenv.isDarwin) {
           windowrulev2 = float, title:Parallels Shared Clipboard
           windowrulev2 = size 1 1, title:Parallels Shared Clipboard
           windowrulev2 = move -1 -1, title:Parallels Shared Clipboard
+          
+          # Simple window rules
           # windowrule = float, ^(steam)$
           # windowrule = size 1080 900, ^(steam)$
           # windowrule = center, ^(steam)$
           # windowrule = float, ^(MPlayer)$
           # windowrule = float, ^(Gimp)$
 
-          # General settings - bright active window borders
+          # General settings - Tokyo Night Storm theme with bright active window borders
           general {
             gaps_in = 5
             gaps_out = 5
-            border_size = 3
-            col.active_border = rgba(0099ffff) rgba(0066ccff) 45deg
-            col.inactive_border = rgba(2e3440ff)
+            border_size = 4
+            # Bright blue/purple gradient for active windows (Tokyo Night accent colors)
+            col.active_border = rgba(7aa2f7ff) rgba(bb9af7ff) rgba(7dcfffff) 45deg
+            # Muted dark border for inactive windows
+            col.inactive_border = rgba(414868ff)
             layout = master
             resize_on_border = true
           }
 
-          # Input settings - restored to original values
+          # Input settings - optimized for VM usage
           input {
             kb_layout = us
             kb_options = caps:super
-            follow_mouse = 1
+            follow_mouse = 1  # Enable focus follows mouse (1 = focus on hover)
+            mouse_refocus = true  # Refocus window when mouse moves between windows
             
             touchpad {
               natural_scroll = false
@@ -66,6 +71,14 @@ lib.mkIf (!pkgs.stdenv.isDarwin) {
             
             sensitivity = 0
             accel_profile = flat
+            float_switch_override_focus = 2  # Prevent focus switching between floating windows
+          }
+          
+          
+          # Binds configuration
+          binds {
+            scroll_event_delay = 0
+            allow_workspace_cycles = true
           }
 
           # Wayland environment variables
@@ -98,6 +111,11 @@ lib.mkIf (!pkgs.stdenv.isDarwin) {
             key_press_enables_dpms = false
             disable_hyprland_logo = true
             disable_splash_rendering = true
+            # Critical settings for Parallels VM
+            focus_on_activate = false  # Prevent apps from stealing focus
+            layers_hog_keyboard_focus = false  # Don't let layers steal keyboard
+            animate_manual_resizes = false
+            animate_mouse_windowdragging = false
           }
 
           # Animations - restored to original values
@@ -112,16 +130,26 @@ lib.mkIf (!pkgs.stdenv.isDarwin) {
             animation = workspaces, 1, 3, default
           }
 
-          # Decoration settings - restored to original values
+          # Decoration settings - Tokyo Night Storm theme
           decoration {
-            rounding = 5
+            rounding = 10
             
             shadow {
-              enabled = false
+              enabled = true
+              range = 8
+              render_power = 2
+              color = rgba(1a1b26ee)
             }
             
             blur {
-              enabled = false
+              enabled = true
+              size = 4
+              passes = 2
+              new_optimizations = true
+              xray = true
+              noise = 0.01
+              contrast = 0.9
+              brightness = 0.8
             }
           }
 
@@ -246,6 +274,9 @@ lib.mkIf (!pkgs.stdenv.isDarwin) {
           bindm = ${modifier},mouse:273,resizewindow
           bind = ${modifier},mouse_down,workspace,e+1
           bind = ${modifier},mouse_up,workspace,e-1
+          
+          # Focus control
+          bind = ${modifier},f,exec,hyprctl dispatch focuswindow mouse
 
           # Screenshot bindings
           bind = ${modifier},s,exec,grim ~/Pictures/screenshot-$(date +%Y-%m-%d_%H-%M-%S).png
@@ -253,6 +284,9 @@ lib.mkIf (!pkgs.stdenv.isDarwin) {
 
           # Additional functionality
           bind = ${modifier},n,exec,hyprctl dispatch togglefloating active; hyprctl dispatch centerwindow
+          
+          # Parallels clipboard fix - manually trigger when experiencing beach balls
+          bind = ${modifier}SHIFT,x,exec,fix-parallels-clipboard
         ''
       ];
   };

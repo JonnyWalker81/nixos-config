@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a NixOS configuration repository that uses Nix Flakes. It manages system configurations for both NixOS (Linux) and nix-darwin (macOS) systems, with a focus on virtual machine environments. The repository uses a modular design pattern to organize configurations across different machines, hardware, and users.
 
+## System Knowledge
+
+- Screenshots are typically saved in `~/Pictures` on Linux and `~/Desktop` on macOS
+
 ## Build and Configuration Commands
 
 ### Building and Applying Configuration
@@ -188,3 +192,4 @@ When using Makefile commands without parameters:
 - `NIXNAME`: defaults to `vm-intel`
 - `NIXUSER`: defaults to `jrothberg`
 - `NIXPORT`: defaults to `22`
+```
