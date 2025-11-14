@@ -63,9 +63,11 @@ in {
     services.timesyncd.enable = false;
 
     # Create /usr/bin/prlfsmountd symlink for prltoolsd to find it
+    # Create /sbin/mount.fuse.prl_fsd for mount command to find the FUSE helper
     # prltoolsd has hardcoded paths to /usr/bin/prlfsmountd
     systemd.tmpfiles.rules = [
       "L+ /usr/bin/prlfsmountd - - - - ${prl-tools}/sbin/prlfsmountd"
+      "L+ /sbin/mount.fuse.prl_fsd - - - - ${prl-tools}/bin/prl_fsd"
     ];
 
     systemd.services.prltoolsd = {
