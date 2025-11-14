@@ -689,7 +689,12 @@ globalkeys = gears.table.join(
               {description = "launch web browser", group = "launcher"}),
     awful.key({ modkey,           }, "v", function () awful.client.focus.byidx(0) end,
               {description = "focus master", group = "client"}),
-    awful.key({ modkey,           }, "Return", function () awful.client.swap.byidx(0) end,
+    awful.key({ modkey,           }, "Return",
+              function ()
+                  if client.focus then
+                      client.focus:swap(awful.client.getmaster())
+                  end
+              end,
               {description = "swap with master", group = "client"}),
     awful.key({ modkey,           }, "q", function () awful.spawn("xmonad --recompile; xmonad --restart") end,
               {description = "restart xmonad", group = "awesome"}),
