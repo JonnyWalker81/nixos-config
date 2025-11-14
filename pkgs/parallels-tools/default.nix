@@ -141,7 +141,7 @@ stdenv.mkDerivation rec {
         mkdir -p $out/bin
         install -Dm755 ../../tools/prlfsmountd.sh $out/sbin/prlfsmountd
         wrapProgram $out/sbin/prlfsmountd \
-          --prefix PATH ':' "$scriptPath"
+          --prefix PATH ':' "$scriptPath:$out/bin"
 
         # Wrap GUI tools to add glib to LD_LIBRARY_PATH for dlopen support
         for tool in prlcp prlcc prldnd prlshprof; do
