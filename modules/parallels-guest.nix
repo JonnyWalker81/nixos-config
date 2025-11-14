@@ -62,6 +62,12 @@ in {
 
     services.timesyncd.enable = false;
 
+    # Create /usr/bin/prlfsmountd symlink for prltoolsd to find it
+    # prltoolsd has hardcoded paths to /usr/bin/prlfsmountd
+    systemd.tmpfiles.rules = [
+      "L+ /usr/bin/prlfsmountd - - - - ${prl-tools}/sbin/prlfsmountd"
+    ];
+
     systemd.services.prltoolsd = {
       description = "Parallels Tools' service";
       wantedBy = [ "multi-user.target" ];
