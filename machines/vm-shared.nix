@@ -290,7 +290,7 @@
       vimHugeX
       # nixfmt-classic
       nixfmt-rfc-style
-      linuxKernel.packages.linux_6_6.prl-tools
+      # linuxKernel.packages.linux_6_6.prl-tools  # Managed by parallels-guest module
 
       # gitAndTools.gitFull
 
