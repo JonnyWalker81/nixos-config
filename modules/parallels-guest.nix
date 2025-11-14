@@ -47,24 +47,18 @@ in {
   config = mkIf config.hardware.parallels.enable {
     services.udev.packages = [ prl-tools ];
 
-    environment.systemPackages = [ prl-tools ];
-
-    # Override fuse package to wrap mount.fuse with PATH for prl_fsd
-    nixpkgs.overlays = [
-      (final: prev: {
-        fuse = prev.fuse.overrideAttrs (old: {
-          postInstall = (old.postInstall or "") + ''
-            # Wrap mount.fuse to include /usr/bin in PATH for prl_fsd
-            mv $out/bin/mount.fuse $out/bin/.mount.fuse-wrapped
-            cat > $out/bin/mount.fuse << 'EOF'
+    # Create a wrapper for mount.fuse that sets PATH
+    environment.systemPackages = [
+      prl-tools
+      (pkgs.runCommand "mount-fuse-wrapper" {} ''
+        mkdir -p $out/bin
+        cat > $out/bin/mount.fuse << 'EOF'
 #!/bin/sh
-export PATH="/usr/bin:/run/current-system/sw/bin:$PATH"
-exec "$(dirname "$0")/.mount.fuse-wrapped" "$@"
+export PATH="/usr/bin:/run/current-system/sw/bin:''${PATH:-}"
+exec ${pkgs.fuse}/bin/mount.fuse "$@"
 EOF
-            chmod +x $out/bin/mount.fuse
-          '';
-        });
-      })
+        chmod +x $out/bin/mount.fuse
+      '')
     ];
 
     # For driverless Parallels Tools 26.1+, extraModulePackages may be empty
