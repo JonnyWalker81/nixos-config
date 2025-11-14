@@ -122,9 +122,9 @@ theme.titlebar_maximized_button_focus_inactive  = themes_path.."default/titlebar
 theme.titlebar_maximized_button_normal_active = themes_path.."default/titlebar/maximized_normal_active.png"
 theme.titlebar_maximized_button_focus_active  = themes_path.."default/titlebar/maximized_focus_active.png"
 
--- Wallpaper
+-- Wallpaper (matching Hyprland)
 theme.wallpaper = function(s)
-    return "~/Downloads/wallpaper/building_city_japan_tokyo_during_nighttime_hd_travel-1920x1080.jpg"
+    return os.getenv("HOME") .. "/.local/share/wallpapers/current"
 end
 
 -- You can use your own layout icons like this:

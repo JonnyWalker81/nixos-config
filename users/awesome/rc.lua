@@ -1008,7 +1008,8 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 -- }}}
 
 -- {{{ Autostart applications
-awful.spawn.with_shell("feh --bg-scale ~/Downloads/wallpaper/building_city_japan_tokyo_during_nighttime_hd_travel-1920x1080.jpg")
+-- Set wallpaper using the unified wallpaper setup script (same as Hyprland)
+awful.spawn.with_shell("test -f ~/.local/share/wallpapers/current && feh --bg-fill ~/.local/share/wallpapers/current || ~/nixos-config/scripts/setup-wallpaper.sh")
 awful.spawn.with_shell("pgrep greenclip || greenclip daemon")
 awful.spawn.with_shell("pgrep clipcatd || clipcatd")
 awful.spawn.with_shell("pgrep emacs || emacs --daemon")
