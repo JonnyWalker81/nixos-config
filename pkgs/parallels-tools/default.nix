@@ -35,7 +35,7 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-11IyKI2oOffzSPTB65XksZI3PD9W2+0SPZIfpb0RLuU="; # 26.1.1-57288
   };
 
-  # patches = [ ./prl-tools-6.1.patch ]; # May not be needed with driverless virtio-vsock tools
+  patches = [ ./prlfsmountd-nixos.patch ];
 
   hardeningDisable = [
     "pic"

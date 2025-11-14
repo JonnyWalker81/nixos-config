@@ -25,7 +25,7 @@
   disabledModules = [ "virtualisation/parallels-guest.nix" ];
   hardware.parallels = {
     enable = true;
-    autoMountShares = false;  # Disable prlfsmountd service (obsolete, causes /etc/fstab read-only errors)
+    autoMountShares = true;  # Re-enabled with patched prlfsmountd (fixed /etc/fstab read-only issue)
     # package = (config.boot.kernelPackages.callPackage ../pkgs/parallels-tools/default.nix { });
   };
 

@@ -1,0 +1,11 @@
+--- a/tools/prlfsmountd.sh
++++ b/tools/prlfsmountd.sh
+@@ -278,7 +278,8 @@ done
+ 		rmdir "$mnt_pt"
+ 	fi
+ done
+-[ -f /etc/fstab ] && touch -c /etc/fstab
++# NixOS patch: /etc/fstab is read-only on NixOS, skip the touch command
++# [ -f /etc/fstab ] && touch -c /etc/fstab
+
+ exit $rc
