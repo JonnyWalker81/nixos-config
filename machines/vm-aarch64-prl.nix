@@ -26,7 +26,7 @@
   hardware.parallels = {
     enable = true;
     autoMountShares = true;  # Re-enabled with patched prlfsmountd (fixed /etc/fstab read-only issue)
-    package = (config.boot.kernelPackages.callPackage ../pkgs/parallels-tools/default.nix { });
+    package = (pkgs.callPackage ../pkgs/parallels-tools/default.nix { kernel = config.boot.kernelPackages.kernel; });
   };
 
   # Interface is this on my M1
