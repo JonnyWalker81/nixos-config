@@ -67,6 +67,7 @@ in {
     # prltoolsd has hardcoded paths to /usr/bin/prlfsmountd
     systemd.tmpfiles.rules = [
       "L+ /usr/bin/prlfsmountd - - - - ${prl-tools}/sbin/prlfsmountd"
+      "d /sbin 0755 root root -"
       "L+ /sbin/mount.fuse.prl_fsd - - - - ${prl-tools}/bin/prl_fsd"
     ];
 
