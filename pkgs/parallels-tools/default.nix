@@ -35,7 +35,9 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-11IyKI2oOffzSPTB65XksZI3PD9W2+0SPZIfpb0RLuU="; # 26.1.1-57288
   };
 
-  patches = [ ./prlfsmountd-nixos.patch ];
+  patches = [
+    ./prlfsmountd-nixos.patch
+  ];
 
   hardeningDisable = [
     "pic"
@@ -95,6 +97,20 @@ stdenv.mkDerivation rec {
       "${gawk}/bin"
     ]
   );
+
+  preBuild = ''
+    # Fix prlfsmountd.sh for Parallels Tools 26.1+ single-mount behavior
+    # In version 26.1+, prl_fsd mounts all shares at once, not individually
+    substituteInPlace tools/prlfsmountd.sh \
+      --replace-fail 'for sf in $enabled_sfs' 'if false; then for sf in $enabled_sfs' \
+      --replace-fail '	done
+fi' '	done; fi
+	# Parallels Tools 26.1+ single-mount: mount all shares at once
+	if ! is_already_mounted "$MNT_PT"; then
+		prl_fsd "$MNT_PT" -o nosuid,nodev,noatime,big_writes,x-gvfs-show
+	fi
+fi'
+  '';
 
   buildPhase = ''
     # Version 26+ uses driverless virtio-vsock, no kernel modules to build

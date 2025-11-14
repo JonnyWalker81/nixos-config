@@ -95,15 +95,19 @@ EOF
       };
     };
 
-    systemd.services.prlfsmountd =
+    # Simple mount service for Parallels Tools 26.1+ (mounts all shares at once)
+    systemd.services.prl-fsd-mount =
       mkIf config.hardware.parallels.autoMountShares {
-        description = "Parallels Shared Folders Daemon";
+        description = "Parallels Shared Folders (prl_fsd)";
         wantedBy = [ "multi-user.target" ];
+        after = [ "prltoolsd.service" ];
         serviceConfig = {
-          ExecStart = "${prl-tools}/sbin/prlfsmountd -f";
-          ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p /media";
-          ExecStopPost = "${prl-tools}/sbin/prlfsmountd -u";
-          PIDFile = "/run/prlfsmountd.pid";
+          Type = "simple";
+          ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p /media/psf";
+          ExecStart = "${prl-tools}/bin/prl_fsd -f /media/psf -o nosuid,nodev,noatime,big_writes";
+          ExecStop = "${pkgs.util-linux}/bin/umount /media/psf";
+          Restart = "on-failure";
+          RestartSec = "5s";
         };
       };
 
