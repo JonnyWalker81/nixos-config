@@ -13,53 +13,55 @@ local themes_path = gfs.get_themes_dir()
 local theme = {}
 
 -- Font (matching XMobar)
-theme.font          = "FiraCode 6"
+theme.font          = "FiraCode Bold 7"
 
--- Background colors (matching XMobar)
-theme.bg_normal     = "#282c34"
-theme.bg_focus      = "#282c34"
-theme.bg_urgent     = "#ff6c6b"
-theme.bg_minimize   = "#444444"
+-- Omarchy color scheme (matching XMonad)
+-- Background colors
+theme.bg_normal     = "#1a1b26"  -- Omarchy dark navy (XMobar bg)
+theme.bg_focus      = "#1a1b26"
+theme.bg_urgent     = "#9ECE6A"  -- Omarchy accent green
+theme.bg_minimize   = "#24283B"  -- Omarchy darker navy
 theme.bg_systray    = theme.bg_normal
 
 -- Foreground colors
-theme.fg_normal     = "#ff6c6b"
-theme.fg_focus      = "#5DFFFF"
+theme.fg_normal     = "#a9b1d6"  -- Omarchy soft blue-gray
+theme.fg_focus      = "#B4F9F8"  -- Omarchy bright cyan
 theme.fg_urgent     = "#ffffff"
-theme.fg_minimize   = "#ffffff"
+theme.fg_minimize   = "#a9b1d6"
 
--- Border colors (matching XMonad)
-theme.border_normal = "#2c698d"
-theme.border_focus  = "#5DFFFF"
-theme.border_marked = "#91231c"
+-- Border colors (matching XMonad exactly)
+theme.border_normal = "#24283B"  -- Omarchy dark navy
+theme.border_focus  = "#B4F9F8"  -- Omarchy bright cyan
+theme.border_marked = "#9ECE6A"  -- Omarchy accent green
 
 -- Border width (matching XMonad)
 theme.border_width  = dpi(2)
 
--- Gaps (matching XMonad spacing)
-theme.useless_gap   = dpi(2)
+-- Gaps (default, will be overridden per-layout)
+theme.useless_gap   = dpi(5)
 
--- Widget colors (matching XMobar widgets)
-theme.widget_weather = "#98be65"
-theme.widget_cpu     = "#ecbe7b"
-theme.widget_mem     = "#ff6c6b"
-theme.widget_disk    = "#a9a1e1"
-theme.widget_uptime  = "#98be65"
-theme.widget_date    = "#46d9ff"
+-- Widget colors (matching XMobar Omarchy theme)
+theme.widget_weather = "#B4F9F8"  -- cyan (matches XMobar weather)
+theme.widget_cpu     = "#9ECE6A"  -- green (matches XMobar cpu)
+theme.widget_mem     = "#a9b1d6"  -- soft blue-gray (matches XMobar mem)
+theme.widget_disk    = "#a9b1d6"  -- soft blue-gray (matches XMobar disk)
+theme.widget_uptime  = "#B4F9F8"  -- cyan (matches XMobar uptime)
+theme.widget_date    = "#9ECE6A"  -- green (matches XMobar date)
+theme.widget_display = "#ff9e64"  -- orange (matches XMobar display profile)
 
--- Taglist colors
-theme.taglist_bg_focus = "#5DFFFF"
-theme.taglist_fg_focus = "#282c34"
-theme.taglist_bg_urgent = "#E3411C"
-theme.taglist_fg_urgent = "#ffffff"
-theme.taglist_bg_occupied = "#5296F0"
-theme.taglist_fg_occupied = "#282c34"
-theme.taglist_bg_empty = "#282c34"
-theme.taglist_fg_empty = "#666666"
+-- Taglist colors (Omarchy theme)
+theme.taglist_bg_focus = "#B4F9F8"      -- bright cyan
+theme.taglist_fg_focus = "#1a1b26"      -- dark background
+theme.taglist_bg_urgent = "#9ECE6A"     -- accent green
+theme.taglist_fg_urgent = "#1a1b26"
+theme.taglist_bg_occupied = "#a9b1d6"   -- soft blue-gray
+theme.taglist_fg_occupied = "#1a1b26"
+theme.taglist_bg_empty = "#24283B"      -- dark navy
+theme.taglist_fg_empty = "#a9b1d6"
 
 -- Tasklist
-theme.tasklist_bg_focus = "#282c34"
-theme.tasklist_fg_focus = "#5DFFFF"
+theme.tasklist_bg_focus = "#1a1b26"
+theme.tasklist_fg_focus = "#B4F9F8"
 
 -- Titlebar
 theme.titlebar_bg_focus  = theme.bg_focus
@@ -146,6 +148,9 @@ theme.layout_cornerse = themes_path.."default/layouts/cornersew.png"
 -- Custom layout icons for our custom layouts
 theme.layout_threeCol = themes_path.."default/layouts/tileleftw.png"
 theme.layout_threeColMid = themes_path.."default/layouts/fairhw.png"
+theme.layout_grid = themes_path.."default/layouts/fairvw.png"
+theme.layout_threeRow = themes_path.."default/layouts/tilebottomw.png"
+theme.layout_space = themes_path.."default/layouts/magnifierw.png"
 
 -- Generate Awesome icon:
 theme.awesome_icon = theme_assets.awesome_icon(

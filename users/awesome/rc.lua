@@ -65,37 +65,34 @@ awful.layout.layouts = {
 
 -- {{{ Helper functions for custom layouts
 -- Three column layout
-local function three_column(screen, t)
-    local p = awful.tag.getproperty(t, "layout_three_column") or {
-        ncol = 3,
-        master_width_factor = 0.33
-    }
-    
-    local wa = screen.workarea
-    local cls = awful.client.visible(screen, t)
-    
+local function three_column(p)
+    local t = p.tag or awful.screen.focused().selected_tag
+    local wa = p.workarea
+    local cls = p.clients
+
     if #cls == 0 then return end
-    
-    local width = wa.width / p.ncol
-    
+
+    local ncol = 3
+    local width = wa.width / ncol
+
     for i, c in ipairs(cls) do
         local g = {}
         g.width = width - 2 * c.border_width
         g.height = wa.height - 2 * c.border_width
         g.x = wa.x + (i - 1) * width
         g.y = wa.y
-        
+
         c:geometry(g)
     end
 end
 
 -- Three column mid layout (master in middle)
-local function three_column_mid(screen, t)
-    local wa = screen.workarea
-    local cls = awful.client.visible(screen, t)
-    
+local function three_column_mid(p)
+    local wa = p.workarea
+    local cls = p.clients
+
     if #cls == 0 then return end
-    
+
     if #cls == 1 then
         -- Single client takes full screen
         local c = cls[1]
@@ -120,7 +117,7 @@ local function three_column_mid(screen, t)
         -- Three or more: master in middle
         local side_width = wa.width * 0.25
         local mid_width = wa.width * 0.5
-        
+
         -- Middle (master) client
         local master = cls[1]
         local g = {}
@@ -129,7 +126,7 @@ local function three_column_mid(screen, t)
         g.x = wa.x + side_width
         g.y = wa.y
         master:geometry(g)
-        
+
         -- Left side clients
         local left_count = math.floor((#cls - 1) / 2)
         if left_count > 0 then
@@ -144,7 +141,7 @@ local function three_column_mid(screen, t)
                 c:geometry(g)
             end
         end
-        
+
         -- Right side clients
         local right_start = left_count + 2
         local right_count = #cls - right_start + 1
@@ -163,6 +160,108 @@ local function three_column_mid(screen, t)
     end
 end
 
+-- Grid layout with 16:10 aspect ratio
+local function grid_layout(p)
+    local wa = p.workarea
+    local cls = p.clients
+
+    if #cls == 0 then return end
+
+    -- Calculate optimal grid dimensions with 16:10 aspect preference
+    local nclients = #cls
+    local ncols = math.ceil(math.sqrt(nclients * 1.6))  -- 16:10 = 1.6 ratio
+    local nrows = math.ceil(nclients / ncols)
+
+    local cell_width = wa.width / ncols
+    local cell_height = wa.height / nrows
+
+    for i, c in ipairs(cls) do
+        local row = math.floor((i - 1) / ncols)
+        local col = (i - 1) % ncols
+
+        local g = {}
+        g.width = cell_width - 2 * c.border_width
+        g.height = cell_height - 2 * c.border_width
+        g.x = wa.x + col * cell_width
+        g.y = wa.y + row * cell_height
+
+        c:geometry(g)
+    end
+end
+
+-- Three row layout (horizontal stacking)
+local function three_row_layout(p)
+    local wa = p.workarea
+    local cls = p.clients
+
+    if #cls == 0 then return end
+
+    -- Limit to 3 visible windows as per XMonad config
+    local visible_count = math.min(#cls, 3)
+    local row_height = wa.height / visible_count
+
+    for i = 1, visible_count do
+        local c = cls[i]
+        local g = {}
+        g.width = wa.width - 2 * c.border_width
+        g.height = row_height - 2 * c.border_width
+        g.x = wa.x
+        g.y = wa.y + (i - 1) * row_height
+
+        c:geometry(g)
+    end
+end
+
+-- Space layout (OneBig style with large spacing)
+local function space_layout(p)
+    local wa = p.workarea
+    local cls = p.clients
+
+    if #cls == 0 then return end
+
+    -- Limit to 4 visible windows as per XMonad config
+    local visible_count = math.min(#cls, 4)
+
+    if visible_count == 1 then
+        -- Single window takes full screen
+        local c = cls[1]
+        local g = {}
+        g.width = wa.width - 2 * c.border_width
+        g.height = wa.height - 2 * c.border_width
+        g.x = wa.x
+        g.y = wa.y
+        c:geometry(g)
+    else
+        -- OneBig style: one large master, smaller slaves
+        local master_width = wa.width * 0.7
+        local master_height = wa.height
+
+        -- Master window
+        local master = cls[1]
+        local g = {}
+        g.width = master_width - 2 * master.border_width
+        g.height = master_height - 2 * master.border_width
+        g.x = wa.x
+        g.y = wa.y
+        master:geometry(g)
+
+        -- Slave windows (up to 3)
+        local slave_count = visible_count - 1
+        local slave_width = wa.width - master_width
+        local slave_height = master_height / slave_count
+
+        for i = 1, slave_count do
+            local c = cls[i + 1]
+            g = {}
+            g.width = slave_width - 2 * c.border_width
+            g.height = slave_height - 2 * c.border_width
+            g.x = wa.x + master_width
+            g.y = wa.y + (i - 1) * slave_height
+            c:geometry(g)
+        end
+    end
+end
+
 -- Create custom layout objects
 awful.layout.suit.threeCol = {
     name = "threeCol",
@@ -172,10 +271,25 @@ awful.layout.suit.threeColMid = {
     name = "threeColMid",
     arrange = three_column_mid,
 }
+awful.layout.suit.grid = {
+    name = "grid",
+    arrange = grid_layout,
+}
+awful.layout.suit.threeRow = {
+    name = "threeRow",
+    arrange = three_row_layout,
+}
+awful.layout.suit.space = {
+    name = "space",
+    arrange = space_layout,
+}
 
 -- Add custom layouts to the layouts table
 table.insert(awful.layout.layouts, awful.layout.suit.threeCol)
 table.insert(awful.layout.layouts, awful.layout.suit.threeColMid)
+table.insert(awful.layout.layouts, awful.layout.suit.grid)
+table.insert(awful.layout.layouts, awful.layout.suit.threeRow)
+table.insert(awful.layout.layouts, awful.layout.suit.space)
 -- }}}
 
 -- {{{ Menu
@@ -201,14 +315,16 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 -- }}}
 
 -- {{{ Wibar
--- Create a textclock widget
-mytextclock = wibox.widget.textclock(" %b %d %Y - (%H:%M) ")
+-- Create a textclock widget (matching XMobar format: "Jan 01 2025 · 12:00")
+local mytextclock_text = wibox.widget.textclock('<span foreground="' .. beautiful.widget_date .. '">%b %d %Y · %H:%M</span>')
+local mytextclock = wibox.container.background(mytextclock_text, nil, beautiful.widget_date)
 
--- Weather widget
-local weather_widget = wibox.widget {
-    text = " Loading weather... ",
+-- Weather widget with Omarchy colors
+local weather_widget_text = wibox.widget {
+    text = "Loading...",
     widget = wibox.widget.textbox,
 }
+local weather_widget = wibox.container.background(weather_widget_text, nil, beautiful.widget_weather)
 
 -- Update weather every 6 minutes
 gears.timer {
@@ -217,16 +333,17 @@ gears.timer {
     autostart = true,
     callback = function()
         awful.spawn.easy_async_with_shell("~/scripts/wttr.sh 2>/dev/null || echo 'N/A'", function(stdout)
-            weather_widget.text = " " .. stdout:gsub("\n", "") .. " "
+            weather_widget_text.markup = '<span foreground="' .. beautiful.widget_weather .. '">' .. stdout:gsub("\n", "") .. '</span>'
         end)
     end
 }
 
--- CPU widget
-local cpu_widget = wibox.widget {
-    text = " cpu: 0% ",
+-- CPU widget with Omarchy colors
+local cpu_widget_text = wibox.widget {
+    text = "cpu:0%",
     widget = wibox.widget.textbox,
 }
+local cpu_widget = wibox.container.background(cpu_widget_text, nil, beautiful.widget_cpu)
 
 -- Update CPU every 2 seconds
 gears.timer {
@@ -236,16 +353,17 @@ gears.timer {
     callback = function()
         awful.spawn.easy_async_with_shell("top -bn1 | grep 'Cpu(s)' | awk '{print $2}' | cut -d'%' -f1", function(stdout)
             local cpu = tonumber(stdout) or 0
-            cpu_widget.text = string.format(" cpu: (%d%%) ", cpu)
+            cpu_widget_text.markup = string.format('<span foreground="' .. beautiful.widget_cpu .. '">cpu:(%d%%)</span>', cpu)
         end)
     end
 }
 
--- Memory widget
-local mem_widget = wibox.widget {
-    text = " mem: 0M (0%) ",
+-- Memory widget with Omarchy colors
+local mem_widget_text = wibox.widget {
+    text = "mem:0M(0%)",
     widget = wibox.widget.textbox,
 }
+local mem_widget = wibox.container.background(mem_widget_text, nil, beautiful.widget_mem)
 
 -- Update memory every 2 seconds
 gears.timer {
@@ -255,17 +373,18 @@ gears.timer {
     callback = function()
         awful.spawn.easy_async_with_shell("free -m | awk 'NR==2{printf \"%d\", $3}'", function(used)
             awful.spawn.easy_async_with_shell("free -m | awk 'NR==2{printf \"%.0f\", $3*100/$2}'", function(percent)
-                mem_widget.text = string.format(" mem: %sM (%s%%) ", used:gsub("\n", ""), percent:gsub("\n", ""))
+                mem_widget_text.markup = string.format('<span foreground="' .. beautiful.widget_mem .. '">mem:%sM(%s%%)</span>', used:gsub("\n", ""), percent:gsub("\n", ""))
             end)
         end)
     end
 }
 
--- Disk widget
-local disk_widget = wibox.widget {
-    text = " hdd: 0G free ",
+-- Disk widget with Omarchy colors
+local disk_widget_text = wibox.widget {
+    text = "hdd:0G free",
     widget = wibox.widget.textbox,
 }
+local disk_widget = wibox.container.background(disk_widget_text, nil, beautiful.widget_disk)
 
 -- Update disk every 60 seconds
 gears.timer {
@@ -274,16 +393,17 @@ gears.timer {
     autostart = true,
     callback = function()
         awful.spawn.easy_async_with_shell("df -h / | awk 'NR==2{print $4}'", function(stdout)
-            disk_widget.text = " hdd: " .. stdout:gsub("\n", "") .. " free "
+            disk_widget_text.markup = '<span foreground="' .. beautiful.widget_disk .. '">hdd:' .. stdout:gsub("\n", "") .. ' free</span>'
         end)
     end
 }
 
--- Uptime widget
-local uptime_widget = wibox.widget {
-    text = " uptime: 0d 0h ",
+-- Uptime widget with Omarchy colors
+local uptime_widget_text = wibox.widget {
+    text = "uptime:0d 0h",
     widget = wibox.widget.textbox,
 }
+local uptime_widget = wibox.container.background(uptime_widget_text, nil, beautiful.widget_uptime)
 
 -- Update uptime every 60 seconds
 gears.timer {
@@ -292,7 +412,26 @@ gears.timer {
     autostart = true,
     callback = function()
         awful.spawn.easy_async_with_shell("uptime -p | sed 's/up //' | sed 's/ hours\\?/h/g' | sed 's/ days\\?/d/g' | sed 's/ minutes\\?/m/g' | sed 's/, / /g'", function(stdout)
-            uptime_widget.text = " uptime: " .. stdout:gsub("\n", "") .. " "
+            uptime_widget_text.markup = '<span foreground="' .. beautiful.widget_uptime .. '">uptime:' .. stdout:gsub("\n", "") .. '</span>'
+        end)
+    end
+}
+
+-- Display Profile widget with Omarchy colors (matching XMobar)
+local display_widget_text = wibox.widget {
+    text = "Display:default",
+    widget = wibox.widget.textbox,
+}
+local display_widget = wibox.container.background(display_widget_text, nil, beautiful.widget_display)
+
+-- Update display profile
+gears.timer {
+    timeout = 60,
+    call_now = true,
+    autostart = true,
+    callback = function()
+        awful.spawn.easy_async_with_shell("~/scripts/display-profiles/get-current-profile.sh 2>/dev/null || echo 'default'", function(stdout)
+            display_widget_text.markup = '<span foreground="' .. beautiful.widget_display .. '">Display:' .. stdout:gsub("\n", "") .. '</span>'
         end)
     end
 }
@@ -352,12 +491,43 @@ end
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", set_wallpaper)
 
+-- Per-layout spacing configuration (matching XMonad)
+local layout_gaps = {
+    ["tile"] = 5,
+    ["tile.bottom"] = 5,
+    ["threeCol"] = 5,
+    ["threeColMid"] = 5,
+    ["grid"] = 5,
+    ["threeRow"] = 8,
+    ["magnifier"] = 8,
+    ["space"] = 12,
+    ["max"] = 0,
+    ["floating"] = 0,
+}
+
+-- Function to update gaps when layout changes
+local function update_layout_gaps(t)
+    local layout = awful.layout.get(t.screen)
+    if layout then
+        local layout_name = awful.layout.getname(layout)
+        local gap = layout_gaps[layout_name]
+        if gap then
+            t.gap = gap
+        end
+    end
+end
+
 awful.screen.connect_for_each_screen(function(s)
     -- Wallpaper
     set_wallpaper(s)
 
     -- Each screen has its own tag table with XMonad workspace names
     awful.tag({ "coding", "web", "services", "work", "misc", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+
+    -- Set initial gaps for each tag
+    for _, t in pairs(s.tags) do
+        update_layout_gaps(t)
+    end
 
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
@@ -380,7 +550,7 @@ awful.screen.connect_for_each_screen(function(s)
         local layout = awful.layout.get(s)
         if layout then
             local name = awful.layout.getname(layout) or "unknown"
-            s.mylayoutname.text = " [" .. name .. "] "
+            s.mylayoutname.text = "[" .. name .. "]"
         end
     end
     
@@ -388,6 +558,11 @@ awful.screen.connect_for_each_screen(function(s)
     awful.tag.attached_connect_signal(s, "property::layout", update_layout_name)
     awful.tag.attached_connect_signal(s, "property::selected", update_layout_name)
     update_layout_name()
+
+    -- Update gaps when layout changes (XMonad per-layout spacing)
+    awful.tag.attached_connect_signal(s, "property::layout", function(t)
+        update_layout_gaps(t)
+    end)
     
     -- Create a taglist widget
     s.mytaglist = awful.widget.taglist {
@@ -403,8 +578,8 @@ awful.screen.connect_for_each_screen(function(s)
         buttons = tasklist_buttons
     }
 
-    -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s, height = 28 })
+    -- Create the wibox (matching XMobar height)
+    s.mywibox = awful.wibar({ position = "top", screen = s, height = 20 })
 
     -- Add widgets to the wibox
     s.mywibox:setup {
@@ -416,21 +591,22 @@ awful.screen.connect_for_each_screen(function(s)
             s.mypromptbox,
         },
         s.mytasklist, -- Middle widget
-        { -- Right widgets
+        { -- Right widgets (matching XMobar order)
             layout = wibox.layout.fixed.horizontal,
-            wibox.widget.textbox("   "),
+            display_widget,
+            wibox.widget.textbox("  "),
             weather_widget,
-            wibox.widget.textbox("    "),
+            wibox.widget.textbox("  "),
             cpu_widget,
-            wibox.widget.textbox("    "),
+            wibox.widget.textbox("  "),
             mem_widget,
-            wibox.widget.textbox("    "),
+            wibox.widget.textbox("  "),
             disk_widget,
-            wibox.widget.textbox("    "),
+            wibox.widget.textbox("  "),
             uptime_widget,
-            wibox.widget.textbox("    "),
+            wibox.widget.textbox("  "),
             mytextclock,
-            wibox.widget.textbox("   "),
+            wibox.widget.textbox("  "),
             s.mylayoutname,
             s.mylayoutbox,
         },
@@ -528,6 +704,11 @@ globalkeys = gears.table.join(
               {description = "increase the number of master clients", group = "layout"}),
     awful.key({ modkey, "Shift"   }, "l",     function () awful.tag.incnmaster(-1, nil, true) end,
               {description = "decrease the number of master clients", group = "layout"}),
+    -- XMonad-style comma/period for master count
+    awful.key({ modkey,           }, ",",     function () awful.tag.incnmaster( 1, nil, true) end,
+              {description = "increment master windows (XMonad)", group = "layout"}),
+    awful.key({ modkey,           }, ".",     function () awful.tag.incnmaster(-1, nil, true) end,
+              {description = "decrement master windows (XMonad)", group = "layout"}),
     awful.key({ modkey, "Control" }, "h",     function () awful.tag.incncol( 1, nil, true)    end,
               {description = "increase the number of columns", group = "layout"}),
     awful.key({ modkey, "Control" }, "l",     function () awful.tag.incncol(-1, nil, true)    end,
@@ -606,10 +787,16 @@ clientkeys = gears.table.join(
         {description = "minimize", group = "client"}),
     awful.key({ modkey,           }, "m",
         function (c)
-            c.maximized = not c.maximized
+            -- XMonad-style fullscreen toggle: float at full size or sink back
+            if c.fullscreen then
+                c.fullscreen = false
+                c.floating = false
+            else
+                c.fullscreen = true
+            end
             c:raise()
         end ,
-        {description = "(un)maximize", group = "client"}),
+        {description = "toggle fullscreen (XMonad style)", group = "client"}),
     awful.key({ modkey, "Control" }, "m",
         function (c)
             c.maximized_vertical = not c.maximized_vertical
