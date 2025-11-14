@@ -77,6 +77,7 @@ in {
       serviceConfig = {
         ExecStart = "${prl-tools}/bin/prltoolsd -f";
         PIDFile = "/var/run/prltoolsd.pid";
+        Environment = "PATH=${prl-tools}/bin:${prl-tools}/sbin:/run/current-system/sw/bin";
       };
     };
 
