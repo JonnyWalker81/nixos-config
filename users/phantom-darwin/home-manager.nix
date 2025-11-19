@@ -4,6 +4,9 @@
   # Import common configuration but with Darwin-specific conditionals
   imports = [ ../common.nix ];
 
+  # Allow unsupported packages at home-manager level
+  nixpkgs.config.allowUnsupportedSystem = true;
+
   # User-specific git configuration for phantom
   programs.git.userEmail = "phantom@example.com"; # Update with your actual email
 
@@ -30,7 +33,8 @@
   home.packages = with pkgs; [
     # macOS-specific development tools
     rectangle  # Window management
-    
+    neovim     # Use regular neovim on Darwin (nixvim has wayland deps)
+
     # Native macOS alternatives to Linux tools
     # (common.nix handles the platform-agnostic tools)
   ];

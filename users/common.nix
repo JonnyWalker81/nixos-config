@@ -190,8 +190,6 @@ in
     # pkgs.firefox-bin
     # pkgs.firefox-esr-102-unwrapped
     # pkgs.firefox-devedition-unwrapped
-    pkgs.pgmanage
-    pkgs.pgadmin4
     pkgs.pandoc
     pkgs.terraform-ls
     pkgs.tree-sitter
@@ -249,7 +247,6 @@ in
     pkgs.nodePackages.typescript-language-server
     pkgs.sqls
     pkgs.yazi
-    pkgs.qemu
 
     # inputs.zen-browser.packages."${system}".default
     # inputs.Neve.packages.${pkgs.system}.default
@@ -257,12 +254,16 @@ in
     # neovimNightly
     # pkgs.nixvim
 
-    inputs.nixvim.packages.${pkgs.system}.default # Re-enabled after update
     # pkgs.neovim  # Using default neovim temporarily
     # pkgs.claude-code
     pkgs.opencode
   ]
   ++ lib.optionals (!pkgs.stdenv.isDarwin) [
+    # Packages with wayland dependencies (Linux only)
+    pkgs.qemu
+    pkgs.pgmanage
+    pkgs.pgadmin4
+    inputs.nixvim.packages.${pkgs.system}.default # Has wayland clipboard dependencies
     pkgs.libreoffice
     pkgs.chromium
     # pkgs.gopls
