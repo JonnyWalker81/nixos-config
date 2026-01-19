@@ -15,6 +15,21 @@ darwin.lib.darwinSystem rec {
       nixpkgs.config.allowUnfree = true;
     }
 
+    # nix-homebrew module for managing Homebrew declaratively
+    inputs.nix-homebrew.darwinModules.nix-homebrew
+    {
+      nix-homebrew = {
+        enable = true;
+        enableRosetta = system == "aarch64-darwin";
+        user = user;
+        taps = {
+          "homebrew/homebrew-core" = inputs.homebrew-core;
+          "homebrew/homebrew-cask" = inputs.homebrew-cask;
+        };
+        mutableTaps = false;
+      };
+    }
+
     # ../hardware/${name}.nix
     ../machines/vm-darwin.nix
     ../users/${user}-darwin/nixos.nix

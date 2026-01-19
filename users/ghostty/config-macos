@@ -1,12 +1,11 @@
-# Cross-platform Ghostty configuration
-theme = MaterialDesignColors
+# macOS-specific Ghostty configuration
+# theme = MaterialDesignColors  # Commented out to use default Ghostty dark theme
 copy-on-select = clipboard
 font-family = Fira Code
 font-size = 14
 
-# Window decoration settings
-gtk-titlebar = false
-window-decoration = false
+# macOS window settings
+# Using native macOS window decorations
 
 # Terminal behavior
 confirm-close-surface = false

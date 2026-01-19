@@ -107,6 +107,17 @@
     dankmono.inputs.nixpkgs.follows = "nixpkgs";
 
     # yazi.url = "github:sxyazi/yazi";
+
+    # nix-homebrew for managing Homebrew on macOS
+    nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
+    homebrew-core = {
+      url = "github:homebrew/homebrew-core";
+      flake = false;
+    };
+    homebrew-cask = {
+      url = "github:homebrew/homebrew-cask";
+      flake = false;
+    };
   };
 
   # inputs = {
@@ -125,6 +136,9 @@
       neovim-flake,
       home-manager,
       zen-browser,
+      nix-homebrew,
+      homebrew-core,
+      homebrew-cask,
       ...
     }@inputs:
     let
@@ -471,6 +485,18 @@
         nixpkgs = nixpkgs-darwin;
         system = "aarch64-darwin"; # Apple Silicon - change to "x86_64-darwin" if Intel Mac
         user = "phantom";
+      };
+
+      darwinConfigurations.macbook-cipher = mkVMDarwin "macbook-cipher" rec {
+        inherit
+          overlays
+          home-manager
+          darwin
+          inputs
+          ;
+        nixpkgs = nixpkgs-darwin;
+        system = "aarch64-darwin"; # Apple Silicon
+        user = "cipher";
       };
 
     };

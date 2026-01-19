@@ -44,6 +44,11 @@ in
     recursive = true;
   };
 
+  # Symlink .emacs.d to .config/emacs for Doom Emacs
+  home.file.".emacs.d" = {
+    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/emacs";
+  };
+
   home.file.".elisp" = {
     source = ./elisp;
     recursive = true;
@@ -64,7 +69,7 @@ in
   # home.file.".config/rofi/config.rasi" = { source = ./rofi/config.rasi; };
 
   home.file.".config/ghostty/config" = {
-    source = ./ghostty/config;
+    source = if pkgs.stdenv.isDarwin then ./ghostty/config-macos else ./ghostty/config-linux;
   };
 
   home.file.".config/rainfrog/rainfrog_config.toml" = {
@@ -185,7 +190,7 @@ in
     # pkgs.gcc_latest
     pkgs.llvm
     # pkgs.jetbrains.datagrip
-    pkgs.gitui
+    # pkgs.gitui # Disabled on Darwin due to ARM64 assembly build issues
     pkgs.bind
     # pkgs.firefox-bin
     # pkgs.firefox-esr-102-unwrapped

@@ -801,18 +801,18 @@
   :config
   ;; Configure which whitespace to show
   (setq whitespace-style '(face tabs tab-mark spaces space-mark trailing))
-  
+
   ;; Configure whitespace display characters
   (setq whitespace-display-mappings
         '((space-mark 32 [183] [46])    ; 32 SPACE → · (middle dot) or .
           (space-mark 160 [164] [95])   ; 160 NO-BREAK SPACE → ¤ or _
           (tab-mark 9 [187 9] [92 9]))) ; 9 TAB → » followed by tab or \ followed by tab
-  
+
   ;; Set faces for whitespace using face-spec-set instead of custom-set-faces
   (face-spec-set 'whitespace-space '((t (:foreground "gray30"))))
   (face-spec-set 'whitespace-tab '((t (:foreground "gray30"))))
   (face-spec-set 'whitespace-trailing '((t (:background "red1" :foreground "yellow"))))
-  
+
   ;; Enable whitespace mode in all programming modes
   (add-hook 'prog-mode-hook #'whitespace-mode))
 
@@ -965,14 +965,14 @@
   :config
   ;; Use goimports as the format tool (matches "go.formatTool": "goimports")
   (setq gofmt-command "goimports")
-  
+
   ;; Configure golangci-lint as the linter (matches "go.lintTool": "golangci-lint")
   (setq flycheck-go-golint-executable "golangci-lint")
-  
+
   ;; IMPORTANT: Go uses tabs, not spaces for indentation
   ;; Set proper tab width for Go (standard is 4 or 8)
   (setq go-tab-width 4)
-  
+
   ;; Hook for Go mode setup
   (add-hook 'go-mode-hook
             (lambda ()
@@ -988,7 +988,7 @@
               (add-hook 'before-save-hook #'gofmt-before-save nil t)
               ;; Organize imports on save (matches "source.organizeImports": true)
               (add-hook 'before-save-hook #'lsp-organize-imports nil t)))
-  
+
   ;; Also configure go-ts-mode (tree-sitter mode)
   (add-hook 'go-ts-mode-hook
             (lambda ()
@@ -1008,19 +1008,19 @@
 (after! lsp-go
   ;; Tell gopls to use goimports
   (setq lsp-go-format-tool "goimports")
-  
+
   ;; Configure gopls settings to match VSCode config
   (setq lsp-go-gopls-server-args
         '("-remote=auto"))
-  
+
   ;; Set gopls build directory filters (matches gopls "build.directoryFilters")
   (setq lsp-go-directory-filters
         ["-**/node_modules"
          "-**/testdata"])
-  
+
   ;; Set local module for import organization (matches gopls "formatting.local")
   (setq lsp-go-imports-local-prefix "github.com/JoinCAD/komodo")
-  
+
   ;; Enable all analyses
   (setq lsp-go-analyses
         '((fieldalignment . t)
@@ -1048,13 +1048,13 @@
   ;; Add Go-specific LSP settings
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]node_modules\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]testdata\\'")
-  
+
   ;; Configure gopls through LSP initialization options
   (setq lsp-gopls-server-args '("-remote=auto"))
   (setq lsp-gopls-staticcheck t)
   (setq lsp-gopls-complete-unimported t)
   (setq lsp-gopls-use-placeholders t)
-  
+
   ;; Custom gopls settings matching VSCode configuration
   (lsp-register-custom-settings
    '(("gopls.formatting.local" "github.com/JoinCAD/komodo")
@@ -1182,9 +1182,9 @@ tab-indent."
             ;; include *Code-Review* buffer into current workspace
             (persp-add-buffer (current-buffer))))
 
-(use-package! gleam-mode
-  :bind (:map gleam-mode-map
-              ("C-c g f" . gleam-format)))
+; (use-package! gleam-mode
+;   :bind (:map gleam-mode-map
+;               ("C-c g f" . gleam-format)))
 
 (use-package! highlight-indent-guides
   :config
@@ -1536,7 +1536,7 @@ tab-indent."
       (define-polymode poly-python-sql-mode
         :hostmode 'poly-python-hostmode
         :innermodes '(poly-sql-python-innermode)))
-    
+
     ;; JavaScript/TypeScript configuration
     (with-eval-after-load 'js-mode
       ;; JavaScript host mode
@@ -1554,7 +1554,7 @@ tab-indent."
       (define-polymode poly-js-sql-mode
         :hostmode 'poly-js-hostmode
         :innermodes '(poly-sql-js-innermode)))
-    
+
     (with-eval-after-load 'typescript-mode
       ;; TypeScript host mode
       (define-hostmode poly-ts-hostmode :mode 'typescript-mode)
@@ -1592,7 +1592,7 @@ tab-indent."
             (when (fboundp 'sqlformat-on-save-mode)
               (sqlformat-on-save-mode -1)) ; Disable auto-format on save in indirect buffer
             (local-set-key (kbd "C-c C-f") 'jr/format-sql-buffer))))))
-  
+
   ;; Helper function to format SQL in indirect buffer
   (defun jr/format-sql-buffer ()
     "Format the current SQL buffer."
@@ -1604,7 +1604,7 @@ tab-indent."
 
 (message "after edit-indirect...")
 
-;; SQL formatting configuration  
+;; SQL formatting configuration
 (use-package! sqlformat
   :defer t
   :commands (sqlformat sqlformat-buffer sqlformat-region)
@@ -1641,11 +1641,11 @@ tab-indent."
   (message "Setting up sql-formatter...")
   (setf (alist-get 'sql-formatter apheleia-formatters)
         '("sql-formatter" "-l" "postgresql"))
-  
+
   (message "Associating SQL mode with formatter...")
   ;; Associate SQL mode with formatter
-  (add-to-list 'apheleia-mode-alist 
-               (cons 'sql-mode 
+  (add-to-list 'apheleia-mode-alist
+               (cons 'sql-mode
                      (cond
                       ((executable-find "pg_format") 'pgformatter)
                       ((executable-find "sqlformat") 'sqlformat)
@@ -1733,7 +1733,7 @@ tab-indent."
           (delete-region start end)
           (goto-char start)
           (insert formatted-sql)))))
-  
+
   ;; Add Go-specific keybinding
   (map! :map go-mode-map
         :localleader
@@ -1744,15 +1744,15 @@ tab-indent."
 (after! sql
   ;; Set default SQL product to PostgreSQL
   (setq sql-product 'postgres)
-  
+
   ;; Improve SQL indentation
   (setq sql-indent-offset 2)
-  
+
   ;; Enable SQL mode for common SQL file extensions
   (add-to-list 'auto-mode-alist '("\\.sql\\'" . sql-mode))
   (add-to-list 'auto-mode-alist '("\\.psql\\'" . sql-mode))
   (add-to-list 'auto-mode-alist '("\\.plsql\\'" . sql-mode))
-  
+
   ;; Configure SQL mode hooks
   (add-hook 'sql-mode-hook
             (lambda ()
@@ -1764,7 +1764,7 @@ tab-indent."
               ;; Enable format on save for SQL files
               (when (fboundp 'sqlformat-on-save-mode)
                 (sqlformat-on-save-mode))))
-  
+
   ;; PostgreSQL specific settings
   (setq sql-postgres-program "psql")
   (setq sql-postgres-options '("-P" "pager=off")))
@@ -1775,7 +1775,7 @@ tab-indent."
   :config
   (setq sql-indent-offset 2)
   ;; Only activate sql-indent-mode in actual SQL buffers, not in other modes
-  (add-hook 'sql-mode-hook 
+  (add-hook 'sql-mode-hook
             (lambda ()
               (when (eq major-mode 'sql-mode)
                 (sql-indent-mode)))))
@@ -2288,16 +2288,16 @@ UUIDv7 format: unix_ts_ms (48 bits) + ver (4) + rand_a (12) + var (2) + rand_b (
                                 "cd %s && nix develop -c claude --print '%s' 2>/dev/null"
                               "nix-shell -p nodejs --run \"claude --print '%s'\" 2>&1"))
                (formatted-command (if has-flake
-                                      (format nix-command 
+                                      (format nix-command
                                               (shell-quote-argument project-root)
                                               (replace-regexp-in-string "'" "'\"'\"'" prompt))
-                                    (format nix-command 
+                                    (format nix-command
                                             (replace-regexp-in-string "'" "'\"'\"'" prompt))))
                (claude-output (shell-command-to-string formatted-command))
                ;; Clean up any nix warnings that might have slipped through
                ;; Split output into lines and filter out nix warnings
                (output-lines (split-string claude-output "\n"))
-               (cleaned-lines (seq-remove 
+               (cleaned-lines (seq-remove
                                (lambda (line)
                                  (or (string-match-p "^\\(path\\|warning\\):" line)
                                      (string-match-p "does not contain a 'flake.nix'" line)
@@ -2332,16 +2332,16 @@ UUIDv7 format: unix_ts_ms (48 bits) + ver (4) + rand_a (12) + var (2) + rand_b (
                                 "cd %s && nix develop -c claude --print '%s' 2>/dev/null"
                               "nix-shell -p nodejs --run \"claude --print '%s'\" 2>&1"))
                (formatted-command (if has-flake
-                                      (format nix-command 
+                                      (format nix-command
                                               (shell-quote-argument project-root)
                                               (replace-regexp-in-string "'" "'\"'\"'" prompt))
-                                    (format nix-command 
+                                    (format nix-command
                                             (replace-regexp-in-string "'" "'\"'\"'" prompt))))
                (claude-output (shell-command-to-string formatted-command))
                ;; Clean up any nix warnings that might have slipped through
                ;; Split output into lines and filter out nix warnings
                (output-lines (split-string claude-output "\n"))
-               (cleaned-lines (seq-remove 
+               (cleaned-lines (seq-remove
                                (lambda (line)
                                  (or (string-match-p "^\\(path\\|warning\\):" line)
                                      (string-match-p "does not contain a 'flake.nix'" line)
@@ -2473,7 +2473,7 @@ UUIDv7 format: unix_ts_ms (48 bits) + ver (4) + rand_a (12) + var (2) + rand_b (
 ;;   (setq org-gcal-token-file (expand-file-name "~/.cache/org-gcal/.org-gcal-token"))
 
 ;;   ;; Verify configuration
-;;   (if (and org-gcal-client-id 
+;;   (if (and org-gcal-client-id
 ;;            org-gcal-client-secret
 ;;            (not (string-empty-p org-gcal-client-secret)))
 ;;       (progn
@@ -2747,29 +2747,29 @@ UUIDv7 format: unix_ts_ms (48 bits) + ver (4) + rand_a (12) + var (2) + rand_b (
 ;; Configure how terminal windows should be displayed
 (after! vterm
   ;; Bottom terminal popup
-  (set-popup-rule! "^\\*vterm" 
-    :side 'bottom 
-    :size 0.30 
-    :select t 
-    :quit nil 
+  (set-popup-rule! "^\\*vterm"
+    :side 'bottom
+    :size 0.30
+    :select t
+    :quit nil
     :ttl nil
     :modeline t)
 
   ;; Dedicated terminal on the right side
-  (set-popup-rule! "^\\*vterm-dedicated" 
-    :side 'right 
-    :size 0.40 
-    :select t 
-    :quit nil 
+  (set-popup-rule! "^\\*vterm-dedicated"
+    :side 'right
+    :size 0.40
+    :select t
+    :quit nil
     :ttl nil
     :modeline t)
-  
+
   ;; Multi-vterm buffers
-  (set-popup-rule! "^\\*vterm\\*<[0-9]+>" 
-    :side 'bottom 
-    :size 0.30 
-    :select t 
-    :quit nil 
+  (set-popup-rule! "^\\*vterm\\*<[0-9]+>"
+    :side 'bottom
+    :size 0.30
+    :select t
+    :quit nil
     :ttl nil
     :modeline t))
 
@@ -2839,7 +2839,7 @@ UUIDv7 format: unix_ts_ms (48 bits) + ver (4) + rand_a (12) + var (2) + rand_b (
     (split-window-horizontally)
     (multi-vterm)
     (balance-windows))
-  
+
   (defun my/eyebrowse-switch-to-terminal-workspace ()
     "Switch to or create a terminal-focused eyebrowse workspace."
     (interactive)
@@ -2855,7 +2855,7 @@ UUIDv7 format: unix_ts_ms (48 bits) + ver (4) + rand_a (12) + var (2) + rand_b (
         (eyebrowse-create-window-config)
         (eyebrowse-rename-window-config (eyebrowse--get 'current-slot) "terminals")
         (my/eyebrowse-terminal-config))))
-  
+
   ;; Add keybinding for terminal workspace
   (map! :leader
         :desc "Terminal eyebrowse workspace" "v e" #'my/eyebrowse-switch-to-terminal-workspace))
@@ -2990,10 +2990,8 @@ Works with file paths under cursor in any context (dired, magit, regular buffers
       (setq-local magit-diff-refine-hunk 'all)
       (magit-refresh))))
 
-
 ;; Optional keybinding for your “list of files” major-mode:
 ;; (map! :map my-files-list-mode-map "D" #'my/magit-diff-file-at-point-vs-origin-master)
-
 
 (message "done loading config.el...")
 
