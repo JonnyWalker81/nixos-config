@@ -36,7 +36,7 @@ darwin.lib.darwinSystem rec {
     home-manager.darwinModules.home-manager
     {
       home-manager.useGlobalPkgs = true;
-      home-manager.useUserPackages = true;
+      home-manager.useUserPackages = false;
       home-manager.backupFileExtension = "hm-backup";
       home-manager.users.${user}.imports =
         [ ../users/${user}-darwin/home-manager.nix ];

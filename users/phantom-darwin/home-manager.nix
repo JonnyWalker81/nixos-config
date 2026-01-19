@@ -4,6 +4,15 @@
   # Import common configuration but with Darwin-specific conditionals
   imports = [ ../common.nix ];
 
+  # Disable Darwin application linking (workaround for home-manager bug)
+  targets.darwin.currentHostDefaults."com.apple.controlcenter".BatteryShowPercentage = true;
+
+  # Disable the broken application/font linking (home-manager bug with buildEnv)
+  disabledModules = [
+    "targets/darwin/linkapps.nix"
+    "targets/darwin/fonts.nix"
+  ];
+
   # Note: Do not set nixpkgs.config here when using home-manager.useGlobalPkgs = true
   # The allowUnsupportedSystem setting is now in the system-level nixos.nix
 
