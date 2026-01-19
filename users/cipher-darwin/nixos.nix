@@ -1,9 +1,9 @@
 { pkgs, ... }:
 
 {
-  # User configuration for phantom on macOS
-  users.users.phantom = {
-    home = "/Users/phantom";
+  # User configuration for cipher on macOS
+  users.users.cipher = {
+    home = "/Users/cipher";
     shell = pkgs.zsh;
   };
 
@@ -14,10 +14,10 @@
   system = {
     # Required for nix-darwin
     stateVersion = 6;
-    
+
     # Set the primary user for system defaults
-    primaryUser = "phantom";
-    
+    primaryUser = "cipher";
+
     # Set macOS system preferences
     defaults = {
       # Dock settings
@@ -41,11 +41,11 @@
       NSGlobalDomain = {
         AppleShowAllExtensions = true;
         ApplePressAndHoldEnabled = false;
-        
+
         # Key repeat settings (faster)
         KeyRepeat = 1;
         InitialKeyRepeat = 10;
-        
+
         # Mouse and trackpad
         "com.apple.mouse.tapBehavior" = 1;
         "com.apple.trackpad.enableSecondaryClick" = true;
@@ -68,7 +68,7 @@
 
   # Import overlays (handled by mkvm-darwin.nix at the flake level)
   # nixpkgs.overlays = import ../../lib/overlays.nix;
-  
+
   # System packages that should be available and linked to /Applications
   environment.systemPackages = with pkgs; [
     # Add Emacs to system packages so it appears in /Applications/Nix Apps
@@ -76,7 +76,7 @@
     # Add Ghostty to system packages so it appears in /Applications/Nix Apps
     ghostty
   ];
-  
+
   # Fonts configuration for macOS
   fonts = {
     packages = with pkgs; [

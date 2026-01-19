@@ -1,0 +1,23 @@
+# Linux-specific Ghostty configuration
+theme = MaterialDesignColors
+copy-on-select = clipboard
+font-family = Fira Code
+font-size = 14
+
+# Window decoration settings (Linux/GTK)
+gtk-titlebar = false
+window-decoration = false
+
+# Terminal behavior
+confirm-close-surface = false
+mouse-hide-while-typing = true
+
+# Shell integration
+shell-integration-features = cursor,sudo,title
+
+# Window padding
+window-padding-x = 10
+window-padding-y = 10
+
+# Transparency
+background-opacity = 0.95

@@ -143,8 +143,8 @@
 ;; (package! gleam-mode
 ;;   :recipe (:host github :repo "gleam-lang/gleam-mode" :files ("*.el")))
 
-(package! gleam-mode
-  :recipe (:local-repo "~/Repositories/gleam-mode"))
+;; (package! gleam-mode
+;;   :recipe (:local-repo "~/Repositories/gleam-mode"))
 
 (package! tree-sitter-indent
   :recipe (:local-repo "~/Repositories/tree-sitter-indent")
