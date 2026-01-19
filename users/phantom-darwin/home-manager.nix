@@ -4,8 +4,8 @@
   # Import common configuration but with Darwin-specific conditionals
   imports = [ ../common.nix ];
 
-  # Allow unsupported packages at home-manager level
-  nixpkgs.config.allowUnsupportedSystem = true;
+  # Note: Do not set nixpkgs.config here when using home-manager.useGlobalPkgs = true
+  # The allowUnsupportedSystem setting is now in the system-level nixos.nix
 
   # User-specific git configuration for phantom
   programs.git.userEmail = "phantom@example.com"; # Update with your actual email
