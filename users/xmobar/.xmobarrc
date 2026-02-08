@@ -1,40 +1,39 @@
-Config { font            = "xft:FiraCode:weight=bold:pixelsize=14:antialias=true:hinting=true"
-       , additionalFonts = [ "xft:Mononoki:pixelsize=14:antialias=true:hinting=true"
-                           , "xft:Font Awesome 5 Free Solid:pixelsize=14"
-                           , "xft:Font Awesome 5 Brands:pixelsize=14"
+Config { font            = "xft:Ubuntu:weight=bold:pixelsize=13:antialias=true:hinting=true"
+       , additionalFonts = [ "xft:Mononoki:weight=bold:pixelsize=13:antialias=true:hinting=true"
+                           , "xft:Font Awesome 6 Free Solid:pixelsize=13:antialias=true:hinting=true"
+                           , "xft:Font Awesome 6 Brands:pixelsize=13:antialias=true:hinting=true"
                            ]
-       , bgColor      = "#1a1b26"  -- Omarchy dark navy background
-       , fgColor      = "#a9b1d6"  -- Omarchy soft blue-gray text
-       -- Position TopSize and BottomSize take 3 arguments:
-       --   an alignment parameter (L/R/C) for Left, Right or Center.
-       --   an integer for the percentage width, so 100 would be 100%.
-       --   an integer for the minimum pixel height for xmobar, so 24 would force a height of at least 24 pixels.
-       --   NOTE: The height should be the same as the trayer (system tray) height.
+       , bgColor      = "#2E3440"  -- Nord dark background
+       , fgColor      = "#D8DEE9"  -- Nord foreground
        , position       = TopSize L 100 24
        , lowerOnStart = True
        , hideOnStart  = False
        , allDesktops  = True
        , persistent   = True
-       , iconRoot     = ".xmonad/xpm/"  -- default: "."
+       , iconRoot     = ".xmonad/xpm/"
        , commands = [
-                  -- weather monitor
-                  Run Com "scripts/wttr.sh" [] "weather" 360
-                  -- Display profile monitor
-                  , Run Com "/home/cipher/nixos-config/scripts/display-profiles/get-current-profile.sh" [] "display" 30
-                  -- Cpu usage in percent
-                  , Run Cpu ["-t", "cpu: <total>%","-H","50","--high","red"] 20
-                  -- Ram used number and percent
-                  , Run Memory ["-t", "mem: <usedratio>%"] 20
-                  -- Disk space free
-                  , Run DiskU [("/", "disk: <free>")] [] 60
-                  -- Uptime
-                  , Run Uptime ["-t", "<days>d <hours>h"] 360
-                  -- Time and date
-                  , Run Date "%b %d %Y · %H:%M " "date" 50
-                  -- Prints out the left side items such as workspaces, layout, etc.
-                  , Run UnsafeStdinReader
-                  ]
+                 -- Weather icon
+                   Run Com "echo" ["<fn=2>\xf0c2</fn>"] "weathericon" 3600
+                 -- Weather monitor
+                 , Run Com "scripts/wttr.sh" [] "weather" 360
+                 -- Cpu usage in percent
+                 , Run Cpu ["-t", "<fn=2>\xf2db</fn>  cpu: (<total>%)","-H","50","--high","red"] 20
+                 -- Ram used number and percent
+                 , Run Memory ["-t", "<fn=2>\xf233</fn>  mem: <usedratio>%"] 20
+                 -- Disk space free
+                 , Run DiskU [("/", "<fn=2>\xf0c7</fn>  hdd: <free> free")] [] 60
+                 -- Uptime icon
+                 , Run Com "echo" ["<fn=2>\xf0aa</fn>"] "uparrow" 3600
+                 -- Uptime
+                 , Run Uptime ["-t", "uptime: <days>d <hours>h"] 360
+                 -- Time and date icon
+                 , Run Com "echo" ["<fn=2>\xf017</fn>"] "dateicon" 3600
+                 -- Time and date (local and UTC)
+                 , Run Com "/home/cipher/nixos-config/scripts/xmobar-datetime.sh" [] "date" 50
+                 -- Prints out the left side items such as workspaces, layout, etc.
+                 , Run UnsafeStdinReader
+                 ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %UnsafeStdinReader% }{ <fc=#ff9e64>%display%</fc> · <fc=#B4F9F8>%weather%</fc> · <fc=#9ECE6A>%cpu%</fc> · <fc=#a9b1d6>%memory%</fc> · <fc=#a9b1d6>%disku%</fc> · <fc=#B4F9F8>%uptime%</fc> · <fc=#9ECE6A>%date%</fc> "
+       , template = " %UnsafeStdinReader% }{ <box type=Bottom width=2 mb=2 color=#88C0D0><fc=#88C0D0>%weathericon%  %weather%</fc></box>    <box type=Bottom width=2 mb=2 color=#A3BE8C><fc=#A3BE8C>%cpu%</fc></box>    <box type=Bottom width=2 mb=2 color=#81A1C1><fc=#81A1C1>%memory%</fc></box>    <box type=Bottom width=2 mb=2 color=#B48EAD><fc=#B48EAD>%disku%</fc></box>    <box type=Bottom width=2 mb=2 color=#8FBCBB><fc=#8FBCBB>%uparrow%  %uptime%</fc></box>    <box type=Bottom width=2 mb=2 color=#A3BE8C><fc=#A3BE8C>%dateicon%  %date%</fc></box> "
        }

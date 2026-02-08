@@ -101,7 +101,7 @@ myModMask       = mod1Mask
 -- > workspaces = ["web", "irc", "code" ] ++ map show [4..9]
 --
 -- myWorkspaces    = ["1","2","3","4","5","6","7","8","9"]
-myWorkspaces    = ["coding", "web", "services", "work", "misc"] ++ map show ["6","7","8","9"]
+myWorkspaces    = ["coding", "web", "services", "work", "misc"] ++ ["6","7","8","9"]
 
 -- Border colors for unfocused and focused windows, respectively.
 --
@@ -211,6 +211,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Run xmessage with a summary of the default keybindings (useful for beginners)
     , ((modm .|. shiftMask, xK_slash ), spawn ("echo \"" ++ help ++ "\" | xmessage -file -"))
+
+    -- Screenshots (saved to ~/Pictures)
+    , ((modm,               xK_s     ), spawn "/home/cipher/nixos-config/scripts/screenshot.sh")
+    , ((modm .|. shiftMask, xK_s     ), spawn "/home/cipher/nixos-config/scripts/screenshot.sh -s")
     ]
     ++
 
@@ -448,13 +452,11 @@ myLogHook h = dynamicLogWithPP $ def
 -- By default, do nothing.
 
 myStartupHook = do
-  -- Run wallpaper setup script to ensure wallpaper is downloaded and set
-  spawnOnce "sh /home/cipher/nixos-config/scripts/setup-wallpaper.sh &"
-  -- Also run .fehbg to set wallpaper (created by setup script)
-  spawnOnce "sh ~/.fehbg &"
+  -- Set wallpaper using feh directly (reliable at startup)
+  spawnOnce "feh --no-fehbg --bg-fill /home/cipher/.local/share/wallpapers/nord.png"
   -- picom is now managed by home-manager service
-  spawnOnce "greenclip daemon &"
-  spawnOnce "clipcatd &"
+  spawnOnce "greenclip daemon"
+  -- clipcatd removed: conflicts with greenclip (dual clipboard daemons cause freezes)
   spawnOnce "emacs --daemon" -- emacs daemon for the emacsclient
   setWMName "LG3D" -- Helps with Java app compatibility
 
@@ -523,7 +525,7 @@ defaults h = setEwmhActivateHook myEwmhActivateHook $ ewmhFullscreen $ ewmh def 
         mouseBindings      = myMouseBindings,
 
       -- hooks, layouts
-        layoutHook         = avoidStruts $  myLayout,
+        layoutHook         = myLayout,  -- myLayout already includes avoidStruts
         manageHook         = myManageHook,
         handleEventHook    = handleEventHook def, -- setTransparentHook <+> handleEventHook def,
         logHook            = myLogHook h,
@@ -579,5 +581,9 @@ help = unlines ["The default modifier key is 'alt'. Default keybindings:",
     "-- Mouse bindings: default actions bound to mouse events",
     "mod-button1  Set the window to floating mode and move by dragging",
     "mod-button2  Raise the window to the top of the stack",
-    "mod-button3  Set the window to floating mode and resize by dragging"]
+    "mod-button3  Set the window to floating mode and resize by dragging",
+    "",
+    "-- Screenshots",
+    "mod-s        Take full screen screenshot (saved to ~/Pictures)",
+    "mod-Shift-s  Take selection screenshot (saved to ~/Pictures)"]
 
