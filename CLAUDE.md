@@ -250,6 +250,25 @@ The DWM source code lives in a **separate repository** at `~/Repositories/dwm` (
 4. **Separate concerns** -- Doom Emacs changes, window manager changes, Nix system changes, etc. should be in different commits
 5. **Lock file updates** get their own commit (e.g., `chore(flake): update flake.lock`)
 
+### Auto-Commit After Validated Changes
+
+**After making changes to NixOS/nix configuration files, always follow this workflow:**
+
+1. Make the requested changes to the configuration files
+2. Tell the user to rebuild (e.g., `sudo nixos-rebuild switch --flake ".#vm-aarch64-prl"`)
+3. **Wait for the user to confirm the rebuild succeeded** -- do NOT commit until the user explicitly confirms
+4. Once the user confirms the rebuild was successful, **immediately create an atomic semantic commit** for the validated changes
+5. Do NOT ask the user whether to commit -- just do it automatically after they confirm the rebuild worked
+
+**This applies to all configuration changes** including but not limited to:
+- Nix files (`*.nix`): flake.nix, machine configs, modules, overlays, packages
+- Doom Emacs files (`*.el`): config.el, init.el, packages.el, and all config-*.el modules
+- Window manager configs: XMonad, DWM, AwesomeWM, Hyprland
+- Shell configs, scripts, dotfiles managed by home-manager
+- Any other file that is part of the system configuration
+
+**Exception:** If changes span multiple unrelated concerns, split them into multiple atomic commits (per the atomic commit rules above).
+
 ## Makefile Default Values
 
 When using Makefile commands without parameters:
