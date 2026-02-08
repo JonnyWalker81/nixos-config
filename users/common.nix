@@ -1,10 +1,6 @@
 { config, lib, pkgs, system, inputs, ... }:
 
-# { config, lib, pkgs, theme, ... }:
 let
-  # hyprland = import "./hyprland.nix";
-  # theme = config.colorScheme.pallete;
-
   zoxide = pkgs.zoxide;
   zoxideBin = zoxide + "/bin/zoxide";
 
@@ -46,8 +42,6 @@ in {
 
   home.file.".wezterm.lua" = { source = ./wezterm/wezterm.lua; };
 
-  # home.file.".config/rofi/config.rasi" = { source = ./rofi/config.rasi; };
-
   home.file.".config/ghostty/config" = {
     source = if pkgs.stdenv.isDarwin then
       ./ghostty/config-macos
@@ -81,13 +75,6 @@ in {
   home.file.".config/gitui/key_bindings.ron" = {
     source = ./gitui/key_bindings.ron;
   };
-
-  # home.file.".config/nvim" = {
-  #   # source = ./lazyvim;
-  #   # source = ./lazy;
-  #   source = ./nvim;
-  #   recursive = true;
-  # };
 
   home.file.".config/dune/config" = {
     source = ./dune/config;
@@ -123,30 +110,6 @@ in {
                 (setenv "SSH_AUTH_SOCK" (string-trim ssh-auth-sock))))
           (setenv "SSH_AUTH_SOCK" "/run/user/1000/ssh-agent"))))
 
-      ;; Fix clipboard for Wayland
-      ;; (when (and (eq system-type 'linux)
-      ;;            (getenv "WAYLAND_DISPLAY"))
-      ;;   ;; Use wl-copy and wl-paste for clipboard operations
-      ;;   (setq wl-copy-process nil)
-      ;;   (defun wl-copy (text)
-      ;;     (setq wl-copy-process (make-process :name "wl-copy"
-      ;;                                         :buffer nil
-      ;;                                         :command '("wl-copy" "-f")
-      ;;                                         :connection-type 'pipe))
-      ;;     (process-send-string wl-copy-process text)
-      ;;     (process-send-eof wl-copy-process))
-      ;;   (defun wl-paste ()
-      ;;     (if (and wl-copy-process (process-live-p wl-copy-process))
-      ;;         nil ; should return nil if we're the current paste owner
-      ;;       (shell-command-to-string "wl-paste -n | tr -d \r")))
-      ;;
-      ;;   ;; Advise Emacs to use Wayland clipboard
-      ;;   (setq interprogram-cut-function 'wl-copy)
-      ;;   (setq interprogram-paste-function 'wl-paste)
-      ;;
-      ;;   ;; Also set selection functions
-      ;;   (setq select-enable-clipboard t)
-      ;;   (setq select-enable-primary t))
     '';
   };
 
@@ -160,9 +123,6 @@ in {
     pkgs.ripgrep
     pkgs.fd
     pkgs.monaspace
-    # pkgs.rustup
-    # pkgs.rust-analyzer
-    # pkgs.thefuck # Removed - incompatible with Python 3.12+, consider pay-respects
     pkgs.zoxide
     pkgs.bat
     pkgs.delta
@@ -177,14 +137,8 @@ in {
     pkgs.graphviz
     pkgs.fira-code
     pkgs.fira-code-symbols
-    # pkgs.gcc_latest
     pkgs.llvm
-    # pkgs.jetbrains.datagrip
-    # pkgs.gitui # Disabled on Darwin due to ARM64 assembly build issues
     pkgs.bind
-    # pkgs.firefox-bin
-    # pkgs.firefox-esr-102-unwrapped
-    # pkgs.firefox-devedition-unwrapped
     pkgs.pandoc
     pkgs.terraform-ls
     pkgs.tree-sitter
@@ -193,36 +147,8 @@ in {
     pkgs.nixpkgs-fmt
     pkgs.nixfmt
     pkgs.shfmt
-    # pkgs.opam
-    # pkgs.ocamlPackages.ocaml-lsp
-    # pkgs.ocamlPackages.findlib
-    # pkgs.tree-sitter.withPlugins
-    # (p: [ p.tree-sitter-tsx p.tree-sitter-go ])
-    # pkgs.tree-sitter-grammars.tree-sitter-c
-    # pkgs.tree-sitter-grammars.tree-sitter-go
-    # pkgs.tree-sitter-grammars.tree-sitter-tsx
-    # pkgs.tree-sitter-grammars.tree-sitter-sql
-    # pkgs.tree-sitter-grammars.tree-sitter-nix
-    # pkgs.tree-sitter-grammars.tree-sitter-hcl
-    # pkgs.tree-sitter-grammars.tree-sitter-css
-    # pkgs.tree-sitter-grammars.tree-sitter-cpp
-    # pkgs.tree-sitter-grammars.tree-sitter-yaml
-    # pkgs.tree-sitter-grammars.tree-sitter-rust
-    # pkgs.tree-sitter-grammars.tree-sitter-json
-    # pkgs.tree-sitter-grammars.tree-sitter-html
-    # pkgs.tree-sitter-grammars.tree-sitter-bash
-    # pkgs.tree-sitter-grammars.tree-sitter-typescript
-    # pkgs.tree-sitter-grammars.tree-sitter-javascript
     (pkgs.python3.withPackages
       (p: with p; [ epc orjson sexpdata six setuptools paramiko rapidfuzz ]))
-    # pkgs.python3
-    # pkgs.python311Packages.epc
-    # pkgs.python311Packages.orjson
-    # pkgs.python311Packages.sexpdata
-    # pkgs.python311Packages.six
-    # pkgs.python311Packages.setuptools
-    # pkgs.python311Packages.paramiko
-    # pkgs.python311Packages.rapidfuzz
 
     pkgs.difftastic
     pkgs.nixd
@@ -234,13 +160,6 @@ in {
     pkgs.sqls
     pkgs.yazi
 
-    # inputs.zen-browser.packages."${system}".default
-    # inputs.Neve.packages.${pkgs.system}.default
-    # inputs.nvix.packages.${pkgs.system}.full
-    # neovimNightly
-    # pkgs.nixvim
-
-    # pkgs.neovim  # Using default neovim temporarily
     pkgs.claude-code
     pkgs.opencode
   ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
@@ -251,15 +170,10 @@ in {
     inputs.nixvim.packages.${pkgs.system}.default # Has wayland clipboard dependencies
     pkgs.libreoffice
     pkgs.chromium
-    # pkgs.gopls
-    # pkgs.gotools
-    # pkgs.gotestsum
     pkgs.rustup
-    # pkgs.rust-analyzer
     pkgs.clang
     pkgs.just
     pkgs.docker-compose
-    # pkgs.awscli2
     pkgs.postgresql_14
     pkgs.feh
     pkgs.xplr
@@ -267,7 +181,6 @@ in {
     pkgs.font-awesome_5
     pkgs.powerline-fonts
     pkgs.powerline-symbols
-    # pkgs.fzf
     pkgs.openssl
     pkgs.lsof
     pkgs.gnupg
@@ -275,25 +188,14 @@ in {
     pkgs.hunspell
     pkgs.hunspellDicts.en-us
     pkgs.croc
-    # Email packages - DISABLED to prevent GPG password prompts
-    # pkgs.mu       # Email indexer (requires GPG for pass)
-    # pkgs.isync    # mbsync - IMAP sync (uses pass for passwords)
-    # pkgs.msmtp    # SMTP client (uses pass for passwords)
-    # pkgs.pass     # Password manager (requires GPG)
-    # pkgs.zigpkgs.master
     pkgs.bottom
     pkgs.kubernetes-helm
-    # pkgs.waypoint
-    # pkgs.helix
     pkgs.unzip
-    # pkgs.sublime-merge
     pkgs.lapce
     pkgs.terraform
     pkgs.enchant
     pkgs.gh
 
-    # pkgs.lazygit
-    # pkgs.diskonaut
     pkgs.sqlite
     pkgs.acpi
     pkgs.golangci-lint
@@ -304,10 +206,8 @@ in {
     pkgs.vscode
     pkgs.haskellPackages.libmpd
     pkgs.haskellPackages.xmobar
-    # pkgs.haskellPackages.xmonad  # Provided by NixOS services.xserver.windowManager.xmonad with proper GHC wrapper
     pkgs.nyxt
     pkgs.ssm-session-manager-plugin
-    # pkgs.atuin
     pkgs.bun
     pkgs.wezterm
     pkgs.ghostty # Now using nixpkgs version which supports macOS
@@ -400,10 +300,6 @@ in {
         name = "default";
         isDefault = true;
         settings = {
-          # "browser.startup.homepage" = "https://searx.aicampground.com";
-          # "browser.search.defaultenginename" = "Searx";
-          # "browser.search.order.1" = "Searx";
-
           # HiDPI/4K display scaling settings
           "layout.css.devPixelsPerPx" = "0.5";
           "browser.display.use_system_colors" = false;
@@ -476,50 +372,9 @@ in {
               "@g"; # builtin engines only support specifying one additional alias
           };
         };
-        # extensions = with pkgs.nur.repos.rycee.firefox-addons; [
-        # ublock-origin
-        # bitwarden
-        # darkreader
-        # tridactyl
-        # ];
       };
     };
   };
-
-  # programs.go_1_20 = {
-  #   enable = true;
-  #   # package = pkgs.go_1_20;
-  #   goPath = "go";
-  #   goPrivate = [ "github.com/joincad" "github.com/jonnywalker81" ];
-  # };
-
-  # programs.git = {
-  #   enable = true;
-  #   userName = "Jonathan Rothberg";
-  #   extraConfig = {
-  #     pull.rebase = true;
-  #     init.defaultBranch = "main";
-  #     color.ui = true;
-  #     credential.helper = "store --file ~/.git-credentials";
-  #     url."git@github.com".insteadOf = "https://github.com";
-  #   };
-
-  #   aliases = {
-  #     bump =
-  #       "!git checkout $1; git pull origin $1; git rebase \${2:-'main'}; git push origin; git checkout \${2:-'main'}";
-  #   };
-
-  #   delta = {
-  #     enable = true;
-  #     options = {
-  #       syntax-theme = "1337";
-  #       plus-color = "#32473d";
-  #       minus-color = "#643632";
-  #       features = "line-numbers";
-  #       whitespace-error-style = "22 reverse";
-  #     };
-  #   };
-  # };
 
   services.picom = lib.mkIf (!pkgs.stdenv.isDarwin) {
     enable = true;
@@ -623,30 +478,6 @@ in {
       xrender-sync-fence = true;
     };
   };
-  # services.xserver.windowManager.xmonad = {
-
-  #   #  i3.enable = true;
-  #   enable = true;
-  #   enableContribAndExtras = true;
-
-  #   extraPackages = hpkgs: [
-  #     hpkgs.xmonad-contrib
-  #     hpkgs.xmonad-extras
-  #     hpkgs.xmonad
-  #   ];
-  # };
-  # programs.xsession.picom = { enable = true; };
-  # pkgs.windowManagers.xmonad = {
-  #   #  i3.enable = true;
-  #   enable = true;
-  #   enableContribAndExtras = true;
-
-  #   extraPackages = hpkgs: [
-  #     hpkgs.xmonad-contrib
-  #     hpkgs.xmonad-extras
-  #     hpkgs.xmonad
-  #   ];
-  # };
 
   programs.fzf = {
     enable = true;
@@ -664,15 +495,10 @@ in {
         askPass = ""; # needs to be empty to use terminal for ask pass
         fsmonitor = true; # enables built-in fsmonitor daemon
         untrackedCache = true; # speeds up scanning untracked files
-        # splitIndex = true; # faster index writes on big repos
       };
 
-      # credential.helper = "store --file ~/.config/git-credentials";
-      # credential.helper = "store";
       credential.helper = "cache --timeout 36000";
       push.default = "current";
-      # branch.autosetuprebase = "always";
-      # url."git@github.com".insteadOf = "https://github.com";
     };
 
     aliases = {
@@ -693,15 +519,6 @@ in {
       };
     };
   };
-
-  # programs.atuin = {
-  #   enable = true;
-  #   settings = {
-  #     # Uncomment this to use your instance
-  #     # sync_address = "https://majiy00-shell.fly.dev";
-  #     keymap_mode = "vim-normal";
-  #   };
-  # };
 
   programs.zsh = {
     enable = true;
@@ -755,12 +572,6 @@ in {
       cr = "coderabbit";
     };
 
-    # interactiveShellInit = lib.strings.concatStrings
-    #   (lib.strings.intersperse "\n" [ (builtins.readFile ./config.zsh) ]);
-
-    # autosuggestion = { enable = true; };
-    # enableAutosuggestion = true;
-    # enableAutosuggestions = true;
     autosuggestion = { enable = true; };
     enableCompletion = true;
     syntaxHighlighting.enable = true;
@@ -771,154 +582,73 @@ in {
     };
 
     initContent = ''
-        # Ensure claude is in PATH
-        export PATH="$HOME/.claude/local:$PATH"
+      # Ensure claude is in PATH
+      export PATH="$HOME/.claude/local:$PATH"
 
-        source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
-        eval "$(${zoxideBin} init zsh)"
+      source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+      eval "$(${zoxideBin} init zsh)"
 
-        # Prepend home-manager bin to PATH for Darwin
-        if [[ "$(uname)" == "Darwin" ]]; then
-          export PATH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin:$PATH"
+      # Prepend home-manager bin to PATH for Darwin
+      if [[ "$(uname)" == "Darwin" ]]; then
+        export PATH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin:$PATH"
 
-          # macOS SSH agent setup - use the system SSH agent
-          # The SSH agent on macOS is managed by launchd and the socket is dynamic
-          # No need to set SSH_AUTH_SOCK as macOS handles it automatically
-        fi
+        # macOS SSH agent setup - use the system SSH agent
+        # The SSH agent on macOS is managed by launchd and the socket is dynamic
+        # No need to set SSH_AUTH_SOCK as macOS handles it automatically
+      fi
 
-        # Ensure ~/.local/bin is in PATH for Linux (in case session vars aren't loaded properly)
-        if [[ "$(uname)" == "Linux" ]]; then
-          export PATH="$HOME/.local/bin:$PATH"
-        fi
+      # Ensure ~/.local/bin is in PATH for Linux (in case session vars aren't loaded properly)
+      if [[ "$(uname)" == "Linux" ]]; then
+        export PATH="$HOME/.local/bin:$PATH"
+      fi
 
-        # Import SSH environment from systemd user environment (Linux only)
-        if [[ "$(uname)" == "Linux" ]] && command -v systemctl >/dev/null 2>&1; then
-          export SSH_AUTH_SOCK="/run/user/1000/ssh-agent"
-        fi
+      # Import SSH environment from systemd user environment (Linux only)
+      if [[ "$(uname)" == "Linux" ]] && command -v systemctl >/dev/null 2>&1; then
+        export SSH_AUTH_SOCK="/run/user/1000/ssh-agent"
+      fi
 
-        # SSH key management - only load keys if SSH agent is available and keys aren't already loaded
-        if [[ -n "$SSH_AUTH_SOCK" ]] && command -v ssh-add >/dev/null 2>&1; then
-          # Check if keys are already loaded
-          if ! ssh-add -l >/dev/null 2>&1; then
-            # Load SSH keys if they exist
-            if [[ "$(uname)" == "Darwin" ]]; then
-              # On macOS, use --apple-use-keychain to store passphrase in keychain
-              for key in ~/.ssh/id_ed25519 ~/.ssh/id_rsa ~/.ssh/id_github; do
-                if [[ -f "$key" ]]; then
-                  ssh-add --apple-use-keychain "$key" >/dev/null 2>&1 || true
-                fi
-              done
-            else
-              # On Linux, just add the keys normally
-              for key in ~/.ssh/id_ed25519 ~/.ssh/id_rsa ~/.ssh/id_github; do
-                if [[ -f "$key" ]]; then
-                  ssh-add "$key" >/dev/null 2>&1 || true
-                fi
-              done
-            fi
+      # SSH key management - only load keys if SSH agent is available and keys aren't already loaded
+      if [[ -n "$SSH_AUTH_SOCK" ]] && command -v ssh-add >/dev/null 2>&1; then
+        # Check if keys are already loaded
+        if ! ssh-add -l >/dev/null 2>&1; then
+          # Load SSH keys if they exist
+          if [[ "$(uname)" == "Darwin" ]]; then
+            # On macOS, use --apple-use-keychain to store passphrase in keychain
+            for key in ~/.ssh/id_ed25519 ~/.ssh/id_rsa ~/.ssh/id_github; do
+              if [[ -f "$key" ]]; then
+                ssh-add --apple-use-keychain "$key" >/dev/null 2>&1 || true
+              fi
+            done
+          else
+            # On Linux, just add the keys normally
+            for key in ~/.ssh/id_ed25519 ~/.ssh/id_rsa ~/.ssh/id_github; do
+              if [[ -f "$key" ]]; then
+                ssh-add "$key" >/dev/null 2>&1 || true
+              fi
+            done
           fi
         fi
+      fi
 
-        source ~/.bash_join_db
+      source ~/.bash_join_db
 
-        [[ ! -r /home/cipher/.opam/opam-init/init.zsh ]] || source /home/cipher/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
+      [[ ! -r /home/cipher/.opam/opam-init/init.zsh ]] || source /home/cipher/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
 
-        # export ATUIN_NOBIND="true"
-        # eval "$(atuin init zsh)"
+      source <(fzf --zsh)
 
-        source <(fzf --zsh)
-
-        # # bindkey '^z' atuin-search
-        # bindkey -M emacs '^r' atuin-search
-        # bindkey -M viins '^r' atuin-search
-        # bindkey -M vicmd '^r' atuin-search
-
-
-        # bind to the up key, which depends on terminal mode
-        # bindkey '^[[A' atuin-up-search
-        # bindkey '^[OA' atuin-up-search
-
-      #   if [[ -z "$ZELLIJ" ]]; then
-      #     if [[ "$ZELLIJ_AUTO_ATTACH" == "true" ]]; then
-      #       zellij attach -c
-      #     else
-      #       zellij
-      #     fi
-      #
-      #     if [[ "$ZELLIJ_AUTO_EXIT" == "true" ]]; then
-      #       exit
-      #     fi
-      # fi
-
-        # Show system info on new terminal
-        neofetch
+      # Show system info on new terminal
+      neofetch
 
     '';
 
     oh-my-zsh = {
       enable = true;
-      plugins = [
-        "git"
-        # "thefuck" # Removed - incompatible with Python 3.12+
-      ];
+      plugins = [ "git" ];
       theme = "robbyrussell";
     };
 
-    history = {
-      size = 100000;
-      # path = "${config.xdg.dataHome}/zsh/history";
-    };
+    history = { size = 100000; };
   };
-
-  # programs.neovim = {
-  #   enable = true;
-  #   # package = pkgs.neovim-nightly;
-  #   # package = pkgs.unstable.neovim;
-  #   package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
-  #
-  #   viAlias = true;
-  #   vimAlias = true;
-  # };
-  # programs.neovim = {
-  #   enable = true;
-  #   package = pkgs.neovim-nightly;
-
-  #   viAlias = true;
-  #   vimAlias = true;
-
-  #   plugins = with pkgs; [
-  #     customVim.vim-cue
-  #     customVim.vim-fish
-  #     customVim.vim-fugitive
-  #     customVim.vim-glsl
-  #     customVim.vim-misc
-  #     customVim.vim-pgsql
-  #     customVim.vim-tla
-  #     customVim.vim-zig
-  #     customVim.pigeon
-  #     customVim.AfterColors
-
-  #     customVim.vim-nord
-  #     customVim.nvim-comment
-  #     customVim.nvim-lspconfig
-  #     customVim.nvim-plenary # required for telescope
-  #     customVim.nvim-telescope
-  #     customVim.nvim-treesitter
-  #     customVim.nvim-treesitter-playground
-  #     customVim.nvim-treesitter-textobjects
-
-  #     vimPlugins.vim-airline
-  #     vimPlugins.vim-airline-themes
-  #     vimPlugins.vim-eunuch
-  #     vimPlugins.vim-gitgutter
-
-  #     vimPlugins.vim-markdown
-  #     vimPlugins.vim-nix
-  #     vimPlugins.typescript-vim
-  #   ];
-
-  #   extraConfig = (import ./vim-config.nix);
-  # };
 
   programs.direnv = {
     enable = true;
@@ -942,46 +672,6 @@ in {
   };
 
   programs.home-manager.enable = true;
-
-  # wayland.windowManager.sway = {
-  #   enable = true;
-  #
-  #   config = rec {
-  #     modifier = "Mod4";
-  #     terminal = "alacritty";
-  #     output = {
-  #       "Virtual-1" = {
-  #         mode = "1920x1080@60Hz";
-  #       };
-  #     };
-  #   };
-  # };
-
-  # wayland.windowManager.hyprland.settings = {
-  #   "$mod" = "ALT";
-  #   bind =
-  #     [
-  #       "$mod, F, exec, firefox"
-  #       "$mod SHIFT, Return, exec, alacritty"
-  #       ", Print, exec, grimblast copy area"
-  #     ]
-  #     ++ (
-  #       # workspaces
-  #       # binds $mod + [shift +] {1..10} to [move to] workspace {1..10}
-  #       builtins.concatLists (builtins.genList (
-  #           x: let
-  #             ws = let
-  #               c = (x + 1) / 10;
-  #             in
-  #               builtins.toString (x + 1 - (c * 10));
-  #           in [
-  #             "$mod, ${ws}, workspace, ${toString (x + 1)}"
-  #             "$mod SHIFT, ${ws}, movetoworkspace, ${toString (x + 1)}"
-  #           ]
-  #         )
-  #         10)
-  #     );
-  # };
 
   programs.ssh = {
     enable = true;
@@ -1068,39 +758,6 @@ in {
           action = "Paste";
         }
       ];
-
-      # key_bindings = [
-      #   {
-      #     key = "K";
-      #     mods = "Command";
-      #     chars = "ClearHistory";
-      #   }
-      #   {
-      #     key = "V";
-      #     mods = "Command";
-      #     action = "Paste";
-      #   }
-      #   {
-      #     key = "C";
-      #     mods = "Command";
-      #     action = "Copy";
-      #   }
-      #   {
-      #     key = "Key0";
-      #     mods = "Command";
-      #     action = "ResetFontSize";
-      #   }
-      #   {
-      #     key = "Equals";
-      #     mods = "Command";
-      #     action = "IncreaseFontSize";
-      #   }
-      #   {
-      #     key = "Subtract";
-      #     mods = "Command";
-      #     action = "DecreaseFontSize";
-      #   }
-      # ];
     };
   };
 
