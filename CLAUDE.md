@@ -144,6 +144,27 @@ Check `flake.nix` outputs section for all available configurations. Current syst
 - `nixosConfigurations.*`: Linux systems
 - `darwinConfigurations.*`: macOS systems
 
+### DWM (Window Manager)
+
+The DWM source code lives in a **separate repository** at `~/Repositories/dwm` (GitHub: `JonnyWalker81/dwm`, branch `xmonad-parity`). It is **not** part of this nixos-config repo directly — it is pulled in via `overlays/dwm.nix` using `fetchFromGitHub` with a pinned commit hash.
+
+**MANDATORY workflow for ANY DWM changes -- you MUST follow ALL steps:**
+
+1. Make changes locally in `~/Repositories/dwm` (e.g., edit `config.h`, `dwm.c`, etc.)
+2. Commit the changes in `~/Repositories/dwm`
+3. **Push** the changes to the remote: `git push origin xmonad-parity` (from `~/Repositories/dwm`)
+4. Get the new commit hash: `git rev-parse HEAD` (from `~/Repositories/dwm`)
+5. Update `overlays/dwm.nix` in **this** repo (`~/nixos-config`):
+   - Set `rev` to the new commit hash from step 4
+   - Set `sha256` to an empty string `""`
+6. Rebuild NixOS: `sudo nixos-rebuild switch --flake ".#vm-aarch64-prl"` (from `~/nixos-config`)
+   - The build will fail with a hash mismatch error showing the correct `sha256`
+   - Copy the correct `sha256` from the error output (the `got:` line)
+7. Update `overlays/dwm.nix` again with the correct `sha256` from the error
+8. Rebuild NixOS again -- this time it will succeed
+
+**CRITICAL:** Changes to `~/Repositories/dwm` MUST be pushed to GitHub before rebuilding NixOS, because the Nix build fetches the source from GitHub, not from the local directory. Skipping the push will cause the build to use stale code.
+
 ### Modifying Configurations
 
 1. **Adding a new machine**:
@@ -186,10 +207,52 @@ Check `flake.nix` outputs section for all available configurations. Current syst
 - `test_emacs.sh`: Emacs testing script
 - `test_interactive.sh`: Interactive testing script
 
+## Git Commit Policy
+
+**All commits MUST be atomic and use semantic commit messages.**
+
+### Semantic Commit Format
+
+```
+<type>(<scope>): <short description>
+
+[optional body with more detail]
+```
+
+### Commit Types
+
+- `feat`: New feature or functionality
+- `fix`: Bug fix
+- `refactor`: Code restructuring without behavior change
+- `docs`: Documentation changes
+- `style`: Formatting, whitespace, etc. (no code logic change)
+- `chore`: Maintenance tasks (dependency updates, build config, etc.)
+- `perf`: Performance improvements
+- `ci`: CI/CD changes
+
+### Scope Examples
+
+- `doom`: Doom Emacs configuration
+- `dwm`: DWM window manager
+- `xmonad`: XMonad window manager
+- `awesome`: AwesomeWM
+- `flake`: Nix flake inputs/outputs
+- `machines`: Machine-specific configs
+- `home-manager`: Home-manager user configs
+- `overlays`: Nix overlays
+- `scripts`: Shell scripts
+
+### Atomic Commit Rules
+
+1. **One logical change per commit** -- do not mix unrelated changes
+2. **Each commit should leave the system in a buildable state** when possible
+3. **Group related file changes together** -- e.g., a new module and its integration belong in one commit
+4. **Separate concerns** -- Doom Emacs changes, window manager changes, Nix system changes, etc. should be in different commits
+5. **Lock file updates** get their own commit (e.g., `chore(flake): update flake.lock`)
+
 ## Makefile Default Values
 
 When using Makefile commands without parameters:
 - `NIXNAME`: defaults to `vm-intel`
 - `NIXUSER`: defaults to `jrothberg`
 - `NIXPORT`: defaults to `22`
-```
