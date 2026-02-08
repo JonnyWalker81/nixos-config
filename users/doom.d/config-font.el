@@ -1,60 +1,111 @@
-;;; config-font.el --- description -*- lexical-binding: t; -*-
+;;; config-font.el --- Font configuration -*- lexical-binding: t; -*-
 
-;; (set-frame-font "Fira Code")
-;; (setq doom-big-font (font-spec :family "Input Mono" :size 19))
-;; (setq doom-font (font-spec :family "Input Mono" :size 16))
+;; ============================================================================
+;; FONT CONFIGURATION
+;; ============================================================================
+;; Easy switching between programming fonts
 
-;; (setq doom-big-font (font-spec :family "Iosevka Nerd Font Mono" :size 19))
-;; (setq doom-font (font-spec :family "Iosevka Nerd Font Mono" :size 16))
+;; ----------------------------------------------------------------------------
+;; Available Fonts
+;; ----------------------------------------------------------------------------
+;; Add new fonts here as (name . (family-variants...))
+;; Variants handle different naming conventions across systems
 
-;; (setq doom-big-font (font-spec :family "Fantasque Sans Mono" :size 19))
-;; (setq doom-font (font-spec :family "Fantasque Sans Mono" :size 16))
-;;
-;; (setq doom-big-font (font-spec :family "Cascadia Code" :size 19))
-;; (setq doom-font (font-spec :family "Cascadia Code" :size 16))
+(defvar jr/available-fonts
+  '(("Cascadia Code" . ("Cascadia Code" "CascadiaCode"))
+    ("JetBrains Mono" . ("JetBrains Mono" "JetBrainsMono"))
+    ("Fira Code" . ("Fira Code" "FiraCode"))
+    ("Victor Mono" . ("Victor Mono" "VictorMono"))
+    ("Iosevka" . ("Iosevka" "Iosevka Nerd Font Mono"))
+    ("Input Mono" . ("Input Mono" "InputMono")))
+  "Alist of available fonts with their possible family name variants.")
 
-;; (setq doom-big-font (font-spec :family "JetBrains Mono" :size 19))
-;; (setq doom-font (font-spec :family "JetBrains Mono" :size 16))
+;; ----------------------------------------------------------------------------
+;; Current Font Setting
+;; ----------------------------------------------------------------------------
 
-;; DankMono font configuration (active in config.el)
-;; (setq doom-big-font (font-spec :family "Dank Mono" :size 24))
-;; (setq doom-font (font-spec :family "Dank Mono" :size 16))
+(defvar jr/current-font "Cascadia Code"
+  "The currently selected font name (key from `jr/available-fonts').")
 
-;; (setq doom-big-font (font-spec :family "Victor Mono" :size 19))
-;; (setq doom-font (font-spec :family "Victor Mono" :size 16))
-;; (set-face-attribute 'default nil :family "Fira Code" :height 165 :weight 'medium)
-;; (set-face-attribute 'default nil :family "Input Mono" :height 165 :weight 'medium)
-;; (set-face-attribute 'default nil :family "Iosevka Nerd Font Mono" :height 200 :weight 'medium)
+(defvar jr/font-size 16
+  "Default font size.")
 
-;; (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
-;;                (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
-;;                (36 . ".\\(?:>\\)")
-;;                (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
-;;                (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
-;;                (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
-;;                (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
-;;                (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
-;;                (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
-;;                (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
-;;                (48 . ".\\(?:x[a-zA-Z]\\)")
-;;                (58 . ".\\(?:::\\|[:=]\\)")
-;;                (59 . ".\\(?:;;\\|;\\)")
-;;                (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
-;;                (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
-;;                (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
-;;                (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
-;;                (91 . ".\\(?:]\\)")
-;;                (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
-;;                (94 . ".\\(?:=\\)")
-;;                (119 . ".\\(?:ww\\)")
-;;                (123 . ".\\(?:-\\)")
-;;                (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
-;;                )
-;;              ))
-;;   (dolist (char-regexp alist)
-;;     (set-char-table-range composition-function-table (car char-regexp)
-;;                           `([,(cdr char-regexp) 0 font-shape-gstring]))))
+(defvar jr/font-size-big 24
+  "Big font size for presentations/zoom.")
 
+;; ----------------------------------------------------------------------------
+;; Font Helper Functions
+;; ----------------------------------------------------------------------------
+
+(defun jr/find-available-font-family (font-name)
+  "Find the first available font family variant for FONT-NAME."
+  (let ((variants (cdr (assoc font-name jr/available-fonts))))
+    (cl-find-if (lambda (variant)
+                  (member variant (font-family-list)))
+                variants)))
+
+(defun jr/set-font (font-name &optional size)
+  "Set the doom font to FONT-NAME with optional SIZE."
+  (interactive
+   (list (completing-read "Select font: "
+                          (mapcar #'car jr/available-fonts)
+                          nil t nil nil jr/current-font)))
+  (let* ((size (or size jr/font-size))
+         (family (jr/find-available-font-family font-name)))
+    (if family
+        (progn
+          (setq jr/current-font font-name)
+          (setq doom-font (font-spec :family family :size size)
+                doom-big-font (font-spec :family family :size jr/font-size-big))
+          ;; Apply immediately if in a graphical frame
+          (when (display-graphic-p)
+            (set-frame-font doom-font nil t))
+          (message "Font set to %s (%s) at size %d" font-name family size))
+      (message "Font %s not available on this system" font-name))))
+
+(defun jr/set-font-size (size)
+  "Set the font SIZE while keeping the current font family."
+  (interactive "nFont size: ")
+  (setq jr/font-size size)
+  (jr/set-font jr/current-font size))
+
+(defun jr/increase-font-size ()
+  "Increase font size by 1."
+  (interactive)
+  (jr/set-font-size (1+ jr/font-size)))
+
+(defun jr/decrease-font-size ()
+  "Decrease font size by 1."
+  (interactive)
+  (jr/set-font-size (1- jr/font-size)))
+
+(defun jr/cycle-font ()
+  "Cycle through available fonts."
+  (interactive)
+  (let* ((font-names (mapcar #'car jr/available-fonts))
+         (current-pos (cl-position jr/current-font font-names :test #'string=))
+         (next-pos (mod (1+ (or current-pos -1)) (length font-names)))
+         (next-font (nth next-pos font-names)))
+    (jr/set-font next-font)))
+
+;; ----------------------------------------------------------------------------
+;; Initialize Font
+;; ----------------------------------------------------------------------------
+
+;; Set the default font on startup
+(jr/set-font jr/current-font jr/font-size)
+
+;; ----------------------------------------------------------------------------
+;; Keybindings
+;; ----------------------------------------------------------------------------
+
+(map! :leader
+      (:prefix ("F" . "font")
+       :desc "Select font"      "f" #'jr/set-font
+       :desc "Set font size"    "s" #'jr/set-font-size
+       :desc "Increase size"    "+" #'jr/increase-font-size
+       :desc "Decrease size"    "-" #'jr/decrease-font-size
+       :desc "Cycle font"       "c" #'jr/cycle-font))
 
 (provide 'config-font)
-;; ;;; config-font.el ends here
+;;; config-font.el ends here

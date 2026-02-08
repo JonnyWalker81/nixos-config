@@ -36,7 +36,7 @@
 (after! lsp-mode
   ;; Rust-analyzer specific settings
   (setq lsp-rust-analyzer-cargo-watch-enable t
-        lsp-rust-analyzer-cargo-watch-command "clippy"
+        lsp-rust-analyzer-cargo-watch-command "check"  ; Changed from "clippy" - clippy is slower and runs continuously
         lsp-rust-analyzer-proc-macro-enable t
         lsp-rust-analyzer-cargo-load-out-dirs-from-check t
         lsp-rust-analyzer-display-chaining-hints t

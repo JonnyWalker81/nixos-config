@@ -1,7 +1,7 @@
 ;;; init.el -*- lexical-binding: t; -*-
 ;; Copy me to ~/.doom.d/init.el or ~/.config/doom/init.el, then edit me!
 
-(setq comp-speed 2)
+(setq comp-speed 1)  ; Reduced from 2 - aggressive optimization can cause threading bugs
 
 (doom! :feature
 
