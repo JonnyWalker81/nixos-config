@@ -69,18 +69,20 @@ local function three_column(p)
     local t = p.tag or awful.screen.focused().selected_tag
     local wa = p.workarea
     local cls = p.clients
+    local gap = beautiful.useless_gap or 0
 
     if #cls == 0 then return end
 
-    local ncol = 3
-    local width = wa.width / ncol
+    local ncol = math.min(#cls, 3)
+    local width = (wa.width - (ncol + 1) * gap) / ncol
 
     for i, c in ipairs(cls) do
+        local col = (i - 1) % ncol
         local g = {}
         g.width = width - 2 * c.border_width
-        g.height = wa.height - 2 * c.border_width
-        g.x = wa.x + (i - 1) * width
-        g.y = wa.y
+        g.height = wa.height - 2 * (c.border_width + gap)
+        g.x = wa.x + col * (width + gap) + gap
+        g.y = wa.y + gap
 
         c:geometry(g)
     end
@@ -90,6 +92,7 @@ end
 local function three_column_mid(p)
     local wa = p.workarea
     local cls = p.clients
+    local gap = beautiful.useless_gap or 0
 
     if #cls == 0 then return end
 
@@ -97,47 +100,51 @@ local function three_column_mid(p)
         -- Single client takes full screen
         local c = cls[1]
         local g = {}
-        g.width = wa.width - 2 * c.border_width
-        g.height = wa.height - 2 * c.border_width
-        g.x = wa.x
-        g.y = wa.y
+        g.width = wa.width - 2 * (c.border_width + gap)
+        g.height = wa.height - 2 * (c.border_width + gap)
+        g.x = wa.x + gap
+        g.y = wa.y + gap
         c:geometry(g)
     elseif #cls == 2 then
         -- Two clients split screen
-        local width = wa.width / 2
+        local total_gaps = 3  -- left edge + middle + right edge
+        local available_width = wa.width - total_gaps * gap
+        local width = available_width / 2
         for i, c in ipairs(cls) do
             local g = {}
             g.width = width - 2 * c.border_width
-            g.height = wa.height - 2 * c.border_width
-            g.x = wa.x + (i - 1) * width
-            g.y = wa.y
+            g.height = wa.height - 2 * (c.border_width + gap)
+            g.x = wa.x + gap + (i - 1) * (width + gap)
+            g.y = wa.y + gap
             c:geometry(g)
         end
     else
         -- Three or more: master in middle
-        local side_width = wa.width * 0.25
-        local mid_width = wa.width * 0.5
+        local total_gaps = 4  -- left edge + 2 between columns + right edge
+        local available_width = wa.width - total_gaps * gap
+        local side_width = available_width * 0.25
+        local mid_width = available_width * 0.5
 
         -- Middle (master) client
         local master = cls[1]
         local g = {}
         g.width = mid_width - 2 * master.border_width
-        g.height = wa.height - 2 * master.border_width
-        g.x = wa.x + side_width
-        g.y = wa.y
+        g.height = wa.height - 2 * (master.border_width + gap)
+        g.x = wa.x + gap + side_width + gap
+        g.y = wa.y + gap
         master:geometry(g)
 
         -- Left side clients
         local left_count = math.floor((#cls - 1) / 2)
         if left_count > 0 then
-            local height = wa.height / left_count
+            local height = (wa.height - (left_count + 1) * gap) / left_count
             for i = 1, left_count do
                 local c = cls[i + 1]
                 g = {}
                 g.width = side_width - 2 * c.border_width
                 g.height = height - 2 * c.border_width
-                g.x = wa.x
-                g.y = wa.y + (i - 1) * height
+                g.x = wa.x + gap
+                g.y = wa.y + (i - 1) * (height + gap) + gap
                 c:geometry(g)
             end
         end
@@ -146,14 +153,14 @@ local function three_column_mid(p)
         local right_start = left_count + 2
         local right_count = #cls - right_start + 1
         if right_count > 0 then
-            local height = wa.height / right_count
+            local height = (wa.height - (right_count + 1) * gap) / right_count
             for i = 0, right_count - 1 do
                 local c = cls[right_start + i]
                 g = {}
                 g.width = side_width - 2 * c.border_width
                 g.height = height - 2 * c.border_width
-                g.x = wa.x + side_width + mid_width
-                g.y = wa.y + i * height
+                g.x = wa.x + gap + side_width + gap + mid_width + gap
+                g.y = wa.y + i * (height + gap) + gap
                 c:geometry(g)
             end
         end
@@ -164,6 +171,7 @@ end
 local function grid_layout(p)
     local wa = p.workarea
     local cls = p.clients
+    local gap = beautiful.useless_gap or 0
 
     if #cls == 0 then return end
 
@@ -172,8 +180,8 @@ local function grid_layout(p)
     local ncols = math.ceil(math.sqrt(nclients * 1.6))  -- 16:10 = 1.6 ratio
     local nrows = math.ceil(nclients / ncols)
 
-    local cell_width = wa.width / ncols
-    local cell_height = wa.height / nrows
+    local cell_width = (wa.width - (ncols + 1) * gap) / ncols
+    local cell_height = (wa.height - (nrows + 1) * gap) / nrows
 
     for i, c in ipairs(cls) do
         local row = math.floor((i - 1) / ncols)
@@ -182,8 +190,8 @@ local function grid_layout(p)
         local g = {}
         g.width = cell_width - 2 * c.border_width
         g.height = cell_height - 2 * c.border_width
-        g.x = wa.x + col * cell_width
-        g.y = wa.y + row * cell_height
+        g.x = wa.x + col * (cell_width + gap) + gap
+        g.y = wa.y + row * (cell_height + gap) + gap
 
         c:geometry(g)
     end
@@ -193,20 +201,21 @@ end
 local function three_row_layout(p)
     local wa = p.workarea
     local cls = p.clients
+    local gap = beautiful.useless_gap or 0
 
     if #cls == 0 then return end
 
     -- Limit to 3 visible windows as per XMonad config
     local visible_count = math.min(#cls, 3)
-    local row_height = wa.height / visible_count
+    local row_height = (wa.height - (visible_count + 1) * gap) / visible_count
 
     for i = 1, visible_count do
         local c = cls[i]
         local g = {}
-        g.width = wa.width - 2 * c.border_width
+        g.width = wa.width - 2 * (c.border_width + gap)
         g.height = row_height - 2 * c.border_width
-        g.x = wa.x
-        g.y = wa.y + (i - 1) * row_height
+        g.x = wa.x + gap
+        g.y = wa.y + (i - 1) * (row_height + gap) + gap
 
         c:geometry(g)
     end
@@ -216,6 +225,7 @@ end
 local function space_layout(p)
     local wa = p.workarea
     local cls = p.clients
+    local gap = beautiful.useless_gap or 0
 
     if #cls == 0 then return end
 
@@ -226,37 +236,37 @@ local function space_layout(p)
         -- Single window takes full screen
         local c = cls[1]
         local g = {}
-        g.width = wa.width - 2 * c.border_width
-        g.height = wa.height - 2 * c.border_width
-        g.x = wa.x
-        g.y = wa.y
+        g.width = wa.width - 2 * (c.border_width + gap)
+        g.height = wa.height - 2 * (c.border_width + gap)
+        g.x = wa.x + gap
+        g.y = wa.y + gap
         c:geometry(g)
     else
         -- OneBig style: one large master, smaller slaves
-        local master_width = wa.width * 0.7
-        local master_height = wa.height
+        local master_width = (wa.width - 2 * gap) * 0.7
+        local master_height = wa.height - 2 * gap
 
         -- Master window
         local master = cls[1]
         local g = {}
-        g.width = master_width - 2 * master.border_width
+        g.width = master_width - 2 * master.border_width - gap
         g.height = master_height - 2 * master.border_width
-        g.x = wa.x
-        g.y = wa.y
+        g.x = wa.x + gap
+        g.y = wa.y + gap
         master:geometry(g)
 
         -- Slave windows (up to 3)
         local slave_count = visible_count - 1
-        local slave_width = wa.width - master_width
-        local slave_height = master_height / slave_count
+        local slave_width = wa.width - master_width - 2 * gap
+        local slave_height = (master_height - (slave_count - 1) * gap) / slave_count
 
         for i = 1, slave_count do
             local c = cls[i + 1]
             g = {}
             g.width = slave_width - 2 * c.border_width
             g.height = slave_height - 2 * c.border_width
-            g.x = wa.x + master_width
-            g.y = wa.y + (i - 1) * slave_height
+            g.x = wa.x + master_width + 2 * gap
+            g.y = wa.y + (i - 1) * (slave_height + gap) + gap
             c:geometry(g)
         end
     end
@@ -316,15 +326,13 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 
 -- {{{ Wibar
 -- Create a textclock widget (matching XMobar format: "Jan 01 2025 · 12:00")
-local mytextclock_text = wibox.widget.textclock('<span foreground="' .. beautiful.widget_date .. '">%b %d %Y · %H:%M</span>')
-local mytextclock = wibox.container.background(mytextclock_text, nil, beautiful.widget_date)
+local mytextclock = wibox.widget.textclock('<span foreground="' .. beautiful.widget_date .. '">%b %d %Y · %H:%M</span>')
 
 -- Weather widget with Omarchy colors
-local weather_widget_text = wibox.widget {
+local weather_widget = wibox.widget {
     text = "Loading...",
     widget = wibox.widget.textbox,
 }
-local weather_widget = wibox.container.background(weather_widget_text, nil, beautiful.widget_weather)
 
 -- Update weather every 6 minutes
 gears.timer {
@@ -333,17 +341,16 @@ gears.timer {
     autostart = true,
     callback = function()
         awful.spawn.easy_async_with_shell("~/scripts/wttr.sh 2>/dev/null || echo 'N/A'", function(stdout)
-            weather_widget_text.markup = '<span foreground="' .. beautiful.widget_weather .. '">' .. stdout:gsub("\n", "") .. '</span>'
+            weather_widget.markup = '<span foreground="' .. beautiful.widget_weather .. '">' .. stdout:gsub("\n", "") .. '</span>'
         end)
     end
 }
 
 -- CPU widget with Omarchy colors
-local cpu_widget_text = wibox.widget {
+local cpu_widget = wibox.widget {
     text = "cpu:0%",
     widget = wibox.widget.textbox,
 }
-local cpu_widget = wibox.container.background(cpu_widget_text, nil, beautiful.widget_cpu)
 
 -- Update CPU every 2 seconds
 gears.timer {
@@ -353,17 +360,16 @@ gears.timer {
     callback = function()
         awful.spawn.easy_async_with_shell("top -bn1 | grep 'Cpu(s)' | awk '{print $2}' | cut -d'%' -f1", function(stdout)
             local cpu = tonumber(stdout) or 0
-            cpu_widget_text.markup = string.format('<span foreground="' .. beautiful.widget_cpu .. '">cpu:(%d%%)</span>', cpu)
+            cpu_widget.markup = string.format('<span foreground="' .. beautiful.widget_cpu .. '">cpu:(%d%%)</span>', cpu)
         end)
     end
 }
 
 -- Memory widget with Omarchy colors
-local mem_widget_text = wibox.widget {
+local mem_widget = wibox.widget {
     text = "mem:0M(0%)",
     widget = wibox.widget.textbox,
 }
-local mem_widget = wibox.container.background(mem_widget_text, nil, beautiful.widget_mem)
 
 -- Update memory every 2 seconds
 gears.timer {
@@ -373,18 +379,17 @@ gears.timer {
     callback = function()
         awful.spawn.easy_async_with_shell("free -m | awk 'NR==2{printf \"%d\", $3}'", function(used)
             awful.spawn.easy_async_with_shell("free -m | awk 'NR==2{printf \"%.0f\", $3*100/$2}'", function(percent)
-                mem_widget_text.markup = string.format('<span foreground="' .. beautiful.widget_mem .. '">mem:%sM(%s%%)</span>', used:gsub("\n", ""), percent:gsub("\n", ""))
+                mem_widget.markup = string.format('<span foreground="' .. beautiful.widget_mem .. '">mem:%sM(%s%%)</span>', used:gsub("\n", ""), percent:gsub("\n", ""))
             end)
         end)
     end
 }
 
 -- Disk widget with Omarchy colors
-local disk_widget_text = wibox.widget {
+local disk_widget = wibox.widget {
     text = "hdd:0G free",
     widget = wibox.widget.textbox,
 }
-local disk_widget = wibox.container.background(disk_widget_text, nil, beautiful.widget_disk)
 
 -- Update disk every 60 seconds
 gears.timer {
@@ -393,17 +398,16 @@ gears.timer {
     autostart = true,
     callback = function()
         awful.spawn.easy_async_with_shell("df -h / | awk 'NR==2{print $4}'", function(stdout)
-            disk_widget_text.markup = '<span foreground="' .. beautiful.widget_disk .. '">hdd:' .. stdout:gsub("\n", "") .. ' free</span>'
+            disk_widget.markup = '<span foreground="' .. beautiful.widget_disk .. '">hdd:' .. stdout:gsub("\n", "") .. ' free</span>'
         end)
     end
 }
 
 -- Uptime widget with Omarchy colors
-local uptime_widget_text = wibox.widget {
+local uptime_widget = wibox.widget {
     text = "uptime:0d 0h",
     widget = wibox.widget.textbox,
 }
-local uptime_widget = wibox.container.background(uptime_widget_text, nil, beautiful.widget_uptime)
 
 -- Update uptime every 60 seconds
 gears.timer {
@@ -412,17 +416,16 @@ gears.timer {
     autostart = true,
     callback = function()
         awful.spawn.easy_async_with_shell("uptime -p | sed 's/up //' | sed 's/ hours\\?/h/g' | sed 's/ days\\?/d/g' | sed 's/ minutes\\?/m/g' | sed 's/, / /g'", function(stdout)
-            uptime_widget_text.markup = '<span foreground="' .. beautiful.widget_uptime .. '">uptime:' .. stdout:gsub("\n", "") .. '</span>'
+            uptime_widget.markup = '<span foreground="' .. beautiful.widget_uptime .. '">uptime:' .. stdout:gsub("\n", "") .. '</span>'
         end)
     end
 }
 
 -- Display Profile widget with Omarchy colors (matching XMobar)
-local display_widget_text = wibox.widget {
+local display_widget = wibox.widget {
     text = "Display:default",
     widget = wibox.widget.textbox,
 }
-local display_widget = wibox.container.background(display_widget_text, nil, beautiful.widget_display)
 
 -- Update display profile
 gears.timer {
@@ -431,7 +434,7 @@ gears.timer {
     autostart = true,
     callback = function()
         awful.spawn.easy_async_with_shell("~/scripts/display-profiles/get-current-profile.sh 2>/dev/null || echo 'default'", function(stdout)
-            display_widget_text.markup = '<span foreground="' .. beautiful.widget_display .. '">Display:' .. stdout:gsub("\n", "") .. '</span>'
+            display_widget.markup = '<span foreground="' .. beautiful.widget_display .. '">Display:' .. stdout:gsub("\n", "") .. '</span>'
         end)
     end
 }
@@ -493,14 +496,14 @@ screen.connect_signal("property::geometry", set_wallpaper)
 
 -- Per-layout spacing configuration (matching XMonad)
 local layout_gaps = {
-    ["tile"] = 5,
-    ["tile.bottom"] = 5,
-    ["threeCol"] = 5,
-    ["threeColMid"] = 5,
-    ["grid"] = 5,
-    ["threeRow"] = 8,
-    ["magnifier"] = 8,
-    ["space"] = 12,
+    ["tile"] = 3,
+    ["tile.bottom"] = 3,
+    ["threeCol"] = 3,
+    ["threeColMid"] = 3,
+    ["grid"] = 3,
+    ["threeRow"] = 4,
+    ["magnifier"] = 4,
+    ["space"] = 6,
     ["max"] = 0,
     ["floating"] = 0,
 }
@@ -522,7 +525,7 @@ awful.screen.connect_for_each_screen(function(s)
     set_wallpaper(s)
 
     -- Each screen has its own tag table with XMonad workspace names
-    awful.tag({ "coding", "web", "services", "work", "misc", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+    awful.tag({ "coding", "web", "services", "work", "misc", "6", "7", "8", "9" }, s, awful.layout.layouts[7])
 
     -- Set initial gaps for each tag
     for _, t in pairs(s.tags) do
@@ -624,7 +627,7 @@ root.buttons(gears.table.join(
 
 -- {{{ Key bindings
 globalkeys = gears.table.join(
-    awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
+    awful.key({ modkey,           }, "F1",     hotkeys_popup.show_help,
               {description="show help", group="awesome"}),
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
               {description = "view previous", group = "tag"}),
@@ -700,6 +703,16 @@ globalkeys = gears.table.join(
               {description = "restart xmonad", group = "awesome"}),
     awful.key({ modkey, "Shift"   }, "m", function () awful.spawn("xmobar -x 0 ~/.config/xmobar/.xmobarrc") end,
               {description = "restart xmobar", group = "awesome"}),
+
+    -- Screenshot keybindings
+    awful.key({ modkey,           }, "s", function ()
+        awful.spawn.with_shell("mkdir -p ~/Pictures && maim ~/Pictures/screenshot-$(date +%Y-%m-%d_%H-%M-%S).png")
+    end,
+              {description = "take screenshot", group = "screenshot"}),
+    awful.key({ modkey, "Shift"   }, "s", function ()
+        awful.spawn.with_shell("mkdir -p ~/Pictures && maim -s ~/Pictures/screenshot-$(date +%Y-%m-%d_%H-%M-%S).png")
+    end,
+              {description = "take selection screenshot", group = "screenshot"}),
 
     awful.key({ modkey,           }, "l",     function () awful.tag.incmwfact( 0.05)          end,
               {description = "increase master width factor", group = "layout"}),

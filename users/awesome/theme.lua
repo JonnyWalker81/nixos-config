@@ -30,15 +30,15 @@ theme.fg_urgent     = "#ffffff"
 theme.fg_minimize   = "#a9b1d6"
 
 -- Border colors (matching XMonad exactly)
-theme.border_normal = "#24283B"  -- Omarchy dark navy
+theme.border_normal = "#7aa2f7"  -- Omarchy bright blue (highly visible)
 theme.border_focus  = "#B4F9F8"  -- Omarchy bright cyan
 theme.border_marked = "#9ECE6A"  -- Omarchy accent green
 
 -- Border width (matching XMonad)
-theme.border_width  = dpi(2)
+theme.border_width  = dpi(1)
 
 -- Gaps (default, will be overridden per-layout)
-theme.useless_gap   = dpi(5)
+theme.useless_gap   = dpi(3)
 
 -- Widget colors (matching XMobar Omarchy theme)
 theme.widget_weather = "#B4F9F8"  -- cyan (matches XMobar weather)
