@@ -1,16 +1,9 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ config, lib, pkgs, ... }:
 
 {
   imports = [ ../common.nix ];
 
-  programs.google-chrome-dev = {
-    enable = true;
-  };
+  programs.google-chrome-dev = { enable = true; };
 
   programs.git.userEmail = "jrothberg@bluebeam.com";
 
@@ -39,12 +32,19 @@
 
   # home.file.".config/picom/picom.conf" = { source = ../picom/picom.conf; };
 
-  home.file.".xmonad/xmonad.hs" = {
-    source = ../xmonad/xmonad.hs;
+  home.file.".xmonad/xmonad.hs" = { source = ../xmonad/xmonad.hs; };
+
+  home.file.".config/xmobar/.xmobarrc" = { source = ../xmobar/.xmobarrc; };
+
+  # DWM autostart and status bar scripts
+  home.file.".local/share/dwm/autostart.sh" = {
+    source = ../dwm/autostart.sh;
+    executable = true;
   };
 
-  home.file.".config/xmobar/.xmobarrc" = {
-    source = ../xmobar/.xmobarrc;
+  home.file.".local/share/dwm/dwm-statusbar.sh" = {
+    source = ../dwm/dwm-statusbar.sh;
+    executable = true;
   };
 
   # Make cursor not tiny on HiDPI screens

@@ -1,11 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  system,
-  inputs,
-  ...
-}:
+{ config, lib, pkgs, system, inputs, ... }:
 
 # { config, lib, pkgs, theme, ... }:
 let
@@ -18,23 +11,15 @@ let
   homeDir = builtins.getEnv "HOME";
 
   isDarwin = pkgs.stdenv.isDarwin;
-  manpager = (
-    pkgs.writeShellScriptBin "manpager" (
-      if isDarwin then
-        ''
-          sh -c 'col -bx | bat -l man -p'
-        ''
-      else
-        ''
-          cat "$1" | col -bx | bat --language man --style plain
-        ''
-    )
-  );
+  manpager = (pkgs.writeShellScriptBin "manpager" (if isDarwin then ''
+    sh -c 'col -bx | bat -l man -p'
+  '' else ''
+    cat "$1" | col -bx | bat --language man --style plain
+  ''));
 
   neovimNightly = inputs.neovim-nightly-overlay.packages.${system}.default;
 
-in
-{
+in {
   home.stateVersion = "25.05";
   home.enableNixpkgsReleaseCheck = false; # Disable version mismatch warning
   xdg.enable = true;
@@ -46,7 +31,8 @@ in
 
   # Symlink .emacs.d to .config/emacs for Doom Emacs
   home.file.".emacs.d" = {
-    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/emacs";
+    source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/.config/emacs";
   };
 
   home.file.".elisp" = {
@@ -54,22 +40,19 @@ in
     recursive = true;
   };
 
-  home.file.".config/zls.json" = {
-    source = ./zls.json;
-  };
+  home.file.".config/zls.json" = { source = ./zls.json; };
 
-  home.file.".config/kitty/kitty.conf" = {
-    source = ./kitty/kitty.conf;
-  };
+  home.file.".config/kitty/kitty.conf" = { source = ./kitty/kitty.conf; };
 
-  home.file.".wezterm.lua" = {
-    source = ./wezterm/wezterm.lua;
-  };
+  home.file.".wezterm.lua" = { source = ./wezterm/wezterm.lua; };
 
   # home.file.".config/rofi/config.rasi" = { source = ./rofi/config.rasi; };
 
   home.file.".config/ghostty/config" = {
-    source = if pkgs.stdenv.isDarwin then ./ghostty/config-macos else ./ghostty/config-linux;
+    source = if pkgs.stdenv.isDarwin then
+      ./ghostty/config-macos
+    else
+      ./ghostty/config-linux;
   };
 
   home.file.".config/rainfrog/rainfrog_config.toml" = {
@@ -118,17 +101,11 @@ in
 
   programs.emacs = {
     enable = true;
-    package =
-      if pkgs.stdenv.isDarwin then
-        pkgs.emacs-unstable # Emacs 31.x with Cocoa GUI and native-comp support
-      else
-        pkgs.emacs;
-    extraPackages = (
-      epkgs: [
-        epkgs.vterm
-        epkgs.jinx
-      ]
-    );
+    package = if pkgs.stdenv.isDarwin then
+      pkgs.emacs-unstable # Emacs 31.x with Cocoa GUI and native-comp support
+    else
+      pkgs.emacs;
+    extraPackages = (epkgs: [ epkgs.vterm epkgs.jinx ]);
     extraConfig = ''
       ;; Set up SSH agent environment based on system type
       (cond
@@ -174,7 +151,12 @@ in
   };
 
   home.packages = [
+    # Programming fonts
+    pkgs.cascadia-code
     pkgs.jetbrains-mono
+    pkgs.victor-mono
+    pkgs.input-fonts
+    pkgs.iosevka
     pkgs.ripgrep
     pkgs.fd
     pkgs.monaspace
@@ -188,6 +170,8 @@ in
     pkgs.jq
     pkgs.eza
     pkgs.fzf
+    pkgs.maim # Screenshot tool
+    pkgs.xclip # Clipboard support for screenshots
     pkgs.k9s
     pkgs.procs
     pkgs.graphviz
@@ -207,7 +191,7 @@ in
     pkgs.file
     pkgs.nil
     pkgs.nixpkgs-fmt
-    pkgs.nixfmt-rfc-style
+    pkgs.nixfmt
     pkgs.shfmt
     # pkgs.opam
     # pkgs.ocamlPackages.ocaml-lsp
@@ -229,17 +213,8 @@ in
     # pkgs.tree-sitter-grammars.tree-sitter-bash
     # pkgs.tree-sitter-grammars.tree-sitter-typescript
     # pkgs.tree-sitter-grammars.tree-sitter-javascript
-    (pkgs.python3.withPackages (
-      p: with p; [
-        epc
-        orjson
-        sexpdata
-        six
-        setuptools
-        paramiko
-        rapidfuzz
-      ]
-    ))
+    (pkgs.python3.withPackages
+      (p: with p; [ epc orjson sexpdata six setuptools paramiko rapidfuzz ]))
     # pkgs.python3
     # pkgs.python311Packages.epc
     # pkgs.python311Packages.orjson
@@ -266,10 +241,9 @@ in
     # pkgs.nixvim
 
     # pkgs.neovim  # Using default neovim temporarily
-    # pkgs.claude-code
+    pkgs.claude-code
     pkgs.opencode
-  ]
-  ++ lib.optionals (!pkgs.stdenv.isDarwin) [
+  ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
     # Packages with wayland dependencies (Linux only)
     pkgs.qemu
     pkgs.pgmanage
@@ -293,7 +267,6 @@ in
     pkgs.font-awesome_5
     pkgs.powerline-fonts
     pkgs.powerline-symbols
-    pkgs.cascadia-code
     # pkgs.fzf
     pkgs.openssl
     pkgs.lsof
@@ -331,7 +304,7 @@ in
     pkgs.vscode
     pkgs.haskellPackages.libmpd
     pkgs.haskellPackages.xmobar
-    pkgs.haskellPackages.xmonad
+    # pkgs.haskellPackages.xmonad  # Provided by NixOS services.xserver.windowManager.xmonad with proper GHC wrapper
     pkgs.nyxt
     pkgs.ssm-session-manager-plugin
     # pkgs.atuin
@@ -359,12 +332,8 @@ in
     pkgs.swaynotificationcenter
   ];
 
-  home.sessionPath = [
-    "$HOME/.claude/local"
-    "$HOME/.local/bin"
-    "$HOME/bin"
-    "$HOME/.cargo/bin"
-  ];
+  home.sessionPath =
+    [ "$HOME/.claude/local" "$HOME/.local/bin" "$HOME/bin" "$HOME/.cargo/bin" ];
 
   home.sessionVariables = {
     LANG = "en_US.UTF-8";
@@ -396,15 +365,24 @@ in
     code = "code --enable-features=UseOzonePlatform --ozone-platform=wayland";
 
     # Display profile shortcuts
-    dp = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh";
-    dp-hidpi = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh hidpi";
-    dp-retina = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh retina";
-    dp-standard = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh standard";
-    dp-present = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh present";
-    dp-ultrawide = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh ultrawide";
-    dp-auto = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh auto";
-    dp-current = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh current";
-    dp-list = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh list";
+    dp =
+      "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh";
+    dp-hidpi =
+      "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh hidpi";
+    dp-retina =
+      "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh retina";
+    dp-standard =
+      "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh standard";
+    dp-present =
+      "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh present";
+    dp-ultrawide =
+      "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh ultrawide";
+    dp-auto =
+      "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh auto";
+    dp-current =
+      "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh current";
+    dp-list =
+      "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh list";
     prl-display = "parallels-display-info";
 
     # SSH key management
@@ -427,12 +405,12 @@ in
           # "browser.search.order.1" = "Searx";
 
           # HiDPI/4K display scaling settings
-          "layout.css.devPixelsPerPx" = "1.25";
+          "layout.css.devPixelsPerPx" = "0.5";
           "browser.display.use_system_colors" = false;
           "browser.display.use_document_fonts" = 1;
-          "font.size.variable.x-western" = 18;
-          "font.size.fixed.x-western" = 14;
-          "font.minimum-size.x-western" = 14;
+          "font.size.variable.x-western" = 16;
+          "font.size.fixed.x-western" = 13;
+          "font.minimum-size.x-western" = 12;
 
           # Zoom settings
           "browser.zoom.full" = true;
@@ -457,44 +435,45 @@ in
         search = {
           force = true;
           default = "google";
-          order = [
-            "google"
-            "Searx"
-          ];
+          order = [ "google" "Searx" ];
           engines = {
             "Nix Packages" = {
-              urls = [
-                {
-                  template = "https://search.nixos.org/packages";
-                  params = [
-                    {
-                      name = "type";
-                      value = "packages";
-                    }
-                    {
-                      name = "query";
-                      value = "{searchTerms}";
-                    }
-                  ];
-                }
-              ];
-              icon = "''${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              urls = [{
+                template = "https://search.nixos.org/packages";
+                params = [
+                  {
+                    name = "type";
+                    value = "packages";
+                  }
+                  {
+                    name = "query";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }];
+              icon =
+                "''${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
               definedAliases = [ "@np" ];
             };
             "NixOS Wiki" = {
-              urls = [ { template = "https://nixos.wiki/index.php?search={searchTerms}"; } ];
+              urls = [{
+                template = "https://nixos.wiki/index.php?search={searchTerms}";
+              }];
               icon = "https://nixos.wiki/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
               definedAliases = [ "@nw" ];
             };
             "Searx" = {
-              urls = [ { template = "https://searx.aicampground.com/?q={searchTerms}"; } ];
+              urls = [{
+                template = "https://searx.aicampground.com/?q={searchTerms}";
+              }];
               icon = "https://nixos.wiki/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
               definedAliases = [ "@searx" ];
             };
             bing.metaData.hidden = true;
-            "google".metaData.alias = "@g"; # builtin engines only support specifying one additional alias
+            "google".metaData.alias =
+              "@g"; # builtin engines only support specifying one additional alias
           };
         };
         # extensions = with pkgs.nur.repos.rycee.firefox-addons; [
@@ -544,8 +523,105 @@ in
 
   services.picom = lib.mkIf (!pkgs.stdenv.isDarwin) {
     enable = true;
-    #   # blur = true;
 
+    # Backend
+    backend = "glx";
+    vSync = true;
+
+    # Shadows - matching Hyprland's shadow settings
+    shadow = true;
+    shadowOffsets = [ (-8) (-8) ];
+    shadowOpacity = 0.35;
+    shadowExclude = [
+      "name = 'Notification'"
+      "class_g = 'xmobar'"
+      "class_g = 'dwm'"
+      "window_type = 'dock'"
+      "window_type = 'desktop'"
+    ];
+
+    # Fading - smooth transitions like Hyprland
+    fade = true;
+    fadeSteps = [ 2.5e-2 2.5e-2 ];
+    fadeDelta = 4;
+
+    # Opacity - matching Hyprland's 0.85 transparency
+    activeOpacity = 0.85;
+    inactiveOpacity = 0.85;
+
+    # Opacity rules - Firefox, Emacs, and browsers at 100%
+    opacityRules = [
+      "100:class_g = 'Firefox'"
+      "100:class_g = 'firefox'"
+      "100:class_g = 'Navigator'"
+      "100:class_g = 'Chromium'"
+      "100:class_g = 'Emacs'"
+      "100:class_g = 'emacs'"
+      "100:class_g = 'mpv'"
+      "100:class_g = 'xmobar'"
+      "100:class_g = 'dwm'"
+      "100:_NET_WM_WINDOW_TYPE@[0]:a = '_NET_WM_WINDOW_TYPE_DOCK'"
+    ];
+
+    # Window type settings
+    wintypes = {
+      tooltip = {
+        fade = true;
+        shadow = false;
+        opacity = 0.95;
+        focus = true;
+      };
+      dock = { shadow = false; };
+      dnd = { shadow = false; };
+      popup_menu = {
+        opacity = 0.98;
+        shadow = true;
+      };
+      dropdown_menu = { opacity = 0.98; };
+    };
+
+    # Additional settings via extraArgs
+    settings = {
+      # Blur - matching Hyprland's blur
+      blur-background = true;
+      blur-method = "dual_kawase";
+      blur-strength = 4;
+      blur-deviation = 1.0;
+      blur-background-exclude = [
+        "window_type = 'dock'"
+        "window_type = 'desktop'"
+        "class_g = 'xmobar'"
+        "class_g = 'dwm'"
+        "class_g = 'slop'"
+      ];
+
+      # Shadows
+      shadow-radius = 8;
+      shadow-color = "#1a1b26";
+
+      # Corners - matching Hyprland's rounding=10
+      corner-radius = 10;
+      rounded-corners-exclude = [
+        "window_type = 'dock'"
+        "window_type = 'desktop'"
+        "class_g = 'xmobar'"
+        "class_g = 'dwm'"
+        "class_g = 'Polybar'"
+        "class_g = 'Dunst'"
+      ];
+
+      # General
+      mark-wmwin-focused = true;
+      mark-ovredir-focused = true;
+      detect-rounded-corners = true;
+      detect-client-opacity = true;
+      detect-transient = true;
+      detect-client-leader = true;
+      use-ewmh-active-win = true;
+      glx-copy-from-front = false;
+      use-damage = true;
+      xrender-sync-fence = true;
+    };
   };
   # services.xserver.windowManager.xmonad = {
 
@@ -600,12 +676,11 @@ in
     };
 
     aliases = {
-      bump = "!git checkout $1; git pull origin $1; git rebase \${2:-'main'}; git push origin; git checkout \${2:-'main'}";
+      bump =
+        "!git checkout $1; git pull origin $1; git rebase \${2:-'main'}; git push origin; git checkout \${2:-'main'}";
     };
 
-    difftastic = {
-      enable = true;
-    };
+    difftastic = { enable = true; };
 
     delta = {
       enable = false;
@@ -633,31 +708,44 @@ in
     shellAliases = {
       ll = "eza -l";
       l = "eza -lah";
-      rebuild = "sudo NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1 nixos-rebuild switch --flake .#vm-aarch64";
+      rebuild =
+        "sudo NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1 nixos-rebuild switch --flake .#vm-aarch64";
       rp = "sudo nixos-rebuild switch --flake .#vm-aarch64-prl";
       ri = "sudo nixos-rebuild switch --flake .#vm-intel";
       rdd = "sudo darwin-rebuild switch --flake .#vm-darwin";
       f = "history | fzf --sort --exact | sh";
       bc = "git branch | grep '*' | awk '{print $2}' | pbcopy";
 
-      ap = ''export AWS_PROFILE=$(aws configure list-profiles | fzf --prompt "Choose active AWS profile:")'';
-      sw = ''terraform workspace list | fzf --prompt "Choose workspace:" | xargs -r terraform workspace select'';
-      ka = ''ps -aux | fzf | awk '{print $2}' | xargs -r kill -9'';
+      ap = ''
+        export AWS_PROFILE=$(aws configure list-profiles | fzf --prompt "Choose active AWS profile:")'';
+      sw = ''
+        terraform workspace list | fzf --prompt "Choose workspace:" | xargs -r terraform workspace select'';
+      ka = "ps -aux | fzf | awk '{print $2}' | xargs -r kill -9";
 
       cd = "z";
       ys = "yarn install && yarn start";
-      ff = ''cd "$(find $(git rev-parse --show-toplevel 2>/dev/null || pwd) -mindepth 1 -type d | fzf)"'';
+      ff = ''
+        cd "$(find $(git rev-parse --show-toplevel 2>/dev/null || pwd) -mindepth 1 -type d | fzf)"'';
 
       # Display profile management
-      dp = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh";
-      dp-hidpi = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh hidpi";
-      dp-retina = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh retina";
-      dp-standard = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh standard";
-      dp-present = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh present";
-      dp-ultrawide = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh ultrawide";
-      dp-auto = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh auto";
-      dp-current = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh current";
-      dp-list = "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh list";
+      dp =
+        "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh";
+      dp-hidpi =
+        "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh hidpi";
+      dp-retina =
+        "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh retina";
+      dp-standard =
+        "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh standard";
+      dp-present =
+        "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh present";
+      dp-ultrawide =
+        "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh ultrawide";
+      dp-auto =
+        "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh auto";
+      dp-current =
+        "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh current";
+      dp-list =
+        "/home/cipher/nixos-config/scripts/display-profiles/display-switcher.sh list";
       prl-display = "parallels-display-info";
 
       # SSH agent management
@@ -673,9 +761,7 @@ in
     # autosuggestion = { enable = true; };
     # enableAutosuggestion = true;
     # enableAutosuggestions = true;
-    autosuggestion = {
-      enable = true;
-    };
+    autosuggestion = { enable = true; };
     enableCompletion = true;
     syntaxHighlighting.enable = true;
     sessionVariables = {
@@ -764,6 +850,9 @@ in
       #     fi
       # fi
 
+        # Show system info on new terminal
+        neofetch
+
     '';
 
     oh-my-zsh = {
@@ -833,16 +922,15 @@ in
 
   programs.direnv = {
     enable = true;
-    nix-direnv = {
-      enable = true;
-    };
+    nix-direnv = { enable = true; };
   };
 
   programs.starship = {
     enable = true;
     # Configuration written to ~/.config/starship.toml
     settings = {
-      directory.fish_style_pwd_dir_length = 1; # turn on fish directory truncation
+      directory.fish_style_pwd_dir_length =
+        1; # turn on fish directory truncation
       directory.truncation_length = 2; # number of directories not to truncate
       add_newline = true;
 
@@ -966,9 +1054,7 @@ in
         italic.family = "JetBrains Mono Medium";
       };
 
-      selection = {
-        save_to_clipboard = true;
-      };
+      selection = { save_to_clipboard = true; };
 
       key_bindings = [
         {
@@ -1019,9 +1105,7 @@ in
   };
 
   # SSH Agent Service (Linux only - macOS uses native SSH agent)
-  services.ssh-agent = lib.mkIf (!pkgs.stdenv.isDarwin) {
-    enable = true;
-  };
+  services.ssh-agent = lib.mkIf (!pkgs.stdenv.isDarwin) { enable = true; };
 
   # Systemd service to set SSH_AUTH_SOCK for all user services (Linux only)
   systemd.user.services.ssh-agent-env = lib.mkIf (!pkgs.stdenv.isDarwin) {
@@ -1033,10 +1117,9 @@ in
     Service = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = "${pkgs.systemd}/bin/systemctl --user set-environment SSH_AUTH_SOCK=/run/user/1000/ssh-agent";
+      ExecStart =
+        "${pkgs.systemd}/bin/systemctl --user set-environment SSH_AUTH_SOCK=/run/user/1000/ssh-agent";
     };
-    Install = {
-      WantedBy = [ "default.target" ];
-    };
+    Install = { WantedBy = [ "default.target" ]; };
   };
 }

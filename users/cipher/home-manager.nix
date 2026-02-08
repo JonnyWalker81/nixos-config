@@ -1,30 +1,15 @@
 { isWSL, inputs, ... }:
 
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ config, lib, pkgs, ... }:
 let
   common = import ../common.nix {
-    inherit
-      config
-      lib
-      pkgs
-      isWSL
-      inputs
-      ;
-    system = pkgs.system;
+    inherit config lib pkgs isWSL inputs;
+    system = pkgs.stdenv.hostPlatform.system;
 
   };
-in
-{
+in {
 
-  imports = [
-    common
-    ../hyprland.nix
-  ];
+  imports = [ common ../hyprland.nix ];
 
   programs.git.userEmail = "jon@join.build";
 
@@ -35,41 +20,34 @@ in
     @theme "${pkgs.rofi-unwrapped}/share/rofi/themes/glue_pro_blue.rasi"
   '';
 
-  home.file.".config/picom/picom.conf" = {
-    source = ../picom-omarchy.conf;
+  # picom config is now managed via services.picom in common.nix
+
+  home.file.".xmonad/xmonad.hs" = { source = ../xmonad/xmonad.hs; };
+
+  home.file.".config/xmobar/.xmobarrc" = { source = ../xmobar/.xmobarrc; };
+
+  # DWM autostart and status bar scripts
+  home.file.".local/share/dwm/autostart.sh" = {
+    source = ../dwm/autostart.sh;
+    executable = true;
   };
 
-  home.file.".xmonad/xmonad.hs" = {
-    source = ../xmonad/xmonad.hs;
+  home.file.".local/share/dwm/dwm-statusbar.sh" = {
+    source = ../dwm/dwm-statusbar.sh;
+    executable = true;
   };
 
-  home.file.".config/xmobar/.xmobarrc" = {
-    source = ../xmobar/.xmobarrc;
-  };
+  home.file.".config/waybar/config" = { source = ../waybar/config; };
 
-  home.file.".config/waybar/config" = {
-    source = ../waybar/config;
-  };
+  home.file.".config/waybar/style.css" = { source = ../waybar/style.css; };
 
-  home.file.".config/waybar/style.css" = {
-    source = ../waybar/style.css;
-  };
+  home.file.".config/wofi/config" = { source = ../wofi/config; };
 
-  home.file.".config/wofi/config" = {
-    source = ../wofi/config;
-  };
+  home.file.".config/wofi/style.css" = { source = ../wofi/style.css; };
 
-  home.file.".config/wofi/style.css" = {
-    source = ../wofi/style.css;
-  };
+  home.file.".config/awesome/rc.lua" = { source = ../awesome/rc.lua; };
 
-  home.file.".config/awesome/rc.lua" = {
-    source = ../awesome/rc.lua;
-  };
-
-  home.file.".config/awesome/theme.lua" = {
-    source = ../awesome/theme.lua;
-  };
+  home.file.".config/awesome/theme.lua" = { source = ../awesome/theme.lua; };
 
   home.file."scripts/wttr.sh" = {
     source = ../scripts/wttr.sh;
@@ -78,31 +56,11 @@ in
 
   programs.go = {
     enable = true;
-    package = inputs.nixpkgs-unstable.legacyPackages.${pkgs.system}.go;
+    package =
+      inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.go;
   };
 
-  services.picom = {
-    enable = lib.mkForce false; # Disabled - using custom config file instead
-  };
-
-
-  # Custom systemd user service for picom
-  systemd.user.services.picom-custom = {
-    Unit = {
-      Description = "Picom compositor (jonaburg fork with animations)";
-      After = [ "graphical-session-pre.target" ];
-      PartOf = [ "graphical-session.target" ];
-    };
-    Service = {
-      ExecStart = "${pkgs.picom}/bin/picom --config %h/.config/picom/picom.conf";
-      Restart = "on-failure";
-      RestartSec = 3;
-    };
-    Install = {
-      WantedBy = [ "graphical-session.target" ];
-    };
-  };
-
+  # picom is now managed via services.picom in common.nix with proper transparency settings
 
   # Wallpaper setup service
   systemd.user.services.wallpaper-setup = {
@@ -113,12 +71,11 @@ in
     };
     Service = {
       Type = "oneshot";
-      ExecStart = "${pkgs.bash}/bin/bash /home/cipher/nixos-config/scripts/setup-wallpaper.sh";
+      ExecStart =
+        "${pkgs.bash}/bin/bash /home/cipher/nixos-config/scripts/setup-wallpaper.sh";
       RemainAfterExit = true;
     };
-    Install = {
-      WantedBy = [ "graphical-session.target" ];
-    };
+    Install = { WantedBy = [ "graphical-session.target" ]; };
   };
 
   # Make cursor not tiny on HiDPI screens
