@@ -104,7 +104,7 @@ EOF
         serviceConfig = {
           Type = "simple";
           ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p /media/psf";
-          ExecStart = "${prl-tools}/bin/prl_fsd -f /media/psf -o nosuid,nodev,noatime,big_writes";
+          ExecStart = "${prl-tools}/bin/prl_fsd -f /media/psf -o nosuid,nodev,noatime,big_writes,nonempty,uid=1000,gid=100";
           ExecStop = "${pkgs.util-linux}/bin/umount /media/psf";
           Restart = "on-failure";
           RestartSec = "5s";
