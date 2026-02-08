@@ -130,15 +130,21 @@ in
       ]
     );
     extraConfig = ''
-      ;; Ensure SSH agent environment is available
-      (setenv "SSH_AUTH_SOCK" "/run/user/1000/ssh-agent")
-
-      ;; Copy SSH environment variables from systemd user environment
-      (when (and (eq system-type 'linux)
-                 (executable-find "systemctl"))
-        (let ((ssh-auth-sock (shell-command-to-string "systemctl --user show-environment | grep SSH_AUTH_SOCK | cut -d'=' -f2-")))
-          (when (and ssh-auth-sock (not (string-empty-p (string-trim ssh-auth-sock))))
-            (setenv "SSH_AUTH_SOCK" (string-trim ssh-auth-sock)))))
+      ;; Set up SSH agent environment based on system type
+      (cond
+       ;; macOS: Find the launchd SSH agent socket dynamically
+       ((eq system-type 'darwin)
+        (let ((sock (shell-command-to-string
+                     "ls /private/tmp/com.apple.launchd.*/Listeners 2>/dev/null | head -1 | tr -d '\n'")))
+          (when (and sock (not (string-empty-p sock)) (file-exists-p sock))
+            (setenv "SSH_AUTH_SOCK" sock))))
+       ;; Linux: Use systemd user environment or fallback to hardcoded path
+       ((eq system-type 'gnu/linux)
+        (if (executable-find "systemctl")
+            (let ((ssh-auth-sock (shell-command-to-string "systemctl --user show-environment | grep SSH_AUTH_SOCK | cut -d'=' -f2-")))
+              (when (and ssh-auth-sock (not (string-empty-p (string-trim ssh-auth-sock))))
+                (setenv "SSH_AUTH_SOCK" (string-trim ssh-auth-sock))))
+          (setenv "SSH_AUTH_SOCK" "/run/user/1000/ssh-agent"))))
 
       ;; Fix clipboard for Wayland
       ;; (when (and (eq system-type 'linux)
@@ -368,7 +374,6 @@ in
     VISUAL = "nvim";
     PAGER = "less -FirSwX";
     MANPAGER = "${manpager}/bin/manpager";
-    SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
 
     # Firefox/Mozilla HiDPI scaling
     MOZ_ENABLE_WAYLAND = "1";
@@ -382,6 +387,9 @@ in
     LIBVIRT_DEFAULT_URI = "qemu:///system";
     AWS_PAGER = "";
     TERM = "xterm-256color";
+  } // lib.optionalAttrs (!isDarwin) {
+    # Linux-only: Set SSH_AUTH_SOCK for systemd ssh-agent
+    SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
   };
 
   home.shellAliases = {

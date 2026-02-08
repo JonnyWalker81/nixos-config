@@ -4,6 +4,12 @@
   # Import common configuration but with Darwin-specific conditionals
   imports = [ ../common.nix ];
 
+  # Disable the broken application/font linking (home-manager bug with buildEnv)
+  disabledModules = [
+    "targets/darwin/linkapps.nix"
+    "targets/darwin/fonts.nix"
+  ];
+
   # User-specific git configuration for cipher
   programs.git.userEmail = "jon@join.build";
 

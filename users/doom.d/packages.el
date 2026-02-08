@@ -54,7 +54,7 @@
 ;; (unpin! tree-sitter-indent)
 
 ;; (unpin! tuareg)
-                                        ; (unpin! magit forge)
+(unpin! magit forge)
                                         ; (package! magit :pin "48818355728c48d986d74dde8b1e9fba25f0fd53")
 ;; (package! forge :pin "c498fed98a6df8adca33e87433b4084c0340fb4a")
 

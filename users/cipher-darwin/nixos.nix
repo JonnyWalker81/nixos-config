@@ -84,6 +84,7 @@
       monaspace
       fira-code
       fira-code-symbols
+      cascadia-code
       # (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
     ];
   };
