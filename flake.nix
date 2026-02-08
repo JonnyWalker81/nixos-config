@@ -19,7 +19,8 @@
     # Locks nixpkgs to an older version with an older Kernel that boots
     # on VMware Fusion Tech Preview. This can be swapped to nixpkgs when
     # the TP fixes the bug.
-    nixpkgs-old-kernel.url = "github:nixos/nixpkgs/bacbfd713b4781a4a82c1f390f8fe21ae3b8b95b";
+    nixpkgs-old-kernel.url =
+      "github:nixos/nixpkgs/bacbfd713b4781a4a82c1f390f8fe21ae3b8b95b";
     # nix-doom-emacs.url = "github:he-la/nix-doom-emacs/develop";
     # nix-doom-emacs.inputs.doom-emacs.follows = "doom-emacs";
     # nix-doom-emacs.inputs.nixpkgs.follows = "nixpkgs";
@@ -33,9 +34,7 @@
     # nix-doom-emacs.url = "github:vlaci/nix-doom-emacs/";
     zig.url = "github:mitchellh/zig-overlay";
 
-    ghostty = {
-      url = "github:ghostty-org/ghostty";
-    };
+    ghostty = { url = "github:ghostty-org/ghostty"; };
 
     mozilla.url = "github:mozilla/nixpkgs-mozilla";
 
@@ -65,9 +64,7 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    neovim-flake = {
-      url = "github:jordanisaacs/neovim-flake";
-    };
+    neovim-flake = { url = "github:jordanisaacs/neovim-flake"; };
 
     # Neve = {
     #   url = "github:redyf/Neve";
@@ -108,6 +105,11 @@
 
     # yazi.url = "github:sxyazi/yazi";
 
+    claude-code.url = "github:sadjow/claude-code-nix";
+
+    opencode.url = "github:anomalyco/opencode";
+    opencode.inputs.nixpkgs.follows = "nixpkgs-unstable";
+
     # nix-homebrew for managing Homebrew on macOS
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
     homebrew-core = {
@@ -125,22 +127,9 @@
   #  nur = { url = "github:nix-community/NUR"; };
   #};
 
-  outputs =
-    {
-      self,
-      darwin,
-      ghostty,
-      nixpkgs-darwin,
-      nixpkgs,
-      nixpkgs-unstable,
-      neovim-flake,
-      home-manager,
-      zen-browser,
-      nix-homebrew,
-      homebrew-core,
-      homebrew-cask,
-      ...
-    }@inputs:
+  outputs = { self, darwin, ghostty, nixpkgs-darwin, nixpkgs, nixpkgs-unstable
+    , neovim-flake, home-manager, zen-browser, nix-homebrew, homebrew-core
+    , homebrew-cask, ... }@inputs:
     let
       # mkVM = import ./lib/mkvm.nix { inherit overlays nixpkgs inputs; };
       mkVM = import ./lib/mkvm.nix;
@@ -173,23 +162,20 @@
         #   sha256 = "0jlvxg0k744zyvdhpvwf2hv3fxc7b31iapjwlm4h3qxsgpjh7gvm";
         # }))
 
-        (
-          final: prev:
+        (final: prev:
           let
             # Helper function to add required attributes for the old wrapper
             # The 'nixpkgs-old-kernel' is identified by dli48i29mmjfxn9v0igzw0na6iz94b2h-source in your error.
             # We need to inspect that wrapper.nix to see all attributes it might need from `browser`.
             # For now, we'll add the common ones.
-            makeOldWrapperCompatible =
-              firefoxPkgFromMozilla:
+            makeOldWrapperCompatible = firefoxPkgFromMozilla:
               if firefoxPkgFromMozilla == null then
-                # This can happen if the package (e.g., firefox-nightly-bin) wasn't found in the previous overlay.
-                # You might want to throw an error or handle it,
-                # but for now, returning null will likely cause an error further down if actually used.
+              # This can happen if the package (e.g., firefox-nightly-bin) wasn't found in the previous overlay.
+              # You might want to throw an error or handle it,
+              # but for now, returning null will likely cause an error further down if actually used.
                 null
               else
-                firefoxPkgFromMozilla
-                // {
+                firefoxPkgFromMozilla // {
                   # Attributes expected by nixpkgs-old-kernel's wrapper.nix from the 'browser' package
                   gtk3 = final.gtk3; # The one that caused the error
                   glib = final.glib;
@@ -198,7 +184,8 @@
                   # These are educated guesses based on typical Firefox wrapper needs.
                   # You may need to check the specific 'wrapper.nix' from 'nixpkgs-old-kernel'.
                   alsaLib = final.alsa-lib;
-                  fontconfig = final.fontconfig; # The wrapper might use browser.fontconfig.lib
+                  fontconfig =
+                    final.fontconfig; # The wrapper might use browser.fontconfig.lib
                   dbus = final.dbus;
                   pango = final.pango;
                   cairo = final.cairo;
@@ -206,8 +193,7 @@
                   # libXt = final.libXt; # Example if X11 libs are directly accessed
                   # Add other attributes based on the contents of the wrapper if new errors arise.
                 };
-          in
-          {
+          in {
             # Apply this to the specific Firefox package you are using in Home Manager.
             # Ensure the package name here matches what you set in `programs.firefox.package`.
 
@@ -223,10 +209,13 @@
             # Add entries for any other Firefox variant you might switch to.
             # Example:
             # firefox = makeOldWrapperCompatible prev.firefox; # If you use the generic 'firefox' attr
-          }
-        )
+          })
 
         inputs.zig.overlays.default
+        inputs.claude-code.overlays.default
+        (final: prev: {
+          opencode = inputs.opencode.packages.${prev.system}.default;
+        })
         (final: prev: {
           # Use yshui's picom (latest version)
           picom = prev.picom.overrideAttrs (oldAttrs: rec {
@@ -236,20 +225,13 @@
               owner = "yshui";
               repo = "picom";
               rev = "b700a37d56ab5debdbb78be7a6b905e72f69ff2d";
-              sha256 = "sha256-C+icJXTkE+XMaU7N6JupsP8xhmRVggX9hY1P7za0pO0="; # Will be filled by nix
+              sha256 =
+                "sha256-C+icJXTkE+XMaU7N6JupsP8xhmRVggX9hY1P7za0pO0="; # Will be filled by nix
             };
-            buildInputs = (oldAttrs.buildInputs or [ ]) ++ [
-              prev.pcre
-              prev.libconfig
-              prev.libev
-              prev.uthash
-            ];
-            nativeBuildInputs = (oldAttrs.nativeBuildInputs or [ ]) ++ [
-              prev.asciidoc
-              prev.pkg-config
-              prev.meson
-              prev.ninja
-            ];
+            buildInputs = (oldAttrs.buildInputs or [ ])
+              ++ [ prev.pcre prev.libconfig prev.libev prev.uthash ];
+            nativeBuildInputs = (oldAttrs.nativeBuildInputs or [ ])
+              ++ [ prev.asciidoc prev.pkg-config prev.meson prev.ninja ];
             doCheck = false;
             doInstallCheck = false;
           });
@@ -264,23 +246,24 @@
 
           # Fix for CopilotChat.nvim requiring fzf-lua
           vimPlugins = prev.vimPlugins // {
-            CopilotChat-nvim = prev.vimPlugins.CopilotChat-nvim.overrideAttrs (old: {
-              # Disable the require check that's failing
-              doCheck = false;
-              nvimRequireCheck = "";
+            CopilotChat-nvim = prev.vimPlugins.CopilotChat-nvim.overrideAttrs
+              (old: {
+                # Disable the require check that's failing
+                doCheck = false;
+                nvimRequireCheck = "";
 
-              # Override the build phase to skip the check
-              buildPhase = ''
-                runHook preBuild
-                runHook postBuild
-              '';
+                # Override the build phase to skip the check
+                buildPhase = ''
+                  runHook preBuild
+                  runHook postBuild
+                '';
 
-              # Skip the install check phase
-              installCheckPhase = ''
-                runHook preInstallCheck
-                runHook postInstallCheck
-              '';
-            });
+                # Skip the install check phase
+                installCheckPhase = ''
+                  runHook preInstallCheck
+                  runHook postInstallCheck
+                '';
+              });
           };
 
           # clude-code = prev.claude-code.overrideAttrs (old: {
@@ -291,23 +274,25 @@
           #   nativeBuildInputs = old.nativeBuildInputs ++ [ final.icu76 ];
           # });
 
-          unstable = import nixpkgs-unstable { 
-            system = prev.system; 
+          unstable = import nixpkgs-unstable {
+            system = prev.system;
             config.allowUnfree = true;
           };
           tree-sitter-grammars = prev.tree-sitter-grammars // {
-            tree-sitter-tsx = prev.tree-sitter-grammars.tree-sitter-tsx.overrideAttrs (_: {
-              nativeBuildInputs = [ final.tree-sitter ];
-              configurePhase = ''
-                tree-sitter generate --abi 13 src/grammar.json
-              '';
-            });
-            tree-sitter-go = prev.tree-sitter-grammars.tree-sitter-go.overrideAttrs (_: {
-              nativeBuildInputs = [ final.tree-sitter ];
-              configurePhase = ''
-                tree-sitter generate --abi 13 src/grammar.json
-              '';
-            });
+            tree-sitter-tsx =
+              prev.tree-sitter-grammars.tree-sitter-tsx.overrideAttrs (_: {
+                nativeBuildInputs = [ final.tree-sitter ];
+                configurePhase = ''
+                  tree-sitter generate --abi 13 src/grammar.json
+                '';
+              });
+            tree-sitter-go =
+              prev.tree-sitter-grammars.tree-sitter-go.overrideAttrs (_: {
+                nativeBuildInputs = [ final.tree-sitter ];
+                configurePhase = ''
+                  tree-sitter generate --abi 13 src/grammar.json
+                '';
+              });
 
           };
           # emacs = (import (builtins.fetchTarball {
@@ -323,50 +308,50 @@
 
           xmobar = inputs.nixpkgs-unstable.legacyPackages.${prev.system}.xmobar;
 
-          awscli2 = inputs.nixpkgs-unstable.legacyPackages.${prev.system}.awscli2;
+          awscli2 =
+            inputs.nixpkgs-unstable.legacyPackages.${prev.system}.awscli2;
 
           # Use the flake overlay for Linux (optimized build), ghostty-bin from unstable for macOS
-          ghostty =
-            if prev.stdenv.isLinux then
-              ghostty.packages.${prev.system}.ghostty-releasefast
-            else
-              inputs.nixpkgs-unstable.legacyPackages.${prev.system}.ghostty-bin;
+          ghostty = if prev.stdenv.isLinux then
+            ghostty.packages.${prev.system}.default
+          else
+            inputs.nixpkgs-unstable.legacyPackages.${prev.system}.ghostty-bin;
 
           nixvim = inputs.nixvim.packages.${prev.system}.default;
-          
+
           # DankMono font - build it with our nixpkgs that allows unfree
           dankmono = prev.stdenv.mkDerivation rec {
             pname = "dankmono";
             version = "1.0.0";
-            
+
             src = inputs.dankmono;
-            
+
             installPhase = ''
               runHook preInstall
-              
+
               # Install TrueType fonts
               install -D -m644 -t $out/share/fonts/truetype/dankmono OpenType-TT/*.ttf
-              
+
               # Install OpenType fonts
               install -D -m644 -t $out/share/fonts/opentype/dankmono OpenType-PS/*.otf
-              
+
               # Install web fonts
               install -D -m644 -t $out/share/fonts/woff2/dankmono Web-PS/*.woff2
               install -D -m644 Web-PS/dmvendor.css $out/share/fonts/woff2/dankmono/dmvendor.css
-              
+
               # Install documentation
               install -D -m644 README.txt $out/share/doc/dankmono/README.txt
               install -D -m644 EULA.txt $out/share/licenses/dankmono/EULA.txt
-              
+
               runHook postInstall
             '';
-            
+
             # Add font configuration for fontconfig (Linux)
             postInstall = prev.lib.optionalString prev.stdenv.isLinux ''
               # Generate fontconfig cache for Linux
               ${prev.fontconfig}/bin/fc-cache -f $out/share/fonts/
             '';
-            
+
             meta = with prev.lib; {
               description = "DankMono programming font";
               longDescription = ''
@@ -423,8 +408,7 @@
       # };
 
       mkSystem = import ./lib/mksystem.nix { inherit overlays nixpkgs inputs; };
-    in
-    {
+    in {
 
       # packages.${system}.neovim = customNeovim;
 
@@ -446,12 +430,7 @@
       };
 
       nixosConfigurations.vm-intel = mkVM "vm-intel" rec {
-        inherit
-          overlays
-          nixpkgs
-          home-manager
-          inputs
-          ;
+        inherit overlays nixpkgs home-manager inputs;
         system = "x86_64-linux";
         user = "jrothberg";
       };
@@ -464,36 +443,22 @@
       # };
 
       darwinConfigurations.vm-darwin = mkVMDarwin "vm-darwin" rec {
-        inherit
-          overlays
-          home-manager
-          darwin
-          inputs
-          ;
+        inherit overlays home-manager darwin inputs;
         nixpkgs = nixpkgs-darwin;
         system = "x86_64-darwin";
         user = "jrothberg";
       };
 
       darwinConfigurations.macbook-phantom = mkVMDarwin "macbook-phantom" rec {
-        inherit
-          overlays
-          home-manager
-          darwin
-          inputs
-          ;
+        inherit overlays home-manager darwin inputs;
         nixpkgs = nixpkgs-darwin;
-        system = "aarch64-darwin"; # Apple Silicon - change to "x86_64-darwin" if Intel Mac
+        system =
+          "aarch64-darwin"; # Apple Silicon - change to "x86_64-darwin" if Intel Mac
         user = "phantom";
       };
 
       darwinConfigurations.macbook-cipher = mkVMDarwin "macbook-cipher" rec {
-        inherit
-          overlays
-          home-manager
-          darwin
-          inputs
-          ;
+        inherit overlays home-manager darwin inputs;
         nixpkgs = nixpkgs-darwin;
         system = "aarch64-darwin"; # Apple Silicon
         user = "cipher";

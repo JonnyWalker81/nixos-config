@@ -1,11 +1,4 @@
-{
-  config,
-  pkgs,
-  currentSystem,
-  currentSystemName,
-  inputs,
-  ...
-}:
+{ config, pkgs, currentSystem, currentSystemName, inputs, ... }:
 
 {
   # We require 5.14+ for VMware Fusion on M1.
@@ -43,13 +36,9 @@
   # We expect to run the VM on hidpi machines.
   hardware.graphics = {
     enable = true;
-    
+
     # For VM environments, ensure software rendering fallback
-    extraPackages = with pkgs; [
-      mesa
-      libvdpau-va-gl
-      vaapiVdpau
-    ];
+    extraPackages = with pkgs; [ mesa libvdpau-va-gl vaapiVdpau ];
   };
 
   # Use the systemd-boot EFI boot loader.
@@ -59,6 +48,7 @@
 
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowUnsupportedSystem = true;
+  nixpkgs.config.input-fonts.acceptLicense = true;
 
   boot.loader.systemd-boot.consoleMode = "0";
 
@@ -69,10 +59,7 @@
   time.timeZone = "America/Los_Angeles";
 
   # networking.timeServers = config.networking.timeServers.default ++ [ "ntp.example.com" ];
-  networking.timeServers = [
-    "pool.ntp.org"
-    "time.nist.gov"
-  ];
+  networking.timeServers = [ "pool.ntp.org" "time.nist.gov" ];
   services.timesyncd.enable = true;
 
   # services.ntp.enable = true;
@@ -87,7 +74,7 @@
 
   # Virtualization settings
   virtualisation.docker.enable = true;
-  
+
   # VM performance optimizations
   boot.kernel.sysctl = {
     "vm.swappiness" = 1;
@@ -95,7 +82,7 @@
     "vm.dirty_ratio" = 10;
     "vm.vfs_cache_pressure" = 50;
   };
-  
+
   # Memory optimization
   zramSwap.enable = true;
   zramSwap.memoryPercent = 25;
@@ -175,12 +162,10 @@
   # security.polkit.enable = true;
   # hardware.opengl.enable = true;
 
-  # services.displayManager.defaultSession = "none+xmonad";
-
   # setup windowing environment
   services = {
     displayManager = {
-      defaultSession = "hyprland";
+      defaultSession = "none+dwm";
       sddm = {
         enable = true;
         wayland.enable = true;
@@ -245,7 +230,7 @@
         ];
       };
 
-      # windowManager.dwm = { enable = true; };
+      windowManager.dwm.enable = true;
 
       windowManager.awesome = {
         # i3.enable = true;
@@ -264,20 +249,15 @@
   fonts = {
     fontDir.enable = true;
 
-    packages =
-      with pkgs;
-      [
-        fira-code
-        fira-code-symbols
-        jetbrains-mono
-      ]
-      ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
+    packages = with pkgs;
+      [ fira-code fira-code-symbols jetbrains-mono ]
+      ++ builtins.filter lib.attrsets.isDerivation
+      (builtins.attrValues pkgs.nerd-fonts);
   };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages =
-    with pkgs;
+  environment.systemPackages = with pkgs;
     [
       # firefox
       # neovim
@@ -289,7 +269,7 @@
       rxvt-unicode-unwrapped
       vimHugeX
       # nixfmt-classic
-      nixfmt-rfc-style
+      nixfmt
       # linuxKernel.packages.linux_6_6.prl-tools  # Managed by parallels-guest module
 
       # gitAndTools.gitFull
@@ -304,11 +284,10 @@
       # haskellPackages.greenclip
 
       (writeShellScriptBin "xrandr-auto" ''
-          # Use the new display profile system for auto-detection
-          ${../scripts/display-profiles/display-switcher.sh} auto
+        # Use the new display profile system for auto-detection
+        ${../scripts/display-profiles/display-switcher.sh} auto
       '')
-    ]
-    ++ lib.optionals (currentSystemName == "vm-aarch64") [
+    ] ++ lib.optionals (currentSystemName == "vm-aarch64") [
 
       # This is needed for the vmware user tools clipboard to work.
       # You can test if you don't need this by deleting this and seeing
