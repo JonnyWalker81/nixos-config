@@ -32,7 +32,7 @@ fi
 ln -sf "$WALLPAPER_PATH" "$CURRENT_WALLPAPER_LINK"
 
 # Set wallpaper using swww for Wayland/Hyprland
-if command -v swww &>/dev/null; then
+if command -v swww &>/dev/null && [ -n "$WAYLAND_DISPLAY" ]; then
     # Initialize swww daemon if not running
     if ! pgrep -f "swww-daemon" > /dev/null; then
         swww init &
@@ -40,8 +40,10 @@ if command -v swww &>/dev/null; then
     fi
     swww img "$WALLPAPER_PATH"
     echo "Wallpaper set with swww"
-elif command -v feh &>/dev/null; then
-    # Fallback to feh for X11
+fi
+
+# Set wallpaper using feh for X11 (xmonad, etc.)
+if command -v feh &>/dev/null && [ -n "$DISPLAY" ]; then
     feh --bg-fill "$WALLPAPER_PATH"
     echo "Wallpaper set with feh"
 fi
