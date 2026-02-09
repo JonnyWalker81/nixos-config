@@ -16,27 +16,21 @@
     # ];
   };
 
-  nixpkgs.overlays = import ../../lib/overlays.nix;
+  # Overlays are applied at the system level in flake.nix via mkvm-darwin.
+  # Do NOT set nixpkgs.overlays here -- it would conflict with the system-level overlays.
 
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowUnsupportedSystem = true;
-
-  # nixpkgs.overlays = import ../../lib/overlays.nix ++ [
-  #   (import ./vim.nix)
-  # ];
 
   # Homebrew configuration (managed by nix-homebrew)
   homebrew = {
     enable = true;
     onActivation = {
       autoUpdate = true;
-      cleanup = "zap";  # Remove unlisted packages
+      cleanup = "zap"; # Remove unlisted packages
     };
     # Taps managed by nix-homebrew - list here to prevent cleanup from untapping
-    taps = [
-      "homebrew/homebrew-core"
-      "homebrew/homebrew-cask"
-    ];
+    taps = [ "homebrew/homebrew-core" "homebrew/homebrew-cask" ];
     brews = [
       # CLI tools managed by Homebrew
       # Example: "wget"

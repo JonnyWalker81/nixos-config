@@ -76,149 +76,34 @@
       mkVM = import ./lib/mkvm.nix;
       mkVMDarwin = import ./lib/mkvm-darwin.nix;
 
-      # Overlays is the list of overlays we want to apply from flake inputs.
+      # Overlays applied to all system configurations.
+      # Split into three groups:
+      #   1. External flake overlays (from flake inputs directly)
+      #   2. Input-dependent overlays (our files that need flake inputs)
+      #   3. Auto-discovered overlays (plain final: prev: files in overlays/)
       overlays = [
+        # --- External flake overlays ---
         inputs.mozilla.overlays.firefox
         inputs.emacs-overlay.overlay
         inputs.neovim-nightly-overlay.overlays.default
-
         inputs.zig.overlays.default
         inputs.claude-code.overlays.default
+
+        # --- Input-dependent overlays (must be explicitly imported) ---
+        (import ./overlays/unstable-packages.nix { inherit inputs; })
+        (import ./overlays/fonts.nix { inherit inputs; })
+        (import ./overlays/nixvim.nix { inherit inputs; })
         (final: prev: {
           opencode = inputs.opencode.packages.${prev.system}.default;
         })
-        (final: prev: {
-          # Use yshui's picom (latest version)
-          picom = prev.picom.overrideAttrs (oldAttrs: rec {
-            pname = "picom";
-            version = "unstable-latest";
-            src = prev.fetchFromGitHub {
-              owner = "yshui";
-              repo = "picom";
-              rev = "b700a37d56ab5debdbb78be7a6b905e72f69ff2d";
-              sha256 =
-                "sha256-C+icJXTkE+XMaU7N6JupsP8xhmRVggX9hY1P7za0pO0="; # Will be filled by nix
-            };
-            buildInputs = (oldAttrs.buildInputs or [ ])
-              ++ [ prev.pcre prev.libconfig prev.libev prev.uthash ];
-            nativeBuildInputs = (oldAttrs.nativeBuildInputs or [ ])
-              ++ [ prev.asciidoc prev.pkg-config prev.meson prev.ninja ];
-            doCheck = false;
-            doInstallCheck = false;
-          });
 
-          luaPackages = prev.luaPackages // {
-            fzf-lua = prev.luaPackages.fzf-lua.overrideAttrs (old: {
-              # don't run the flaky UI tests
-              doCheck = false;
-              checkPhase = "echo skipping fzf-lua tests";
-            });
-          };
-
-          # Fix for CopilotChat.nvim requiring fzf-lua
-          vimPlugins = prev.vimPlugins // {
-            CopilotChat-nvim = prev.vimPlugins.CopilotChat-nvim.overrideAttrs
-              (old: {
-                # Disable the require check that's failing
-                doCheck = false;
-                nvimRequireCheck = "";
-
-                # Override the build phase to skip the check
-                buildPhase = ''
-                  runHook preBuild
-                  runHook postBuild
-                '';
-
-                # Skip the install check phase
-                installCheckPhase = ''
-                  runHook preInstallCheck
-                  runHook postInstallCheck
-                '';
-              });
-          };
-
-          unstable = import nixpkgs-unstable {
-            system = prev.system;
-            config.allowUnfree = true;
-          };
-          tree-sitter-grammars = prev.tree-sitter-grammars // {
-            tree-sitter-tsx =
-              prev.tree-sitter-grammars.tree-sitter-tsx.overrideAttrs (_: {
-                nativeBuildInputs = [ final.tree-sitter ];
-                configurePhase = ''
-                  tree-sitter generate --abi 13 src/grammar.json
-                '';
-              });
-            tree-sitter-go =
-              prev.tree-sitter-grammars.tree-sitter-go.overrideAttrs (_: {
-                nativeBuildInputs = [ final.tree-sitter ];
-                configurePhase = ''
-                  tree-sitter generate --abi 13 src/grammar.json
-                '';
-              });
-
-          };
-
-          # To get Kitty 0.24.x. Delete this once it hits release.
-          kitty = inputs.nixpkgs-unstable.legacyPackages.${prev.system}.kitty;
-
-          xmobar = inputs.nixpkgs-unstable.legacyPackages.${prev.system}.xmobar;
-
-          awscli2 =
-            inputs.nixpkgs-unstable.legacyPackages.${prev.system}.awscli2;
-
-          # Use the flake overlay for Linux (optimized build), ghostty-bin from unstable for macOS
-          ghostty = if prev.stdenv.isLinux then
-            ghostty.packages.${prev.system}.default
-          else
-            inputs.nixpkgs-unstable.legacyPackages.${prev.system}.ghostty-bin;
-
-          nixvim = inputs.nixvim.packages.${prev.system}.default;
-
-          # DankMono font - build it with our nixpkgs that allows unfree
-          dankmono = prev.stdenv.mkDerivation rec {
-            pname = "dankmono";
-            version = "1.0.0";
-
-            src = inputs.dankmono;
-
-            installPhase = ''
-              runHook preInstall
-
-              # Install TrueType fonts
-              install -D -m644 -t $out/share/fonts/truetype/dankmono OpenType-TT/*.ttf
-
-              # Install OpenType fonts
-              install -D -m644 -t $out/share/fonts/opentype/dankmono OpenType-PS/*.otf
-
-              # Install web fonts
-              install -D -m644 -t $out/share/fonts/woff2/dankmono Web-PS/*.woff2
-              install -D -m644 Web-PS/dmvendor.css $out/share/fonts/woff2/dankmono/dmvendor.css
-
-              # Install documentation
-              install -D -m644 README.txt $out/share/doc/dankmono/README.txt
-              install -D -m644 EULA.txt $out/share/licenses/dankmono/EULA.txt
-
-              runHook postInstall
-            '';
-
-            # Add font configuration for fontconfig (Linux)
-            postInstall = prev.lib.optionalString prev.stdenv.isLinux ''
-              # Generate fontconfig cache for Linux
-              ${prev.fontconfig}/bin/fc-cache -f $out/share/fonts/
-            '';
-
-            meta = with prev.lib; {
-              description = "DankMono programming font";
-              longDescription = ''
-                Dank Mono is a monospaced font designed for coding with
-                ligatures and a distinctive style.
-              '';
-              license = licenses.unfree;
-              platforms = platforms.all;
-            };
-          };
-        })
+        # --- Auto-discovered overlays (no inputs needed) ---
+        (import ./overlays/default.nix)
+        (import ./overlays/dwm.nix)
+        (import ./overlays/firefox-hidpi.nix)
+        (import ./overlays/picom.nix)
+        (import ./overlays/tree-sitter.nix)
+        (import ./overlays/vim-plugins.nix)
       ];
 
       mkSystem = import ./lib/mksystem.nix { inherit overlays nixpkgs inputs; };

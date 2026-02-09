@@ -18,9 +18,6 @@
     # ];
   };
 
-  nixpkgs.overlays = import ../../lib/overlays.nix;
-
-  # nixpkgs.overlays = import ../../lib/overlays.nix ++ [
-  #   (import ./vim.nix)
-  # ];
+  # Overlays are applied at the system level in flake.nix via mksystem/mkvm.
+  # Do NOT set nixpkgs.overlays here -- it would conflict with the system-level overlays.
 }
