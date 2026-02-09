@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   home.file.".doom.d" = {
@@ -6,10 +11,9 @@
     recursive = true;
   };
 
-  # Symlink .emacs.d to .config/emacs for Doom Emacs
+  # Symlink .emacs.d to chemacs2 profile switcher
   home.file.".emacs.d" = {
-    source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.config/emacs";
+    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/chemacs";
   };
 
   home.file.".elisp" = {
@@ -17,7 +21,9 @@
     recursive = true;
   };
 
-  home.file.".config/zls.json" = { source = ../zls.json; };
+  home.file.".config/zls.json" = {
+    source = ../zls.json;
+  };
 
   home.file.".config/rainfrog/rainfrog_config.toml" = {
     source = ../rainfrog/rainfrog_config.toml;
