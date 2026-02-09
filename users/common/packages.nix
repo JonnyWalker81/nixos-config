@@ -14,7 +14,6 @@
     pkgs.zoxide
     pkgs.bat
     pkgs.delta
-    pkgs.zoxide
     pkgs.jq
     pkgs.eza
     pkgs.fzf
@@ -104,7 +103,6 @@
     pkgs.teller
     pkgs.warp-terminal
     pkgs.neofetch
-    pkgs.pandoc
 
     # Wayland/Hyprland tools (Linux only)
     pkgs.waybar

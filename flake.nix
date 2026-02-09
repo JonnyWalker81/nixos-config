@@ -3,10 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
-    nixpkgs-darwin.url = "github:nixos/nixpkgs/nixpkgs-25.05-darwin";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-
-    zen-browser.url = "github:0xc000022070/zen-browser-flake";
 
     darwin.url = "github:lnl7/nix-darwin/master";
     darwin.inputs.nixpkgs.follows = "nixpkgs-unstable";
@@ -18,30 +15,10 @@
     nixpkgs-old-kernel.url =
       "github:nixos/nixpkgs/bacbfd713b4781a4a82c1f390f8fe21ae3b8b95b";
     emacs-overlay.url = "github:nix-community/emacs-overlay";
-    zig.url = "github:mitchellh/zig-overlay";
 
     ghostty = { url = "github:ghostty-org/ghostty"; };
 
-    mozilla.url = "github:mozilla/nixpkgs-mozilla";
-
     hyprland.url = "github:hyprwm/Hyprland?ref=v0.50.1";
-    hyprland-plugins = {
-      url = "github:hyprwm/hyprland-plugins";
-      inputs.hyprland.follows = "hyprland";
-    };
-
-    # I think technically you're not supposed to override the nixpkgs
-    # used by neovim but recently I had failures if I didn't pin to my
-    # own. We can always try to remove that anytime.
-    neovim-nightly-overlay = {
-      url = "github:nix-community/neovim-nightly-overlay";
-
-      # Only need unstable until the lpeg fix hits mainline, probably
-      # not very long... can safely switch back for 23.11.
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
-    neovim-flake = { url = "github:jordanisaacs/neovim-flake"; };
 
     nixvim = {
       url = "github:JonnyWalker81/cipher-nixvim";
@@ -69,9 +46,8 @@
     };
   };
 
-  outputs = { self, darwin, ghostty, nixpkgs-darwin, nixpkgs, nixpkgs-unstable
-    , neovim-flake, home-manager, zen-browser, nix-homebrew, homebrew-core
-    , homebrew-cask, ... }@inputs:
+  outputs = { self, darwin, ghostty, nixpkgs, nixpkgs-unstable, home-manager
+    , nix-homebrew, homebrew-core, homebrew-cask, ... }@inputs:
     let
       # Overlays applied to all system configurations.
       # Split into three groups:
@@ -80,10 +56,7 @@
       #   3. Auto-discovered overlays (plain final: prev: files in overlays/)
       overlays = [
         # --- External flake overlays ---
-        inputs.mozilla.overlays.firefox
         inputs.emacs-overlay.overlay
-        inputs.neovim-nightly-overlay.overlays.default
-        inputs.zig.overlays.default
         inputs.claude-code.overlays.default
 
         # --- Input-dependent overlays (must be explicitly imported) ---

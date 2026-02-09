@@ -58,7 +58,7 @@ in {
   # Make cursor not tiny on HiDPI screens (Linux only)
   home.pointerCursor = lib.mkIf isLinux {
     name = "Adwaita";
-    package = pkgs.gnome.adwaita-icon-theme;
+    package = pkgs.adwaita-icon-theme;
     size = 32;
     # name = "Vanilla-DMZ";
     # package = pkgs.vanilla-dmz;
