@@ -1,7 +1,13 @@
-{ config, lib, pkgs, ... }:
+{ isWSL, inputs, ... }:
 
-{
-  imports = [ ../common.nix ];
+{ config, lib, pkgs, ... }:
+let
+  common = import ../common.nix {
+    inherit config lib pkgs isWSL inputs;
+    system = pkgs.stdenv.hostPlatform.system;
+  };
+in {
+  imports = [ common ];
 
   # programs.google-chrome-dev = { enable = true; };
 

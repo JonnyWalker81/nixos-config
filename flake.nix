@@ -73,9 +73,6 @@
     , neovim-flake, home-manager, zen-browser, nix-homebrew, homebrew-core
     , homebrew-cask, ... }@inputs:
     let
-      mkVM = import ./lib/mkvm.nix;
-      mkVMDarwin = import ./lib/mkvm-darwin.nix;
-
       # Overlays applied to all system configurations.
       # Split into three groups:
       #   1. External flake overlays (from flake inputs directly)
@@ -106,6 +103,7 @@
         (import ./overlays/vim-plugins.nix)
       ];
 
+      # Single unified builder for all system configurations (NixOS, Darwin, WSL).
       mkSystem = import ./lib/mksystem.nix { inherit overlays nixpkgs inputs; };
     in {
 
@@ -114,39 +112,36 @@
         user = "cipher";
       };
 
-      nixosConfigurations.vm-aarch64 = mkVM "vm-aarch64" {
-        inherit overlays home-manager inputs;
-        nixpkgs = inputs.nixpkgs-old-kernel;
+      nixosConfigurations.vm-aarch64 = mkSystem "vm-aarch64" {
+        nixpkgsOverride = inputs.nixpkgs-old-kernel;
         system = "aarch64-linux";
         user = "cipher";
       };
 
-      nixosConfigurations.vm-intel = mkVM "vm-intel" {
-        inherit overlays nixpkgs home-manager inputs;
+      nixosConfigurations.vm-intel = mkSystem "vm-intel" {
         system = "x86_64-linux";
         user = "jrothberg";
       };
 
-      darwinConfigurations.vm-darwin = mkVMDarwin "vm-darwin" {
-        inherit overlays home-manager darwin inputs;
-        nixpkgs = nixpkgs-darwin;
+      darwinConfigurations.vm-darwin = mkSystem "vm-darwin" {
         system = "x86_64-darwin";
         user = "jrothberg";
+        darwin = true;
+        extraModules = [ inputs.nix-homebrew.darwinModules.nix-homebrew ];
       };
 
-      darwinConfigurations.macbook-phantom = mkVMDarwin "macbook-phantom" {
-        inherit overlays home-manager darwin inputs;
-        nixpkgs = nixpkgs-darwin;
-        system =
-          "aarch64-darwin"; # Apple Silicon - change to "x86_64-darwin" if Intel Mac
+      darwinConfigurations.macbook-phantom = mkSystem "macbook-phantom" {
+        system = "aarch64-darwin";
         user = "phantom";
+        darwin = true;
+        extraModules = [ inputs.nix-homebrew.darwinModules.nix-homebrew ];
       };
 
-      darwinConfigurations.macbook-cipher = mkVMDarwin "macbook-cipher" {
-        inherit overlays home-manager darwin inputs;
-        nixpkgs = nixpkgs-darwin;
-        system = "aarch64-darwin"; # Apple Silicon
+      darwinConfigurations.macbook-cipher = mkSystem "macbook-cipher" {
+        system = "aarch64-darwin";
         user = "cipher";
+        darwin = true;
+        extraModules = [ inputs.nix-homebrew.darwinModules.nix-homebrew ];
       };
 
     };

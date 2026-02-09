@@ -1,22 +1,37 @@
-# This function creates a NixOS system based on our VM setup for a
-# particular architecture.
+# This function creates a NixOS or nix-darwin system configuration.
+# It is the single unified builder for all system types.
+#
+# Partial application: import with { nixpkgs, overlays, inputs }
+# Then call with: name { system, user, darwin?, wsl?, nixpkgs?, extraModules? }
 { nixpkgs, overlays, inputs, }:
 
 name:
-{ system, user, darwin ? false, wsl ? false, }:
+{ system, user, darwin ? false, wsl ? false, nixpkgsOverride ? null
+, # Optional nixpkgs override (e.g. old-kernel for vm-aarch64)
+extraModules ? [ ], # Additional modules (e.g. nix-homebrew for Darwin)
+}:
 
 let
   # True if this is a WSL system.
   isWSL = wsl;
 
+  # Resolve which nixpkgs to use: per-system override or the default from closure.
+  resolvedNixpkgs =
+    if nixpkgsOverride != null then nixpkgsOverride else nixpkgs;
+
   # The config files for this system.
   machineConfig = ../machines/${name}.nix;
-  userOSConfig = ../users/${user}/${if darwin then "darwin" else "nixos"}.nix;
-  userHMConfig = ../users/${user}/home-manager.nix;
 
-  # NixOS vs nix-darwin functionst
-  systemFunc =
-    if darwin then inputs.darwin.lib.darwinSystem else nixpkgs.lib.nixosSystem;
+  # Darwin uses the ${user}-darwin/ directory convention for user configs.
+  userDir = if darwin then "${user}-darwin" else user;
+  userOSConfig = ../users/${userDir}/nixos.nix;
+  userHMConfig = ../users/${userDir}/home-manager.nix;
+
+  # NixOS vs nix-darwin functions
+  systemFunc = if darwin then
+    inputs.darwin.lib.darwinSystem
+  else
+    resolvedNixpkgs.lib.nixosSystem;
   home-manager = if darwin then
     inputs.home-manager.darwinModules
   else
@@ -45,7 +60,7 @@ in systemFunc rec {
     home-manager.home-manager
     {
       home-manager.useGlobalPkgs = true;
-      home-manager.useUserPackages = true;
+      home-manager.useUserPackages = if darwin then false else true;
       home-manager.backupFileExtension = "hm-backup";
       home-manager.users.${user} = import userHMConfig {
         isWSL = isWSL;
@@ -64,5 +79,5 @@ in systemFunc rec {
         inputs = inputs;
       };
     }
-  ];
+  ] ++ extraModules;
 }

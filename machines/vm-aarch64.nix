@@ -1,8 +1,6 @@
 { config, pkgs, ... }: {
-  imports = [
-    ../modules/vmware-guest.nix
-    ./vm-shared.nix
-  ];
+  imports =
+    [ ../hardware/vm-aarch64.nix ../modules/vmware-guest.nix ./vm-shared.nix ];
 
   # Disable the default module and import our override. We have
   # customizations to make this work on aarch64.

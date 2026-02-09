@@ -1,10 +1,22 @@
-{ pkgs, ... }:
+{ pkgs, inputs, currentSystem, ... }:
 
 {
   # User configuration for cipher on macOS
   users.users.cipher = {
     home = "/Users/cipher";
     shell = pkgs.zsh;
+  };
+
+  # nix-homebrew declarative tap management
+  nix-homebrew = {
+    enable = true;
+    enableRosetta = currentSystem == "aarch64-darwin";
+    user = "cipher";
+    taps = {
+      "homebrew/homebrew-core" = inputs.homebrew-core;
+      "homebrew/homebrew-cask" = inputs.homebrew-cask;
+    };
+    mutableTaps = false;
   };
 
   # Enable zsh system-wide
@@ -94,13 +106,10 @@
     enable = true;
     onActivation = {
       autoUpdate = true;
-      cleanup = "zap";  # Remove unlisted packages
+      cleanup = "zap"; # Remove unlisted packages
     };
     # Taps managed by nix-homebrew - list here to prevent cleanup from untapping
-    taps = [
-      "homebrew/homebrew-core"
-      "homebrew/homebrew-cask"
-    ];
+    taps = [ "homebrew/homebrew-core" "homebrew/homebrew-cask" ];
     brews = [
       # CLI tools managed by Homebrew
       # Example: "wget"

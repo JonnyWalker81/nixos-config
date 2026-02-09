@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, inputs, currentSystem, ... }:
 
 {
   # https://github.com/nix-community/home-manager/pull/2408
@@ -16,11 +16,23 @@
     # ];
   };
 
-  # Overlays are applied at the system level in flake.nix via mkvm-darwin.
+  # Overlays are applied at the system level in flake.nix via mksystem.
   # Do NOT set nixpkgs.overlays here -- it would conflict with the system-level overlays.
 
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowUnsupportedSystem = true;
+
+  # nix-homebrew declarative tap management
+  nix-homebrew = {
+    enable = true;
+    enableRosetta = currentSystem == "aarch64-darwin";
+    user = "jrothberg";
+    taps = {
+      "homebrew/homebrew-core" = inputs.homebrew-core;
+      "homebrew/homebrew-cask" = inputs.homebrew-cask;
+    };
+    mutableTaps = false;
+  };
 
   # Homebrew configuration (managed by nix-homebrew)
   homebrew = {

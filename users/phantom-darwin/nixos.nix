@@ -1,10 +1,22 @@
-{ pkgs, ... }:
+{ pkgs, inputs, currentSystem, ... }:
 
 {
   # User configuration for phantom on macOS
   users.users.phantom = {
     home = "/Users/phantom";
     shell = pkgs.zsh;
+  };
+
+  # nix-homebrew declarative tap management
+  nix-homebrew = {
+    enable = true;
+    enableRosetta = currentSystem == "aarch64-darwin";
+    user = "phantom";
+    taps = {
+      "homebrew/homebrew-core" = inputs.homebrew-core;
+      "homebrew/homebrew-cask" = inputs.homebrew-cask;
+    };
+    mutableTaps = false;
   };
 
   # Enable zsh system-wide
@@ -14,10 +26,10 @@
   system = {
     # Required for nix-darwin
     stateVersion = 6;
-    
+
     # Set the primary user for system defaults
     primaryUser = "phantom";
-    
+
     # Set macOS system preferences
     defaults = {
       # Dock settings
@@ -41,11 +53,11 @@
       NSGlobalDomain = {
         AppleShowAllExtensions = true;
         ApplePressAndHoldEnabled = false;
-        
+
         # Key repeat settings (faster)
         KeyRepeat = 1;
         InitialKeyRepeat = 10;
-        
+
         # Mouse and trackpad
         "com.apple.mouse.tapBehavior" = 1;
         "com.apple.trackpad.enableSecondaryClick" = true;
@@ -68,7 +80,7 @@
 
   # Import overlays (handled by mkvm-darwin.nix at the flake level)
   # nixpkgs.overlays = import ../../lib/overlays.nix;
-  
+
   # System packages that should be available and linked to /Applications
   environment.systemPackages = with pkgs; [
     # Add Emacs to system packages so it appears in /Applications/Nix Apps
@@ -76,7 +88,7 @@
     # Add Ghostty to system packages so it appears in /Applications/Nix Apps
     ghostty
   ];
-  
+
   # Fonts configuration for macOS
   fonts = {
     packages = with pkgs; [
@@ -93,13 +105,10 @@
     enable = true;
     onActivation = {
       autoUpdate = true;
-      cleanup = "zap";  # Remove unlisted packages
+      cleanup = "zap"; # Remove unlisted packages
     };
     # Taps managed by nix-homebrew - list here to prevent cleanup from untapping
-    taps = [
-      "homebrew/homebrew-core"
-      "homebrew/homebrew-cask"
-    ];
+    taps = [ "homebrew/homebrew-core" "homebrew/homebrew-cask" ];
     brews = [
       # CLI tools managed by Homebrew
       # Example: "wget"
