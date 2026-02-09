@@ -4,7 +4,7 @@
 let
   isLinux = !isDarwin;
 
-  common = import ../common.nix {
+  common = import ../common {
     inherit config lib pkgs isWSL inputs;
     system = pkgs.stdenv.hostPlatform.system;
   };
