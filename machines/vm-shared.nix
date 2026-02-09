@@ -144,8 +144,6 @@
       niv
       rxvt-unicode-unwrapped
       vimHugeX
-      nixfmt
-
       dmenu
       picom-pijulius
 

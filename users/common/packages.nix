@@ -32,7 +32,7 @@
     pkgs.file
     pkgs.nil
     pkgs.nixpkgs-fmt
-    pkgs.nixfmt
+    pkgs.nixfmt-rfc-style
     pkgs.shfmt
     (pkgs.python3.withPackages
       (p: with p; [ epc orjson sexpdata six setuptools paramiko rapidfuzz ]))
