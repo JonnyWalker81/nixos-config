@@ -1,7 +1,9 @@
-{ isWSL, inputs, ... }:
+{ isWSL, isDarwin, inputs, ... }:
 
 { config, lib, pkgs, ... }:
 let
+  isLinux = !isDarwin;
+
   common = import ../common.nix {
     inherit config lib pkgs isWSL inputs;
     system = pkgs.stdenv.hostPlatform.system;
@@ -9,52 +11,52 @@ let
 in {
   imports = [ common ];
 
-  programs.google-chrome-dev = { enable = true; };
+  programs.google-chrome-dev = lib.mkIf isLinux { enable = true; };
 
   programs.git.userEmail = "jrothberg@bluebeam.com";
 
-  home.file.".config/rofi/config.rasi".text = ''
-    // Write your configuration
+  # --- Linux-only configuration ---
 
-    // String interpolation to get the store path
-    @theme "${pkgs.rofi-unwrapped}/share/rofi/themes/glue_pro_blue.rasi"
-  '';
+  home.file = lib.mkIf isLinux {
+    ".config/rofi/config.rasi".text = ''
+      // Write your configuration
 
-  home.file.".config/greenclip.toml" = {
-    source = ../greenclip/greenclip.toml;
+      // String interpolation to get the store path
+      @theme "${pkgs.rofi-unwrapped}/share/rofi/themes/glue_pro_blue.rasi"
+    '';
+
+    ".config/greenclip.toml" = { source = ../greenclip/greenclip.toml; };
+
+    ".config/clipcat/clipcatd.toml" = { source = ../clipcat/clipcatd.toml; };
+
+    ".config/clipcat/clipcatctl.toml" = {
+      source = ../clipcat/clipcatctl.toml;
+    };
+
+    ".config/clipcat/clipcat-menu.toml" = {
+      source = ../clipcat/clipcat-menu.toml;
+    };
+
+    # home.file.".config/picom/picom.conf" = { source = ../picom/picom.conf; };
+
+    ".xmonad/xmonad.hs" = { source = ../xmonad/xmonad.hs; };
+
+    ".config/xmobar/.xmobarrc" = { source = ../xmobar/.xmobarrc; };
+
+    # DWM autostart and status bar scripts
+    ".local/share/dwm/autostart.sh" = {
+      source = ../dwm/autostart.sh;
+      executable = true;
+    };
+
+    ".local/share/dwm/dwm-statusbar.sh" = {
+      source = ../dwm/dwm-statusbar.sh;
+      executable = true;
+    };
   };
 
-  home.file.".config/clipcat/clipcatd.toml" = {
-    source = ../clipcat/clipcatd.toml;
-  };
-
-  home.file.".config/clipcat/clipcatctl.toml" = {
-    source = ../clipcat/clipcatctl.toml;
-  };
-
-  home.file.".config/clipcat/clipcat-menu.toml" = {
-    source = ../clipcat/clipcat-menu.toml;
-  };
-
-  # home.file.".config/picom/picom.conf" = { source = ../picom/picom.conf; };
-
-  home.file.".xmonad/xmonad.hs" = { source = ../xmonad/xmonad.hs; };
-
-  home.file.".config/xmobar/.xmobarrc" = { source = ../xmobar/.xmobarrc; };
-
-  # DWM autostart and status bar scripts
-  home.file.".local/share/dwm/autostart.sh" = {
-    source = ../dwm/autostart.sh;
-    executable = true;
-  };
-
-  home.file.".local/share/dwm/dwm-statusbar.sh" = {
-    source = ../dwm/dwm-statusbar.sh;
-    executable = true;
-  };
-
-  # Make cursor not tiny on HiDPI screens
-  home.pointerCursor = {
+  # Make cursor not tiny on HiDPI screens (Linux only)
+  home.pointerCursor = lib.mkIf isLinux {
     name = "Adwaita";
     package = pkgs.gnome.adwaita-icon-theme;
     size = 32;

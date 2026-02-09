@@ -22,10 +22,12 @@ let
   # The config files for this system.
   machineConfig = ../machines/${name}.nix;
 
-  # Darwin uses the ${user}-darwin/ directory convention for user configs.
-  userDir = if darwin then "${user}-darwin" else user;
-  userOSConfig = ../users/${userDir}/nixos.nix;
-  userHMConfig = ../users/${userDir}/home-manager.nix;
+  # OS-specific config: nixos.nix for Linux, darwin.nix for macOS
+  # All user configs live under users/${user}/ (unified directory per user).
+  userOSConfig =
+    if darwin then ../users/${user}/darwin.nix else ../users/${user}/nixos.nix;
+  # home-manager.nix is shared across platforms (uses platform guards internally)
+  userHMConfig = ../users/${user}/home-manager.nix;
 
   # NixOS vs nix-darwin functions
   systemFunc = if darwin then
@@ -64,6 +66,7 @@ in systemFunc rec {
       home-manager.backupFileExtension = "hm-backup";
       home-manager.users.${user} = import userHMConfig {
         isWSL = isWSL;
+        isDarwin = darwin;
         inputs = inputs;
       };
     }

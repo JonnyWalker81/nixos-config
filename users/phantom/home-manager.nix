@@ -1,7 +1,9 @@
-{ isWSL, inputs, ... }:
+{ isWSL, isDarwin, inputs, ... }:
 
 { config, lib, pkgs, ... }:
 let
+  isLinux = !isDarwin;
+
   common = import ../common.nix {
     inherit config lib pkgs isWSL inputs;
     system = pkgs.stdenv.hostPlatform.system;
@@ -12,21 +14,25 @@ in {
 
   # Disable Darwin application linking (workaround for home-manager bug)
   targets.darwin.currentHostDefaults."com.apple.controlcenter".BatteryShowPercentage =
-    true;
+    lib.mkIf isDarwin true;
 
-  # Disable the broken application/font linking (home-manager bug with buildEnv)
-  disabledModules =
-    [ "targets/darwin/linkapps.nix" "targets/darwin/fonts.nix" ];
+  # Disable the broken application/font linking on Darwin (home-manager bug with buildEnv)
+  disabledModules = lib.optionals isDarwin [
+    "targets/darwin/linkapps.nix"
+    "targets/darwin/fonts.nix"
+  ];
 
   # Note: Do not set nixpkgs.config here when using home-manager.useGlobalPkgs = true
-  # The allowUnsupportedSystem setting is now in the system-level nixos.nix
+  # The allowUnsupportedSystem setting is now in the system-level darwin.nix
 
   # User-specific git configuration for phantom
   programs.git.userEmail =
     "phantom@example.com"; # Update with your actual email
 
+  # --- Darwin-only configuration ---
+
   # macOS-specific shell aliases
-  home.shellAliases = {
+  home.shellAliases = lib.mkIf isDarwin {
     # Darwin rebuild shortcuts
     dm = "sudo darwin-rebuild switch --flake ~/nixos-config#macbook-phantom";
     dh = "home-manager switch --flake ~/nixos-config#macbook-phantom";
@@ -47,23 +53,23 @@ in {
   };
 
   # macOS-specific packages (in addition to common.nix)
-  home.packages = with pkgs; [
+  home.packages = lib.mkIf isDarwin (with pkgs; [
     # macOS-specific development tools
     rectangle # Window management
     neovim # Use regular neovim on Darwin (nixvim has wayland deps)
 
     # Native macOS alternatives to Linux tools
     # (common.nix handles the platform-agnostic tools)
-  ];
+  ]);
 
   # Override/disable Linux-specific configurations
-  programs.waybar = lib.mkForce { enable = false; };
+  programs.waybar = lib.mkIf isDarwin (lib.mkForce { enable = false; });
 
   # Disable all Wayland/Hyprland configurations on Darwin
-  wayland.windowManager.hyprland.enable = lib.mkForce false;
+  wayland.windowManager.hyprland.enable = lib.mkIf isDarwin (lib.mkForce false);
 
-  # macOS-specific session variables  
-  home.sessionVariables = {
+  # macOS-specific session variables
+  home.sessionVariables = lib.mkIf isDarwin {
     # Override Linux-specific variables
     BROWSER = "open";
 
@@ -72,14 +78,14 @@ in {
   };
 
   # Ensure home-manager bin is in PATH before homebrew
-  home.sessionPath =
+  home.sessionPath = lib.mkIf isDarwin
     [ "$HOME/.local/state/nix/profiles/home-manager/home-path/bin" ];
 
   # macOS-specific services (disable Linux systemd services)
-  systemd.user.services = lib.mkForce { };
+  systemd.user.services = lib.mkIf isDarwin (lib.mkForce { });
 
   # macOS Terminal and shell optimization
-  programs.alacritty.settings = lib.mkIf pkgs.stdenv.isDarwin {
+  programs.alacritty.settings = lib.mkIf isDarwin {
     window = {
       decorations = "buttonless";
       option_as_alt = "Both";
@@ -110,35 +116,31 @@ in {
   };
 
   # Configure git for macOS
-  programs.git = {
-    extraConfig = {
-      # macOS-specific git settings
-      credential.helper = lib.mkForce "osxkeychain";
-    };
+  programs.git.extraConfig = lib.mkIf isDarwin {
+    # macOS-specific git settings
+    credential.helper = lib.mkForce "osxkeychain";
   };
 
   # SSH configuration for macOS
-  programs.ssh = {
-    extraConfig = lib.mkIf pkgs.stdenv.isDarwin ''
-      # macOS-specific SSH settings
-      UseKeychain yes
-      AddKeysToAgent yes
+  programs.ssh.extraConfig = lib.mkIf isDarwin ''
+    # macOS-specific SSH settings
+    UseKeychain yes
+    AddKeysToAgent yes
 
-      # Store SSH keys in macOS Keychain
-      IdentityFile ~/.ssh/id_ed25519
-      IdentityFile ~/.ssh/id_rsa
-    '';
-  };
+    # Store SSH keys in macOS Keychain
+    IdentityFile ~/.ssh/id_ed25519
+    IdentityFile ~/.ssh/id_rsa
+  '';
 
   # Ensure direnv works properly on macOS
-  programs.direnv = {
+  programs.direnv = lib.mkIf isDarwin {
     enable = true;
     nix-direnv.enable = true;
     enableZshIntegration = true;
   };
 
   # Disable X11/Linux cursor configuration on macOS
-  home.pointerCursor = lib.mkIf (!pkgs.stdenv.isDarwin) {
+  home.pointerCursor = lib.mkIf isLinux {
     name = "Adwaita";
     package = pkgs.adwaita-icon-theme;
     size = 32;
