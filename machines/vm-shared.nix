@@ -1,6 +1,7 @@
-{ config, pkgs, currentSystem, currentSystemName, inputs, ... }:
+{ config, pkgs, lib, currentSystem, currentSystemName, inputs, ... }:
 
 {
+  imports = [ ../modules/desktop ];
   boot.kernelPackages = pkgs.linuxPackages_6_6;
   services.journald.extraConfig = "SystemMaxUse=100M";
   nix = {
@@ -82,11 +83,12 @@
     };
   };
 
-  programs.hyprland = {
-    enable = true;
-    package = inputs.hyprland.packages.${pkgs.system}.hyprland;
-    xwayland.enable = true;
-  };
+  # Window manager toggles -- set to true/false to control which WMs are built.
+  # All four enabled for backward compatibility; disable unused ones to speed up rebuilds.
+  desktop.xmonad.enable = true;
+  desktop.dwm.enable = true;
+  desktop.awesome.enable = true;
+  desktop.hyprland.enable = true;
 
   # setup windowing environment
   services = {
@@ -113,25 +115,6 @@
         sessionCommands = ''
           ${pkgs.xorg.xset}/bin/xset r rate 1000 1000
         '';
-      };
-
-      windowManager.xmonad = {
-        enable = true;
-        enableContribAndExtras = true;
-
-        extraPackages = hpkgs: [
-          hpkgs.xmonad-contrib
-          hpkgs.xmonad-extras
-          hpkgs.xmonad
-        ];
-      };
-
-      windowManager.dwm.enable = true;
-
-      windowManager.awesome = {
-        enable = true;
-
-        luaModules = with pkgs.luaPackages; [ luarocks luadbi-mysql ];
       };
     };
   };
