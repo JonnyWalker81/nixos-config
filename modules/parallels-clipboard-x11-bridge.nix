@@ -1,126 +1,86 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
+let
+  prl-tools = config.hardware.parallels.package;
+  xclipBin = "${pkgs.xclip}/bin/xclip";
+in
 {
   config = mkIf config.hardware.parallels.enable {
 
-    # Enable prlcp service with X11 clipboard bridge
+    # Override prlcp to run correctly in X11 sessions (DWM, XMonad, etc.)
+    # prlcp is an X11 application that uses the X11 clipboard protocol natively.
+    # It communicates with the Parallels host clipboard via the prltoolsd daemon
+    # over virtio-vsock, and syncs that with the X11 CLIPBOARD selection.
+    # No Wayland bridging is needed when running an X11 window manager.
     systemd.user.services.prlcp = mkForce {
-      description = "Parallels CopyPaste Tool (with X11 bridge)";
+      description = "Parallels CopyPaste Tool";
       wantedBy = [ "graphical-session.target" ];
       after = [ "graphical-session.target" ];
 
       environment = {
-        # Set X11 display for prlcp (it only supports X11 API)
         DISPLAY = ":0";
-
-        # wl-clipboard-x11 overrides: Make xclip/xsel point to wl-clipboard wrappers
-        # This allows prlcp's X11 clipboard calls to work with Wayland clipboard
-        PATH = lib.mkForce "${pkgs.wl-clipboard-x11}/bin:${config.hardware.parallels.package}/bin:/run/current-system/sw/bin";
-
-        # Force software rendering to avoid GPU issues
         LIBGL_ALWAYS_SOFTWARE = "1";
+      };
 
-        # Keep Wayland display available
-        WAYLAND_DISPLAY = "wayland-1";
+      unitConfig = {
+        StartLimitIntervalSec = 60;
+        StartLimitBurst = 5;
       };
 
       serviceConfig = {
-        # Run prlcp - it will use X11 API but wl-clipboard-x11 bridges to Wayland
-        ExecStart = "${config.hardware.parallels.package}/bin/prlcp";
-
-        # Restart configuration
+        ExecStart = "${prl-tools}/bin/prlcp";
         Restart = "on-failure";
-        RestartSec = 5;
-        StartLimitBurst = 3;
-        StartLimitIntervalSec = 60;
-
-        # Timeout and resource limits
+        RestartSec = 3;
         TimeoutStopSec = 10;
-        Nice = 10;
-        MemoryMax = "256M";
-        CPUQuota = "50%";
       };
     };
 
     # Disable the problematic focus guard
     systemd.user.services.parallels-focus-guard = mkForce {
       enable = false;
-      wantedBy = [];
+      wantedBy = [ ];
     };
 
-    # Keep clipboard-persistence for clipboard longevity
-    systemd.user.services.clipboard-persistence = {
-      description = "Wayland Clipboard Persistence";
-      wantedBy = [ "graphical-session.target" ];
-      after = [ "graphical-session.target" ];
-
-      serviceConfig = {
-        Type = "simple";
-        ExecStart = "${pkgs.writeShellScript "clipboard-persistence" ''
-          #!/usr/bin/env bash
-
-          # Simple clipboard persistence - keeps clipboard content alive
-          while true; do
-            content=$(${pkgs.wl-clipboard}/bin/wl-paste 2>/dev/null || true)
-
-            if [ -n "$content" ]; then
-              printf "%s" "$content" | ${pkgs.wl-clipboard}/bin/wl-copy --foreground 2>/dev/null &
-              COPY_PID=$!
-
-              # Wait for clipboard to change
-              while true; do
-                sleep 1
-                new_content=$(${pkgs.wl-clipboard}/bin/wl-paste 2>/dev/null || true)
-                if [ "$new_content" != "$content" ]; then
-                  kill $COPY_PID 2>/dev/null || true
-                  break
-                fi
-              done
-            else
-              sleep 2
-            fi
-          done
-        ''}";
-        Restart = "always";
-        RestartSec = 5;
-      };
-    };
-
-    # Install wl-clipboard-x11 and utility scripts
+    # Install utility scripts for clipboard diagnostics
     environment.systemPackages = with pkgs; [
-      wl-clipboard-x11  # Provides xclip/xsel wrappers for Wayland
-      xorg.xhost        # For X11 access control (if needed)
+      xclip
+      xorg.xhost
       (pkgs.writeShellScriptBin "fix-parallels-clipboard" ''
         #!/usr/bin/env bash
-        echo "Restarting Parallels clipboard services..."
+        echo "Restarting Parallels clipboard service..."
 
-        # Stop services
+        # Stop service and kill any hanging processes
         systemctl --user stop prlcp 2>/dev/null || true
-        systemctl --user stop clipboard-persistence 2>/dev/null || true
+        ${pkgs.procps}/bin/pkill -9 prlcp 2>/dev/null || true
+        sleep 1
 
-        # Kill any hanging processes
-        pkill -9 prlcp 2>/dev/null || true
-        pkill -f clipboard-persistence 2>/dev/null || true
+        # Clear X11 clipboard
+        echo -n "" | ${xclipBin} -selection clipboard 2>/dev/null || true
 
-        # Clear clipboard
-        if command -v wl-copy &> /dev/null; then
-          echo -n "" | wl-copy 2>/dev/null || true
-        fi
-
-        # Restart services
+        # Restart service
         systemctl --user start prlcp
-        systemctl --user start clipboard-persistence
 
-        echo "Clipboard services restarted!"
-        echo "Testing clipboard..."
+        sleep 1
+        echo "prlcp status: $(systemctl --user is-active prlcp)"
+        echo ""
 
         # Test clipboard
-        echo "Test from VM $(date +%s)" | wl-copy
-        sleep 1
-        result=$(wl-paste)
-        echo "Local clipboard test: $result"
+        local_test="Test from VM $(${pkgs.coreutils}/bin/date +%s)"
+        echo "$local_test" | ${xclipBin} -selection clipboard
+        sleep 0.5
+        result=$(${xclipBin} -selection clipboard -o 2>/dev/null)
+        if [ "$result" = "$local_test" ]; then
+          echo "Local X11 clipboard: OK"
+        else
+          echo "Local X11 clipboard: FAILED"
+        fi
         echo ""
         echo "Now try copying from macOS and pasting in the VM, and vice versa."
       '')
@@ -132,59 +92,37 @@ with lib;
 
         # Check service status
         echo "Service status:"
-        systemctl --user is-active prlcp && echo "✓ prlcp: active" || echo "✗ prlcp: inactive"
-        systemctl --user is-active clipboard-persistence && echo "✓ clipboard-persistence: active" || echo "✗ clipboard-persistence: inactive"
+        systemctl --user is-active prlcp && echo "  prlcp: active" || echo "  prlcp: INACTIVE"
+        echo ""
 
         # Check processes
-        echo ""
         echo "Running processes:"
-        pgrep -a prlcp || echo "No prlcp process found"
-
-        # Test local clipboard
+        ${pkgs.procps}/bin/pgrep -a prlcp || echo "  No prlcp process found"
         echo ""
-        echo "Testing local Wayland clipboard:"
-        test_string="Test-$(date +%s)"
-        echo "$test_string" | wl-copy
+
+        # Test local X11 clipboard
+        echo "Testing X11 clipboard (CLIPBOARD selection):"
+        test_string="clipboard-test-$(${pkgs.coreutils}/bin/date +%s)"
+        echo "$test_string" | ${xclipBin} -selection clipboard
         sleep 0.5
-        result=$(wl-paste)
+        result=$(${xclipBin} -selection clipboard -o 2>/dev/null)
         if [ "$result" = "$test_string" ]; then
-          echo "✓ Wayland clipboard works"
+          echo "  X11 clipboard: OK"
         else
-          echo "✗ Wayland clipboard failed"
-        fi
-
-        # Test X11 bridge
-        echo ""
-        echo "Testing X11 clipboard bridge (via wl-clipboard-x11):"
-        test_x11="X11-test-$(date +%s)"
-
-        # Check if wl-clipboard-x11's xclip wrapper is available
-        if command -v xclip &> /dev/null; then
-          # Copy via X11 API (which wl-clipboard-x11 bridges to Wayland)
-          echo "$test_x11" | xclip -selection clipboard 2>/dev/null || echo "xclip copy failed"
-          sleep 0.5
-          # Paste via Wayland API
-          result_x11=$(wl-paste 2>/dev/null)
-          if [ "$result_x11" = "$test_x11" ]; then
-            echo "✓ X11 → Wayland bridge works"
-          else
-            echo "✗ X11 → Wayland bridge failed (got: '$result_x11')"
-          fi
-        else
-          echo "⚠ xclip not found in PATH"
+          echo "  X11 clipboard: FAILED (got: '$result')"
         fi
 
         echo ""
-        echo "=== VM-to-host clipboard sync test ==="
-        echo "1. Copy this text: 'Hello from VM'"
-        echo "Hello from VM" | wl-copy
-        echo "2. Try pasting in macOS (Cmd+V)"
+        echo "=== VM-to-host test ==="
+        echo "  1. Text 'Hello from VM' has been placed on clipboard"
+        echo "Hello from VM" | ${xclipBin} -selection clipboard
+        echo "  2. Switch to macOS and press Cmd+V"
         echo ""
-        echo "=== Host-to-VM clipboard sync test ==="
-        echo "1. Copy some text in macOS (Cmd+C)"
-        echo "2. Run: wl-paste"
+        echo "=== Host-to-VM test ==="
+        echo "  1. Copy some text in macOS (Cmd+C)"
+        echo "  2. Switch to VM and run: xclip -selection clipboard -o"
         echo ""
-        echo "If sync doesn't work, check: journalctl --user -u prlcp -n 50"
+        echo "If sync fails, check: journalctl --user -u prlcp -n 50"
       '')
     ];
 
