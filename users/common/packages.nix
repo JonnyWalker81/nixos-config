@@ -17,8 +17,6 @@
     pkgs.jq
     pkgs.eza
     pkgs.fzf
-    pkgs.maim # Screenshot tool
-    pkgs.xclip # Clipboard support for screenshots
     pkgs.k9s
     pkgs.procs
     pkgs.graphviz
@@ -35,7 +33,7 @@
     pkgs.nixfmt-rfc-style
     pkgs.shfmt
     (pkgs.python3.withPackages
-      (p: with p; [ epc orjson sexpdata six setuptools paramiko rapidfuzz ]))
+      (p: with p; [ epc orjson sexpdata six setuptools paramiko ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [ rapidfuzz ]))
 
     pkgs.difftastic
     pkgs.nixd
@@ -107,6 +105,7 @@
     # Wayland/Hyprland tools (Linux only)
     pkgs.waybar
     pkgs.wl-clipboard # Essential for Wayland clipboard
+    pkgs.maim # Screenshot tool (X11, Linux-only)
     pkgs.xclip # Essential for X11 clipboard compatibility
     pkgs.swww
     pkgs.wofi

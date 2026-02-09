@@ -76,6 +76,7 @@
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.input-fonts.acceptLicense = true;
   nixpkgs.config.allowUnsupportedSystem = true;
 
   # Import overlays (handled by mkvm-darwin.nix at the flake level)
