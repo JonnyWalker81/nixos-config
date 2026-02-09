@@ -1,4 +1,10 @@
-{ config, pkgs, lib, modulesPath, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  modulesPath,
+  ...
+}:
 let
   curl = "${pkgs.curl}/bin/curl";
   jq = "${pkgs.jq}/bin/jq";
@@ -15,27 +21,15 @@ let
       echo "$1" | ${systemd-cat} -t "$LOG_TAG" -p "''${2:-info}"
     }
 
-    # Try to fetch unix timestamp from a time API
+    # Try to fetch unix timestamp from timeapi.io
     # Returns the timestamp on stdout, or empty string on failure
     fetch_time() {
       local UNIX_TIME=""
 
-      # Source 1: worldtimeapi.org (UTC endpoint - more reliable than timezone-specific)
-      UNIX_TIME=$(${curl} -s --max-time 10 http://worldtimeapi.org/api/timezone/Etc/UTC 2>/dev/null | ${jq} -r '.unixtime // empty' 2>/dev/null)
+      UNIX_TIME=$(${curl} -s --max-time 10 -X 'GET' 'https://timeapi.io/api/v1/time/current/unix' -H 'accept: */*' 2>/dev/null | ${jq} -r '.unix_timestamp // empty' 2>/dev/null)
       if [[ -n "$UNIX_TIME" ]]; then
         echo "$UNIX_TIME"
         return 0
-      fi
-
-      # Source 2: worldclockapi.com (parse ISO datetime to unix timestamp)
-      local DATETIME=""
-      DATETIME=$(${curl} -s --max-time 10 http://worldclockapi.com/api/json/utc/now 2>/dev/null | ${jq} -r '.currentDateTime // empty' 2>/dev/null)
-      if [[ -n "$DATETIME" ]]; then
-        UNIX_TIME=$(${date} -d "$DATETIME" +%s 2>/dev/null)
-        if [[ -n "$UNIX_TIME" ]]; then
-          echo "$UNIX_TIME"
-          return 0
-        fi
       fi
 
       return 1
@@ -64,7 +58,8 @@ let
     log "Failed to sync time after $MAX_RETRIES attempts" "err"
     exit 1
   '';
-in {
+in
+{
   imports = [
     # Parallels is qemu under the covers. This brings in important kernel
     # modules to get a lot of the stuff working.
@@ -84,18 +79,19 @@ in {
   disabledModules = [ "virtualisation/parallels-guest.nix" ];
   hardware.parallels = {
     enable = true;
-    autoMountShares =
-      true; # Re-enabled with patched prlfsmountd (fixed /etc/fstab read-only issue)
-    package = (pkgs.callPackage ../pkgs/parallels-tools/default.nix {
-      kernel = config.boot.kernelPackages.kernel;
-    });
+    autoMountShares = true; # Re-enabled with patched prlfsmountd (fixed /etc/fstab read-only issue)
+    package = (
+      pkgs.callPackage ../pkgs/parallels-tools/default.nix {
+        kernel = config.boot.kernelPackages.kernel;
+      }
+    );
   };
 
   # Interface is this on my M1
   networking.interfaces.enp0s5.useDHCP = true;
 
   # Time sync from web APIs (fallback for when NTP/timesyncd are insufficient)
-  # Uses worldtimeapi.org (UTC) with worldclockapi.com as backup
+  # Uses timeapi.io to fetch current unix timestamp
   # Runs on resume from sleep and periodically every 30 minutes
   systemd.services.sync-time = {
     description = "Sync system clock from web time API";
@@ -110,8 +106,16 @@ in {
   # Trigger time sync after resume from sleep/hibernate
   systemd.services.sync-time-resume = {
     description = "Sync time after resume from sleep";
-    after = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" ];
-    wantedBy = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" ];
+    after = [
+      "suspend.target"
+      "hibernate.target"
+      "hybrid-sleep.target"
+    ];
+    wantedBy = [
+      "suspend.target"
+      "hibernate.target"
+      "hybrid-sleep.target"
+    ];
     serviceConfig = {
       Type = "oneshot";
       ExecStart = "${pkgs.systemd}/bin/systemctl start sync-time.service";
