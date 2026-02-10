@@ -11,14 +11,71 @@ let
   date = "${pkgs.coreutils}/bin/date";
   hwclock = "${pkgs.util-linux}/bin/hwclock";
   systemd-cat = "${pkgs.systemd}/bin/systemd-cat";
+  systemctl = "${pkgs.systemd}/bin/systemctl";
+  sleep-bin = "${pkgs.coreutils}/bin/sleep";
 
-  syncTimeScript = pkgs.writeShellScript "sync-time" ''
-    LOG_TAG="sync-time"
-    MAX_RETRIES=5
-    RETRY_DELAY=3
+  # Detects Parallels VM freeze/unfreeze by monitoring for clock jumps.
+  # When the VM is frozen by the host (sleep/suspend), time stops advancing
+  # inside the guest. On unfreeze, the monotonic clock will show a gap.
+  # This script sleeps in a loop and triggers sync-time when a jump > 60s is detected.
+  clockSkewDetector = pkgs.writeShellScript "clock-skew-detector" ''
+    LOG_TAG="clock-skew-detector"
+    CHECK_INTERVAL=10
+    SKEW_THRESHOLD=60
 
     log() {
       echo "$1" | ${systemd-cat} -t "$LOG_TAG" -p "''${2:-info}"
+    }
+
+    log "Clock skew detector started (interval=''${CHECK_INTERVAL}s, threshold=''${SKEW_THRESHOLD}s)"
+
+    LAST_REALTIME=$(${date} +%s)
+
+    while true; do
+      ${sleep-bin} $CHECK_INTERVAL
+
+      NOW_REALTIME=$(${date} +%s)
+      ELAPSED=$((NOW_REALTIME - LAST_REALTIME))
+      SKEW=$((ELAPSED - CHECK_INTERVAL))
+
+      # Make skew absolute
+      if [ $SKEW -lt 0 ]; then
+        SKEW=$((-SKEW))
+      fi
+
+      if [ $SKEW -gt $SKEW_THRESHOLD ]; then
+        log "Clock skew detected: expected ~''${CHECK_INTERVAL}s elapsed, got ''${ELAPSED}s (skew=''${SKEW}s). Triggering time sync." "warning"
+        ${systemctl} start sync-time.service || true
+      fi
+
+      LAST_REALTIME=$NOW_REALTIME
+    done
+  '';
+
+  syncTimeScript = pkgs.writeShellScript "sync-time" ''
+    LOG_TAG="sync-time"
+    MAX_RETRIES=8
+    RETRY_DELAY=5
+    NETWORK_WAIT=30
+
+    log() {
+      echo "$1" | ${systemd-cat} -t "$LOG_TAG" -p "''${2:-info}"
+    }
+
+    # Wait for network connectivity before attempting time sync
+    # This is critical after Parallels VM freeze/unfreeze where the
+    # network interface needs time to re-establish connectivity
+    wait_for_network() {
+      log "Waiting for network connectivity (up to ''${NETWORK_WAIT}s)..."
+      for i in $(seq 1 $NETWORK_WAIT); do
+        if ${curl} -s --max-time 3 -o /dev/null -w "" "https://timeapi.io" 2>/dev/null; then
+          log "Network is reachable after ''${i}s"
+          return 0
+        fi
+        sleep 1
+      done
+      log "Network not reachable after ''${NETWORK_WAIT}s" "warning"
+      return 1
     }
 
     # Try to fetch unix timestamp from timeapi.io
@@ -34,6 +91,8 @@ let
 
       return 1
     }
+
+    wait_for_network
 
     for i in $(seq 1 $MAX_RETRIES); do
       UNIX_TIME=$(fetch_time)
@@ -100,25 +159,25 @@ in
     serviceConfig = {
       Type = "oneshot";
       ExecStart = "${syncTimeScript}";
+      Restart = "on-failure";
+      RestartSec = "30s";
     };
   };
 
-  # Trigger time sync after resume from sleep/hibernate
+  # Detect Parallels VM freeze/unfreeze via clock skew monitoring.
+  # Parallels does not trigger systemd suspend/hibernate targets when the
+  # host sleeps — it simply freezes the VM process. This long-running
+  # service detects the resulting time jump and triggers sync-time.
   systemd.services.sync-time-resume = {
-    description = "Sync time after resume from sleep";
-    after = [
-      "suspend.target"
-      "hibernate.target"
-      "hybrid-sleep.target"
-    ];
-    wantedBy = [
-      "suspend.target"
-      "hibernate.target"
-      "hybrid-sleep.target"
-    ];
+    description = "Detect VM freeze/unfreeze and trigger time sync";
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.systemd}/bin/systemctl start sync-time.service";
+      Type = "simple";
+      ExecStart = "${clockSkewDetector}";
+      Restart = "always";
+      RestartSec = "5s";
     };
   };
 
