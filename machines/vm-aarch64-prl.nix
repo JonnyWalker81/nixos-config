@@ -14,28 +14,37 @@ let
   systemctl = "${pkgs.systemd}/bin/systemctl";
   sleep-bin = "${pkgs.coreutils}/bin/sleep";
 
-  # Detects Parallels VM freeze/unfreeze by monitoring for clock jumps.
-  # When the VM is frozen by the host (sleep/suspend), time stops advancing
-  # inside the guest. On unfreeze, the monotonic clock will show a gap.
-  # This script sleeps in a loop and triggers sync-time when a jump > 60s is detected.
+  # Detects Parallels VM freeze/unfreeze by monitoring monotonic clock jumps.
+  # When the VM is frozen by the host (sleep/suspend), CLOCK_MONOTONIC stops
+  # advancing. On unfreeze, sleep() returns after a much longer wall-clock
+  # duration than requested. We use CLOCK_MONOTONIC (not wall clock) so that
+  # time corrections by sync-time don't trigger false positives.
   clockSkewDetector = pkgs.writeShellScript "clock-skew-detector" ''
     LOG_TAG="clock-skew-detector"
     CHECK_INTERVAL=10
     SKEW_THRESHOLD=60
+    COOLDOWN=120
 
     log() {
       echo "$1" | ${systemd-cat} -t "$LOG_TAG" -p "''${2:-info}"
     }
 
-    log "Clock skew detector started (interval=''${CHECK_INTERVAL}s, threshold=''${SKEW_THRESHOLD}s)"
+    # Read CLOCK_MONOTONIC in seconds (immune to wall-clock adjustments)
+    mono_now() {
+      # /proc/uptime first field is seconds since boot (monotonic)
+      ${pkgs.coreutils}/bin/cut -d' ' -f1 /proc/uptime | ${pkgs.coreutils}/bin/cut -d'.' -f1
+    }
 
-    LAST_REALTIME=$(${date} +%s)
+    log "Clock skew detector started (interval=''${CHECK_INTERVAL}s, threshold=''${SKEW_THRESHOLD}s, cooldown=''${COOLDOWN}s)"
+
+    LAST_MONO=$(mono_now)
+    LAST_TRIGGER=0
 
     while true; do
       ${sleep-bin} $CHECK_INTERVAL
 
-      NOW_REALTIME=$(${date} +%s)
-      ELAPSED=$((NOW_REALTIME - LAST_REALTIME))
+      NOW_MONO=$(mono_now)
+      ELAPSED=$((NOW_MONO - LAST_MONO))
       SKEW=$((ELAPSED - CHECK_INTERVAL))
 
       # Make skew absolute
@@ -44,11 +53,19 @@ let
       fi
 
       if [ $SKEW -gt $SKEW_THRESHOLD ]; then
-        log "Clock skew detected: expected ~''${CHECK_INTERVAL}s elapsed, got ''${ELAPSED}s (skew=''${SKEW}s). Triggering time sync." "warning"
-        ${systemctl} start sync-time.service || true
+        SINCE_LAST_TRIGGER=$((NOW_MONO - LAST_TRIGGER))
+        if [ $SINCE_LAST_TRIGGER -gt $COOLDOWN ]; then
+          log "VM freeze/unfreeze detected: expected ~''${CHECK_INTERVAL}s monotonic elapsed, got ''${ELAPSED}s (skew=''${SKEW}s). Triggering time sync." "warning"
+          # Wait briefly for network to come back after VM unfreeze
+          ${sleep-bin} 5
+          ${systemctl} start sync-time.service || true
+          LAST_TRIGGER=$(mono_now)
+        else
+          log "Skew detected (''${SKEW}s) but within cooldown period (''${SINCE_LAST_TRIGGER}s/''${COOLDOWN}s), skipping." "info"
+        fi
       fi
 
-      LAST_REALTIME=$NOW_REALTIME
+      LAST_MONO=$(mono_now)
     done
   '';
 
@@ -94,23 +111,45 @@ let
 
     wait_for_network
 
-    for i in $(seq 1 $MAX_RETRIES); do
-      UNIX_TIME=$(fetch_time)
+    # Validate that the API timestamp is reasonable by fetching twice
+    # and checking they agree within a small window. This guards against
+    # stale/cached responses after VM unfreeze.
+    validate_and_set_time() {
+      local T1 T2 DIFF
 
-      if [[ -n "$UNIX_TIME" ]]; then
-        OLD_TIME=$(${date})
+      T1=$(fetch_time) || return 1
+      sleep 2
+      T2=$(fetch_time) || return 1
 
-        if ${date} -u -s "@''${UNIX_TIME}"; then
-          # Persist to hardware clock
-          ${hwclock} --systohc 2>/dev/null || true
-          log "Time synced: ''${OLD_TIME} -> $(${date})"
-          exit 0
-        else
-          log "date -s failed with exit code $? for timestamp ''${UNIX_TIME}" "err"
-        fi
+      DIFF=$((T2 - T1))
+      if [ $DIFF -lt 0 ]; then
+        DIFF=$((-DIFF))
       fi
 
-      log "Attempt $i/$MAX_RETRIES: failed to fetch or set time, retrying in ''${RETRY_DELAY}s..." "warning"
+      # Two fetches 2s apart should differ by 1-5s. If they differ by
+      # more than 30s, the API is returning stale/bad data.
+      if [ $DIFF -gt 30 ]; then
+        log "API sanity check failed: two fetches 2s apart differ by ''${DIFF}s (T1=''${T1}, T2=''${T2})" "err"
+        return 1
+      fi
+
+      OLD_TIME=$(${date})
+      if ${date} -u -s "@''${T2}"; then
+        ${hwclock} --systohc 2>/dev/null || true
+        log "Time synced: ''${OLD_TIME} -> $(${date}) (API delta=''${DIFF}s)"
+        return 0
+      else
+        log "date -s failed with exit code $? for timestamp ''${T2}" "err"
+        return 1
+      fi
+    }
+
+    for i in $(seq 1 $MAX_RETRIES); do
+      if validate_and_set_time; then
+        exit 0
+      fi
+
+      log "Attempt $i/$MAX_RETRIES: failed to fetch/validate/set time, retrying in ''${RETRY_DELAY}s..." "warning"
       sleep $RETRY_DELAY
     done
 
