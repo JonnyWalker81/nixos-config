@@ -139,7 +139,7 @@
         magit-revision-show-gravatars nil)     ; Disable gravatars for performance
 
   ;; Skip large binary files in diffs entirely
-  (defadvice magit-insert-diff (around skip-large-files activate)
+  (define-advice magit-insert-diff (:around (orig-fn &rest args) skip-large-files)
     "Skip showing diffs for very large files."
     (let ((file (magit-file-at-point)))
       (if (and file
@@ -148,7 +148,7 @@
           (insert (propertize (format "Diff skipped for large file: %s (>5MB)\n"
                                       (file-name-nondirectory file))
                               'face 'magit-diff-file-heading))
-        ad-do-it)))
+        (apply orig-fn args))))
 
   ;; Optimize buffer display and refresh behavior
   (setq magit-display-buffer-noselect t        ; Don't auto-select Magit windows

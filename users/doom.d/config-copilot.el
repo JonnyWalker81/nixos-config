@@ -224,9 +224,10 @@ tab-indent."
   (transient-append-suffix 'magit-commit "c"
     '("m" "AI commit message (Claude Code)" jr/claude-code-insert-commit-message))
   (transient-append-suffix 'magit-commit "m"
-    '("M" "AI commit message (gptel)" jr/ai-insert-commit-message))
+    '("M" "AI commit message (gptel)" jr/ai-insert-commit-message)))
 
-  ;; Add keybinding in commit message buffer
+;; Add keybinding in commit message buffer (git-commit loads deferred, so use after! git-commit)
+(after! git-commit
   (define-key git-commit-mode-map (kbd "C-c C-a") #'jr/claude-code-insert-commit-message)
   (define-key git-commit-mode-map (kbd "C-c C-g") #'jr/ai-insert-commit-message))
 
