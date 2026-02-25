@@ -164,6 +164,20 @@
   ;; Cache refile targets for speed (clear cache with C-u C-u C-c C-w)
   (setq org-refile-use-cache t)
 
+  ;; --------------------------------------------------------------------------
+  ;; Archive
+  ;; --------------------------------------------------------------------------
+  ;; Per-source archiving: each GTD file archives to its own archive file
+  ;; in ~/org/gtd/archive/ directory.
+  ;; e.g., inbox.org → archive/inbox.org_archive
+  ;; Manual archive: C-c C-x C-a (org-archive-subtree-default)
+
+  (setq org-archive-location "~/org/gtd/archive/%s_archive::")
+
+  ;; Save context info when archiving (where it came from, when, etc.)
+  (setq org-archive-save-context-info
+        '(time file ltags itags todo category olpath))
+
   ) ;; end after! org
 
 (provide 'config-org-gtd)
