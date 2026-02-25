@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-24)
 ## Current Position
 
 Phase: 1 of 8 (GTD Foundation)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-25 — Completed 01-01-PLAN.md
+Last activity: 2026-02-25 — Completed 01-02-PLAN.md
 
-Progress: [█░░░░░░░░░░░░░░░░░░] 5%
+Progress: [██░░░░░░░░░░░░░░░░░] 10%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 27 min
-- Total execution time: 0.45 hours
+- Total plans completed: 2
+- Average duration: 22 min
+- Total execution time: 0.75 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1. GTD Foundation | 1/3 | 27 min | 27 min |
+| 1. GTD Foundation | 2/3 | 45 min | 22 min |
 
 **Recent Trend:**
-- Last 5 plans: 27m
-- Trend: —
+- Last 5 plans: 27m, 18m
+- Trend: improving
 
 *Updated after each plan completion*
 
@@ -47,6 +47,9 @@ Recent decisions affecting current work:
 - [Roadmap]: Config split into config-org-gtd.el, config-org-roam.el, config-org-journal.el, config-org-visual.el
 - [01-01]: org-directory set to ~/org/ (umbrella), org-agenda-files scoped to ~/org/gtd/ only
 - [01-01]: GTD directory bootstrapping runs at elisp load time (before after! org block)
+- [01-02]: WAITING uses @/! syntax — note prompt on enter, timestamp on leave
+- [01-02]: Priority default B (medium), context tags as flat independent list
+- [01-02]: Effort mapped to minutes: XS=15, S=30, M=60, L=120, XL=240
 
 ### Pending Todos
 
@@ -61,5 +64,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 01-01-PLAN.md
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None

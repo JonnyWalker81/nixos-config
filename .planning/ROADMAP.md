@@ -37,7 +37,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01: Infrastructure & File Scaffolding — init.el flags (+roam, +journal), config.el loader registration, config-org-gtd.el skeleton (org-directory, org-agenda-files), GTD directory auto-creation
-- [ ] 01-02: TODO States, Logging, Tags, Priorities & Effort — 6 TODO states with fast-keys, LOGBOOK logging, 6 GTD context tags, priority faces, t-shirt effort sizes, keyword faces
+- [x] 01-02: TODO States, Logging, Tags, Priorities & Effort — 6 TODO states with fast-keys, LOGBOOK logging, 6 GTD context tags, priority faces, t-shirt effort sizes, keyword faces
 - [ ] 01-03: Refile, Archive & Validation Gate — refile targets scoped to GTD files with fuzzy completion, per-source archive strategy, auto-archive function, end-to-end validation of all Phase 1 success criteria
 
 ### Phase 2: Capture Workflow
@@ -156,7 +156,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. GTD Foundation | 1/3 | In progress | - |
+| 1. GTD Foundation | 2/3 | In progress | - |
 | 2. Capture Workflow | 0/2 | Not started | - |
 | 3. Basic Agenda | 0/2 | Not started | - |
 | 4. Advanced Agenda & GTD Reviews | 0/2 | Not started | - |
@@ -167,4 +167,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 ---
 *Roadmap created: 2026-02-24*
-*Last updated: 2026-02-25 — Plan 01-01 complete (Infrastructure & File Scaffolding)*
+*Last updated: 2026-02-25 — Plan 01-02 complete (TODO States, Logging, Tags, Priorities & Effort)*
