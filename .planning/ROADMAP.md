@@ -33,12 +33,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can tag tasks with GTD contexts (@home, @work, @errands, @phone, @computer) via fast-tag selection
   4. User can refile items from inbox.org to any GTD file with fuzzy completion (max 2 levels deep)
   5. User can assign priorities (A/B/C) with visually distinct color-coded faces and set effort/energy properties on tasks
-**Plans**: TBD
+**Plans**: 3 plans in 1 wave (sequential)
 
 Plans:
-- [ ] 01-01: Package setup and init.el flags (+roam, +journal), packages.el additions (org-roam-ui), NixOS sqlite verification, doom sync, directory structure creation
-- [ ] 01-02: TODO states, state logging, context tags, priorities, effort properties in config-org-gtd.el (using `after! org` to survive Doom overrides)
-- [ ] 01-03: Refile configuration with GTD-scoped targets, archive setup, and validation gate (verify states/tags/refile all work)
+- [ ] 01-01: Infrastructure & File Scaffolding — init.el flags (+roam, +journal), config.el loader registration, config-org-gtd.el skeleton (org-directory, org-agenda-files), GTD directory auto-creation
+- [ ] 01-02: TODO States, Logging, Tags, Priorities & Effort — 6 TODO states with fast-keys, LOGBOOK logging, 6 GTD context tags, priority faces, t-shirt effort sizes, keyword faces
+- [ ] 01-03: Refile, Archive & Validation Gate — refile targets scoped to GTD files with fuzzy completion, per-source archive strategy, auto-archive function, end-to-end validation of all Phase 1 success criteria
 
 ### Phase 2: Capture Workflow
 **Goal**: User can capture tasks, notes, projects, and meetings from anywhere in Emacs with minimal friction
@@ -156,7 +156,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. GTD Foundation | 0/3 | Not started | - |
+| 1. GTD Foundation | 0/3 | Planned | - |
 | 2. Capture Workflow | 0/2 | Not started | - |
 | 3. Basic Agenda | 0/2 | Not started | - |
 | 4. Advanced Agenda & GTD Reviews | 0/2 | Not started | - |
@@ -167,4 +167,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 ---
 *Roadmap created: 2026-02-24*
-*Last updated: 2026-02-24*
+*Last updated: 2026-02-24 — Phase 1 plans finalized (3 plans, 1 wave)*
