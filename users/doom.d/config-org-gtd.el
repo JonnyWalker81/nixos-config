@@ -56,7 +56,20 @@
         '((sequence
            "TODO(t)" "NEXT(n)" "WAITING(w@/!)" "SOMEDAY(s)"
            "|"
-           "DONE(d!)" "CANCELLED(c!)")))
+            "DONE(d!)" "CANCELLED(c!)")))
+
+  ;; --------------------------------------------------------------------------
+  ;; State Change Logging
+  ;; --------------------------------------------------------------------------
+  ;; Log state changes into a LOGBOOK drawer (not inline under heading)
+  ;; Log DONE timestamp, log repeat state changes, log refile, log reschedule
+
+  (setq org-log-done 'time)              ;; Log timestamp when task marked DONE
+  (setq org-log-into-drawer "LOGBOOK")   ;; All state logs go into LOGBOOK drawer
+  (setq org-log-repeat 'time)            ;; Log when repeating task resets state
+  (setq org-log-refile 'time)            ;; Log timestamp when item is refiled
+  (setq org-log-reschedule 'time)        ;; Log when scheduled date changes
+  (setq org-log-redeadline 'time)        ;; Log when deadline changes
 
   ) ;; end after! org
 
