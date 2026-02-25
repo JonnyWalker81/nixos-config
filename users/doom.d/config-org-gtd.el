@@ -87,6 +87,21 @@
           ("@computer" . ?c)
           ("@email"    . ?m)))
 
+  ;; --------------------------------------------------------------------------
+  ;; Priorities
+  ;; --------------------------------------------------------------------------
+  ;; A/B/C priorities with visually distinct color-coded faces.
+  ;; Colors chosen to match doom-tokyo-night palette.
+
+  (setq org-priority-highest ?A)
+  (setq org-priority-lowest  ?C)
+  (setq org-priority-default ?B)
+
+  (setq org-priority-faces
+        '((?A . (:foreground "#ff6c6b" :weight bold))
+          (?B . (:foreground "#ECBE7B" :weight bold))
+          (?C . (:foreground "#98be65"))))
+
   ) ;; end after! org
 
 (provide 'config-org-gtd)
