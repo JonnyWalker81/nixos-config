@@ -9,13 +9,13 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### GTD Foundation
 
-- [ ] **GTD-01**: User has 6 TODO states (TODO, NEXT, WAITING, SOMEDAY | DONE, CANCELLED) with fast-access keys
-- [ ] **GTD-02**: State changes log timestamps into a LOGBOOK drawer
-- [ ] **GTD-03**: User can tag tasks with GTD contexts (@home, @work, @errands, @phone, @computer)
-- [ ] **GTD-04**: org-directory set with structured GTD files (inbox.org, projects.org, someday.org, reference.org, archive)
-- [ ] **GTD-05**: User can refile items from inbox to proper GTD files with fuzzy completion
-- [ ] **GTD-06**: User can assign priorities (A/B/C) with color-coded faces
-- [ ] **GTD-07**: User can set effort/energy properties on tasks for time-available filtering
+- [x] **GTD-01**: User has 6 TODO states (TODO, NEXT, WAITING, SOMEDAY | DONE, CANCELLED) with fast-access keys
+- [x] **GTD-02**: State changes log timestamps into a LOGBOOK drawer
+- [x] **GTD-03**: User can tag tasks with GTD contexts (@home, @work, @errands, @phone, @computer)
+- [x] **GTD-04**: org-directory set with structured GTD files (inbox.org, projects.org, someday.org, reference.org, archive)
+- [x] **GTD-05**: User can refile items from inbox to proper GTD files with fuzzy completion
+- [x] **GTD-06**: User can assign priorities (A/B/C) with color-coded faces
+- [x] **GTD-07**: User can set effort/energy properties on tasks for time-available filtering
 
 ### Capture
 
@@ -127,13 +127,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GTD-01 | Phase 1: GTD Foundation | Pending |
-| GTD-02 | Phase 1: GTD Foundation | Pending |
-| GTD-03 | Phase 1: GTD Foundation | Pending |
-| GTD-04 | Phase 1: GTD Foundation | Pending |
-| GTD-05 | Phase 1: GTD Foundation | Pending |
-| GTD-06 | Phase 1: GTD Foundation | Pending |
-| GTD-07 | Phase 1: GTD Foundation | Pending |
+| GTD-01 | Phase 1: GTD Foundation | Complete |
+| GTD-02 | Phase 1: GTD Foundation | Complete |
+| GTD-03 | Phase 1: GTD Foundation | Complete |
+| GTD-04 | Phase 1: GTD Foundation | Complete |
+| GTD-05 | Phase 1: GTD Foundation | Complete |
+| GTD-06 | Phase 1: GTD Foundation | Complete |
+| GTD-07 | Phase 1: GTD Foundation | Complete |
 | CAP-01 | Phase 2: Capture Workflow | Pending |
 | CAP-02 | Phase 2: Capture Workflow | Pending |
 | CAP-03 | Phase 2: Capture Workflow | Pending |
@@ -177,4 +177,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2025-02-24*
-*Last updated: 2026-02-24 after roadmap creation — all requirements mapped to phases*
+*Last updated: 2026-02-25 — Phase 1 requirements (GTD-01 through GTD-07) marked Complete*
