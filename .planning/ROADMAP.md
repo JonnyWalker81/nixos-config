@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Success Criteria** (what must be TRUE):
   1. User can cycle through 6 TODO states (TODO, NEXT, WAITING, SOMEDAY, DONE, CANCELLED) with single-key shortcuts, and state changes log timestamps in a LOGBOOK drawer
   2. `~/org/gtd/` directory exists with inbox.org, projects.org, someday.org, reference.org, and archive/ — and `org-directory` points there
-  3. User can tag tasks with GTD contexts (@home, @work, @errands, @phone, @computer) via fast-tag selection
+  3. User can tag tasks with GTD contexts (@home, @work, @errands, @phone, @computer, @email) via fast-tag selection
   4. User can refile items from inbox.org to any GTD file with fuzzy completion (max 2 levels deep)
   5. User can assign priorities (A/B/C) with visually distinct color-coded faces and set effort/energy properties on tasks
 **Plans**: 3 plans in 1 wave (sequential)
