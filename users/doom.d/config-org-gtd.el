@@ -138,6 +138,32 @@
           ("DONE"      . (:foreground "#98be65"))
           ("CANCELLED" . (:foreground "#5B6268" :strike-through t))))
 
+  ;; --------------------------------------------------------------------------
+  ;; Refile
+  ;; --------------------------------------------------------------------------
+  ;; Refile targets: all GTD files, max 2 levels deep.
+  ;; Shows file + heading path for clarity (e.g., "projects.org/Project A").
+  ;; Uses vertico/orderless fuzzy completion (Doom provides this automatically).
+
+  (setq org-refile-targets
+        '(("~/org/gtd/inbox.org"     :maxlevel . 2)
+          ("~/org/gtd/projects.org"  :maxlevel . 2)
+          ("~/org/gtd/someday.org"   :maxlevel . 2)
+          ("~/org/gtd/reference.org" :maxlevel . 2)))
+
+  ;; Show full outline path in refile completion (file/heading/subheading)
+  (setq org-refile-use-outline-path 'file)
+
+  ;; Don't complete in steps — show full paths in a single completion interface
+  ;; This works with vertico/orderless for fuzzy matching
+  (setq org-outline-path-complete-in-steps nil)
+
+  ;; Allow creating new parent nodes during refile (confirm first)
+  (setq org-refile-allow-creating-parent-nodes 'confirm)
+
+  ;; Cache refile targets for speed (clear cache with C-u C-u C-c C-w)
+  (setq org-refile-use-cache t)
+
   ) ;; end after! org
 
 (provide 'config-org-gtd)
