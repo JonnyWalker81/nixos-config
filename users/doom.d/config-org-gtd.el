@@ -102,6 +102,28 @@
           (?B . (:foreground "#ECBE7B" :weight bold))
           (?C . (:foreground "#98be65"))))
 
+  ;; --------------------------------------------------------------------------
+  ;; Effort Estimation
+  ;; --------------------------------------------------------------------------
+  ;; T-shirt sizes for quick effort estimation.
+  ;; Mapped to approximate time values for filtering/sorting.
+  ;; Set effort with C-c C-x e (org-set-effort).
+
+  (setq org-effort-durations
+        '(("XS" . 15)      ;; 15 minutes
+          ("S"  . 30)      ;; 30 minutes
+          ("M"  . 60)      ;; 1 hour
+          ("L"  . 120)     ;; 2 hours
+          ("XL" . 240)))   ;; 4 hours
+
+  ;; Column view format showing effort alongside TODO state and priority
+  (setq org-columns-default-format
+        "%40ITEM(Task) %TODO %3PRIORITY %10Effort(Effort){:} %TAGS")
+
+  ;; Effort allowed values for quick selection
+  (setq org-global-properties
+        '(("Effort_ALL" . "XS S M L XL")))
+
   ) ;; end after! org
 
 (provide 'config-org-gtd)
