@@ -127,51 +127,54 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GTD-01 | — | Pending |
-| GTD-02 | — | Pending |
-| GTD-03 | — | Pending |
-| GTD-04 | — | Pending |
-| GTD-05 | — | Pending |
-| GTD-06 | — | Pending |
-| GTD-07 | — | Pending |
-| CAP-01 | — | Pending |
-| CAP-02 | — | Pending |
-| CAP-03 | — | Pending |
-| CAP-04 | — | Pending |
-| CAP-05 | — | Pending |
-| AGN-01 | — | Pending |
-| AGN-02 | — | Pending |
-| AGN-03 | — | Pending |
-| AGN-04 | — | Pending |
-| AGN-05 | — | Pending |
-| AGN-06 | — | Pending |
-| AGN-07 | — | Pending |
-| KB-01 | — | Pending |
-| KB-02 | — | Pending |
-| KB-03 | — | Pending |
-| KB-04 | — | Pending |
-| KB-05 | — | Pending |
-| KB-06 | — | Pending |
-| KB-07 | — | Pending |
-| JRN-01 | — | Pending |
-| JRN-02 | — | Pending |
-| JRN-03 | — | Pending |
-| JRN-04 | — | Pending |
-| VIS-01 | — | Pending |
-| VIS-02 | — | Pending |
-| VIS-03 | — | Pending |
-| VIS-04 | — | Pending |
-| VIS-05 | — | Pending |
-| UX-01 | — | Pending |
-| UX-02 | — | Pending |
-| UX-03 | — | Pending |
-| UX-04 | — | Pending |
+| GTD-01 | Phase 1: GTD Foundation | Pending |
+| GTD-02 | Phase 1: GTD Foundation | Pending |
+| GTD-03 | Phase 1: GTD Foundation | Pending |
+| GTD-04 | Phase 1: GTD Foundation | Pending |
+| GTD-05 | Phase 1: GTD Foundation | Pending |
+| GTD-06 | Phase 1: GTD Foundation | Pending |
+| GTD-07 | Phase 1: GTD Foundation | Pending |
+| CAP-01 | Phase 2: Capture Workflow | Pending |
+| CAP-02 | Phase 2: Capture Workflow | Pending |
+| CAP-03 | Phase 2: Capture Workflow | Pending |
+| CAP-04 | Phase 2: Capture Workflow | Pending |
+| CAP-05 | Phase 6: Journaling & Denote | Pending |
+| AGN-01 | Phase 3: Basic Agenda | Pending |
+| AGN-02 | Phase 3: Basic Agenda | Pending |
+| AGN-03 | Phase 3: Basic Agenda | Pending |
+| AGN-04 | Phase 4: Advanced Agenda & GTD Reviews | Pending |
+| AGN-05 | Phase 4: Advanced Agenda & GTD Reviews | Pending |
+| AGN-06 | Phase 4: Advanced Agenda & GTD Reviews | Pending |
+| AGN-07 | Phase 4: Advanced Agenda & GTD Reviews | Pending |
+| KB-01 | Phase 5: Knowledge Base | Pending |
+| KB-02 | Phase 5: Knowledge Base | Pending |
+| KB-03 | Phase 5: Knowledge Base | Pending |
+| KB-04 | Phase 5: Knowledge Base | Pending |
+| KB-05 | Phase 5: Knowledge Base | Pending |
+| KB-06 | Phase 5: Knowledge Base | Pending |
+| KB-07 | Phase 6: Journaling & Denote | Pending |
+| JRN-01 | Phase 6: Journaling & Denote | Pending |
+| JRN-02 | Phase 6: Journaling & Denote | Pending |
+| JRN-03 | Phase 6: Journaling & Denote | Pending |
+| JRN-04 | Phase 6: Journaling & Denote | Pending |
+| VIS-01 | Phase 7: Visual Polish | Pending |
+| VIS-02 | Phase 7: Visual Polish | Pending |
+| VIS-03 | Phase 7: Visual Polish | Pending |
+| VIS-04 | Phase 7: Visual Polish | Pending |
+| VIS-05 | Phase 7: Visual Polish | Pending |
+| UX-01 | Phase 8: Integration & Dashboard | Pending |
+| UX-02 | Phase 8: Integration & Dashboard | Pending |
+| UX-03 | Phase 8: Integration & Dashboard | Pending |
+| UX-04 | Phase 8: Integration & Dashboard | Pending |
 
 **Coverage:**
-- v1 requirements: 36 total
-- Mapped to phases: 0
-- Unmapped: 36
+- v1 requirements: 39 total
+- Mapped to phases: 39
+- Unmapped: 0
+- Coverage: 100% ✓
+
+**Note:** Original count said 36 but actual enumeration yields 39 requirements (7+5+7+7+4+5+4). All 39 mapped.
 
 ---
 *Requirements defined: 2025-02-24*
-*Last updated: 2025-02-24 after initial definition*
+*Last updated: 2026-02-24 after roadmap creation — all requirements mapped to phases*
