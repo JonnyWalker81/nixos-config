@@ -178,6 +178,37 @@
   (setq org-archive-save-context-info
         '(time file ltags itags todo category olpath))
 
+  ;; --------------------------------------------------------------------------
+  ;; Auto-archive stale items
+  ;; --------------------------------------------------------------------------
+  ;; Archive DONE/CANCELLED items that have been closed for 30+ days.
+  ;; Call manually: M-x org-gtd-archive-stale
+  ;; This is intentionally manual, not automatic, to avoid surprise archiving.
+
+  (defvar org-gtd-archive-stale-days 30
+    "Number of days after which DONE/CANCELLED items are considered stale for archiving.")
+
+  (defun org-gtd-archive-stale ()
+    "Archive all DONE/CANCELLED items closed more than `org-gtd-archive-stale-days' days ago.
+Operates on all GTD agenda files."
+    (interactive)
+    (let ((cutoff (time-subtract (current-time)
+                                 (days-to-time org-gtd-archive-stale-days)))
+          (archived-count 0))
+      (dolist (file (org-agenda-files))
+        (with-current-buffer (or (find-buffer-visiting file)
+                                 (find-file-noselect file))
+          (org-map-entries
+           (lambda ()
+             (let ((closed-str (org-entry-get nil "CLOSED")))
+               (when (and closed-str
+                          (time-less-p (org-time-string-to-time closed-str) cutoff))
+                 (org-archive-subtree)
+                 (setq archived-count (1+ archived-count)))))
+           "/DONE|CANCELLED" 'file)))
+      (message "Archived %d stale items (closed > %d days ago)"
+               archived-count org-gtd-archive-stale-days)))
+
   ) ;; end after! org
 
 (provide 'config-org-gtd)
