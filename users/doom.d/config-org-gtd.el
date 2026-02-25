@@ -44,6 +44,20 @@
   ;; Agenda scoped to GTD files only — prevents roam/journal noise in agenda
   (setq org-agenda-files '("~/org/gtd/"))
 
+  ;; --------------------------------------------------------------------------
+  ;; TODO States
+  ;; --------------------------------------------------------------------------
+  ;; 4 active states | 2 closed states
+  ;; Fast-selection keys in parentheses: t=TODO, n=NEXT, w=WAITING, s=SOMEDAY, d=DONE, c=CANCELLED
+  ;; The pipe (|) separates active from closed states.
+  ;; Transitions are unrestricted — any state can move to any other.
+
+  (setq org-todo-keywords
+        '((sequence
+           "TODO(t)" "NEXT(n)" "WAITING(w@/!)" "SOMEDAY(s)"
+           "|"
+           "DONE(d!)" "CANCELLED(c!)")))
+
   ) ;; end after! org
 
 (provide 'config-org-gtd)
