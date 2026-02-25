@@ -204,6 +204,8 @@
 (load! "config-completion")
 (message "Loading config-org...")
 (load! "config-org")
+(message "Loading config-org-gtd...")
+(load! "config-org-gtd")
 (message "Loading config-copilot...")
 (load! "config-copilot")
 (message "Loading config-magit...")
