@@ -124,6 +124,20 @@
   (setq org-global-properties
         '(("Effort_ALL" . "XS S M L XL")))
 
+  ;; --------------------------------------------------------------------------
+  ;; TODO Keyword Faces
+  ;; --------------------------------------------------------------------------
+  ;; Color-code TODO states for at-a-glance status recognition.
+  ;; Active states are bright/bold, closed states are muted.
+
+  (setq org-todo-keyword-faces
+        '(("TODO"      . (:foreground "#ff6c6b" :weight bold))
+          ("NEXT"      . (:foreground "#51afef" :weight bold))
+          ("WAITING"   . (:foreground "#ECBE7B" :weight bold))
+          ("SOMEDAY"   . (:foreground "#a9a1e1"))
+          ("DONE"      . (:foreground "#98be65"))
+          ("CANCELLED" . (:foreground "#5B6268" :strike-through t))))
+
   ) ;; end after! org
 
 (provide 'config-org-gtd)
