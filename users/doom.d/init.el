@@ -189,6 +189,8 @@
         )            ; an objective camel
        (org              ; organize your plain life in plain text
         +pretty
+        +roam            ; org-roam v2 knowledge base (Phase 5)
+        +journal         ; org-journal daily entries (Phase 6)
         +attach          ; custom attachment system
         +babel           ; running code in org
         +capture         ; org-capture in and outside of Emacs
