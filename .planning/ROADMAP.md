@@ -12,7 +12,7 @@ OrgLife transforms the user's existing Doom Emacs setup into a comprehensive lif
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: GTD Foundation** - Establish org-directory, TODO states, file structure, refile, priorities, and effort properties
+- [x] **Phase 1: GTD Foundation** - Establish org-directory, TODO states, file structure, refile, priorities, and effort properties
 - [ ] **Phase 2: Capture Workflow** - Fast capture templates for tasks, notes, projects, and meetings
 - [ ] **Phase 3: Basic Agenda** - Daily and weekly agenda views with org-super-agenda grouping
 - [ ] **Phase 4: Advanced Agenda & GTD Reviews** - Daily review dashboard, weekly review, context filters, stuck project detection
@@ -38,7 +38,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-01: Infrastructure & File Scaffolding — init.el flags (+roam, +journal), config.el loader registration, config-org-gtd.el skeleton (org-directory, org-agenda-files), GTD directory auto-creation
 - [x] 01-02: TODO States, Logging, Tags, Priorities & Effort — 6 TODO states with fast-keys, LOGBOOK logging, 6 GTD context tags, priority faces, t-shirt effort sizes, keyword faces
-- [ ] 01-03: Refile, Archive & Validation Gate — refile targets scoped to GTD files with fuzzy completion, per-source archive strategy, auto-archive function, end-to-end validation of all Phase 1 success criteria
+- [x] 01-03: Refile, Archive & Validation Gate — refile targets scoped to GTD files with fuzzy completion, per-source archive strategy, auto-archive function, end-to-end validation of all Phase 1 success criteria
 
 ### Phase 2: Capture Workflow
 **Goal**: User can capture tasks, notes, projects, and meetings from anywhere in Emacs with minimal friction
@@ -156,7 +156,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. GTD Foundation | 2/3 | In progress | - |
+| 1. GTD Foundation | 3/3 | Complete | 2026-02-25 |
 | 2. Capture Workflow | 0/2 | Not started | - |
 | 3. Basic Agenda | 0/2 | Not started | - |
 | 4. Advanced Agenda & GTD Reviews | 0/2 | Not started | - |
@@ -167,4 +167,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 ---
 *Roadmap created: 2026-02-24*
-*Last updated: 2026-02-25 — Plan 01-02 complete (TODO States, Logging, Tags, Priorities & Effort)*
+*Last updated: 2026-02-25 — Phase 1 complete (GTD Foundation: all 3 plans done)*
