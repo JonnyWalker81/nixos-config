@@ -8,6 +8,27 @@
 ;;
 ;; All settings use (after! org) to survive Doom Emacs overrides.
 
+;; --------------------------------------------------------------------------
+;; Auto-create GTD directory structure
+;; --------------------------------------------------------------------------
+;; Ensure directories exist on first run (idempotent)
+
+(dolist (dir '("~/org/" "~/org/gtd/" "~/org/gtd/archive/"))
+  (unless (file-directory-p (expand-file-name dir))
+    (make-directory (expand-file-name dir) t)))
+
+;; Create GTD files with boilerplate if they don't exist
+(dolist (file-spec '(("~/org/gtd/inbox.org"     "Inbox"     "Capture landing zone — process to zero regularly")
+                     ("~/org/gtd/projects.org"   "Projects"  "Active projects with sub-tasks")
+                     ("~/org/gtd/someday.org"    "Someday"   "Maybe/someday items — review weekly")
+                     ("~/org/gtd/reference.org"  "Reference" "Non-actionable reference material")))
+  (let ((filepath (expand-file-name (nth 0 file-spec)))
+        (title (nth 1 file-spec))
+        (desc (nth 2 file-spec)))
+    (unless (file-exists-p filepath)
+      (with-temp-file filepath
+        (insert (format "#+title: %s\n#+filetags:\n\n# %s\n" title desc))))))
+
 (after! org
   ;; --------------------------------------------------------------------------
   ;; Directory & File Structure
