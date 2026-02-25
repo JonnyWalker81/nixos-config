@@ -71,6 +71,22 @@
   (setq org-log-reschedule 'time)        ;; Log when scheduled date changes
   (setq org-log-redeadline 'time)        ;; Log when deadline changes
 
+  ;; --------------------------------------------------------------------------
+  ;; GTD Context Tags
+  ;; --------------------------------------------------------------------------
+  ;; 6 context tags for GTD next-action filtering.
+  ;; Tags are NOT mutually exclusive — a task can have multiple contexts.
+  ;; Tags inherit from parent headings (org default behavior).
+  ;; Fast-tag selection: press the shortcut key to toggle the tag.
+
+  (setq org-tag-alist
+        '(("@home"     . ?h)
+          ("@work"     . ?w)
+          ("@errands"  . ?e)
+          ("@phone"    . ?p)
+          ("@computer" . ?c)
+          ("@email"    . ?m)))
+
   ) ;; end after! org
 
 (provide 'config-org-gtd)
