@@ -4,12 +4,24 @@
   ;; Phase 3 owns agenda command definitions in one place.
   (setq org-agenda-start-on-weekday 1)
 
+  (defun my/org-gtd-inbox-open-count ()
+    "Return open TODO item count in inbox.org."
+    (let* ((inbox-file (expand-file-name "~/org/gtd/inbox.org"))
+           (count 0))
+      (when (file-exists-p inbox-file)
+        (with-current-buffer (or (find-buffer-visiting inbox-file)
+                                 (find-file-noselect inbox-file))
+          (org-map-entries (lambda () (setq count (1+ count)))
+                           "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
+                           'file)))
+      count))
+
   (setq org-agenda-custom-commands
-        '(("d" "Daily planning"
+        `(("d" "Daily planning"
            ((agenda ""
                     ((org-agenda-span 'day)
                      (org-agenda-overriding-header "Today timeline")))
-           (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
+            (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
                        ((org-agenda-overriding-header "Unscheduled actionable")
                         (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))
                         (org-super-agenda-groups org-super-agenda-groups))))
@@ -18,13 +30,13 @@
             (org-super-agenda-groups org-super-agenda-groups)
             (org-agenda-prefix-format
              '((agenda . " %-12:c %?-12t %10e ")
-                (todo . " %-12:c %?-12t %10e ")
-                (tags . " %-12:c %?-12t %10e ")))))
+               (todo . " %-12:c %?-12t %10e ")
+               (tags . " %-12:c %?-12t %10e ")))))
           ("w" "Weekly planning"
            ((agenda ""
-                     ((org-agenda-span 'week)
-                      (org-agenda-start-on-weekday 1)
-                      (org-agenda-overriding-header "Week timeline")))
+                    ((org-agenda-span 'week)
+                     (org-agenda-start-on-weekday 1)
+                     (org-agenda-overriding-header "Week timeline")))
             (tags-todo "DEADLINE<=\"<+7d>\"/!TODO|NEXT|WAITING|SOMEDAY"
                        ((org-agenda-overriding-header "Weekly deadline summary")
                         (org-super-agenda-groups org-super-agenda-groups)))
@@ -32,6 +44,27 @@
                        ((org-agenda-overriding-header "Unscheduled actionable")
                         (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))
                         (org-super-agenda-groups org-super-agenda-groups))))
+           ((org-agenda-show-log nil)
+            (org-agenda-start-with-log-mode nil)
+            (org-super-agenda-groups org-super-agenda-groups)
+            (org-agenda-prefix-format
+             '((agenda . " %-12:c %?-12t %10e ")
+               (todo . " %-12:c %?-12t %10e ")
+               (tags . " %-12:c %?-12t %10e ")))))
+          ("r" "Daily Review"
+           ((agenda ""
+                    ((org-agenda-span 'day)
+                     (org-agenda-overriding-header "Daily review timeline")))
+            (tags-todo "+PRIORITY=\"A\"/TODO|NEXT"
+                       ((org-agenda-overriding-header "Priority A actionable")))
+            (tags-todo "TODO=\"NEXT\""
+                       ((org-agenda-overriding-header "All NEXT actions")))
+            (tags-todo "TODO=\"WAITING\""
+                       ((org-agenda-overriding-header "WAITING follow-up")))
+            (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
+                       ((org-agenda-files '("~/org/gtd/inbox.org"))
+                        (org-agenda-overriding-header
+                         ,(format "Inbox triage (%d open)" (my/org-gtd-inbox-open-count))))))
            ((org-agenda-show-log nil)
             (org-agenda-start-with-log-mode nil)
             (org-super-agenda-groups org-super-agenda-groups)
