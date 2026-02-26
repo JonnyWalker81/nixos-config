@@ -11,10 +11,27 @@
   (setq find-file-visit-truename t)
   (setq org-roam-directory org-life-roam-directory))
 
+(defun org-life-roam-node-annotation (node)
+  "Show aliases and filename so duplicate titles stay easy to choose."
+  (let* ((aliases (org-roam-node-aliases node))
+         (alias-text (when aliases (mapconcat #'identity aliases ", ")))
+         (file-name (file-name-nondirectory (org-roam-node-file node))))
+    (format "%s%s"
+            (if alias-text
+                (propertize (format " [%s]" alias-text) 'face 'org-tag)
+              "")
+            (propertize (format " · %s" file-name) 'face 'shadow))))
+
 (after! org-roam
   (unless (and (fboundp 'sqlite-available-p) (sqlite-available-p))
     (user-error
      "org-roam requires sqlite support. Rebuild Emacs/Nix config with sqlite enabled before continuing."))
+  ;; Stable note identity policy:
+  ;; - Files are created as timestamp+slug and remain stable when titles change.
+  ;; - Similar/duplicate titles are allowed; aliases and filename annotations disambiguate node selection.
+  ;; - Discoverability is alias-first via ROAM_ALIASES metadata rather than filename churn.
+  (setq org-roam-completion-everywhere t)
+  (setq org-roam-node-annotation-function #'org-life-roam-node-annotation)
   (setq org-roam-capture-templates
         '(("d" "default" plain
            "%?"
