@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-24)
 
 **Core value:** Everything lives in one integrated system — tasks, schedule, notes, and journal are cross-linked and accessible within two keystrokes, so nothing falls through the cracks.
-**Current focus:** Phase 4 — Advanced Agenda & GTD Reviews
+**Current focus:** Phase 5 — Knowledge Base
 
 ## Current Position
 
 Phase: 4 of 8 (Advanced Agenda & GTD Reviews)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-26 — Completed 04-01-PLAN.md (daily review and context-filtered review entrypoints)
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-02-26 — Completed 04-02-PLAN.md (weekly review, stuck project detection, and validation gate)
 
-Progress: [████████░░░░░░░░░░░░] 42%
+Progress: [█████████░░░░░░░░░░░] 47%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 30 min
-- Total execution time: 3.99 hours
+- Total plans completed: 9
+- Average duration: 27 min
+- Total execution time: 4.08 hours
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: [████████░░░░░░░░░░░░] 42%
 | 1. GTD Foundation | 3/3 | 47 min | 16 min |
 | 2. Capture Workflow | 2/2 | 28 min | 14 min |
 | 3. Basic Agenda | 2/2 | 31 min | 16 min |
-| 4. Advanced Agenda & GTD Reviews | 1/2 | 134 min | 134 min |
+| 4. Advanced Agenda & GTD Reviews | 2/2 | 139 min | 70 min |
 
 **Recent Trend:**
-- Last 5 plans: 134m, 29m, 18m, 2m, 1m
+- Last 5 plans: 5m, 134m, 29m, 18m, 2m
 - Trend: volatile (verification-heavy)
 
 *Updated after each plan completion*
@@ -69,6 +69,9 @@ Recent decisions affecting current work:
 - [04-01]: Daily Review command (`r`) keeps timeline-first flow and adds explicit Priority A/NEXT/WAITING/inbox triage sections in one review path
 - [04-01]: Context review commands use dedicated dispatcher keys (`H`/`W`) with opposite-context exclusion to keep @home/@work views isolated
 - [04-01]: Review commands share a metadata-rich prefix format and open-state-focused headers for discoverable planning defaults
+- [04-02]: Weekly Review command uses key `R` and keeps existing weekly planning command `w` unchanged
+- [04-02]: Weekly Review order is timeline, inbox triage, stuck projects, WAITING, then SOMEDAY to preserve GTD weekly processing flow
+- [04-02]: Stuck project detection is scoped to `projects.org` and enforced by subtree NEXT-child checks for AGN-07 reliability
 
 ### Pending Todos
 
@@ -82,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-26 22:30 UTC
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-02-26 22:38 UTC
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
