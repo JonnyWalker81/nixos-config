@@ -71,6 +71,26 @@
             (org-agenda-prefix-format
              '((agenda . " %-12:c %?-12t %10e ")
                (todo . " %-12:c %?-12t %10e ")
+               (tags . " %-12:c %?-12t %10e ")))))
+          ("H" "@home Review"
+           ((tags-todo "+@home-@work/TODO|NEXT|WAITING"
+                       ((org-agenda-overriding-header "@home actionable + waiting"))))
+           ((org-agenda-show-log nil)
+            (org-agenda-start-with-log-mode nil)
+            (org-super-agenda-groups org-super-agenda-groups)
+            (org-agenda-prefix-format
+             '((agenda . " %-12:c %?-12t %10e ")
+               (todo . " %-12:c %?-12t %10e ")
+               (tags . " %-12:c %?-12t %10e ")))))
+          ("W" "@work Review"
+           ((tags-todo "+@work-@home/TODO|NEXT|WAITING"
+                       ((org-agenda-overriding-header "@work actionable + waiting"))))
+           ((org-agenda-show-log nil)
+            (org-agenda-start-with-log-mode nil)
+            (org-super-agenda-groups org-super-agenda-groups)
+            (org-agenda-prefix-format
+             '((agenda . " %-12:c %?-12t %10e ")
+               (todo . " %-12:c %?-12t %10e ")
                (tags . " %-12:c %?-12t %10e "))))))))
 
 (after! org-super-agenda
@@ -125,7 +145,10 @@
 (map! :leader
       (:prefix ("o A" . "agenda")
        :desc "Daily planning agenda" "d" (cmd! (org-agenda nil "d"))
-       :desc "Weekly planning agenda" "w" (cmd! (org-agenda nil "w"))))
+       :desc "Weekly planning agenda" "w" (cmd! (org-agenda nil "w"))
+       :desc "Daily review agenda" "r" (cmd! (org-agenda nil "r"))
+       :desc "@home review agenda" "h" (cmd! (org-agenda nil "H"))
+       :desc "@work review agenda" "W" (cmd! (org-agenda nil "W"))))
 
 (provide 'config-org-agenda)
 ;;; config-org-agenda.el ends here
