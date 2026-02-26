@@ -9,29 +9,36 @@
            ((agenda ""
                     ((org-agenda-span 'day)
                      (org-agenda-overriding-header "Today timeline")))
-           (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\""
+           (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
                        ((org-agenda-overriding-header "Unscheduled actionable")
-                        (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline)))))
+                        (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))
+                        (org-super-agenda-groups org-super-agenda-groups))))
            ((org-agenda-show-log nil)
+            (org-agenda-start-with-log-mode nil)
+            (org-super-agenda-groups org-super-agenda-groups)
+            (org-agenda-prefix-format
+             '((agenda . " %(priority) %-12:c %?-12t %10e ")
+                (todo . " %(priority) %-12:c %?-12t %10e ")
+                (tags . " %(priority) %-12:c %?-12t %10e ")))))
+          ("w" "Weekly planning"
+           ((agenda ""
+                     ((org-agenda-span 'week)
+                      (org-agenda-start-on-weekday 1)
+                      (org-agenda-overriding-header "Week timeline")))
+            (tags-todo "DEADLINE<=\"<+7d>\"/!TODO|NEXT|WAITING|SOMEDAY"
+                       ((org-agenda-overriding-header "Weekly deadline summary")
+                        (org-super-agenda-groups org-super-agenda-groups)))
+            (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
+                       ((org-agenda-overriding-header "Unscheduled actionable")
+                        (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))
+                        (org-super-agenda-groups org-super-agenda-groups))))
+           ((org-agenda-show-log nil)
+            (org-agenda-start-with-log-mode nil)
+            (org-super-agenda-groups org-super-agenda-groups)
             (org-agenda-prefix-format
              '((agenda . " %(priority) %-12:c %?-12t %10e ")
                (todo . " %(priority) %-12:c %?-12t %10e ")
-               (tags . " %(priority) %-12:c %?-12t %10e ")))))
-          ("w" "Weekly planning"
-           ((agenda ""
-                    ((org-agenda-span 'week)
-                     (org-agenda-start-on-weekday 1)
-                     (org-agenda-overriding-header "Week timeline")))
-            (tags-todo "DEADLINE<=\"<+7d>\""
-                       ((org-agenda-overriding-header "Weekly deadline summary")))
-            (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\""
-                       ((org-agenda-overriding-header "Unscheduled actionable")
-                        (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline)))))
-            ((org-agenda-show-log nil)
-             (org-agenda-prefix-format
-              '((agenda . " %(priority) %-12:c %?-12t %10e ")
-                (todo . " %(priority) %-12:c %?-12t %10e ")
-                (tags . " %(priority) %-12:c %?-12t %10e "))))))))
+               (tags . " %(priority) %-12:c %?-12t %10e "))))))))
 
 (after! org-super-agenda
   (org-super-agenda-mode)
