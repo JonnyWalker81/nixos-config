@@ -101,7 +101,8 @@
           ("i" "Idea" entry
            (file+headline "~/org/gtd/inbox.org" "Ideas")
            "* %U %^{Idea}\n"
-           :empty-lines 1)
+           :empty-lines 1
+           :immediate-finish t)
           ("p" "Project" entry
            (file+headline "~/org/gtd/projects.org" "Projects")
            "* TODO %^{Project name}\n%U\n"
