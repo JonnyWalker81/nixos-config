@@ -9,18 +9,18 @@ See: .planning/PROJECT.md (updated 2026-02-24)
 
 ## Current Position
 
-Phase: 1 of 8 (GTD Foundation) — VERIFIED ✓
-Plan: 3 of 3 in current phase
-Status: Phase verified and complete
-Last activity: 2026-02-25 — Phase 1 verified (5/5 must-haves passed)
+Phase: 2 of 8 (Capture Workflow)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-26 — Completed 02-01-PLAN.md
 
-Progress: [███░░░░░░░░░░░░░░░░] 15%
+Progress: [████░░░░░░░░░░░░░░░░] 21%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 16 min
+- Total plans completed: 4
+- Average duration: 12 min
 - Total execution time: 0.8 hours
 
 **By Phase:**
@@ -28,9 +28,10 @@ Progress: [███░░░░░░░░░░░░░░░░] 15%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. GTD Foundation | 3/3 | 47 min | 16 min |
+| 2. Capture Workflow | 1/2 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 27m, 18m, 2m
+- Last 5 plans: 27m, 18m, 2m, 2m
 - Trend: improving
 
 *Updated after each plan completion*
@@ -52,6 +53,9 @@ Recent decisions affecting current work:
 - [01-02]: Effort mapped to minutes: XS=15, S=30, M=60, L=120, XL=240
 - [01-03]: Per-source archiving (~/org/gtd/archive/%s_archive) for traceability
 - [01-03]: Manual auto-archive function (M-x org-gtd-archive-stale) over hook-based for user control
+- [02-01]: Capture template contract locked to mnemonic keys t/i/p/m in one after! org setq
+- [02-01]: Explicit CAP-01 entrypoints use C-c c (DWIM) and C-c C (full org-capture menu)
+- [02-01]: Quick idea capture alone uses :immediate-finish t; richer templates remain interactive
 
 ### Pending Todos
 
@@ -65,6 +69,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-25
-Stopped at: Phase 1 verified ✓ — ready for Phase 2
+Last session: 2026-02-26 04:03 UTC
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None
