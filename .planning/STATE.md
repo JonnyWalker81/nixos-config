@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-24)
 
 **Core value:** Everything lives in one integrated system — tasks, schedule, notes, and journal are cross-linked and accessible within two keystrokes, so nothing falls through the cracks.
-**Current focus:** Phase 3 — Basic Agenda
+**Current focus:** Phase 4 — Advanced Agenda & GTD Reviews
 
 ## Current Position
 
-Phase: 3 of 8 (Basic Agenda)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-02-26 — Completed 03-02-PLAN.md (persistent grouped daily/weekly agenda behavior)
+Phase: 4 of 8 (Advanced Agenda & GTD Reviews)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-26 — Completed 04-01-PLAN.md (daily review and context-filtered review entrypoints)
 
-Progress: [████████████████████] 100%
+Progress: [████████░░░░░░░░░░░░] 42%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: 15 min
-- Total execution time: 1.76 hours
+- Total plans completed: 8
+- Average duration: 30 min
+- Total execution time: 3.99 hours
 
 **By Phase:**
 
@@ -30,10 +30,11 @@ Progress: [████████████████████] 100%
 | 1. GTD Foundation | 3/3 | 47 min | 16 min |
 | 2. Capture Workflow | 2/2 | 28 min | 14 min |
 | 3. Basic Agenda | 2/2 | 31 min | 16 min |
+| 4. Advanced Agenda & GTD Reviews | 1/2 | 134 min | 134 min |
 
 **Recent Trend:**
-- Last 5 plans: 29m, 18m, 2m, 1m, 27m
-- Trend: mixed
+- Last 5 plans: 134m, 29m, 18m, 2m, 1m
+- Trend: volatile (verification-heavy)
 
 *Updated after each plan completion*
 
@@ -65,6 +66,9 @@ Recent decisions affecting current work:
 - [03-02]: org-super-agenda grouping is globally persisted via after! org-super-agenda + setq org-super-agenda-groups so grouping survives refresh/navigation
 - [03-02]: Daily and weekly planning blocks collect TODO/NEXT/WAITING/SOMEDAY, then use ordered super-agenda groups to surface Priority A first and park WAITING/SOMEDAY at bottom
 - [03-02]: Broad priority catch-all groups were removed so no-context actionable tasks route to explicit Uncategorized section
+- [04-01]: Daily Review command (`r`) keeps timeline-first flow and adds explicit Priority A/NEXT/WAITING/inbox triage sections in one review path
+- [04-01]: Context review commands use dedicated dispatcher keys (`H`/`W`) with opposite-context exclusion to keep @home/@work views isolated
+- [04-01]: Review commands share a metadata-rich prefix format and open-state-focused headers for discoverable planning defaults
 
 ### Pending Todos
 
@@ -78,6 +82,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-26 06:00 UTC
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-02-26 22:30 UTC
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None
