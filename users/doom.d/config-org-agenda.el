@@ -22,6 +22,15 @@
       (tags . " %-12:c %?-12t %10e "))
     "Metadata-rich agenda prefix format used by review commands.")
 
+  (defvar my/org-gtd-project-files
+    '("~/org/gtd/projects.org")
+    "GTD files that hold active project definitions for review commands.")
+
+  (defvar my/org-gtd-stuck-projects-definition
+    '("+LEVEL=1+TODO=\"TODO\"|+LEVEL=1+TODO=\"NEXT\"" ("NEXT") nil "")
+    "Org-native stuck-project criteria for GTD weekly review.
+A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
+
   (setq org-agenda-custom-commands
         `(("d" "Daily planning"
            ((agenda ""
@@ -84,9 +93,11 @@
                        ((org-agenda-files '("~/org/gtd/inbox.org"))
                         (org-agenda-overriding-header
                          ,(format "2) Inbox triage (unprocessed: %d open items)" (my/org-gtd-inbox-open-count)))))
-            (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\""
-                       ((org-agenda-files '("~/org/gtd/projects.org"))
-                        (org-agenda-overriding-header "3) Stuck projects review")))
+            (stuck ""
+                   ((org-agenda-files my/org-gtd-project-files)
+                    (org-stuck-projects my/org-gtd-stuck-projects-definition)
+                    (org-agenda-overriding-header
+                     "3) Stuck projects (missing NEXT action)")))
             (tags-todo "TODO=\"WAITING\""
                        ((org-agenda-overriding-header "4) WAITING commitments")))
             (tags-todo "TODO=\"SOMEDAY\""
