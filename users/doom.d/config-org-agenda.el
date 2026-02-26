@@ -17,9 +17,9 @@
             (org-agenda-start-with-log-mode nil)
             (org-super-agenda-groups org-super-agenda-groups)
             (org-agenda-prefix-format
-             '((agenda . " %(priority) %-12:c %?-12t %10e ")
-                (todo . " %(priority) %-12:c %?-12t %10e ")
-                (tags . " %(priority) %-12:c %?-12t %10e ")))))
+             '((agenda . " %-12:c %?-12t %10e ")
+                (todo . " %-12:c %?-12t %10e ")
+                (tags . " %-12:c %?-12t %10e ")))))
           ("w" "Weekly planning"
            ((agenda ""
                      ((org-agenda-span 'week)
@@ -36,9 +36,9 @@
             (org-agenda-start-with-log-mode nil)
             (org-super-agenda-groups org-super-agenda-groups)
             (org-agenda-prefix-format
-             '((agenda . " %(priority) %-12:c %?-12t %10e ")
-               (todo . " %(priority) %-12:c %?-12t %10e ")
-               (tags . " %(priority) %-12:c %?-12t %10e "))))))))
+             '((agenda . " %-12:c %?-12t %10e ")
+               (todo . " %-12:c %?-12t %10e ")
+               (tags . " %-12:c %?-12t %10e "))))))))
 
 (after! org-super-agenda
   (org-super-agenda-mode)
@@ -64,9 +64,6 @@
           (:name "Priority B @errands"
            :and (:todo ("TODO" "NEXT") :priority "B" :tag "@errands")
            :order 15)
-          (:name "Priority B actionable"
-           :and (:todo ("TODO" "NEXT") :priority "B")
-           :order 19)
           (:name "Priority C @home"
            :and (:todo ("TODO" "NEXT") :priority "C" :tag "@home")
            :order 20)
@@ -85,12 +82,8 @@
           (:name "Priority C @errands"
            :and (:todo ("TODO" "NEXT") :priority "C" :tag "@errands")
            :order 25)
-          (:name "Priority C actionable"
-           :and (:todo ("TODO" "NEXT") :priority "C")
-           :order 29)
           (:name "Uncategorized"
            :and (:todo ("TODO" "NEXT")
-                 :not (:priority ("A" "B" "C"))
                  :not (:tag ("@home" "@work" "@computer" "@email" "@phone" "@errands")))
            :order 90)
           (:name "WAITING (parked)" :todo "WAITING" :order 98)
