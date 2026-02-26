@@ -20,6 +20,7 @@
 ;; Create GTD files with boilerplate if they don't exist
 (dolist (file-spec '(("~/org/gtd/inbox.org"     "Inbox"     "Capture landing zone — process to zero regularly")
                      ("~/org/gtd/projects.org"   "Projects"  "Active projects with sub-tasks")
+                     ("~/org/gtd/meetings.org"   "Meetings"  "Meeting notes and action items")
                      ("~/org/gtd/someday.org"    "Someday"   "Maybe/someday items — review weekly")
                      ("~/org/gtd/reference.org"  "Reference" "Non-actionable reference material")))
   (let ((filepath (expand-file-name (nth 0 file-spec)))
@@ -108,8 +109,8 @@
            "* TODO %^{Project name}\nDEADLINE: %^t\n:PROPERTIES:\n:CREATED: %U\n:END:\n** Outcome\n** Notes\n** Next Actions\n"
            :empty-lines 1)
           ("m" "Meeting" entry
-           (file+headline "~/org/gtd/meetings.org" "Meetings")
-           "* %^{Meeting title} %^t\n"
+           (file "~/org/gtd/meetings.org")
+           "* %^{Meeting title}\nSCHEDULED: %^t\n:PROPERTIES:\n:ATTENDEES: %^{Attendees (optional)|}\n:CREATED: %U\n:END:\n** Notes\n%?\n** Action Items\n*** TODO %^{Action item}\n:PROPERTIES:\n:INBOX_LINK: %^{INBOX_LINK (optional, e.g. id:... from inbox.org)|}\n:END:\n"
            :empty-lines 1)))
 
   (defun my/org-capture-dwim-key ()
