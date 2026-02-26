@@ -31,6 +31,13 @@
            :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
                               "#+title: ${title}\n#+date: %U\n#+filetags: :concept:\n:PROPERTIES:\n:ROAM_ALIASES: %^{Aliases}\n:END:\n")
            :unnarrowed t)))
+  (setq org-roam-mode-sections
+        '(org-roam-backlinks-section org-roam-reflinks-section))
+  (setq org-roam-backlink-show-context t)
+  (setq org-roam-backlinks-sort-by 'mtime)
+  (setq org-roam-buffer-window-parameters
+        '((no-delete-other-windows . t)
+          (mode-line-format . none)))
   (map! :leader
         (:prefix ("o r" . "roam")
          :desc "Find roam note" "f" #'org-roam-node-find
