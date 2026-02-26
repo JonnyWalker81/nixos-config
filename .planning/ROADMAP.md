@@ -49,11 +49,11 @@ Plans:
   2. User can capture a quick TODO or note/idea to inbox.org with a single-key template selection
   3. User can capture a new project with sub-task structure to projects.org
   4. User can capture meeting notes with attendees, date, notes, and action items
-**Plans**: TBD
+**Plans**: 2 plans in 2 waves (sequential)
 
 Plans:
-- [ ] 02-01: Capture templates for inbox task and note/idea (in config-org-gtd.el, using `after! org` to override Doom defaults)
-- [ ] 02-02: Project and meeting capture templates, validation gate (verify `M-x org-capture` shows all templates, not Doom defaults)
+- [ ] 02-01-PLAN.md — Canonical inbox task/idea templates + global DWIM capture entrypoints and legacy template cleanup
+- [ ] 02-02-PLAN.md — Project/meeting templates and end-to-end validation gate against Doom defaults
 
 ### Phase 3: Basic Agenda
 **Goal**: User can view organized daily and weekly agenda with items grouped by priority, context, and TODO state
