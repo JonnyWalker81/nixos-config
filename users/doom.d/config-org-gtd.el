@@ -88,6 +88,47 @@
           ("@email"    . ?m)))
 
   ;; --------------------------------------------------------------------------
+  ;; Capture
+  ;; --------------------------------------------------------------------------
+  ;; Canonical Phase 2 mnemonic keys:
+  ;; t = task, i = idea, p = project, m = meeting
+
+  (setq org-capture-templates
+        '(("t" "Task" entry
+           (file+headline "~/org/gtd/inbox.org" "Tasks")
+           "* TODO %^{Task title} :%^{Context|@home|@work|@errands|@phone|@computer|@email}:\n%U\n%a\n"
+           :empty-lines 1)
+          ("i" "Idea" entry
+           (file+headline "~/org/gtd/inbox.org" "Ideas")
+           "* %U %^{Idea}\n"
+           :empty-lines 1)
+          ("p" "Project" entry
+           (file+headline "~/org/gtd/projects.org" "Projects")
+           "* TODO %^{Project name}\n%U\n"
+           :empty-lines 1)
+          ("m" "Meeting" entry
+           (file+headline "~/org/gtd/meetings.org" "Meetings")
+           "* %^{Meeting title} %^t\n"
+           :empty-lines 1)))
+
+  (defun my/org-capture-dwim-key ()
+    "Return the capture template key based on current buffer context."
+    (let ((current-file (when buffer-file-name
+                          (expand-file-name buffer-file-name))))
+      (cond
+       ((equal current-file (expand-file-name "~/org/gtd/meetings.org")) "m")
+       ((equal current-file (expand-file-name "~/org/gtd/projects.org")) "p")
+       (t "t"))))
+
+  (defun my/org-capture-dwim ()
+    "Start org capture with a context-aware default template."
+    (interactive)
+    (org-capture nil (my/org-capture-dwim-key)))
+
+  (global-set-key (kbd "C-c c") #'my/org-capture-dwim)
+  (global-set-key (kbd "C-c C") #'org-capture)
+
+  ;; --------------------------------------------------------------------------
   ;; Priorities
   ;; --------------------------------------------------------------------------
   ;; A/B/C priorities with visually distinct color-coded faces.
