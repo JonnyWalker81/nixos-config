@@ -208,6 +208,8 @@
 (load! "config-org-gtd")
 (message "Loading config-org-agenda...")
 (load! "config-org-agenda")
+(message "Loading config-org-roam...")
+(load! "config-org-roam")
 (message "Loading config-copilot...")
 (load! "config-copilot")
 (message "Loading config-magit...")
