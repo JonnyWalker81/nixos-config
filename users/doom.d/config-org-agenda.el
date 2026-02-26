@@ -75,6 +75,26 @@
             (org-agenda-start-with-log-mode nil)
             (org-super-agenda-groups org-super-agenda-groups)
             (org-agenda-prefix-format my/org-review-prefix-format)))
+          ("R" "Weekly Review (GTD workflow)"
+           ((agenda ""
+                    ((org-agenda-span 'week)
+                     (org-agenda-start-on-weekday 1)
+                     (org-agenda-overriding-header "1) Week timeline")))
+            (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
+                       ((org-agenda-files '("~/org/gtd/inbox.org"))
+                        (org-agenda-overriding-header
+                         ,(format "2) Inbox triage (unprocessed: %d open items)" (my/org-gtd-inbox-open-count)))))
+            (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\""
+                       ((org-agenda-files '("~/org/gtd/projects.org"))
+                        (org-agenda-overriding-header "3) Stuck projects review")))
+            (tags-todo "TODO=\"WAITING\""
+                       ((org-agenda-overriding-header "4) WAITING commitments")))
+            (tags-todo "TODO=\"SOMEDAY\""
+                       ((org-agenda-overriding-header "5) SOMEDAY/MAYBE parking"))))
+           ((org-agenda-show-log nil)
+            (org-agenda-start-with-log-mode nil)
+            (org-super-agenda-groups org-super-agenda-groups)
+            (org-agenda-prefix-format my/org-review-prefix-format)))
           ("H" "Context Review: @home"
            ((tags-todo "+@home-@work/TODO|NEXT|WAITING"
                        ((org-agenda-overriding-header "@home actionable + waiting (open)"))))
@@ -144,6 +164,7 @@
        :desc "Daily planning agenda" "d" (cmd! (org-agenda nil "d"))
        :desc "Weekly planning agenda" "w" (cmd! (org-agenda nil "w"))
        :desc "Daily review (triage)" "r" (cmd! (org-agenda nil "r"))
+       :desc "Weekly review (GTD)" "R" (cmd! (org-agenda nil "R"))
        :desc "Review @home context" "h" (cmd! (org-agenda nil "H"))
        :desc "Review @work context" "W" (cmd! (org-agenda nil "W"))))
 
