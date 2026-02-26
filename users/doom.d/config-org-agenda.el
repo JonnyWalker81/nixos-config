@@ -27,11 +27,67 @@
             (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\""
                        ((org-agenda-overriding-header "Unscheduled actionable")
                         (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline)))))
-           ((org-agenda-show-log nil)
-            (org-agenda-prefix-format
-             '((agenda . " %(priority) %-12:c %?-12t %10e ")
-               (todo . " %(priority) %-12:c %?-12t %10e ")
-               (tags . " %(priority) %-12:c %?-12t %10e "))))))))
+            ((org-agenda-show-log nil)
+             (org-agenda-prefix-format
+              '((agenda . " %(priority) %-12:c %?-12t %10e ")
+                (todo . " %(priority) %-12:c %?-12t %10e ")
+                (tags . " %(priority) %-12:c %?-12t %10e "))))))))
+
+(after! org-super-agenda
+  (org-super-agenda-mode)
+  (setq org-super-agenda-groups
+        '((:name "Priority A actionable"
+           :and (:todo ("TODO" "NEXT") :priority "A")
+           :order 0)
+          (:name "Priority B @home"
+           :and (:todo ("TODO" "NEXT") :priority "B" :tag "@home")
+           :order 10)
+          (:name "Priority B @work"
+           :and (:todo ("TODO" "NEXT") :priority "B" :tag "@work")
+           :order 11)
+          (:name "Priority B @computer"
+           :and (:todo ("TODO" "NEXT") :priority "B" :tag "@computer")
+           :order 12)
+          (:name "Priority B @email"
+           :and (:todo ("TODO" "NEXT") :priority "B" :tag "@email")
+           :order 13)
+          (:name "Priority B @phone"
+           :and (:todo ("TODO" "NEXT") :priority "B" :tag "@phone")
+           :order 14)
+          (:name "Priority B @errands"
+           :and (:todo ("TODO" "NEXT") :priority "B" :tag "@errands")
+           :order 15)
+          (:name "Priority B actionable"
+           :and (:todo ("TODO" "NEXT") :priority "B")
+           :order 19)
+          (:name "Priority C @home"
+           :and (:todo ("TODO" "NEXT") :priority "C" :tag "@home")
+           :order 20)
+          (:name "Priority C @work"
+           :and (:todo ("TODO" "NEXT") :priority "C" :tag "@work")
+           :order 21)
+          (:name "Priority C @computer"
+           :and (:todo ("TODO" "NEXT") :priority "C" :tag "@computer")
+           :order 22)
+          (:name "Priority C @email"
+           :and (:todo ("TODO" "NEXT") :priority "C" :tag "@email")
+           :order 23)
+          (:name "Priority C @phone"
+           :and (:todo ("TODO" "NEXT") :priority "C" :tag "@phone")
+           :order 24)
+          (:name "Priority C @errands"
+           :and (:todo ("TODO" "NEXT") :priority "C" :tag "@errands")
+           :order 25)
+          (:name "Priority C actionable"
+           :and (:todo ("TODO" "NEXT") :priority "C")
+           :order 29)
+          (:name "Uncategorized"
+           :and (:todo ("TODO" "NEXT")
+                 :not (:priority ("A" "B" "C"))
+                 :not (:tag ("@home" "@work" "@computer" "@email" "@phone" "@errands")))
+           :order 90)
+          (:name "WAITING (parked)" :todo "WAITING" :order 98)
+          (:name "SOMEDAY (parked)" :todo "SOMEDAY" :order 99))))
 
 (map! :leader
       (:prefix ("o A" . "agenda")
