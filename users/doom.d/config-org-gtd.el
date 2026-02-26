@@ -104,8 +104,8 @@
            :empty-lines 1
            :immediate-finish t)
           ("p" "Project" entry
-           (file+headline "~/org/gtd/projects.org" "Projects")
-           "* TODO %^{Project name}\n%U\n"
+           (file "~/org/gtd/projects.org")
+           "* TODO %^{Project name}\nDEADLINE: %^t\n:PROPERTIES:\n:CREATED: %U\n:END:\n** Outcome\n** Notes\n** Next Actions\n"
            :empty-lines 1)
           ("m" "Meeting" entry
            (file+headline "~/org/gtd/meetings.org" "Meetings")
