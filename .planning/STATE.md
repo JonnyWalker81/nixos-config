@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-24)
 ## Current Position
 
 Phase: 3 of 8 (Basic Agenda)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-26 — Completed 03-01-PLAN.md (agenda command ownership + baseline d/w views)
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-02-26 — Completed 03-02-PLAN.md (persistent grouped daily/weekly agenda behavior)
 
-Progress: [█████████████████░░░] 86%
+Progress: [████████████████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 13 min
-- Total execution time: 1.28 hours
+- Total plans completed: 7
+- Average duration: 15 min
+- Total execution time: 1.76 hours
 
 **By Phase:**
 
@@ -29,10 +29,10 @@ Progress: [█████████████████░░░] 86%
 |-------|-------|-------|----------|
 | 1. GTD Foundation | 3/3 | 47 min | 16 min |
 | 2. Capture Workflow | 2/2 | 28 min | 14 min |
-| 3. Basic Agenda | 1/2 | 2 min | 2 min |
+| 3. Basic Agenda | 2/2 | 31 min | 16 min |
 
 **Recent Trend:**
-- Last 5 plans: 18m, 2m, 1m, 27m, 2m
+- Last 5 plans: 29m, 18m, 2m, 1m, 27m
 - Trend: mixed
 
 *Updated after each plan completion*
@@ -62,6 +62,9 @@ Recent decisions affecting current work:
 - [03-01]: Agenda command ownership centralized in users/doom.d/config-org-agenda.el, loaded after config-org-gtd for deterministic key/load behavior
 - [03-01]: Baseline planning commands use block agenda layout (timeline first + unscheduled actionable blocks) with Monday-start weekly view and deadline summary
 - [03-01]: Daily/weekly planning defaults hide DONE/CANCELLED noise by focusing planning blocks on open TODO/NEXT states
+- [03-02]: org-super-agenda grouping is globally persisted via after! org-super-agenda + setq org-super-agenda-groups so grouping survives refresh/navigation
+- [03-02]: Daily and weekly planning blocks collect TODO/NEXT/WAITING/SOMEDAY, then use ordered super-agenda groups to surface Priority A first and park WAITING/SOMEDAY at bottom
+- [03-02]: Broad priority catch-all groups were removed so no-context actionable tasks route to explicit Uncategorized section
 
 ### Pending Todos
 
@@ -75,6 +78,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-26 05:18 UTC
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-02-26 06:00 UTC
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None
