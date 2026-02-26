@@ -31,6 +31,31 @@
     "Org-native stuck-project criteria for GTD weekly review.
 A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
 
+  (defun my/org-gtd-project-has-next-child-p ()
+    "Return non-nil when current project subtree contains a NEXT action."
+    (save-excursion
+      (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+            (has-next nil))
+        (forward-line 1)
+        (while (and (not has-next) (< (point) subtree-end))
+          (when (string= (org-get-todo-state) "NEXT")
+            (setq has-next t))
+          (condition-case nil
+              (outline-next-heading)
+            (error (goto-char subtree-end))))
+        has-next)))
+
+  (defun my/org-agenda-skip-non-stuck-gtd-projects ()
+    "Skip any non-stuck project when building the weekly stuck-project section."
+    (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+          (todo-state (org-get-todo-state))
+          (level (org-current-level)))
+      (cond
+       ((not (= level 1)) subtree-end)
+       ((not (member todo-state '("TODO" "NEXT"))) subtree-end)
+       ((my/org-gtd-project-has-next-child-p) subtree-end)
+       (t nil))))
+
   (setq org-agenda-custom-commands
         `(("d" "Daily planning"
            ((agenda ""
@@ -93,11 +118,12 @@ A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
                        ((org-agenda-files '("~/org/gtd/inbox.org"))
                         (org-agenda-overriding-header
                          ,(format "2) Inbox triage (unprocessed: %d open items)" (my/org-gtd-inbox-open-count)))))
-            (stuck ""
-                   ((org-agenda-files my/org-gtd-project-files)
-                    (org-stuck-projects my/org-gtd-stuck-projects-definition)
-                    (org-agenda-overriding-header
-                     "3) Stuck projects (missing NEXT action)")))
+            (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\""
+                       ((org-agenda-files my/org-gtd-project-files)
+                        (org-stuck-projects my/org-gtd-stuck-projects-definition)
+                        (org-agenda-skip-function '(my/org-agenda-skip-non-stuck-gtd-projects))
+                        (org-agenda-overriding-header
+                         "3) Stuck projects (missing NEXT action)")))
             (tags-todo "TODO=\"WAITING\""
                        ((org-agenda-overriding-header "4) WAITING commitments")))
             (tags-todo "TODO=\"SOMEDAY\""
