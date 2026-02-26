@@ -9,29 +9,30 @@ See: .planning/PROJECT.md (updated 2026-02-24)
 
 ## Current Position
 
-Phase: 2 of 8 (Capture Workflow) — VERIFIED ✓
-Plan: 2 of 2 in current phase
-Status: Phase verified and complete
-Last activity: 2026-02-26 — Phase 2 verified (7/7 must-haves + human checks approved)
+Phase: 3 of 8 (Basic Agenda)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-26 — Completed 03-01-PLAN.md (agenda command ownership + baseline d/w views)
 
-Progress: [██████░░░░░░░░░░░░░░] 30%
+Progress: [█████████████████░░░] 86%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 15 min
-- Total execution time: 1.25 hours
+- Total plans completed: 6
+- Average duration: 13 min
+- Total execution time: 1.28 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. GTD Foundation | 3/3 | 47 min | 16 min |
-| 2. Capture Workflow | 2/2 | 29 min | 14 min |
+| 2. Capture Workflow | 2/2 | 28 min | 14 min |
+| 3. Basic Agenda | 1/2 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 27m, 18m, 2m, 2m, 27m
+- Last 5 plans: 18m, 2m, 1m, 27m, 2m
 - Trend: mixed
 
 *Updated after each plan completion*
@@ -58,6 +59,9 @@ Recent decisions affecting current work:
 - [02-01]: Quick idea capture alone uses :immediate-finish t; richer templates remain interactive
 - [02-02]: Project capture writes top-level entries to ~/org/gtd/projects.org with deadline + Outcome/Notes/Next Actions skeleton
 - [02-02]: Meeting capture writes to ~/org/gtd/meetings.org with optional ATTENDEES and optional INBOX_LINK per TODO action item
+- [03-01]: Agenda command ownership centralized in users/doom.d/config-org-agenda.el, loaded after config-org-gtd for deterministic key/load behavior
+- [03-01]: Baseline planning commands use block agenda layout (timeline first + unscheduled actionable blocks) with Monday-start weekly view and deadline summary
+- [03-01]: Daily/weekly planning defaults hide DONE/CANCELLED noise by focusing planning blocks on open TODO/NEXT states
 
 ### Pending Todos
 
@@ -71,6 +75,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-26 04:33 UTC
-Stopped at: Phase 2 verified ✓ — ready for Phase 3
+Last session: 2026-02-26 05:18 UTC
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None
