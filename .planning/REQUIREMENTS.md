@@ -19,10 +19,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Capture
 
-- [ ] **CAP-01**: User can capture a quick TODO to inbox.org from anywhere in Emacs via global hotkey
-- [ ] **CAP-02**: User can capture a note/idea to inbox.org
-- [ ] **CAP-03**: User can capture a new project with sub-tasks to projects.org
-- [ ] **CAP-04**: User can capture meeting notes with attendees, date, notes, and action items
+- [x] **CAP-01**: User can capture a quick TODO to inbox.org from anywhere in Emacs via global hotkey
+- [x] **CAP-02**: User can capture a note/idea to inbox.org
+- [x] **CAP-03**: User can capture a new project with sub-tasks to projects.org
+- [x] **CAP-04**: User can capture meeting notes with attendees, date, notes, and action items
 - [ ] **CAP-05**: User can capture a journal entry via org-capture integrated with org-journal
 
 ### Agenda
@@ -134,10 +134,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GTD-05 | Phase 1: GTD Foundation | Complete |
 | GTD-06 | Phase 1: GTD Foundation | Complete |
 | GTD-07 | Phase 1: GTD Foundation | Complete |
-| CAP-01 | Phase 2: Capture Workflow | Pending |
-| CAP-02 | Phase 2: Capture Workflow | Pending |
-| CAP-03 | Phase 2: Capture Workflow | Pending |
-| CAP-04 | Phase 2: Capture Workflow | Pending |
+| CAP-01 | Phase 2: Capture Workflow | Complete |
+| CAP-02 | Phase 2: Capture Workflow | Complete |
+| CAP-03 | Phase 2: Capture Workflow | Complete |
+| CAP-04 | Phase 2: Capture Workflow | Complete |
 | CAP-05 | Phase 6: Journaling & Denote | Pending |
 | AGN-01 | Phase 3: Basic Agenda | Pending |
 | AGN-02 | Phase 3: Basic Agenda | Pending |
@@ -177,4 +177,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2025-02-24*
-*Last updated: 2026-02-25 — Phase 1 requirements (GTD-01 through GTD-07) marked Complete*
+*Last updated: 2026-02-26 — Phase 2 requirements (CAP-01 through CAP-04) marked Complete*

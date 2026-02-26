@@ -13,7 +13,7 @@ OrgLife transforms the user's existing Doom Emacs setup into a comprehensive lif
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: GTD Foundation** - Establish org-directory, TODO states, file structure, refile, priorities, and effort properties
-- [ ] **Phase 2: Capture Workflow** - Fast capture templates for tasks, notes, projects, and meetings
+- [x] **Phase 2: Capture Workflow** - Fast capture templates for tasks, notes, projects, and meetings
 - [ ] **Phase 3: Basic Agenda** - Daily and weekly agenda views with org-super-agenda grouping
 - [ ] **Phase 4: Advanced Agenda & GTD Reviews** - Daily review dashboard, weekly review, context filters, stuck project detection
 - [ ] **Phase 5: Knowledge Base** - org-roam with backlinks, capture templates, and graph visualization
@@ -52,8 +52,8 @@ Plans:
 **Plans**: 2 plans in 2 waves (sequential)
 
 Plans:
-- [ ] 02-01-PLAN.md — Canonical inbox task/idea templates + global DWIM capture entrypoints and legacy template cleanup
-- [ ] 02-02-PLAN.md — Project/meeting templates and end-to-end validation gate against Doom defaults
+- [x] 02-01-PLAN.md — Canonical inbox task/idea templates + global DWIM capture entrypoints and legacy template cleanup
+- [x] 02-02-PLAN.md — Project/meeting templates and end-to-end validation gate against Doom defaults
 
 ### Phase 3: Basic Agenda
 **Goal**: User can view organized daily and weekly agenda with items grouped by priority, context, and TODO state
@@ -157,7 +157,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. GTD Foundation | 3/3 | Verified ✓ | 2026-02-25 |
-| 2. Capture Workflow | 0/2 | Not started | - |
+| 2. Capture Workflow | 2/2 | Verified ✓ | 2026-02-26 |
 | 3. Basic Agenda | 0/2 | Not started | - |
 | 4. Advanced Agenda & GTD Reviews | 0/2 | Not started | - |
 | 5. Knowledge Base | 0/3 | Not started | - |
@@ -167,4 +167,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 ---
 *Roadmap created: 2026-02-24*
-*Last updated: 2026-02-25 — Phase 1 complete (GTD Foundation: all 3 plans done)*
+*Last updated: 2026-02-26 — Phase 2 complete (Capture Workflow: all 2 plans done)*
