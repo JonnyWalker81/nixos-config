@@ -28,12 +28,6 @@
   (require 'ox-presenterm)
   (add-to-list 'org-export-backends 'presenterm)
 
-  ;; Capture templates
-  (add-to-list 'org-capture-templates
-               '("w" "Work Todo"  entry
-                 (file "work.org")
-                 "* TODO %T %?  :work:" :empty-lines 1))
-
   ;; Agenda custom commands
   (setq org-agenda-custom-commands
         '(("w" "Work Todos"
