@@ -28,17 +28,6 @@
   (require 'ox-presenterm)
   (add-to-list 'org-export-backends 'presenterm)
 
-  ;; Agenda custom commands
-  (setq org-agenda-custom-commands
-        '(("w" "Work Todos"
-           ((agenda "")
-            (tags-todo "work")
-            ))
-          ("a" "Work Todos"
-           ((agenda "")
-            (alltodo "")
-            ))))
-
   ;; Verb (HTTP requests in org)
   (define-key org-mode-map (kbd "C-c C-r") verb-command-map)
 

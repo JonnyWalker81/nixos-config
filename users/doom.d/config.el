@@ -206,6 +206,8 @@
 (load! "config-org")
 (message "Loading config-org-gtd...")
 (load! "config-org-gtd")
+(message "Loading config-org-agenda...")
+(load! "config-org-agenda")
 (message "Loading config-copilot...")
 (load! "config-copilot")
 (message "Loading config-magit...")
