@@ -123,6 +123,7 @@
 (package! just-mode)
 
 (package! denote)
+(package! org-roam-ui)
 
 ;; (package! window-stool :recipe (:host github :repo "jaszhe/window-stool" :files ("*.el")))
 

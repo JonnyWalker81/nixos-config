@@ -55,10 +55,20 @@
   (setq org-roam-buffer-window-parameters
         '((no-delete-other-windows . t)
           (mode-line-format . none)))
+  (use-package! org-roam-ui
+    :commands (org-roam-ui-open org-roam-ui-mode)
+    :config
+    (setq org-roam-ui-open-on-start nil
+          org-roam-ui-follow t
+          org-roam-ui-update-on-save t
+          org-roam-ui-sync-theme t
+          org-roam-ui-sync-mode t))
   (map! :leader
         (:prefix ("o r" . "roam")
          :desc "Find roam note" "f" #'org-roam-node-find
-         :desc "Insert roam link" "i" #'org-roam-node-insert))
+         :desc "Insert roam link" "i" #'org-roam-node-insert
+         :desc "Open roam graph" "g" #'org-roam-ui-open
+         :desc "Roam graph mode" "u" #'org-roam-ui-mode))
   (org-roam-db-autosync-mode 1))
 
 (provide 'config-org-roam)
