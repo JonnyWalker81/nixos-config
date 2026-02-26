@@ -10,29 +10,29 @@ See: .planning/PROJECT.md (updated 2026-02-24)
 ## Current Position
 
 Phase: 2 of 8 (Capture Workflow)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-26 — Completed 02-01-PLAN.md
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-02-26 — Completed 02-02-PLAN.md
 
-Progress: [████░░░░░░░░░░░░░░░░] 21%
+Progress: [█████░░░░░░░░░░░░░░░] 26%
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 4
-- Average duration: 12 min
-- Total execution time: 0.8 hours
+- Average duration: 15 min
+- Total execution time: 1.25 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. GTD Foundation | 3/3 | 47 min | 16 min |
-| 2. Capture Workflow | 1/2 | 2 min | 2 min |
+| 2. Capture Workflow | 2/2 | 29 min | 14 min |
 
 **Recent Trend:**
-- Last 5 plans: 27m, 18m, 2m, 2m
-- Trend: improving
+- Last 5 plans: 27m, 18m, 2m, 2m, 27m
+- Trend: mixed
 
 *Updated after each plan completion*
 
@@ -56,6 +56,8 @@ Recent decisions affecting current work:
 - [02-01]: Capture template contract locked to mnemonic keys t/i/p/m in one after! org setq
 - [02-01]: Explicit CAP-01 entrypoints use C-c c (DWIM) and C-c C (full org-capture menu)
 - [02-01]: Quick idea capture alone uses :immediate-finish t; richer templates remain interactive
+- [02-02]: Project capture writes top-level entries to ~/org/gtd/projects.org with deadline + Outcome/Notes/Next Actions skeleton
+- [02-02]: Meeting capture writes to ~/org/gtd/meetings.org with optional ATTENDEES and optional INBOX_LINK per TODO action item
 
 ### Pending Todos
 
@@ -69,6 +71,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-26 04:03 UTC
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-02-26 04:33 UTC
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
