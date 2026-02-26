@@ -22,6 +22,13 @@
               "")
             (propertize (format " · %s" file-name) 'face 'shadow))))
 
+(defun org-life-roam-ui-open-local ()
+  "Open org-roam-ui and focus the current note neighborhood."
+  (interactive)
+  (org-roam-ui-mode 1)
+  (org-roam-ui-open)
+  (org-roam-ui-node-local))
+
 (after! org-roam
   (unless (and (fboundp 'sqlite-available-p) (sqlite-available-p))
     (user-error
@@ -62,12 +69,15 @@
           org-roam-ui-follow t
           org-roam-ui-update-on-save t
           org-roam-ui-sync-theme t
-          org-roam-ui-sync-mode t))
+          org-roam-ui-sync-mode t
+          org-roam-ui-find-ref-title t
+          org-roam-ui-retitle-ref-nodes t))
   (map! :leader
         (:prefix ("o r" . "roam")
          :desc "Find roam note" "f" #'org-roam-node-find
          :desc "Insert roam link" "i" #'org-roam-node-insert
          :desc "Open roam graph" "g" #'org-roam-ui-open
+         :desc "Open local roam graph" "l" #'org-life-roam-ui-open-local
          :desc "Roam graph mode" "u" #'org-roam-ui-mode))
   (org-roam-db-autosync-mode 1))
 
