@@ -16,6 +16,12 @@
                            'file)))
       count))
 
+  (defvar my/org-review-prefix-format
+    '((agenda . " %-12:c %?-12t %10e ")
+      (todo . " %-12:c %?-12t %10e ")
+      (tags . " %-12:c %?-12t %10e "))
+    "Metadata-rich agenda prefix format used by review commands.")
+
   (setq org-agenda-custom-commands
         `(("d" "Daily planning"
            ((agenda ""
@@ -51,47 +57,38 @@
              '((agenda . " %-12:c %?-12t %10e ")
                (todo . " %-12:c %?-12t %10e ")
                (tags . " %-12:c %?-12t %10e ")))))
-          ("r" "Daily Review"
+          ("r" "Daily Review (timeline + triage)"
            ((agenda ""
                     ((org-agenda-span 'day)
-                     (org-agenda-overriding-header "Daily review timeline")))
+                     (org-agenda-overriding-header "Daily review timeline (today)")))
             (tags-todo "+PRIORITY=\"A\"/TODO|NEXT"
-                       ((org-agenda-overriding-header "Priority A actionable")))
+                       ((org-agenda-overriding-header "Priority A actionable (open)")))
             (tags-todo "TODO=\"NEXT\""
-                       ((org-agenda-overriding-header "All NEXT actions")))
+                       ((org-agenda-overriding-header "All NEXT actions (open)")))
             (tags-todo "TODO=\"WAITING\""
-                       ((org-agenda-overriding-header "WAITING follow-up")))
+                       ((org-agenda-overriding-header "WAITING follow-up (open)")))
             (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
                        ((org-agenda-files '("~/org/gtd/inbox.org"))
                         (org-agenda-overriding-header
-                         ,(format "Inbox triage (%d open)" (my/org-gtd-inbox-open-count))))))
+                         ,(format "Inbox triage (%d open items)" (my/org-gtd-inbox-open-count))))))
            ((org-agenda-show-log nil)
             (org-agenda-start-with-log-mode nil)
             (org-super-agenda-groups org-super-agenda-groups)
-            (org-agenda-prefix-format
-             '((agenda . " %-12:c %?-12t %10e ")
-               (todo . " %-12:c %?-12t %10e ")
-               (tags . " %-12:c %?-12t %10e ")))))
-          ("H" "@home Review"
+            (org-agenda-prefix-format my/org-review-prefix-format)))
+          ("H" "Context Review: @home"
            ((tags-todo "+@home-@work/TODO|NEXT|WAITING"
-                       ((org-agenda-overriding-header "@home actionable + waiting"))))
+                       ((org-agenda-overriding-header "@home actionable + waiting (open)"))))
            ((org-agenda-show-log nil)
             (org-agenda-start-with-log-mode nil)
             (org-super-agenda-groups org-super-agenda-groups)
-            (org-agenda-prefix-format
-             '((agenda . " %-12:c %?-12t %10e ")
-               (todo . " %-12:c %?-12t %10e ")
-               (tags . " %-12:c %?-12t %10e ")))))
-          ("W" "@work Review"
+            (org-agenda-prefix-format my/org-review-prefix-format)))
+          ("W" "Context Review: @work"
            ((tags-todo "+@work-@home/TODO|NEXT|WAITING"
-                       ((org-agenda-overriding-header "@work actionable + waiting"))))
+                       ((org-agenda-overriding-header "@work actionable + waiting (open)"))))
            ((org-agenda-show-log nil)
             (org-agenda-start-with-log-mode nil)
             (org-super-agenda-groups org-super-agenda-groups)
-            (org-agenda-prefix-format
-             '((agenda . " %-12:c %?-12t %10e ")
-               (todo . " %-12:c %?-12t %10e ")
-               (tags . " %-12:c %?-12t %10e "))))))))
+            (org-agenda-prefix-format my/org-review-prefix-format))))))
 
 (after! org-super-agenda
   (org-super-agenda-mode)
@@ -146,9 +143,9 @@
       (:prefix ("o A" . "agenda")
        :desc "Daily planning agenda" "d" (cmd! (org-agenda nil "d"))
        :desc "Weekly planning agenda" "w" (cmd! (org-agenda nil "w"))
-       :desc "Daily review agenda" "r" (cmd! (org-agenda nil "r"))
-       :desc "@home review agenda" "h" (cmd! (org-agenda nil "H"))
-       :desc "@work review agenda" "W" (cmd! (org-agenda nil "W"))))
+       :desc "Daily review (triage)" "r" (cmd! (org-agenda nil "r"))
+       :desc "Review @home context" "h" (cmd! (org-agenda nil "H"))
+       :desc "Review @work context" "W" (cmd! (org-agenda nil "W"))))
 
 (provide 'config-org-agenda)
 ;;; config-org-agenda.el ends here
