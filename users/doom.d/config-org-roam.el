@@ -15,6 +15,10 @@
   (unless (and (fboundp 'sqlite-available-p) (sqlite-available-p))
     (user-error
      "org-roam requires sqlite support. Rebuild Emacs/Nix config with sqlite enabled before continuing."))
+  (map! :leader
+        (:prefix ("o r" . "roam")
+         :desc "Find roam note" "f" #'org-roam-node-find
+         :desc "Insert roam link" "i" #'org-roam-node-insert))
   (org-roam-db-autosync-mode 1))
 
 (provide 'config-org-roam)
