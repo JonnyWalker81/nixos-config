@@ -9,10 +9,14 @@
            ((agenda ""
                     ((org-agenda-span 'day)
                      (org-agenda-overriding-header "Today timeline")))
-            (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\""
+           (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\""
                        ((org-agenda-overriding-header "Unscheduled actionable")
                         (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline)))))
-           ((org-agenda-show-log nil)))
+           ((org-agenda-show-log nil)
+            (org-agenda-prefix-format
+             '((agenda . " %(priority) %-12:c %?-12t %10e ")
+               (todo . " %(priority) %-12:c %?-12t %10e ")
+               (tags . " %(priority) %-12:c %?-12t %10e ")))))
           ("w" "Weekly planning"
            ((agenda ""
                     ((org-agenda-span 'week)
@@ -23,7 +27,16 @@
             (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\""
                        ((org-agenda-overriding-header "Unscheduled actionable")
                         (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline)))))
-           ((org-agenda-show-log nil))))))
+           ((org-agenda-show-log nil)
+            (org-agenda-prefix-format
+             '((agenda . " %(priority) %-12:c %?-12t %10e ")
+               (todo . " %(priority) %-12:c %?-12t %10e ")
+               (tags . " %(priority) %-12:c %?-12t %10e "))))))))
+
+(map! :leader
+      (:prefix ("o A" . "agenda")
+       :desc "Daily planning agenda" "d" (cmd! (org-agenda nil "d"))
+       :desc "Weekly planning agenda" "w" (cmd! (org-agenda nil "w"))))
 
 (provide 'config-org-agenda)
 ;;; config-org-agenda.el ends here
