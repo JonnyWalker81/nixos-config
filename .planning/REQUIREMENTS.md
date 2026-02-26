@@ -30,10 +30,10 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **AGN-01**: User can view daily agenda with time grid showing today's schedule
 - [ ] **AGN-02**: User can view weekly overview showing the week ahead
 - [ ] **AGN-03**: Agenda items are grouped by org-super-agenda (priority, context, TODO state)
-- [ ] **AGN-04**: User has a GTD "Daily Review" block agenda (today + high priority + next actions + waiting + inbox count)
-- [ ] **AGN-05**: User has a "Weekly Review" block agenda (week + stuck projects + waiting + someday + unprocessed)
-- [ ] **AGN-06**: User can view context-filtered views (@home, @work tasks only)
-- [ ] **AGN-07**: User can detect stuck projects (projects with no NEXT action)
+- [x] **AGN-04**: User has a GTD "Daily Review" block agenda (today + high priority + next actions + waiting + inbox count)
+- [x] **AGN-05**: User has a "Weekly Review" block agenda (week + stuck projects + waiting + someday + unprocessed)
+- [x] **AGN-06**: User can view context-filtered views (@home, @work tasks only)
+- [x] **AGN-07**: User can detect stuck projects (projects with no NEXT action)
 
 ### Knowledge Base
 
@@ -142,10 +142,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AGN-01 | Phase 3: Basic Agenda | Pending |
 | AGN-02 | Phase 3: Basic Agenda | Pending |
 | AGN-03 | Phase 3: Basic Agenda | Pending |
-| AGN-04 | Phase 4: Advanced Agenda & GTD Reviews | Pending |
-| AGN-05 | Phase 4: Advanced Agenda & GTD Reviews | Pending |
-| AGN-06 | Phase 4: Advanced Agenda & GTD Reviews | Pending |
-| AGN-07 | Phase 4: Advanced Agenda & GTD Reviews | Pending |
+| AGN-04 | Phase 4: Advanced Agenda & GTD Reviews | Complete |
+| AGN-05 | Phase 4: Advanced Agenda & GTD Reviews | Complete |
+| AGN-06 | Phase 4: Advanced Agenda & GTD Reviews | Complete |
+| AGN-07 | Phase 4: Advanced Agenda & GTD Reviews | Complete |
 | KB-01 | Phase 5: Knowledge Base | Pending |
 | KB-02 | Phase 5: Knowledge Base | Pending |
 | KB-03 | Phase 5: Knowledge Base | Pending |
@@ -177,4 +177,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2025-02-24*
-*Last updated: 2026-02-26 — Phase 2 requirements (CAP-01 through CAP-04) marked Complete*
+*Last updated: 2026-02-26 — Phase 4 requirements (AGN-04 through AGN-07) marked Complete*

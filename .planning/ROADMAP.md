@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: GTD Foundation** - Establish org-directory, TODO states, file structure, refile, priorities, and effort properties
 - [x] **Phase 2: Capture Workflow** - Fast capture templates for tasks, notes, projects, and meetings
 - [ ] **Phase 3: Basic Agenda** - Daily and weekly agenda views with org-super-agenda grouping
-- [ ] **Phase 4: Advanced Agenda & GTD Reviews** - Daily review dashboard, weekly review, context filters, stuck project detection
+- [x] **Phase 4: Advanced Agenda & GTD Reviews** - Daily review dashboard, weekly review, context filters, stuck project detection
 - [ ] **Phase 5: Knowledge Base** - org-roam with backlinks, capture templates, and graph visualization
 - [ ] **Phase 6: Journaling & Denote** - org-journal daily entries with carry-over, plus denote structured notes
 - [ ] **Phase 7: Visual Polish** - org-modern styling, color-coded TODO states, emphasis hiding, inline previews
@@ -63,11 +63,11 @@ Plans:
   1. User can view a daily agenda with time grid showing today's scheduled items and deadlines
   2. User can view a weekly overview showing the full week ahead
   3. Agenda items are grouped into meaningful sections by org-super-agenda (priority A items first, then by context/TODO state)
-**Plans**: TBD
+**Plans**: 2 plans in 2 waves (sequential)
 
 Plans:
-- [ ] 03-01: Basic daily and weekly agenda commands in config-org-gtd.el
-- [ ] 03-02: org-super-agenda grouping configuration and validation gate
+- [ ] 03-01-PLAN.md — Agenda module scaffold, command ownership migration, and baseline daily/weekly block commands
+- [ ] 03-02-PLAN.md — org-super-agenda priority/context grouping, weekly deadline summary wiring, and validation gate
 
 ### Phase 4: Advanced Agenda & GTD Reviews
 **Goal**: User can conduct daily and weekly GTD reviews with purpose-built agenda views, and filter tasks by context
@@ -78,11 +78,11 @@ Plans:
   2. User has a "Weekly Review" block agenda showing the week + stuck projects + all WAITING items + someday/maybe + unprocessed inbox
   3. User can view context-filtered agendas (@home only, @work only) with a single keybinding
   4. User can identify stuck projects (projects with no NEXT action defined) via the weekly review or a dedicated view
-**Plans**: TBD
+**Plans**: 2 plans in 2 waves (sequential)
 
 Plans:
-- [ ] 04-01: Daily review block agenda and context-filtered custom agenda commands
-- [ ] 04-02: Weekly review block agenda, stuck projects detection, and validation gate
+- [x] 04-01-PLAN.md — Daily Review command plus @home/@work context-filtered review views
+- [x] 04-02-PLAN.md — Weekly Review command, stuck project detection, and phase validation gate
 
 ### Phase 5: Knowledge Base
 **Goal**: User has an org-roam knowledge base with backlinks, fuzzy search, typed capture templates, and interactive graph visualization
@@ -159,7 +159,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 1. GTD Foundation | 3/3 | Verified ✓ | 2026-02-25 |
 | 2. Capture Workflow | 2/2 | Verified ✓ | 2026-02-26 |
 | 3. Basic Agenda | 0/2 | Not started | - |
-| 4. Advanced Agenda & GTD Reviews | 0/2 | Not started | - |
+| 4. Advanced Agenda & GTD Reviews | 2/2 | Verified ✓ | 2026-02-26 |
 | 5. Knowledge Base | 0/3 | Not started | - |
 | 6. Journaling & Denote | 0/2 | Not started | - |
 | 7. Visual Polish | 0/2 | Not started | - |
@@ -167,4 +167,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 ---
 *Roadmap created: 2026-02-24*
-*Last updated: 2026-02-26 — Phase 2 complete (Capture Workflow: all 2 plans done)*
+*Last updated: 2026-02-26 — Phase 4 complete (Advanced Agenda & GTD Reviews: all 2 plans done)*
