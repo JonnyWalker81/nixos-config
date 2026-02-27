@@ -3,7 +3,7 @@ phase: 05-knowledge-base
 plan: 04
 artifact: uat
 status: needs_retest
-updated: 2026-02-27T00:20:00Z
+updated: 2026-02-27T00:35:00Z
 tests:
   - id: UAT-KB-06-graph
     status: failed
@@ -41,7 +41,7 @@ This checklist captures interactive runtime verification that cannot be proven b
 - evidence:
   - executed_by: "user"
   - executed_at: "2026-02-27"
-  - notes: "`SPC o r` opened Doom's default \"Open a REPL for\" prompt instead of org-roam submenu. Screenshot evidence captured in ~/Pictures."
+  - notes: "Attempt #1 and attempt #2 both failed: `SPC o r` opened Doom's default \"Open a REPL for\" prompt instead of org-roam submenu, so `g/l` remained unreachable. Screenshot evidence captured in ~/Pictures."
 
 ## Test: UAT-KB-02-find-open
 
@@ -90,4 +90,4 @@ This checklist captures interactive runtime verification that cannot be proven b
 
 - overall_status: blocked
 - blocker: "Leader conflict at `SPC o r` prevented required org-roam commands (`f/g/l/u`) from being reachable."
-- follow_up: "Rebound org-roam submenu to `SPC o r` (while keeping `SPC n r` compatibility). User re-test required for approval."
+- follow_up: "Second fix applied: moved `SPC o r`/`SPC n r` roam map to eager startup binding with on-demand command loaders. User re-test required for approval."

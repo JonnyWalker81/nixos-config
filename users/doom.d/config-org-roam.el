@@ -25,9 +25,48 @@
 (defun org-life-roam-ui-open-local ()
   "Open org-roam-ui and focus the current note neighborhood."
   (interactive)
+  (require 'org-roam-ui)
   (org-roam-ui-mode 1)
   (org-roam-ui-open)
   (org-roam-ui-node-local))
+
+(defun org-life-roam-node-find ()
+  "Load org-roam on demand, then run node finder."
+  (interactive)
+  (require 'org-roam)
+  (call-interactively #'org-roam-node-find))
+
+(defun org-life-roam-node-insert ()
+  "Load org-roam on demand, then insert node link."
+  (interactive)
+  (require 'org-roam)
+  (call-interactively #'org-roam-node-insert))
+
+(defun org-life-roam-ui-open ()
+  "Load org-roam-ui on demand, then open graph."
+  (interactive)
+  (require 'org-roam-ui)
+  (call-interactively #'org-roam-ui-open))
+
+(defun org-life-roam-ui-mode ()
+  "Load org-roam-ui on demand, then toggle graph mode."
+  (interactive)
+  (require 'org-roam-ui)
+  (call-interactively #'org-roam-ui-mode))
+
+(map! :leader
+      (:prefix ("o r" . "roam")
+       :desc "Find roam note" "f" #'org-life-roam-node-find
+       :desc "Insert roam link" "i" #'org-life-roam-node-insert
+       :desc "Open roam graph" "g" #'org-life-roam-ui-open
+       :desc "Open local roam graph" "l" #'org-life-roam-ui-open-local
+       :desc "Roam graph mode" "u" #'org-life-roam-ui-mode)
+      (:prefix ("n r" . "roam")
+       :desc "Find roam note" "f" #'org-life-roam-node-find
+       :desc "Insert roam link" "i" #'org-life-roam-node-insert
+       :desc "Open roam graph" "g" #'org-life-roam-ui-open
+       :desc "Open local roam graph" "l" #'org-life-roam-ui-open-local
+       :desc "Roam graph mode" "u" #'org-life-roam-ui-mode))
 
 (after! org-roam
   (unless (and (fboundp 'sqlite-available-p) (sqlite-available-p))
@@ -72,19 +111,6 @@
           org-roam-ui-sync-mode t
           org-roam-ui-find-ref-title t
           org-roam-ui-retitle-ref-nodes t))
-  (map! :leader
-        (:prefix ("o r" . "roam")
-         :desc "Find roam note" "f" #'org-roam-node-find
-         :desc "Insert roam link" "i" #'org-roam-node-insert
-         :desc "Open roam graph" "g" #'org-roam-ui-open
-         :desc "Open local roam graph" "l" #'org-life-roam-ui-open-local
-         :desc "Roam graph mode" "u" #'org-roam-ui-mode)
-        (:prefix ("n r" . "roam")
-         :desc "Find roam note" "f" #'org-roam-node-find
-         :desc "Insert roam link" "i" #'org-roam-node-insert
-         :desc "Open roam graph" "g" #'org-roam-ui-open
-         :desc "Open local roam graph" "l" #'org-life-roam-ui-open-local
-         :desc "Roam graph mode" "u" #'org-roam-ui-mode))
   (org-roam-db-autosync-mode 1))
 
 (provide 'config-org-roam)
