@@ -2,11 +2,11 @@
 phase: 05-knowledge-base
 plan: 04
 artifact: uat
-status: pending
-updated: 2026-02-27T00:00:00Z
+status: needs_retest
+updated: 2026-02-27T00:20:00Z
 tests:
   - id: UAT-KB-06-graph
-    status: pending
+    status: failed
   - id: UAT-KB-02-find-open
     status: pending
   - id: UAT-KB-04-backlinks
@@ -20,7 +20,7 @@ This checklist captures interactive runtime verification that cannot be proven b
 ## Test: UAT-KB-06-graph
 
 - requirement: KB-06
-- status: pending
+- status: failed
 - priority: blocking
 - commands: `SPC o r g`, `SPC o r l`
 - preconditions:
@@ -39,9 +39,9 @@ This checklist captures interactive runtime verification that cannot be proven b
   - Local graph command updates neighborhood focus.
   - Clicking a node opens the mapped roam note in Emacs.
 - evidence:
-  - executed_by: ""
-  - executed_at: ""
-  - notes: ""
+  - executed_by: "user"
+  - executed_at: "2026-02-27"
+  - notes: "`SPC o r` opened Doom's default \"Open a REPL for\" prompt instead of org-roam submenu. Screenshot evidence captured in ~/Pictures."
 
 ## Test: UAT-KB-02-find-open
 
@@ -88,6 +88,6 @@ This checklist captures interactive runtime verification that cannot be proven b
 
 ## Execution Outcome
 
-- overall_status: pending
-- blocker: ""
-- follow_up: ""
+- overall_status: blocked
+- blocker: "Leader conflict at `SPC o r` prevented required org-roam commands (`f/g/l/u`) from being reachable."
+- follow_up: "Rebound org-roam submenu to `SPC o r` (while keeping `SPC n r` compatibility). User re-test required for approval."

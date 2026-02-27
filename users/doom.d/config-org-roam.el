@@ -78,6 +78,12 @@
          :desc "Insert roam link" "i" #'org-roam-node-insert
          :desc "Open roam graph" "g" #'org-roam-ui-open
          :desc "Open local roam graph" "l" #'org-life-roam-ui-open-local
+         :desc "Roam graph mode" "u" #'org-roam-ui-mode)
+        (:prefix ("n r" . "roam")
+         :desc "Find roam note" "f" #'org-roam-node-find
+         :desc "Insert roam link" "i" #'org-roam-node-insert
+         :desc "Open roam graph" "g" #'org-roam-ui-open
+         :desc "Open local roam graph" "l" #'org-life-roam-ui-open-local
          :desc "Roam graph mode" "u" #'org-roam-ui-mode))
   (org-roam-db-autosync-mode 1))
 
