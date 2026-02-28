@@ -1,96 +1,113 @@
-# Phase 5 Knowledge Base Verification (KB-01..KB-06)
+---
+phase: 05-knowledge-base
+verified: 2026-02-26T23:36:37Z
+status: human_needed
+score: 5/6 must-haves verified
+re_verification:
+  previous_status: passed
+  previous_score: n/a
+  gaps_closed: []
+  gaps_remaining: []
+  regressions: []
+human_verification:
+  - test: "Interactive org-roam-ui graph launch and navigation"
+    expected: "`SPC n r g` opens graph, `SPC n r l` focuses current node neighborhood, clicking a node opens the corresponding note"
+    why_human: "Requires live Emacs + browser interaction; not verifiable by static file inspection"
+  - test: "End-to-end fuzzy search open flow"
+    expected: "`SPC n r f` opens node finder and selecting a result opens an existing roam note"
+    why_human: "Static wiring is present but runtime minibuffer behavior needs interactive confirmation"
+  - test: "Backlinks panel usability with real notes"
+    expected: "`org-roam-buffer-toggle` shows inbound links with context and recency ordering in a real linked note set"
+    why_human: "Depends on actual note corpus and interactive UI state"
+---
 
-Date: 2026-02-26
-Plan: 05-03
+# Phase 5: Knowledge Base Verification Report
 
-## Environment Notes
+**Phase Goal:** User has an org-roam knowledge base with backlinks, fuzzy search, typed capture templates, and interactive graph visualization.
+**Verified:** 2026-02-26T23:36:37Z
+**Status:** human_needed
+**Re-verification:** No - initial verification (previous report existed but had no machine-readable `gaps` section)
 
-- The plan-specified command `~/.emacs.d/bin/doom sync` is not present on this machine.
-- Verification used the installed Doom CLI path `~/.emacs.default/bin/doom`.
-- Because `~/.doom.d` is a Nix store symlink, validation sync was run with `DOOMDIR=/home/cipher/nixos-config/users/doom.d` to verify this repository's config directly.
+**User-approved deviation (runtime keypath):** Phase 05-04 acceptance now uses `SPC n r` as canonical org-roam runtime commands. `SPC o r` remains reserved by Doom REPL in this environment and is no longer a phase blocker.
 
-## KB-01 - org-roam directory, sqlite, autosync
+## Goal Achievement
 
-- Requirement: org-roam uses `~/org/roam/`, sqlite is available, autosync is enabled.
-- Evidence:
-  - Command: `emacs --batch -Q --eval "(princ (if (fboundp 'sqlite-available-p) (if (sqlite-available-p) \"sqlite:t\" \"sqlite:nil\") \"sqlite:missing\"))"`
-  - Observed: `sqlite:t`
-  - Command: `rg "sqlite-available-p|org-roam-directory|org-roam-db-autosync-mode" users/doom.d/config-org-roam.el`
-  - Observed:
-    - sqlite guard present before roam startup
-    - `org-roam-directory` set from `org-life-roam-directory`
-    - `(org-roam-db-autosync-mode 1)` present
-- Outcome: PASS
+### Observable Truths
 
-## KB-02 - find/open roam notes via fuzzy search
+| # | Truth | Status | Evidence |
+| --- | --- | --- | --- |
+| 1 | org-roam uses a dedicated `~/org/roam/` path with sqlite readiness guard and DB autosync. | ✓ VERIFIED | `users/doom.d/config-org-roam.el:4`, `users/doom.d/config-org-roam.el:12`, `users/doom.d/config-org-roam.el:33`, `users/doom.d/config-org-roam.el:82` |
+| 2 | User can find/open existing roam notes via fuzzy search entrypoint. | ✓ VERIFIED | `users/doom.d/config-org-roam.el:77` (`org-roam-node-find`), roam module enabled in `users/doom.d/init.el:192` |
+| 3 | User can insert roam links while typing in org buffers. | ✓ VERIFIED | `users/doom.d/config-org-roam.el:78` (`org-roam-node-insert`) |
+| 4 | User can view backlinks for current note with context and recency-first sorting. | ✓ VERIFIED | `users/doom.d/config-org-roam.el:58`, `users/doom.d/config-org-roam.el:60`, `users/doom.d/config-org-roam.el:61` |
+| 5 | User has typed capture templates for default, literature, and concept notes. | ✓ VERIFIED | `users/doom.d/config-org-roam.el:42`, `users/doom.d/config-org-roam.el:43`, `users/doom.d/config-org-roam.el:48`, `users/doom.d/config-org-roam.el:53` |
+| 6 | User has interactive graph visualization launchable from Emacs. | ? UNCERTAIN | Wiring exists in `users/doom.d/packages.el:126`, `users/doom.d/config-org-roam.el:65`, `users/doom.d/config-org-roam.el:79`, `users/doom.d/config-org-roam.el:80`, but interactive behavior needs live manual test |
 
-- Requirement: find and open existing roam notes from Emacs.
-- Evidence:
-  - Command: `rg "Find roam note|org-roam-node-find" users/doom.d/config-org-roam.el`
-  - Observed: leader binding `SPC o r f` -> `org-roam-node-find`
-  - Runtime key path: `SPC o r f`
-- Outcome: PASS
+**Score:** 5/6 truths verified
 
-## KB-03 - insert links while typing
+### Required Artifacts
 
-- Requirement: insert roam links during org editing.
-- Evidence:
-  - Command: `rg "Insert roam link|org-roam-node-insert" users/doom.d/config-org-roam.el`
-  - Observed: leader binding `SPC o r i` -> `org-roam-node-insert`
-  - Runtime key path: `SPC o r i`
-- Outcome: PASS
+| Artifact | Expected | Status | Details |
+| --- | --- | --- | --- |
+| `users/doom.d/config-org-roam.el` | Core org-roam config: directory, sqlite/autosync, capture/backlinks, org-roam-ui commands | ✓ VERIFIED | Exists (85 lines), substantive, no stub markers, loaded from `config.el`, contains required command/config wiring |
+| `users/doom.d/config.el` | Deterministic load of roam module | ✓ VERIFIED | Exists (229 lines), substantive, contains `(load! "config-org-roam")` at `users/doom.d/config.el:212` |
+| `users/doom.d/packages.el` | Package declaration for org-roam-ui | ✓ VERIFIED | Exists (271 lines), substantive, declares `(package! org-roam-ui)` at `users/doom.d/packages.el:126` |
+| `users/doom.d/init.el` | Doom org module has `+roam` enabled | ✓ VERIFIED | Exists, includes `+roam` at `users/doom.d/init.el:192`, making org-roam features available |
+| `.planning/phases/05-knowledge-base/05-knowledge-base-VERIFICATION.md` | Requirement-indexed verification artifact exists | ✓ VERIFIED | Exists (replaced with this report), includes structured KB-01..KB-06 coverage |
 
-## KB-04 - backlinks visibility
+### Key Link Verification
 
-- Requirement: backlinks buffer shows incoming links with practical context.
-- Evidence:
-  - Command: `rg "org-roam-mode-sections|org-roam-backlinks-section|org-roam-backlink-show-context|org-roam-backlinks-sort-by" users/doom.d/config-org-roam.el`
-  - Observed:
-    - `org-roam-backlinks-section` enabled
-    - context display enabled (`org-roam-backlink-show-context t`)
-    - recency sort (`org-roam-backlinks-sort-by 'mtime`)
-  - Runtime key path: `M-x org-roam-buffer-toggle`
-- Outcome: PASS
+| From | To | Via | Status | Details |
+| --- | --- | --- | --- | --- |
+| `users/doom.d/config.el` | `users/doom.d/config-org-roam.el` | `load!` | WIRED | `users/doom.d/config.el:212` loads roam module during bootstrap |
+| `users/doom.d/config-org-roam.el` | `~/org/roam/` | `org-life-roam-directory` + `org-roam-directory` | WIRED | `file-truename` + directory creation + assignment at lines 4/8/12 |
+| `users/doom.d/config-org-roam.el` | org-roam DB sync | sqlite check + `(org-roam-db-autosync-mode 1)` | WIRED | Guard at line 33, autosync at line 82 |
+| `users/doom.d/config-org-roam.el` | Fuzzy find/link workflows | leader map to `org-roam-node-find`/`org-roam-node-insert` | WIRED | Keybinds at lines 77-78 |
+| `users/doom.d/config-org-roam.el` | Backlinks UX | section selection + context + sort | WIRED | Backlinks settings at lines 58-61 |
+| `users/doom.d/packages.el` + `users/doom.d/config-org-roam.el` | Browser graph UI | `package! org-roam-ui` + `use-package!` + graph keybinds | PARTIAL | Static wiring is complete; runtime browser interactivity not testable in headless verification |
 
-## KB-05 - three capture templates (default/literature/concept)
+### Requirements Coverage
 
-- Requirement: templates are available and typed for common knowledge flows.
-- Evidence:
-  - Command: `rg "\(\"d\" \"default\"|\(\"l\" \"literature\"|\(\"c\" \"concept\"|org-roam-capture-templates" users/doom.d/config-org-roam.el`
-  - Observed: all three templates present under one `org-roam-capture-templates` setq
-  - Runtime key path: `M-x org-roam-capture`
-- Outcome: PASS
+| Requirement | Status | Blocking Issue |
+| --- | --- | --- |
+| KB-01 | ✓ SATISFIED | None (config + wiring present) |
+| KB-02 | ✓ SATISFIED | None (fuzzy find command is wired) |
+| KB-03 | ✓ SATISFIED | None (insert-link command is wired) |
+| KB-04 | ✓ SATISFIED | None (backlinks section/config present) |
+| KB-05 | ✓ SATISFIED | None (3 typed templates present) |
+| KB-06 | ? NEEDS HUMAN | Interactive graph behavior requires live Emacs/browser validation |
 
-## KB-06 - org-roam-ui interactive graph
+### Anti-Patterns Found
 
-- Requirement: interactive browser graph launchable from Emacs with practical defaults.
-- Evidence:
-  - Command: `DOOMDIR=/home/cipher/nixos-config/users/doom.d ~/.emacs.default/bin/doom sync`
-  - Observed: package install/build steps include:
-    - `Cloning org-roam-ui...`
-    - `Building org-roam-ui...`
-    - dependency builds (`simple-httpd`, `websocket`)
-  - Command: `rg "package! org-roam-ui|use-package! org-roam-ui|org-roam-ui-open|org-life-roam-ui-open-local|org-roam-ui-node-local|org-roam-ui-follow|org-roam-ui-sync-theme" users/doom.d/packages.el users/doom.d/config-org-roam.el`
-  - Observed:
-    - `package! org-roam-ui` declared
-    - runtime config present (`follow`, `sync-theme`, `update-on-save`, `sync-mode`)
-    - launch key paths:
-      - `SPC o r g` -> `org-roam-ui-open`
-      - `SPC o r l` -> `org-life-roam-ui-open-local` (calls `org-roam-ui-node-local`)
-      - `SPC o r u` -> `org-roam-ui-mode`
-- Outcome: PASS
+| File | Line | Pattern | Severity | Impact |
+| --- | --- | --- | --- | --- |
+| None | - | No TODO/FIXME/placeholder/empty-return stubs detected in required artifacts | - | No structural blocker found |
 
-## Additional Plan Verification Checks
+### Human Verification Required
 
-- `emacs --batch -Q --eval "(with-temp-buffer (insert-file-contents \"users/doom.d/config-org-roam.el\") (check-parens))"` -> PASS
-- Doom sync completed with `org-roam-ui` installed using local CLI path + repo `DOOMDIR` override -> PASS
+### 1. Interactive graph flow
 
-## Caveats and Reproduction
+**Test:** In Emacs, open a roam note, run `SPC n r g` and `SPC n r l`, then click a graph node.
+**Expected:** Graph opens, local command centers current note neighborhood, clicked node opens the mapped note.
+**Why human:** Requires UI/browser events and live note corpus.
 
-- Headless CLI cannot perform visual browser judgment for graph UX.
-- Reproduction in interactive Emacs session:
-  1. Start Emacs with updated Doom config.
-  2. Open any roam note.
-  3. Press `SPC o r g` (global graph) and `SPC o r l` (local neighborhood graph).
-  4. Confirm node click opens notes and follow behavior tracks current node.
-- No requirement gaps remain in code/config/package validation; interactive visual confirmation steps are documented above.
+### 2. Fuzzy find runtime behavior
+
+**Test:** Run `SPC n r f` and select an existing note from minibuffer completion.
+**Expected:** Selected note opens directly.
+**Why human:** Completion UI behavior is runtime-only.
+
+### 3. Backlinks experience on real notes
+
+**Test:** With two linked roam notes, open one and toggle roam buffer.
+**Expected:** Inbound links appear with context and recent links prioritized.
+**Why human:** Requires real graph data and interactive buffer rendering.
+
+### Gaps Summary
+
+No code-level gaps were found in phase artifacts or wiring. The only unresolved portion is runtime UX confirmation for interactive behaviors that cannot be fully validated via static inspection.
+
+---
+
+_Verified: 2026-02-26T23:36:37Z_
+_Verifier: Claude (gsd-verifier)_
