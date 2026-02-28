@@ -19,9 +19,9 @@ Progress: [█████████████░░░░░░░░] 65%
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
-- Average duration: 22 min
-- Total execution time: 4.22 hours
+- Total plans completed: 13
+- Average duration: 20 min
+- Total execution time: 4.23 hours
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: [█████████████░░░░░░░░] 65%
 | 2. Capture Workflow | 2/2 | 28 min | 14 min |
 | 3. Basic Agenda | 2/2 | 31 min | 16 min |
 | 4. Advanced Agenda & GTD Reviews | 2/2 | 139 min | 70 min |
-| 5. Knowledge Base | 3/3 | 8 min | 3 min |
+| 5. Knowledge Base | 4/4 | 9 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 18m, 2m, 2m, 2m, 4m
+- Last 5 plans: 2m, 2m, 2m, 4m, 1m
 - Trend: stable with light verification overhead
 
 *Updated after each plan completion*

@@ -37,12 +37,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Knowledge Base
 
-- [ ] **KB-01**: org-roam configured with separate roam directory, sqlite DB, and autosync
-- [ ] **KB-02**: User can find and open existing roam notes via fuzzy search
-- [ ] **KB-03**: User can insert links to roam notes while typing anywhere in org
-- [ ] **KB-04**: User can view backlinks buffer showing what links to current note
-- [ ] **KB-05**: User has org-roam capture templates (default, literature, concept notes)
-- [ ] **KB-06**: org-roam-ui serves interactive knowledge graph in browser
+- [x] **KB-01**: org-roam configured with separate roam directory, sqlite DB, and autosync
+- [x] **KB-02**: User can find and open existing roam notes via fuzzy search
+- [x] **KB-03**: User can insert links to roam notes while typing anywhere in org
+- [x] **KB-04**: User can view backlinks buffer showing what links to current note
+- [x] **KB-05**: User has org-roam capture templates (default, literature, concept notes)
+- [x] **KB-06**: org-roam-ui serves interactive knowledge graph in browser
 - [ ] **KB-07**: denote configured in separate directory for structured file-naming notes
 
 ### Journaling
@@ -146,12 +146,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AGN-05 | Phase 4: Advanced Agenda & GTD Reviews | Complete |
 | AGN-06 | Phase 4: Advanced Agenda & GTD Reviews | Complete |
 | AGN-07 | Phase 4: Advanced Agenda & GTD Reviews | Complete |
-| KB-01 | Phase 5: Knowledge Base | Pending |
-| KB-02 | Phase 5: Knowledge Base | Pending |
-| KB-03 | Phase 5: Knowledge Base | Pending |
-| KB-04 | Phase 5: Knowledge Base | Pending |
-| KB-05 | Phase 5: Knowledge Base | Pending |
-| KB-06 | Phase 5: Knowledge Base | Pending |
+| KB-01 | Phase 5: Knowledge Base | Complete |
+| KB-02 | Phase 5: Knowledge Base | Complete |
+| KB-03 | Phase 5: Knowledge Base | Complete |
+| KB-04 | Phase 5: Knowledge Base | Complete |
+| KB-05 | Phase 5: Knowledge Base | Complete |
+| KB-06 | Phase 5: Knowledge Base | Complete |
 | KB-07 | Phase 6: Journaling & Denote | Pending |
 | JRN-01 | Phase 6: Journaling & Denote | Pending |
 | JRN-02 | Phase 6: Journaling & Denote | Pending |
@@ -177,4 +177,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2025-02-24*
-*Last updated: 2026-02-26 — Phase 4 requirements (AGN-04 through AGN-07) marked Complete*
+*Last updated: 2026-02-28 — Phase 5 requirements (KB-01 through KB-06) marked Complete*

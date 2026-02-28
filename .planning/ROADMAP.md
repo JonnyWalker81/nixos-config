@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Capture Workflow** - Fast capture templates for tasks, notes, projects, and meetings
 - [ ] **Phase 3: Basic Agenda** - Daily and weekly agenda views with org-super-agenda grouping
 - [x] **Phase 4: Advanced Agenda & GTD Reviews** - Daily review dashboard, weekly review, context filters, stuck project detection
-- [ ] **Phase 5: Knowledge Base** - org-roam with backlinks, capture templates, and graph visualization
+- [x] **Phase 5: Knowledge Base** - org-roam with backlinks, capture templates, and graph visualization
 - [ ] **Phase 6: Journaling & Denote** - org-journal daily entries with carry-over, plus denote structured notes
 - [ ] **Phase 7: Visual Polish** - org-modern styling, color-coded TODO states, emphasis hiding, inline previews
 - [ ] **Phase 8: Integration & Dashboard** - Cross-linking between all systems, SPC keybindings, startup dashboard
@@ -94,12 +94,13 @@ Plans:
   3. User can view a backlinks buffer showing all notes that link to the current note
   4. User has 3 org-roam capture templates (default note, literature note, concept note) accessible via roam capture
   5. org-roam-ui serves an interactive knowledge graph in the browser, launchable from Emacs
-**Plans**: 3 plans in 3 waves (sequential)
+**Plans**: 4 plans (3 implementation + 1 gap-closure)
 
 Plans:
 - [x] 05-01-PLAN.md — org-roam core setup in config-org-roam.el (directory with file-truename workaround, db-autosync, find-file-visit-truename)
 - [x] 05-02-PLAN.md — org-roam capture templates (default, literature, concept) and backlinks buffer configuration
-- [ ] 05-03-PLAN.md — org-roam-ui setup and validation gate (verify search, backlinks, graph all work)
+- [x] 05-03-PLAN.md — org-roam-ui setup and validation gate (verify search, backlinks, graph all work)
+- [x] 05-04-PLAN.md — gap closure for runtime-only interactive verification (graph navigation, fuzzy open, backlinks UX)
 
 ### Phase 6: Journaling & Denote
 **Goal**: User can write daily journal entries with TODO carry-over and agenda integration, capture journal entries via org-capture, and use denote for structured file-naming notes
@@ -160,11 +161,11 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 2. Capture Workflow | 2/2 | Verified ✓ | 2026-02-26 |
 | 3. Basic Agenda | 0/2 | Not started | - |
 | 4. Advanced Agenda & GTD Reviews | 2/2 | Verified ✓ | 2026-02-26 |
-| 5. Knowledge Base | 2/3 | In progress | - |
+| 5. Knowledge Base | 4/4 | Verified ✓ | 2026-02-28 |
 | 6. Journaling & Denote | 0/2 | Not started | - |
 | 7. Visual Polish | 0/2 | Not started | - |
 | 8. Integration & Dashboard | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-24*
-*Last updated: 2026-02-26 — Phase 5 in progress (Knowledge Base: 2 of 3 plans done)*
+*Last updated: 2026-02-28 — Phase 5 verified complete (Knowledge Base: 4 of 4 plans done)*
