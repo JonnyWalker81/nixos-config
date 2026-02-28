@@ -2,15 +2,15 @@
 phase: 05-knowledge-base
 plan: 04
 artifact: uat
-status: needs_retest
-updated: 2026-02-27T02:05:00Z
+status: passed
+updated: 2026-02-28T06:55:16Z
 tests:
   - id: UAT-KB-06-graph
-    status: pending
+    status: passed
   - id: UAT-KB-02-find-open
-    status: pending
+    status: passed
   - id: UAT-KB-04-backlinks
-    status: pending
+    status: passed
 ---
 
 # Phase 5 Knowledge Base Runtime UAT
@@ -26,7 +26,7 @@ This checklist captures interactive runtime verification that cannot be proven b
 ## Test: UAT-KB-06-graph
 
 - requirement: KB-06
-- status: pending
+- status: passed
 - priority: blocking
 - commands: `SPC n r g`, `SPC n r l`
 - preconditions:
@@ -46,13 +46,13 @@ This checklist captures interactive runtime verification that cannot be proven b
   - Clicking a node opens the mapped roam note in Emacs.
 - evidence:
   - executed_by: "user"
-  - executed_at: "2026-02-27"
-  - notes: "User-approved deviation: Phase 05-04 acceptance now validates graph flow via `SPC n r g/l` instead of `SPC o r g/l` so REPL ownership of `SPC o r` does not block completion."
+  - executed_at: "2026-02-28"
+  - notes: "Approved at runtime checkpoint: graph opens from `SPC n r g`, local focus updates from `SPC n r l`, and node click opens mapped note in Emacs. User-approved deviation remains `SPC n r` for acceptance."
 
 ## Test: UAT-KB-02-find-open
 
 - requirement: KB-02
-- status: pending
+- status: passed
 - priority: blocking
 - command: `SPC n r f`
 - preconditions:
@@ -66,14 +66,14 @@ This checklist captures interactive runtime verification that cannot be proven b
   - Node finder opens with fuzzy completion candidates.
   - Selected existing note opens directly in Emacs.
 - evidence:
-  - executed_by: ""
-  - executed_at: ""
-  - notes: ""
+  - executed_by: "user"
+  - executed_at: "2026-02-28"
+  - notes: "Approved at runtime checkpoint: `SPC n r f` opened fuzzy node selection and opened selected existing roam note."
 
 ## Test: UAT-KB-04-backlinks
 
 - requirement: KB-04
-- status: pending
+- status: passed
 - priority: blocking
 - command: `org-roam-buffer-toggle`
 - preconditions:
@@ -88,12 +88,12 @@ This checklist captures interactive runtime verification that cannot be proven b
   - Inbound links appear with context snippet content.
   - Ordering reflects recency intent (newer links first).
 - evidence:
-  - executed_by: ""
-  - executed_at: ""
-  - notes: ""
+  - executed_by: "user"
+  - executed_at: "2026-02-28"
+  - notes: "Approved at runtime checkpoint: roam buffer showed inbound backlinks with contextual snippets on linked notes."
 
 ## Execution Outcome
 
-- overall_status: blocked
-- blocker: "None (retest pending on user-approved canonical keypath `SPC n r`)."
-- follow_up: "Retest required using `SPC n r f/g/l` and `org-roam-buffer-toggle`; record pass/fail evidence below."
+- overall_status: passed
+- blocker: "None"
+- follow_up: "None - runtime checklist complete and accepted."
