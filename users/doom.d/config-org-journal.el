@@ -4,6 +4,10 @@
   (expand-file-name "~/org/journal/")
   "Canonical directory for org-journal daily files.")
 
+(defvar org-life-journal-agenda-files
+  (list org-life-journal-directory)
+  "Journal paths explicitly scoped into agenda journal sections.")
+
 (unless (file-directory-p org-life-journal-directory)
   (make-directory org-life-journal-directory t))
 
@@ -12,6 +16,13 @@
   (interactive)
   (require 'org-journal)
   (org-journal-new-entry nil))
+
+(defun org-life-journal-search-history ()
+  "Search across full org-journal history by default."
+  (interactive)
+  (require 'org-journal)
+  (let ((current-prefix-arg '(4)))
+    (call-interactively #'org-journal-search)))
 
 (defun org-life-journal-mark-old-carryover-as-migrated (old-carryover)
   "Mark OLD-CARRYOVER source entries as migrated without deleting them."
@@ -63,7 +74,8 @@
   (advice-add 'org-journal-new-entry :around #'org-life-journal--limit-carryover-to-yesterday-a)
   (map! :leader
         (:prefix ("o j" . "journal")
-         :desc "Open today's journal" "t" #'org-life-journal-open-today)))
+         :desc "Open today's journal" "t" #'org-life-journal-open-today
+         :desc "Search journal history" "s" #'org-life-journal-search-history)))
 
 (provide 'config-org-journal)
 ;;; config-org-journal.el ends here

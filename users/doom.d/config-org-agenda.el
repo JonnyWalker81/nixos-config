@@ -31,6 +31,14 @@
     "Org-native stuck-project criteria for GTD weekly review.
 A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
 
+  (defvar org-life-journal-agenda-files
+    '("~/org/journal/")
+    "Journal agenda scope for dedicated journal sections.")
+
+  (defvar my/org-journal-open-todo-match
+    "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
+    "Match all open TODO states for journal agenda sections.")
+
   (defun my/org-gtd-project-has-next-child-p ()
     "Return non-nil when current project subtree contains a NEXT action."
     (save-excursion
@@ -64,7 +72,10 @@ A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
             (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
                        ((org-agenda-overriding-header "Unscheduled actionable")
                         (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))
-                        (org-super-agenda-groups org-super-agenda-groups))))
+                        (org-super-agenda-groups org-super-agenda-groups)))
+            (tags-todo my/org-journal-open-todo-match
+                       ((org-agenda-files org-life-journal-agenda-files)
+                        (org-agenda-overriding-header "Journal (open TODOs, full history)")))
            ((org-agenda-show-log nil)
             (org-agenda-start-with-log-mode nil)
             (org-super-agenda-groups org-super-agenda-groups)
@@ -83,7 +94,10 @@ A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
             (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
                        ((org-agenda-overriding-header "Unscheduled actionable")
                         (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))
-                        (org-super-agenda-groups org-super-agenda-groups))))
+                        (org-super-agenda-groups org-super-agenda-groups)))
+            (tags-todo my/org-journal-open-todo-match
+                       ((org-agenda-files org-life-journal-agenda-files)
+                        (org-agenda-overriding-header "Journal (open TODOs, full history)")))
            ((org-agenda-show-log nil)
             (org-agenda-start-with-log-mode nil)
             (org-super-agenda-groups org-super-agenda-groups)
@@ -104,7 +118,10 @@ A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
             (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
                        ((org-agenda-files '("~/org/gtd/inbox.org"))
                         (org-agenda-overriding-header
-                         ,(format "Inbox triage (%d open items)" (my/org-gtd-inbox-open-count))))))
+                         ,(format "Inbox triage (%d open items)" (my/org-gtd-inbox-open-count)))))
+            (tags-todo my/org-journal-open-todo-match
+                       ((org-agenda-files org-life-journal-agenda-files)
+                        (org-agenda-overriding-header "Journal (open TODOs, full history)"))))
            ((org-agenda-show-log nil)
             (org-agenda-start-with-log-mode nil)
             (org-super-agenda-groups org-super-agenda-groups)
@@ -127,7 +144,10 @@ A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
             (tags-todo "TODO=\"WAITING\""
                        ((org-agenda-overriding-header "4) WAITING commitments")))
             (tags-todo "TODO=\"SOMEDAY\""
-                       ((org-agenda-overriding-header "5) SOMEDAY/MAYBE parking"))))
+                       ((org-agenda-overriding-header "5) SOMEDAY/MAYBE parking")))
+            (tags-todo my/org-journal-open-todo-match
+                       ((org-agenda-files org-life-journal-agenda-files)
+                        (org-agenda-overriding-header "6) Journal (open TODOs, full history)"))))
            ((org-agenda-show-log nil)
             (org-agenda-start-with-log-mode nil)
             (org-super-agenda-groups org-super-agenda-groups)
