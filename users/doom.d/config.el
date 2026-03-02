@@ -210,6 +210,7 @@
 (load! "config-org-agenda")
 (message "Loading config-org-roam...")
 (load! "config-org-roam")
+(load! "config-org-journal")
 (message "Loading config-copilot...")
 (load! "config-copilot")
 (message "Loading config-magit...")
