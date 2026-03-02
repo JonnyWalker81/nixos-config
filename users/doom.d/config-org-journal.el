@@ -11,7 +11,36 @@
   "Open today's org-journal entry."
   (interactive)
   (require 'org-journal)
-  (org-journal-new-entry))
+  (org-journal-new-entry nil))
+
+(defun org-life-journal-mark-old-carryover-as-migrated (old-carryover)
+  "Mark OLD-CARRYOVER source entries as migrated without deleting them."
+  (save-excursion
+    (dolist (entry (reverse old-carryover))
+      (save-restriction
+        (narrow-to-region (car entry) (cadr entry))
+        (goto-char (point-min))
+        (org-toggle-tag "migrated" 'on)))))
+
+(defun org-life-journal--carryover-source-is-yesterday-p ()
+  "Return non-nil only when yesterday is the carry-over source."
+  (let* ((today-file (expand-file-name
+                      (format-time-string org-journal-file-format (current-time))
+                      org-journal-dir))
+         (yesterday-file (expand-file-name
+                          (format-time-string org-journal-file-format
+                                              (time-subtract (current-time) (days-to-time 1)))
+                          org-journal-dir)))
+    (and (not (file-exists-p today-file))
+         (file-exists-p yesterday-file))))
+
+(defun org-life-journal--limit-carryover-to-yesterday-a (orig-fn &rest args)
+  "Run ORIG-FN with carry-over enabled only when yesterday is available."
+  (let ((org-journal-carryover-items
+         (if (org-life-journal--carryover-source-is-yesterday-p)
+             org-journal-carryover-items
+           nil)))
+    (apply orig-fn args)))
 
 (after! org
   (setq org-journal-dir org-life-journal-directory)
@@ -28,6 +57,10 @@
                   "* End-of-day Reflection\n"
                   "- What moved forward today?\n"
                   "- What is still open?\n")))
+  (setq org-journal-carryover-items "TODO={.+}")
+  (setq org-journal-handle-old-carryover-fn #'org-life-journal-mark-old-carryover-as-migrated)
+  (advice-remove 'org-journal-new-entry #'org-life-journal--limit-carryover-to-yesterday-a)
+  (advice-add 'org-journal-new-entry :around #'org-life-journal--limit-carryover-to-yesterday-a)
   (map! :leader
         (:prefix ("o j" . "journal")
          :desc "Open today's journal" "t" #'org-life-journal-open-today)))
