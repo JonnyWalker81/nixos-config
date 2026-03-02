@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-24)
 
 **Core value:** Everything lives in one integrated system — tasks, schedule, notes, and journal are cross-linked and accessible within two keystrokes, so nothing falls through the cracks.
-**Current focus:** Phase 6 — Journaling & Denote
+**Current focus:** Phase 7 — Visual Polish
 
 ## Current Position
 
 Phase: 6 of 8 (Journaling & Denote)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-03-02 - Completed 06-01-PLAN.md
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-03-02 - Completed 06-02-PLAN.md
 
-Progress: [███████████████████░] 93%
+Progress: [████████████████████] 100%
 
 ## Performance Metrics
 
@@ -86,6 +86,9 @@ Recent decisions affecting current work:
 - [06-01]: Journal module ownership is isolated in `users/doom.d/config-org-journal.el`, loaded deterministically from `config.el`
 - [06-01]: Open-today journal entrypoint is bound under org prefix at `SPC o j t`
 - [06-01]: Carry-over copies open TODO states from yesterday only and marks source entries with `:migrated:` tags instead of deleting them
+- [06-02]: Journal TODOs are surfaced via dedicated agenda sections scoped to `~/org/journal/`, keeping GTD blocks separate
+- [06-02]: CAP-05 capture uses `org-life-journal-capture-location` with `(org-journal-new-entry t)` to avoid duplicate heading artifacts
+- [06-02]: Denote is isolated in `~/org/denote/` with strict `denote-known-keywords` and `denote-infer-keywords` disabled
 
 ### Pending Todos
 
@@ -97,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-02 19:32 UTC
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-03-02 19:37 UTC
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
