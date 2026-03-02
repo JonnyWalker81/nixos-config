@@ -112,11 +112,11 @@ Plans:
   3. Journal TODOs appear in org-agenda alongside GTD items, and user can search across all journal entries
   4. User can capture a journal entry via org-capture (template integrated with org-journal)
   5. denote is configured in `~/org/denote/` with its own directory, separate from org-roam, using structured file-naming convention
-**Plans**: TBD
+**Plans**: 2 plans in 2 waves (sequential)
 
 Plans:
-- [ ] 06-01: org-journal setup in config-org-journal.el (daily files, carry-over, agenda integration)
-- [ ] 06-02: Journal capture template (CAP-05), journal search, denote configuration, and validation gate
+- [ ] 06-01-PLAN.md — org-journal module bootstrap with daily entry scaffold, open-today keypath, and yesterday carry-over migration behavior
+- [ ] 06-02-PLAN.md — journal agenda/search/capture integration plus dedicated strict-taxonomy denote module wiring
 
 ### Phase 7: Visual Polish
 **Goal**: Org buffers and agenda have modern, clean visual styling with color-coded states, hidden markup, and inline previews
