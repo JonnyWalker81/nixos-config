@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-24)
 ## Current Position
 
 Phase: 6 of 8 (Journaling & Denote)
-Plan: 0 of 2 in current phase
+Plan: 1 of 2 in current phase
 Status: In progress
-Last activity: 2026-02-28 - Completed 05-04-PLAN.md
+Last activity: 2026-03-02 - Completed 06-01-PLAN.md
 
-Progress: [█████████████░░░░░░░░] 65%
+Progress: [███████████████████░] 93%
 
 ## Performance Metrics
 
@@ -83,6 +83,9 @@ Recent decisions affecting current work:
 - [05-03]: org-roam-ui defaults keep follow/sync/update enabled while local-neighborhood navigation is one command away
 - [05-03]: Phase acceptance is recorded in a requirement-indexed verification artifact mapping KB-01..KB-06 to explicit evidence
 - [05-04]: Runtime acceptance for Knowledge Base is finalized on `SPC n r` keypaths in this environment, with UAT evidence promoted into final KB-02/KB-04/KB-06 verification outcomes
+- [06-01]: Journal module ownership is isolated in `users/doom.d/config-org-journal.el`, loaded deterministically from `config.el`
+- [06-01]: Open-today journal entrypoint is bound under org prefix at `SPC o j t`
+- [06-01]: Carry-over copies open TODO states from yesterday only and marks source entries with `:migrated:` tags instead of deleting them
 
 ### Pending Todos
 
@@ -94,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-28 06:56 UTC
-Stopped at: Completed 05-04-PLAN.md
+Last session: 2026-03-02 19:32 UTC
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
