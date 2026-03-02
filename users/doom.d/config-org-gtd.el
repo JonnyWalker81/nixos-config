@@ -111,6 +111,10 @@
           ("m" "Meeting" entry
            (file "~/org/gtd/meetings.org")
            "* %^{Meeting title}\nSCHEDULED: %^t\n:PROPERTIES:\n:ATTENDEES: %^{Attendees (optional)|}\n:CREATED: %U\n:END:\n** Notes\n%?\n** Action Items\n*** TODO %^{Action item}\n:PROPERTIES:\n:INBOX_LINK: %^{INBOX_LINK (optional, e.g. id:... from inbox.org)|}\n:END:\n"
+           :empty-lines 1)
+          ("j" "Journal" entry
+           (function org-life-journal-capture-location)
+           "* TODO %^{Journal entry title}\n%U\n%a\n%i\n"
            :empty-lines 1)))
 
   (defun my/org-capture-dwim-key ()

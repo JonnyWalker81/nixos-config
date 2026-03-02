@@ -17,6 +17,12 @@
   (require 'org-journal)
   (org-journal-new-entry nil))
 
+(defun org-life-journal-capture-location ()
+  "Return capture location in today's journal without duplicate headings."
+  (require 'org-journal)
+  (org-journal-new-entry t)
+  (goto-char (point-max)))
+
 (defun org-life-journal-search-history ()
   "Search across full org-journal history by default."
   (interactive)
