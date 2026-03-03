@@ -23,7 +23,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **CAP-02**: User can capture a note/idea to inbox.org
 - [x] **CAP-03**: User can capture a new project with sub-tasks to projects.org
 - [x] **CAP-04**: User can capture meeting notes with attendees, date, notes, and action items
-- [ ] **CAP-05**: User can capture a journal entry via org-capture integrated with org-journal
+- [x] **CAP-05**: User can capture a journal entry via org-capture integrated with org-journal
 
 ### Agenda
 
@@ -43,14 +43,14 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **KB-04**: User can view backlinks buffer showing what links to current note
 - [x] **KB-05**: User has org-roam capture templates (default, literature, concept notes)
 - [x] **KB-06**: org-roam-ui serves interactive knowledge graph in browser
-- [ ] **KB-07**: denote configured in separate directory for structured file-naming notes
+- [x] **KB-07**: denote configured in separate directory for structured file-naming notes
 
 ### Journaling
 
-- [ ] **JRN-01**: org-journal configured with per-day files and timestamps
-- [ ] **JRN-02**: Unfinished journal TODOs auto-carry-over to next day's entry
-- [ ] **JRN-03**: Journal TODOs appear in org-agenda
-- [ ] **JRN-04**: User can search across all journal entries
+- [x] **JRN-01**: org-journal configured with per-day files and timestamps
+- [x] **JRN-02**: Unfinished journal TODOs auto-carry-over to next day's entry
+- [x] **JRN-03**: Journal TODOs appear in org-agenda
+- [x] **JRN-04**: User can search across all journal entries
 
 ### Visual
 
@@ -138,7 +138,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CAP-02 | Phase 2: Capture Workflow | Complete |
 | CAP-03 | Phase 2: Capture Workflow | Complete |
 | CAP-04 | Phase 2: Capture Workflow | Complete |
-| CAP-05 | Phase 6: Journaling & Denote | Pending |
+| CAP-05 | Phase 6: Journaling & Denote | Complete |
 | AGN-01 | Phase 3: Basic Agenda | Pending |
 | AGN-02 | Phase 3: Basic Agenda | Pending |
 | AGN-03 | Phase 3: Basic Agenda | Pending |
@@ -152,11 +152,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | KB-04 | Phase 5: Knowledge Base | Complete |
 | KB-05 | Phase 5: Knowledge Base | Complete |
 | KB-06 | Phase 5: Knowledge Base | Complete |
-| KB-07 | Phase 6: Journaling & Denote | Pending |
-| JRN-01 | Phase 6: Journaling & Denote | Pending |
-| JRN-02 | Phase 6: Journaling & Denote | Pending |
-| JRN-03 | Phase 6: Journaling & Denote | Pending |
-| JRN-04 | Phase 6: Journaling & Denote | Pending |
+| KB-07 | Phase 6: Journaling & Denote | Complete |
+| JRN-01 | Phase 6: Journaling & Denote | Complete |
+| JRN-02 | Phase 6: Journaling & Denote | Complete |
+| JRN-03 | Phase 6: Journaling & Denote | Complete |
+| JRN-04 | Phase 6: Journaling & Denote | Complete |
 | VIS-01 | Phase 7: Visual Polish | Pending |
 | VIS-02 | Phase 7: Visual Polish | Pending |
 | VIS-03 | Phase 7: Visual Polish | Pending |
@@ -177,4 +177,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2025-02-24*
-*Last updated: 2026-02-28 — Phase 5 requirements (KB-01 through KB-06) marked Complete*
+*Last updated: 2026-03-03 — Phase 6 requirements (CAP-05, KB-07, JRN-01 through JRN-04) marked Complete*

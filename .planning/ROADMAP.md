@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 3: Basic Agenda** - Daily and weekly agenda views with org-super-agenda grouping
 - [x] **Phase 4: Advanced Agenda & GTD Reviews** - Daily review dashboard, weekly review, context filters, stuck project detection
 - [x] **Phase 5: Knowledge Base** - org-roam with backlinks, capture templates, and graph visualization
-- [ ] **Phase 6: Journaling & Denote** - org-journal daily entries with carry-over, plus denote structured notes
+- [x] **Phase 6: Journaling & Denote** - org-journal daily entries with carry-over, plus denote structured notes
 - [ ] **Phase 7: Visual Polish** - org-modern styling, color-coded TODO states, emphasis hiding, inline previews
 - [ ] **Phase 8: Integration & Dashboard** - Cross-linking between all systems, SPC keybindings, startup dashboard
 
@@ -115,8 +115,8 @@ Plans:
 **Plans**: 2 plans in 2 waves (sequential)
 
 Plans:
-- [ ] 06-01-PLAN.md — org-journal module bootstrap with daily entry scaffold, open-today keypath, and yesterday carry-over migration behavior
-- [ ] 06-02-PLAN.md — journal agenda/search/capture integration plus dedicated strict-taxonomy denote module wiring
+- [x] 06-01-PLAN.md — org-journal module bootstrap with daily entry scaffold, open-today keypath, and yesterday carry-over migration behavior
+- [x] 06-02-PLAN.md — journal agenda/search/capture integration plus dedicated strict-taxonomy denote module wiring
 
 ### Phase 7: Visual Polish
 **Goal**: Org buffers and agenda have modern, clean visual styling with color-coded states, hidden markup, and inline previews
@@ -162,10 +162,10 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 3. Basic Agenda | 0/2 | Not started | - |
 | 4. Advanced Agenda & GTD Reviews | 2/2 | Verified ✓ | 2026-02-26 |
 | 5. Knowledge Base | 4/4 | Verified ✓ | 2026-02-28 |
-| 6. Journaling & Denote | 0/2 | Not started | - |
+| 6. Journaling & Denote | 2/2 | Verified ✓ | 2026-03-03 |
 | 7. Visual Polish | 0/2 | Not started | - |
 | 8. Integration & Dashboard | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-24*
-*Last updated: 2026-02-28 — Phase 5 verified complete (Knowledge Base: 4 of 4 plans done)*
+*Last updated: 2026-03-03 — Phase 6 verified complete (Journaling & Denote: 2 of 2 plans done)*
