@@ -7,7 +7,9 @@
   (setq org-modern-label-border 1
         org-modern-table t
         org-modern-timestamp t
-        org-modern-priority nil)
+        org-modern-priority nil
+        org-modern-todo-faces nil
+        org-modern-priority-faces nil)
   (add-hook 'org-agenda-finalize-hook #'org-modern-agenda))
 
 (after! org-agenda

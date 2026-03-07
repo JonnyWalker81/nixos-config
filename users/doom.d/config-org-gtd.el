@@ -145,9 +145,9 @@
   (setq org-priority-default ?B)
 
   (setq org-priority-faces
-        '((?A . (:foreground "#ff6c6b" :weight bold))
-          (?B . (:foreground "#ECBE7B" :weight bold))
-          (?C . (:foreground "#98be65"))))
+        '((?A . (:foreground "#cfa35a" :weight semibold))
+          (?B . (:foreground "#8a9099"))
+          (?C . (:foreground "#6f7680"))))
 
   ;; --------------------------------------------------------------------------
   ;; Effort Estimation
@@ -178,12 +178,12 @@
   ;; Active states are bright/bold, closed states are muted.
 
   (setq org-todo-keyword-faces
-        '(("TODO"      . (:foreground "#ff6c6b" :weight bold))
-          ("NEXT"      . (:foreground "#51afef" :weight bold))
-          ("WAITING"   . (:foreground "#ECBE7B" :weight bold))
-          ("SOMEDAY"   . (:foreground "#a9a1e1"))
-          ("DONE"      . (:foreground "#98be65"))
-          ("CANCELLED" . (:foreground "#5B6268" :strike-through t))))
+        '(("TODO"      . (:foreground "#e06c75" :weight semibold))
+          ("NEXT"      . (:foreground "#61afef" :weight bold))
+          ("WAITING"   . (:foreground "#d19a66" :weight semibold))
+          ("SOMEDAY"   . (:foreground "#7f848e"))
+          ("DONE"      . (:foreground "#98c379"))
+          ("CANCELLED" . (:foreground "#5c6370" :strike-through t))))
 
   ;; --------------------------------------------------------------------------
   ;; Refile
