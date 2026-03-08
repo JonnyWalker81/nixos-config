@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-24)
 
 **Core value:** Everything lives in one integrated system — tasks, schedule, notes, and journal are cross-linked and accessible within two keystrokes, so nothing falls through the cracks.
-**Current focus:** Phase 7 — Visual Polish
+**Current focus:** Phase 8 — Integration & Dashboard
 
 ## Current Position
 
 Phase: 7 of 8 (Visual Polish)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-03-07 - Completed 07-01-PLAN.md
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-03-08 - Completed 07-02-PLAN.md
 
 Progress: [████████████████░░░░] 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
+- Total plans completed: 16
 - Average duration: 16 min
 - Total execution time: 4.26 hours
 
@@ -34,7 +34,7 @@ Progress: [████████████████░░░░] 80%
 | 5. Knowledge Base | 4/4 | 9 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 2m, 2m, 4m, 3m, 2m
+- Last 5 plans: 2m, 4m, 3m, 2m, 0m
 - Trend: stable with light verification overhead
 
 *Updated after each plan completion*
@@ -91,6 +91,8 @@ Recent decisions affecting current work:
 - [06-02]: Denote is isolated in `~/org/denote/` with strict `denote-known-keywords` and `denote-infer-keywords` disabled
 - [07-01]: Visual ownership is centralized in `users/doom.d/config-org-visual.el` and loaded after existing org subsystem modules for deterministic override behavior
 - [07-01]: `org-modern` baseline is applied through `org-mode` and `org-agenda-finalize-hook` while TODO/priority semantic face ownership remains untouched for 07-02
+- [07-02]: TODO semantic colors are locked to roadmap mapping in `org-todo-keyword-faces`, with priority kept intentionally subtle and secondary
+- [07-02]: Markup reveal and preview polish uses `org-appear` + hidden markers + startup inline image/LaTeX rendering hooks without per-keystroke refresh loops
 
 ### Pending Todos
 
@@ -102,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-07 23:45 UTC
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-03-08 00:07 UTC
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None
