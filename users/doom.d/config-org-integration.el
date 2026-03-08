@@ -14,6 +14,7 @@
 (defconst org-life-integration-prop-target-title "ORGLIFE_LINK_TARGET_TITLE")
 (defconst org-life-integration-prop-target-file "ORGLIFE_LINK_TARGET_FILE")
 (defconst org-life-integration-prop-target-type "ORGLIFE_LINK_TARGET_TYPE")
+(defconst org-life-integration-prop-backlinks "ORGLIFE_BACKLINKS")
 
 (defun org-life-integration--require-heading ()
   "Raise a user error when point is not on an Org heading."
@@ -47,6 +48,67 @@ Returns the inserted link string."
   (org-entry-put nil org-life-integration-prop-target-title target-title)
   (org-entry-put nil org-life-integration-prop-target-file target-file)
   (org-entry-put nil org-life-integration-prop-target-type target-type))
+
+(defun org-life-integration--read-backlink-records (raw)
+  "Parse RAW backlink property value into normalized plist records."
+  (if (or (null raw) (string-empty-p raw))
+      nil
+    (condition-case nil
+        (let ((value (read raw)))
+          (when (listp value)
+            (seq-map
+             (lambda (entry)
+               (list :kind (or (plist-get entry :kind) "")
+                     :source-id (or (plist-get entry :source-id) "")
+                     :source-title (or (plist-get entry :source-title) "")
+                     :source-file (or (plist-get entry :source-file) "")))
+             value)))
+      (error nil))))
+
+(defun org-life-integration--backlink-records-at-heading ()
+  "Return normalized backlink records from the current heading."
+  (org-life-integration--read-backlink-records
+   (org-entry-get nil org-life-integration-prop-backlinks t)))
+
+(defun org-life-integration--backlink-record-match-p (left right)
+  "Return non-nil when LEFT and RIGHT backlink records are identical."
+  (and (string= (plist-get left :kind) (plist-get right :kind))
+       (string= (plist-get left :source-id) (plist-get right :source-id))
+       (string= (plist-get left :source-title) (plist-get right :source-title))
+       (string= (plist-get left :source-file) (plist-get right :source-file))))
+
+(defun org-life-integration--append-backlink-record (record)
+  "Append RECORD to current heading backlinks unless already present."
+  (let* ((records (org-life-integration--backlink-records-at-heading))
+         (exists (seq-some (lambda (entry)
+                             (org-life-integration--backlink-record-match-p entry record))
+                           records)))
+    (unless exists
+      (org-entry-put nil
+                     org-life-integration-prop-backlinks
+                     (prin1-to-string (append records (list record)))))))
+
+(defun org-life-integration--source-backlink-record (kind)
+  "Return backlink record for current heading and link KIND."
+  (let ((source-id (org-life-integration--ensure-id-at-heading))
+        (source-title (org-get-heading t t t t))
+        (source-file (or (buffer-file-name) "")))
+    (list :kind kind
+          :source-id source-id
+          :source-title source-title
+          :source-file source-file)))
+
+(defun org-life-integration--store-target-backlink (target backlink-record)
+  "Persist BACKLINK-RECORD on TARGET heading by target ID."
+  (let* ((target-id (plist-get target :id))
+         (target-marker (and target-id (org-id-find target-id 'marker))))
+    (unless target-marker
+      (user-error "Could not resolve target heading with ID %s" target-id))
+    (with-current-buffer (marker-buffer target-marker)
+      (save-excursion
+        (goto-char target-marker)
+        (org-back-to-heading t)
+        (org-life-integration--append-backlink-record backlink-record)))))
 
 (defun org-life-integration--select-roam-node ()
   "Prompt for an org-roam node and return plist metadata for it."
@@ -109,13 +171,14 @@ Returns the inserted link string."
 (defun org-life-integration--create-link (target kind)
   "Create dual-representation link to TARGET and persist metadata for KIND."
   (org-life-integration--require-heading)
-  (org-life-integration--ensure-id-at-heading)
-  (let* ((target-id (plist-get target :id))
+  (let* ((source-backlink (org-life-integration--source-backlink-record kind))
+         (target-id (plist-get target :id))
          (target-title (plist-get target :title))
          (target-file (plist-get target :file))
          (target-type (or (plist-get target :type) "heading")))
     (org-life-integration--insert-link-after-metadata target-id target-title)
     (org-life-integration--store-link-metadata kind target-id target-title target-file target-type)
+    (org-life-integration--store-target-backlink target source-backlink)
     (message "Linked to %s" target-title)))
 
 (defun org-life-link-task-to-roam ()
