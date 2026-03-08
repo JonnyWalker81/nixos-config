@@ -195,6 +195,37 @@ Returns the inserted link string."
    (org-life-integration--select-gtd-heading)
    "journal-to-heading"))
 
+(defun org-life-integration-get-backlinks-at-point ()
+  "Return normalized OrgLife backlink records for the current heading.
+Each record includes :kind, :source-id, :source-title, and :source-file."
+  (org-life-integration--require-heading)
+  (org-life-integration--backlink-records-at-heading))
+
+(defun org-life-integration-get-backlinks-for-target-id (target-id)
+  "Return backlink records for heading identified by TARGET-ID."
+  (let ((target-marker (org-id-find target-id 'marker)))
+    (unless target-marker
+      (user-error "Could not resolve target heading with ID %s" target-id))
+    (with-current-buffer (marker-buffer target-marker)
+      (save-excursion
+        (goto-char target-marker)
+        (org-back-to-heading t)
+        (org-life-integration-get-backlinks-at-point)))))
+
+(defun org-life-integration-show-backlinks-at-point ()
+  "Render backlink records for current heading in a temporary buffer."
+  (interactive)
+  (let ((records (org-life-integration-get-backlinks-at-point)))
+    (if (null records)
+        (message "No OrgLife backlinks found on this heading")
+      (with-output-to-temp-buffer "*OrgLife Backlinks*"
+        (princ "OrgLife Backlinks\n\n")
+        (dolist (record records)
+          (princ (format "- [%s] %s (%s)\n"
+                         (plist-get record :kind)
+                         (plist-get record :source-title)
+                         (plist-get record :source-file))))))))
+
 (defun org-life-integration-capture-link-prompt (context)
   "Prompt for an optional link during capture CONTEXT and return template text.
 CONTEXT should be "task" or "journal"."
@@ -570,11 +601,12 @@ Signals a user error when any required workflow command lacks an SPC o keypath."
 
 (map! :leader
       (:prefix ("o" . "org-life")
-       :desc "Capture (DWIM)" "c" #'my/org-capture-dwim
-       :desc "Capture menu" "C" #'org-capture
-       :desc "Legacy alias: Inbox dashboard (SPC o a i)" "i" #'org-life-agenda-inbox-dashboard
-       :desc "Legacy alias: Daily review (SPC o a r)" "v" #'org-life-agenda-daily-review
-       :desc "Legacy alias: Roam find (SPC o r f)" "f" #'org-life-roam-node-find
+        :desc "Capture (DWIM)" "c" #'my/org-capture-dwim
+        :desc "Capture menu" "C" #'org-capture
+        :desc "Show heading backlinks" "b" #'org-life-integration-show-backlinks-at-point
+        :desc "Legacy alias: Inbox dashboard (SPC o a i)" "i" #'org-life-agenda-inbox-dashboard
+        :desc "Legacy alias: Daily review (SPC o a r)" "v" #'org-life-agenda-daily-review
+        :desc "Legacy alias: Roam find (SPC o r f)" "f" #'org-life-roam-node-find
        :desc "Legacy alias: Journal today (SPC o j t)" "t" #'org-life-journal-open-today
        (:prefix ("a" . "agenda/review")
         :desc "Daily planning" "d" #'org-life-agenda-daily-planning
