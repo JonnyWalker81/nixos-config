@@ -212,6 +212,8 @@
 (load! "config-org-roam")
 (load! "config-org-journal")
 (load! "config-org-denote")
+(message "Loading config-org-integration...")
+(load! "config-org-integration")
 (message "Loading config-org-visual...")
 (load! "config-org-visual")
 (message "Loading config-copilot...")
