@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Advanced Agenda & GTD Reviews** - Daily review dashboard, weekly review, context filters, stuck project detection
 - [x] **Phase 5: Knowledge Base** - org-roam with backlinks, capture templates, and graph visualization
 - [x] **Phase 6: Journaling & Denote** - org-journal daily entries with carry-over, plus denote structured notes
-- [ ] **Phase 7: Visual Polish** - org-modern styling, color-coded TODO states, emphasis hiding, inline previews
+- [x] **Phase 7: Visual Polish** - org-modern styling, color-coded TODO states, emphasis hiding, inline previews
 - [ ] **Phase 8: Integration & Dashboard** - Cross-linking between all systems, SPC keybindings, startup dashboard
 
 ## Phase Details
@@ -128,11 +128,11 @@ Plans:
   3. TODO keywords are color-coded by state (NEXT=blue, WAITING=orange, SOMEDAY=grey, TODO=red, DONE=green, CANCELLED=dim)
   4. Emphasis markers (*bold*, /italic/, etc.) are hidden — only the styled text is visible
   5. Inline images display in org buffers and LaTeX fragments render as preview images
-**Plans**: TBD
+**Plans**: 2 plans in 2 waves (sequential)
 
 Plans:
-- [ ] 07-01: org-modern configuration in config-org-visual.el (headlines, keywords, tables, timestamps, agenda)
-- [ ] 07-02: TODO/priority face definitions, emphasis hiding (org-appear), inline image display, LaTeX preview, and validation gate
+- [x] 07-01-PLAN.md — Visual module ownership + org-modern baseline for Org and agenda
+- [x] 07-02-PLAN.md — Locked TODO semantics, org-appear reveal, inline image/LaTeX previews, and phase verification gate
 
 ### Phase 8: Integration & Dashboard
 **Goal**: All OrgLife systems are cross-linked, accessible via consistent SPC keybindings, and a startup dashboard shows today's agenda at a glance
@@ -163,9 +163,9 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 4. Advanced Agenda & GTD Reviews | 2/2 | Verified ✓ | 2026-02-26 |
 | 5. Knowledge Base | 4/4 | Verified ✓ | 2026-02-28 |
 | 6. Journaling & Denote | 2/2 | Verified ✓ | 2026-03-03 |
-| 7. Visual Polish | 0/2 | Not started | - |
+| 7. Visual Polish | 2/2 | Verified ✓ | 2026-03-08 |
 | 8. Integration & Dashboard | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-24*
-*Last updated: 2026-03-03 — Phase 6 verified complete (Journaling & Denote: 2 of 2 plans done)*
+*Last updated: 2026-03-08 — Phase 7 verified complete (Visual Polish: 2 of 2 plans done)*

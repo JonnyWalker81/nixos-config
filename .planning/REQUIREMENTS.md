@@ -54,11 +54,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Visual
 
-- [ ] **VIS-01**: org-modern-mode active for headlines, keywords, tables, timestamps
-- [ ] **VIS-02**: org-modern styling applied to agenda buffer
-- [ ] **VIS-03**: TODO keywords color-coded by state (NEXT=blue, WAITING=orange, etc.)
-- [ ] **VIS-04**: Emphasis markers hidden for clean appearance
-- [ ] **VIS-05**: Inline images and LaTeX fragments render in org buffers
+- [x] **VIS-01**: org-modern-mode active for headlines, keywords, tables, timestamps
+- [x] **VIS-02**: org-modern styling applied to agenda buffer
+- [x] **VIS-03**: TODO keywords color-coded by state (NEXT=blue, WAITING=orange, etc.)
+- [x] **VIS-04**: Emphasis markers hidden for clean appearance
+- [x] **VIS-05**: Inline images and LaTeX fragments render in org buffers
 
 ### Integration & UX
 
@@ -157,11 +157,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | JRN-02 | Phase 6: Journaling & Denote | Complete |
 | JRN-03 | Phase 6: Journaling & Denote | Complete |
 | JRN-04 | Phase 6: Journaling & Denote | Complete |
-| VIS-01 | Phase 7: Visual Polish | Pending |
-| VIS-02 | Phase 7: Visual Polish | Pending |
-| VIS-03 | Phase 7: Visual Polish | Pending |
-| VIS-04 | Phase 7: Visual Polish | Pending |
-| VIS-05 | Phase 7: Visual Polish | Pending |
+| VIS-01 | Phase 7: Visual Polish | Complete |
+| VIS-02 | Phase 7: Visual Polish | Complete |
+| VIS-03 | Phase 7: Visual Polish | Complete |
+| VIS-04 | Phase 7: Visual Polish | Complete |
+| VIS-05 | Phase 7: Visual Polish | Complete |
 | UX-01 | Phase 8: Integration & Dashboard | Pending |
 | UX-02 | Phase 8: Integration & Dashboard | Pending |
 | UX-03 | Phase 8: Integration & Dashboard | Pending |
@@ -177,4 +177,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2025-02-24*
-*Last updated: 2026-03-03 — Phase 6 requirements (CAP-05, KB-07, JRN-01 through JRN-04) marked Complete*
+*Last updated: 2026-03-08 — Phase 7 requirements (VIS-01 through VIS-05) marked Complete*
