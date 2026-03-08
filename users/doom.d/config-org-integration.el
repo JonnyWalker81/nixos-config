@@ -166,22 +166,97 @@ CONTEXT should be "task" or "journal"."
    ((fboundp '+doom-dashboard/open) (+doom-dashboard/open))
    (t (user-error "No Doom dashboard refresh command is available"))))
 
+(defun org-life-agenda-daily-planning ()
+  "Open the canonical daily planning agenda command."
+  (interactive)
+  (org-agenda nil "d"))
+
+(defun org-life-agenda-weekly-planning ()
+  "Open the canonical weekly planning agenda command."
+  (interactive)
+  (org-agenda nil "w"))
+
+(defun org-life-agenda-daily-review ()
+  "Open the canonical daily review agenda command."
+  (interactive)
+  (org-agenda nil "r"))
+
+(defun org-life-agenda-weekly-review ()
+  "Open the canonical weekly review agenda command."
+  (interactive)
+  (org-agenda nil "R"))
+
+(defun org-life-agenda-inbox-dashboard ()
+  "Open the canonical GTD inbox dashboard command."
+  (interactive)
+  (org-agenda nil "I"))
+
+(defun org-life-agenda-context-home ()
+  "Open the canonical @home context review agenda command."
+  (interactive)
+  (org-agenda nil "H"))
+
+(defun org-life-agenda-context-work ()
+  "Open the canonical @work context review agenda command."
+  (interactive)
+  (org-agenda nil "W"))
+
+(defun org-life-verify-spc-o-coverage ()
+  "Verify UX-03 command reachability under SPC o and return evidence.
+Signals a user error when any required workflow command lacks an SPC o keypath."
+  (interactive)
+  (let* ((required `((capture . ,#'my/org-capture-dwim)
+                     (daily-review . ,#'org-life-agenda-daily-review)
+                     (weekly-review . ,#'org-life-agenda-weekly-review)
+                     (roam-find . ,#'org-life-roam-node-find)
+                     (journal-today . ,#'org-life-journal-open-today)
+                     (inbox . ,#'org-life-agenda-inbox-dashboard)
+                     (dashboard-open . ,#'org-life-dashboard-open)
+                     (dashboard-refresh . ,#'org-life-dashboard-refresh)))
+         (results
+          (mapcar
+           (lambda (entry)
+             (let* ((name (car entry))
+                    (command (cdr entry))
+                    (keys (mapcar #'key-description (where-is-internal command)))
+                    (spc-keys (seq-filter (lambda (key)
+                                            (string-prefix-p "SPC o" key))
+                                          keys)))
+               (list :name name
+                     :command command
+                     :spc-o-keys spc-keys
+                     :all-keys keys)))
+           required))
+         (missing
+          (seq-filter
+           (lambda (row)
+             (null (plist-get row :spc-o-keys)))
+           results)))
+    (if missing
+        (user-error "Missing SPC o bindings: %s"
+                    (mapconcat
+                     (lambda (row)
+                       (symbol-name (plist-get row :name)))
+                     missing ", "))
+      (message "OrgLife SPC o UX-03 coverage verified: %d commands" (length required)))
+    results))
+
 (map! :leader
       (:prefix ("o" . "org-life")
        :desc "Capture (DWIM)" "c" #'my/org-capture-dwim
        :desc "Capture menu" "C" #'org-capture
-       :desc "Legacy alias: Inbox dashboard (SPC o a i)" "i" (cmd! (org-agenda nil "I"))
-       :desc "Legacy alias: Daily review (SPC o a r)" "v" (cmd! (org-agenda nil "r"))
+       :desc "Legacy alias: Inbox dashboard (SPC o a i)" "i" #'org-life-agenda-inbox-dashboard
+       :desc "Legacy alias: Daily review (SPC o a r)" "v" #'org-life-agenda-daily-review
        :desc "Legacy alias: Roam find (SPC o r f)" "f" #'org-life-roam-node-find
        :desc "Legacy alias: Journal today (SPC o j t)" "t" #'org-life-journal-open-today
        (:prefix ("a" . "agenda/review")
-        :desc "Daily planning" "d" (cmd! (org-agenda nil "d"))
-        :desc "Weekly planning" "w" (cmd! (org-agenda nil "w"))
-        :desc "Daily review" "r" (cmd! (org-agenda nil "r"))
-        :desc "Weekly review" "R" (cmd! (org-agenda nil "R"))
-        :desc "Inbox dashboard" "i" (cmd! (org-agenda nil "I"))
-        :desc "Context review @home" "h" (cmd! (org-agenda nil "H"))
-        :desc "Context review @work" "W" (cmd! (org-agenda nil "W")))
+        :desc "Daily planning" "d" #'org-life-agenda-daily-planning
+        :desc "Weekly planning" "w" #'org-life-agenda-weekly-planning
+        :desc "Daily review" "r" #'org-life-agenda-daily-review
+        :desc "Weekly review" "R" #'org-life-agenda-weekly-review
+        :desc "Inbox dashboard" "i" #'org-life-agenda-inbox-dashboard
+        :desc "Context review @home" "h" #'org-life-agenda-context-home
+        :desc "Context review @work" "W" #'org-life-agenda-context-work)
        (:prefix ("g" . "gtd")
         :desc "Open GTD inbox" "i" #'my/org-gtd-open-inbox)
        (:prefix ("j" . "journal")
