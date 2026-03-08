@@ -97,7 +97,7 @@
   (setq org-capture-templates
         '(("t" "Task" entry
            (file+headline "~/org/gtd/inbox.org" "Tasks")
-           "* TODO %^{Task title} :%^{Context|@home|@work|@errands|@phone|@computer|@email}:\n%U\n%a\n"
+           "* TODO %^{Task title} :%^{Context|@home|@work|@errands|@phone|@computer|@email}:\n%U\n%a\n%(org-life-integration-capture-link-prompt \"task\")\n"
            :empty-lines 1)
           ("i" "Idea" entry
            (file+headline "~/org/gtd/inbox.org" "Ideas")
@@ -114,25 +114,36 @@
            :empty-lines 1)
           ("j" "Journal" entry
            (function org-life-journal-capture-location)
-           "* TODO %^{Journal entry title}\n%U\n%a\n%i\n"
+           "* TODO %^{Journal entry title}\n%U\n%a\n%i\n%(org-life-integration-capture-link-prompt \"journal\")\n"
            :empty-lines 1)))
 
-  (defun my/org-capture-dwim-key ()
-    "Return the capture template key based on current buffer context."
-    (let ((current-file (when buffer-file-name
-                          (expand-file-name buffer-file-name))))
-      (cond
-       ((equal current-file (expand-file-name "~/org/gtd/meetings.org")) "m")
-       ((equal current-file (expand-file-name "~/org/gtd/projects.org")) "p")
-       (t "t"))))
+(defun my/org-capture-dwim-key ()
+  "Return the capture template key based on current buffer context."
+  (let* ((current-file (when buffer-file-name
+                         (expand-file-name buffer-file-name)))
+         (journal-dir (expand-file-name "~/org/journal/")))
+    (cond
+     ((equal current-file (expand-file-name "~/org/gtd/meetings.org")) "m")
+     ((equal current-file (expand-file-name "~/org/gtd/projects.org")) "p")
+     ((and current-file (string-prefix-p journal-dir current-file)) "j")
+     (t "t"))))
 
   (defun my/org-capture-dwim ()
     "Start org capture with a context-aware default template."
     (interactive)
     (org-capture nil (my/org-capture-dwim-key)))
 
+  (defun my/org-gtd-open-inbox ()
+    "Open the GTD inbox file for quick processing."
+    (interactive)
+    (find-file (expand-file-name "~/org/gtd/inbox.org")))
+
   (global-set-key (kbd "C-c c") #'my/org-capture-dwim)
   (global-set-key (kbd "C-c C") #'org-capture)
+
+  (map! :leader
+        (:prefix ("o g" . "gtd")
+         :desc "Open GTD inbox" "i" #'my/org-gtd-open-inbox))
 
   ;; --------------------------------------------------------------------------
   ;; Priorities
