@@ -2,6 +2,7 @@
 
 (require 'org)
 (require 'org-id)
+(require 'cl-lib)
 (require 'subr-x)
 
 (defconst org-life-integration-gtd-directory
@@ -148,7 +149,199 @@ CONTEXT should be "task" or "journal"."
                  (target-id (plist-get target :id))
                  (target-title (plist-get target :title)))
             (format "[[id:%s][%s]]" target-id target-title)))
-        (_ "")))))
+         (_ "")))))
+
+(defconst org-life-dashboard-open-todo-keywords
+  '("TODO" "NEXT" "WAITING" "SOMEDAY")
+  "Org TODO keywords considered open in dashboard lists.")
+
+(defconst org-life-dashboard-deadline-horizon-days 14
+  "Number of days to include in the upcoming deadline block.")
+
+(defconst org-life-dashboard-max-items-per-block 10
+  "Maximum number of list items to render per dashboard data block.")
+
+(defun org-life-dashboard--agenda-files ()
+  "Return normalized list of existing agenda files for dashboard reads."
+  (seq-filter #'file-exists-p
+              (delete-dups
+               (mapcar #'expand-file-name
+                       (org-agenda-files t)))))
+
+(defun org-life-dashboard--same-day-p (time-a time-b)
+  "Return non-nil when TIME-A and TIME-B share calendar day."
+  (and time-a
+       time-b
+       (string= (format-time-string "%Y-%m-%d" time-a)
+                (format-time-string "%Y-%m-%d" time-b))))
+
+(defun org-life-dashboard--open-todo-p (todo-state)
+  "Return non-nil when TODO-STATE is an open state."
+  (and todo-state
+       (member todo-state org-life-dashboard-open-todo-keywords)))
+
+(defun org-life-dashboard--collect-entries (predicate)
+  "Collect agenda entry plists where PREDICATE returns non-nil.
+Each entry includes marker, title, todo, file, scheduled, and deadline keys."
+  (let ((entries nil))
+    (dolist (file (org-life-dashboard--agenda-files))
+      (with-current-buffer (or (find-buffer-visiting file)
+                               (find-file-noselect file))
+        (org-with-wide-buffer
+         (goto-char (point-min))
+         (org-map-entries
+          (lambda ()
+            (let* ((todo-state (org-get-todo-state))
+                   (title (org-get-heading t t t t))
+                   (scheduled (org-get-scheduled-time (point)))
+                   (deadline (org-get-deadline-time (point))))
+              (when (and (not (string-empty-p title))
+                         (funcall predicate todo-state scheduled deadline))
+                (push (list :marker (copy-marker (point))
+                            :title title
+                            :todo todo-state
+                            :file file
+                            :scheduled scheduled
+                            :deadline deadline)
+                      entries))))
+          nil
+          'file))))
+    (nreverse entries)))
+
+(defun org-life-dashboard--today-agenda-items ()
+  "Return rich items for today's agenda block."
+  (let* ((today (current-time))
+         (items
+          (org-life-dashboard--collect-entries
+           (lambda (_todo-state scheduled deadline)
+             (or (org-life-dashboard--same-day-p scheduled today)
+                 (org-life-dashboard--same-day-p deadline today))))))
+    (cl-sort items #'time-less-p
+             :key (lambda (item)
+                    (or (plist-get item :scheduled)
+                        (plist-get item :deadline)
+                        (current-time))))))
+
+(defun org-life-dashboard--inbox-open-items ()
+  "Return rich open TODO items from inbox.org."
+  (let ((inbox-file (expand-file-name "~/org/gtd/inbox.org")))
+    (seq-filter
+     (lambda (item)
+       (and (string= (plist-get item :file) inbox-file)
+            (org-life-dashboard--open-todo-p (plist-get item :todo))))
+     (org-life-dashboard--collect-entries
+      (lambda (todo-state _scheduled _deadline)
+        (org-life-dashboard--open-todo-p todo-state))))))
+
+(defun org-life-dashboard--upcoming-deadline-items ()
+  "Return open TODO items with deadlines in the next 14 days."
+  (let* ((today (current-time))
+         (horizon-end (time-add today (days-to-time org-life-dashboard-deadline-horizon-days)))
+         (items
+          (org-life-dashboard--collect-entries
+           (lambda (todo-state _scheduled deadline)
+             (and (org-life-dashboard--open-todo-p todo-state)
+                  deadline
+                  (not (time-less-p deadline today))
+                  (not (time-less-p horizon-end deadline)))))))
+    (cl-sort items #'time-less-p
+             :key (lambda (item)
+                    (plist-get item :deadline)))))
+
+(defun org-life-dashboard--truncate-items (items)
+  "Return ITEMS trimmed to dashboard max item count."
+  (seq-take items org-life-dashboard-max-items-per-block))
+
+(defun org-life-dashboard--insert-header (title)
+  "Insert a dashboard section TITLE."
+  (insert (propertize (format "\n%s\n" title) 'face 'bold)))
+
+(defun org-life-dashboard--entry-suffix (item)
+  "Return informative suffix for ITEM timing metadata."
+  (let ((scheduled (plist-get item :scheduled))
+        (deadline (plist-get item :deadline)))
+    (cond
+     ((and scheduled deadline)
+      (format " (scheduled %s, deadline %s)"
+              (format-time-string "%a %m/%d" scheduled)
+              (format-time-string "%a %m/%d" deadline)))
+     (scheduled
+      (format " (scheduled %s)" (format-time-string "%a %m/%d" scheduled)))
+     (deadline
+      (format " (deadline %s)" (format-time-string "%a %m/%d" deadline)))
+     (t ""))))
+
+(defun org-life-dashboard--open-entry-at-marker (marker)
+  "Open MARKER location in current window."
+  (when (and marker (marker-buffer marker))
+    (switch-to-buffer (marker-buffer marker))
+    (goto-char marker)
+    (org-show-context 'agenda)
+    (org-show-entry)))
+
+(defun org-life-dashboard--insert-entry-list (items empty-guidance)
+  "Insert rich entry ITEMS or EMPTY-GUIDANCE when the list is empty."
+  (if (null items)
+      (insert (format "- %s\n" empty-guidance))
+    (let* ((total (length items))
+           (visible (org-life-dashboard--truncate-items items)))
+      (dolist (item visible)
+        (let ((marker (plist-get item :marker))
+              (title (plist-get item :title))
+              (todo (plist-get item :todo)))
+          (insert "- ")
+          (insert-text-button
+           (if todo
+               (format "[%s] %s%s" todo title (org-life-dashboard--entry-suffix item))
+             (format "%s%s" title (org-life-dashboard--entry-suffix item)))
+           'follow-link t
+           'action (lambda (_button)
+                     (org-life-dashboard--open-entry-at-marker marker)))
+          (insert "\n")))
+      (when (> total org-life-dashboard-max-items-per-block)
+        (insert (format "- ...and %d more items\n"
+                        (- total org-life-dashboard-max-items-per-block)))))))
+
+(defun org-life-dashboard-widget-today ()
+  "Render today's agenda list first in Doom dashboard."
+  (org-life-dashboard--insert-header "OrgLife Today")
+  (org-life-dashboard--insert-entry-list
+   (org-life-dashboard--today-agenda-items)
+   "No agenda items for today. Use capture or plan tomorrow in weekly review."))
+
+(defun org-life-dashboard-widget-inbox ()
+  "Render inbox open tasks as rich list items."
+  (org-life-dashboard--insert-header "Inbox Open Tasks")
+  (org-life-dashboard--insert-entry-list
+   (org-life-dashboard--inbox-open-items)
+   "Inbox is clear. Capture new ideas with SPC o c if something arrives."))
+
+(defun org-life-dashboard-widget-deadlines ()
+  "Render upcoming deadline list with a 14-day horizon."
+  (org-life-dashboard--insert-header "Upcoming Deadlines (14 days)")
+  (org-life-dashboard--insert-entry-list
+   (org-life-dashboard--upcoming-deadline-items)
+   "No deadlines due in the next 14 days. Weekly review keeps this horizon current."))
+
+(defun org-life-dashboard-widget-quick-actions ()
+  "Render quick action buttons for core workflows."
+  (org-life-dashboard--insert-header "Quick Actions")
+  (insert-text-button "Capture" 'follow-link t 'action (lambda (_button) (call-interactively #'my/org-capture-dwim)))
+  (insert "  ")
+  (insert-text-button "Daily Review" 'follow-link t 'action (lambda (_button) (org-agenda nil "r")))
+  (insert "  ")
+  (insert-text-button "Weekly Review" 'follow-link t 'action (lambda (_button) (org-agenda nil "R")))
+  (insert "  ")
+  (insert-text-button "Roam Find" 'follow-link t 'action (lambda (_button) (call-interactively #'org-life-roam-node-find)))
+  (insert "\n"))
+
+(after! doom-dashboard
+  (dolist (fn '(org-life-dashboard-widget-today
+                org-life-dashboard-widget-inbox
+                org-life-dashboard-widget-deadlines
+                org-life-dashboard-widget-quick-actions))
+    (setq +doom-dashboard-functions (remove fn +doom-dashboard-functions))
+    (add-to-list '+doom-dashboard-functions fn t)))
 
 (defun org-life-dashboard-open ()
   "Open Doom dashboard using the best available entrypoint."
