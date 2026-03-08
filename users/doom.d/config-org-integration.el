@@ -602,12 +602,18 @@ Signals a user error when any required workflow command lacks an SPC o keypath."
 (map! :leader
       (:prefix ("o" . "org-life")
         :desc "Capture (DWIM)" "c" #'my/org-capture-dwim
+        :desc "Daily review" "d" #'org-life-agenda-daily-review
+        :desc "Weekly review" "w" #'org-life-agenda-weekly-review
+        :desc "Inbox dashboard" "i" #'org-life-agenda-inbox-dashboard
+        :desc "Roam find" "r" #'org-life-roam-node-find
+        :desc "Open today's journal" "j" #'org-life-journal-open-today
+        :desc "Open OrgLife dashboard" "o" #'org-life-dashboard-open
+        :desc "Refresh OrgLife dashboard" "R" #'org-life-dashboard-refresh
         :desc "Capture menu" "C" #'org-capture
         :desc "Show heading backlinks" "b" #'org-life-integration-show-backlinks-at-point
-        :desc "Legacy alias: Inbox dashboard (SPC o a i)" "i" #'org-life-agenda-inbox-dashboard
         :desc "Legacy alias: Daily review (SPC o a r)" "v" #'org-life-agenda-daily-review
         :desc "Legacy alias: Roam find (SPC o r f)" "f" #'org-life-roam-node-find
-       :desc "Legacy alias: Journal today (SPC o j t)" "t" #'org-life-journal-open-today
+        :desc "Legacy alias: Journal today (SPC o j t)" "t" #'org-life-journal-open-today
        (:prefix ("a" . "agenda/review")
         :desc "Daily planning" "d" #'org-life-agenda-daily-planning
         :desc "Weekly planning" "w" #'org-life-agenda-weekly-planning
