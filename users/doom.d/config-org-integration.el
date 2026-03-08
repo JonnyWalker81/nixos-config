@@ -145,10 +145,59 @@ CONTEXT should be "task" or "journal"."
            (format "[[id:%s][%s]]" target-id target-title)))
         ("journal"
          (let* ((target (org-life-integration--select-gtd-heading))
-                (target-id (plist-get target :id))
-                (target-title (plist-get target :title)))
-           (format "[[id:%s][%s]]" target-id target-title)))
+                 (target-id (plist-get target :id))
+                 (target-title (plist-get target :title)))
+            (format "[[id:%s][%s]]" target-id target-title)))
         (_ "")))))
+
+(defun org-life-dashboard-open ()
+  "Open Doom dashboard using the best available entrypoint."
+  (interactive)
+  (cond
+   ((fboundp '+doom-dashboard/open) (+doom-dashboard/open))
+   ((fboundp 'doom/open-dashboard) (doom/open-dashboard))
+   (t (user-error "No Doom dashboard open command is available"))))
+
+(defun org-life-dashboard-refresh ()
+  "Refresh Doom dashboard using the best available entrypoint."
+  (interactive)
+  (cond
+   ((fboundp '+doom-dashboard/reload) (+doom-dashboard/reload))
+   ((fboundp '+doom-dashboard/open) (+doom-dashboard/open))
+   (t (user-error "No Doom dashboard refresh command is available"))))
+
+(map! :leader
+      (:prefix ("o" . "org-life")
+       :desc "Capture (DWIM)" "c" #'my/org-capture-dwim
+       :desc "Capture menu" "C" #'org-capture
+       (:prefix ("a" . "agenda/review")
+        :desc "Daily planning" "d" (cmd! (org-agenda nil "d"))
+        :desc "Weekly planning" "w" (cmd! (org-agenda nil "w"))
+        :desc "Daily review" "r" (cmd! (org-agenda nil "r"))
+        :desc "Weekly review" "R" (cmd! (org-agenda nil "R"))
+        :desc "Inbox dashboard" "i" (cmd! (org-agenda nil "I"))
+        :desc "Context review @home" "h" (cmd! (org-agenda nil "H"))
+        :desc "Context review @work" "W" (cmd! (org-agenda nil "W")))
+       (:prefix ("g" . "gtd")
+        :desc "Open GTD inbox" "i" #'my/org-gtd-open-inbox)
+       (:prefix ("j" . "journal")
+        :desc "Open today's journal" "t" #'org-life-journal-open-today
+        :desc "Search journal history" "s" #'org-life-journal-search-history)
+       (:prefix ("r" . "roam")
+        :desc "Find roam note" "f" #'org-life-roam-node-find
+        :desc "Insert roam link" "i" #'org-life-roam-node-insert
+        :desc "Open roam graph" "g" #'org-life-roam-ui-open
+        :desc "Open local roam graph" "l" #'org-life-roam-ui-open-local
+        :desc "Toggle roam graph mode" "u" #'org-life-roam-ui-mode)
+       (:prefix ("n" . "denote")
+        :desc "Create denote note" "n" #'denote
+        :desc "Open or create denote note" "o" #'denote-open-or-create
+        :desc "Link or create denote note" "i" #'denote-link-or-create
+        :desc "Show denote backlinks" "b" #'denote-backlinks
+        :desc "Rename denote file" "r" #'denote-rename-file)
+       (:prefix ("d" . "dashboard")
+        :desc "Open OrgLife dashboard" "o" #'org-life-dashboard-open
+        :desc "Refresh OrgLife dashboard" "r" #'org-life-dashboard-refresh)))
 
 (provide 'config-org-integration)
 ;;; config-org-integration.el ends here
