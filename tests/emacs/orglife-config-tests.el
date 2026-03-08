@@ -412,8 +412,37 @@
        (let ((rendered (buffer-string)))
          (should (string-match-p "Capture" rendered))
          (should (string-match-p "Daily Review" rendered))
-         (should (string-match-p "Weekly Review" rendered))
-         (should (string-match-p "Roam Find" rendered)))))))
+          (should (string-match-p "Weekly Review" rendered))
+          (should (string-match-p "Roam Find" rendered)))))))
+
+(ert-deftest orglife-dashboard-inbox-widget-renders-pending-count-with-items ()
+  (orglife-test-with-temp-home
+   (orglife-test-reset-state)
+   (orglife-test-install-stubs)
+   (orglife-test-load "users/doom.d/config-org-integration.el")
+   (with-temp-buffer
+     (cl-letf (((symbol-function 'org-life-dashboard--inbox-open-items)
+                (lambda ()
+                  (list (list :title "Inbox task one" :todo "TODO" :marker nil)
+                        (list :title "Inbox task two" :todo "NEXT" :marker nil)))))
+       (org-life-dashboard-widget-inbox))
+     (let ((rendered (buffer-string)))
+       (should (string-match-p "Inbox: 2 pending" rendered))
+       (should (string-match-p "Inbox task one" rendered))
+       (should (string-match-p "Inbox task two" rendered))))))
+
+(ert-deftest orglife-dashboard-inbox-widget-renders-zero-pending-with-guidance ()
+  (orglife-test-with-temp-home
+   (orglife-test-reset-state)
+   (orglife-test-install-stubs)
+   (orglife-test-load "users/doom.d/config-org-integration.el")
+   (with-temp-buffer
+     (cl-letf (((symbol-function 'org-life-dashboard--inbox-open-items)
+                (lambda () nil)))
+       (org-life-dashboard-widget-inbox))
+     (let ((rendered (buffer-string)))
+       (should (string-match-p "Inbox: 0 pending" rendered))
+       (should (string-match-p "Inbox is clear" rendered))))))
 
 (ert-deftest orglife-dashboard-manual-refresh-and-keypath-are-present ()
   (orglife-test-with-temp-home

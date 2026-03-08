@@ -405,10 +405,12 @@ Each entry includes marker, title, todo, file, scheduled, and deadline keys."
 
 (defun org-life-dashboard-widget-inbox ()
   "Render inbox open tasks as rich list items."
-  (org-life-dashboard--insert-header "Inbox Open Tasks")
-  (org-life-dashboard--insert-entry-list
-   (org-life-dashboard--inbox-open-items)
-   "Inbox is clear. Capture new ideas with SPC o c if something arrives."))
+  (let ((items (org-life-dashboard--inbox-open-items)))
+    (org-life-dashboard--insert-header "Inbox Open Tasks")
+    (insert (format "Inbox: %d pending\n" (length items)))
+    (org-life-dashboard--insert-entry-list
+     items
+     "Inbox is clear. Capture new ideas with SPC o c if something arrives.")))
 
 (defun org-life-dashboard-widget-deadlines ()
   "Render upcoming deadline list with a 14-day horizon."
