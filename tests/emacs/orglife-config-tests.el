@@ -169,6 +169,18 @@
      (string-match-p (regexp-quote snippet) (prin1-to-string call)))
    orglife-test-map-calls))
 
+(defun orglife-test-write-file (path content)
+  (make-directory (file-name-directory path) t)
+  (with-temp-file path
+    (insert content)))
+
+(defun orglife-test-heading-id (file)
+  (with-current-buffer (find-file-noselect file)
+    (goto-char (point-min))
+    (org-back-to-heading t)
+    (prog1 (org-id-get-create)
+      (save-buffer))))
+
 (ert-deftest orglife-init-enables-roam-and-journal-modules ()
   (let ((content (with-temp-buffer
                    (insert-file-contents (orglife-test-path "users/doom.d/init.el"))
@@ -410,9 +422,93 @@
    (orglife-test-load "users/doom.d/config-org-integration.el")
    (setq orglife-test-dashboard-reload-calls 0)
    (org-life-dashboard-refresh)
-   (should (= orglife-test-dashboard-reload-calls 1))
-   (should (orglife-test-map-call-contains "\"d\" . \"dashboard\""))
-   (should (orglife-test-map-call-contains "\"r\" #'org-life-dashboard-reload"))))
+    (should (= orglife-test-dashboard-reload-calls 1))
+    (should (orglife-test-map-call-contains "\"d\" . \"dashboard\""))
+    (should (orglife-test-map-call-contains "\"r\" #'org-life-dashboard-reload"))))
+
+(ert-deftest orglife-integration-task-to-roam-persists-bidirectional-backlinks ()
+  (orglife-test-with-temp-home
+   (orglife-test-reset-state)
+   (orglife-test-install-stubs)
+   (orglife-test-load "users/doom.d/config-org-integration.el")
+   (let* ((source-file (expand-file-name "~/org/gtd/inbox.org"))
+          (target-file (expand-file-name "~/org/roam/target.org"))
+          source-id
+          target-id
+          backlinks)
+     (orglife-test-write-file source-file "* TODO Link roam note\n")
+     (orglife-test-write-file target-file "* Roam Target\n")
+     (setq target-id (orglife-test-heading-id target-file))
+     (with-current-buffer (find-file-noselect source-file)
+       (goto-char (point-min))
+       (org-back-to-heading t)
+       (setq source-id (org-id-get-create))
+       (cl-letf (((symbol-function 'org-life-integration--select-roam-node)
+                  (lambda ()
+                    (list :id target-id
+                          :title "Roam Target"
+                          :file target-file
+                          :type "roam")))
+                 ((symbol-function 'message)
+                  (lambda (&rest _args) nil)))
+         (save-window-excursion
+           (org-life-link-task-to-roam)
+           (org-life-link-task-to-roam)))
+       (save-buffer)
+       (should (string= (org-entry-get nil "ORGLIFE_LINK_KIND" t) "task-to-roam"))
+       (should (string= (org-entry-get nil "ORGLIFE_LINK_TARGET_ID" t) target-id))
+       (should (save-excursion
+                 (goto-char (point-min))
+                 (re-search-forward (regexp-quote (format "[[id:%s][Roam Target]]" target-id)) nil t))))
+     (setq backlinks (org-life-integration-get-backlinks-for-target-id target-id))
+     (should (= (length backlinks) 1))
+     (should (equal (car backlinks)
+                    (list :kind "task-to-roam"
+                          :source-id source-id
+                          :source-title "Link roam note"
+                          :source-file source-file))))))
+
+(ert-deftest orglife-integration-journal-to-heading-persists-bidirectional-backlinks ()
+  (orglife-test-with-temp-home
+   (orglife-test-reset-state)
+   (orglife-test-install-stubs)
+   (orglife-test-load "users/doom.d/config-org-integration.el")
+   (let* ((journal-file (expand-file-name "~/org/journal/2026-03-08.org"))
+          (target-file (expand-file-name "~/org/gtd/projects.org"))
+          source-id
+          target-id
+          backlinks)
+     (orglife-test-write-file journal-file "* TODO Journal follow-up\n")
+     (orglife-test-write-file target-file "* TODO Project Alpha\n")
+     (setq target-id (orglife-test-heading-id target-file))
+     (with-current-buffer (find-file-noselect journal-file)
+       (goto-char (point-min))
+       (org-back-to-heading t)
+       (setq source-id (org-id-get-create))
+       (cl-letf (((symbol-function 'org-life-integration--select-gtd-heading)
+                  (lambda ()
+                    (list :marker (copy-marker 1)
+                          :title "Project Alpha"
+                          :file target-file
+                          :type "gtd-heading"
+                          :id target-id)))
+                 ((symbol-function 'message)
+                  (lambda (&rest _args) nil)))
+         (save-window-excursion
+           (org-life-link-journal-to-heading)))
+       (save-buffer)
+       (should (string= (org-entry-get nil "ORGLIFE_LINK_KIND" t) "journal-to-heading"))
+       (should (string= (org-entry-get nil "ORGLIFE_LINK_TARGET_ID" t) target-id))
+       (should (save-excursion
+                 (goto-char (point-min))
+                 (re-search-forward (regexp-quote (format "[[id:%s][Project Alpha]]" target-id)) nil t))))
+     (setq backlinks (org-life-integration-get-backlinks-for-target-id target-id))
+     (should (= (length backlinks) 1))
+     (should (equal (car backlinks)
+                    (list :kind "journal-to-heading"
+                          :source-id source-id
+                          :source-title "Journal follow-up"
+                          :source-file journal-file))))))
 
 (provide 'orglife-config-tests)
 
