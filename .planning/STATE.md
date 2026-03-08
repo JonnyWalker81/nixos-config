@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-24)
 ## Current Position
 
 Phase: 8 of 8 (Integration & Dashboard)
-Plan: 0 of 3 in current phase
-Status: Ready to plan
-Last activity: 2026-03-08 - Phase 7 verified complete
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-03-08 - Completed 08-01-PLAN.md
 
-Progress: [██████████████████░░] 88%
+Progress: [██████████████████░░] 90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
-- Average duration: 16 min
-- Total execution time: 4.26 hours
+- Total plans completed: 18
+- Average duration: 14 min
+- Total execution time: 4.31 hours
 
 **By Phase:**
 
@@ -34,7 +34,7 @@ Progress: [██████████████████░░] 88%
 | 5. Knowledge Base | 4/4 | 9 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 2m, 4m, 3m, 2m, 0m
+- Last 5 plans: 4m, 3m, 2m, 0m, 3m
 - Trend: stable with light verification overhead
 
 *Updated after each plan completion*
@@ -93,6 +93,9 @@ Recent decisions affecting current work:
 - [07-01]: `org-modern` baseline is applied through `org-mode` and `org-agenda-finalize-hook` while TODO/priority semantic face ownership remains untouched for 07-02
 - [07-02]: TODO semantic colors are locked to roadmap mapping in `org-todo-keyword-faces`, with priority kept intentionally subtle and secondary
 - [07-02]: Markup reveal and preview polish uses `org-appear` + hidden markers + startup inline image/LaTeX rendering hooks without per-keystroke refresh loops
+- [08-01]: Cross-link ownership is centralized in `users/doom.d/config-org-integration.el`, loaded after denote and before visual module initialization
+- [08-01]: Link data uses dual representation (inline `[[id:...][...]]` + ORGLIFE_LINK_* metadata via org-entry APIs) for stable move-safe querying
+- [08-01]: Journal link targets are concrete GTD TODO headings with target IDs created before insertion (never day-file-only journal links)
 
 ### Pending Todos
 
@@ -104,6 +107,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-08 00:12 UTC
-Stopped at: Phase 7 verified complete
+Last session: 2026-03-08 04:59 UTC
+Stopped at: Completed 08-01-PLAN.md
 Resume file: None
