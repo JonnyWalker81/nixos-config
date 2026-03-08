@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-24)
 ## Current Position
 
 Phase: 8 of 8 (Integration & Dashboard)
-Plan: 4 of 5 in current phase
-Status: In progress
-Last activity: 2026-03-08 - Completed 08-04-PLAN.md
+Plan: 5 of 5 in current phase
+Status: Phase complete
+Last activity: 2026-03-08 - Completed 08-05-PLAN.md
 
-Progress: [███████████████████░] 95%
+Progress: [████████████████████] 100%
 
 ## Performance Metrics
 
@@ -102,6 +102,9 @@ Recent decisions affecting current work:
 - [08-03]: UX-04 runtime verification is encoded as automated ERT coverage for startup widget order, quick-action dispatch, and dashboard refresh lifecycle behavior.
 - [08-04]: Bidirectional integration links must persist target-side backlink records in namespaced Org properties (`ORGLIFE_BACKLINKS`) using idempotent property writes.
 - [08-04]: Backlink visibility is standardized through structured retrieval APIs (`org-life-integration-get-backlinks-at-point` and `org-life-integration-get-backlinks-for-target-id`) so verification and UX views consume deterministic records.
+- [08-05]: Required UX-03 workflows are first-class direct bindings under `SPC o <single-key>`; nested branches remain optional secondary aliases.
+- [08-05]: `org-life-verify-spc-o-coverage` now enforces max key depth and reports missing-prefix and nested-only violations with command/path diagnostics.
+- [08-05]: Dashboard inbox widget includes explicit `Inbox: N pending` status while preserving rich list and empty-state guidance output.
 
 ### Pending Todos
 
@@ -113,6 +116,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-08 06:06 UTC
-Stopped at: Completed 08-04-PLAN.md
+Last session: 2026-03-08 06:12 UTC
+Stopped at: Completed 08-05-PLAN.md
 Resume file: None
