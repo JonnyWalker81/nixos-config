@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-24)
 
 **Core value:** Everything lives in one integrated system — tasks, schedule, notes, and journal are cross-linked and accessible within two keystrokes, so nothing falls through the cracks.
-**Current focus:** Phase 8 — Integration & Dashboard
+**Current focus:** Phase 3 — Basic Agenda
 
 ## Current Position
 

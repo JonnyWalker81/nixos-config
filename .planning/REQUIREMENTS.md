@@ -62,10 +62,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Integration & UX
 
-- [ ] **UX-01**: User can link GTD tasks to org-roam knowledge notes
-- [ ] **UX-02**: User can link journal entries to tasks and projects
-- [ ] **UX-03**: Custom SPC-based keybindings for all org-life workflows (2 keystrokes max)
-- [ ] **UX-04**: Custom startup dashboard showing today's agenda, pending tasks, and upcoming deadlines
+- [x] **UX-01**: User can link GTD tasks to org-roam knowledge notes
+- [x] **UX-02**: User can link journal entries to tasks and projects
+- [x] **UX-03**: Custom SPC-based keybindings for all org-life workflows (2 keystrokes max)
+- [x] **UX-04**: Custom startup dashboard showing today's agenda, pending tasks, and upcoming deadlines
 
 ## v2 Requirements
 
@@ -162,10 +162,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VIS-03 | Phase 7: Visual Polish | Complete |
 | VIS-04 | Phase 7: Visual Polish | Complete |
 | VIS-05 | Phase 7: Visual Polish | Complete |
-| UX-01 | Phase 8: Integration & Dashboard | Pending |
-| UX-02 | Phase 8: Integration & Dashboard | Pending |
-| UX-03 | Phase 8: Integration & Dashboard | Pending |
-| UX-04 | Phase 8: Integration & Dashboard | Pending |
+| UX-01 | Phase 8: Integration & Dashboard | Complete |
+| UX-02 | Phase 8: Integration & Dashboard | Complete |
+| UX-03 | Phase 8: Integration & Dashboard | Complete |
+| UX-04 | Phase 8: Integration & Dashboard | Complete |
 
 **Coverage:**
 - v1 requirements: 39 total
@@ -177,4 +177,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2025-02-24*
-*Last updated: 2026-03-08 — Phase 7 requirements (VIS-01 through VIS-05) marked Complete*
+*Last updated: 2026-03-08 — Phase 8 requirements (UX-01 through UX-04) marked Complete*

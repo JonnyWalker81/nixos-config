@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Knowledge Base** - org-roam with backlinks, capture templates, and graph visualization
 - [x] **Phase 6: Journaling & Denote** - org-journal daily entries with carry-over, plus denote structured notes
 - [x] **Phase 7: Visual Polish** - org-modern styling, color-coded TODO states, emphasis hiding, inline previews
-- [ ] **Phase 8: Integration & Dashboard** - Cross-linking between all systems, SPC keybindings, startup dashboard
+- [x] **Phase 8: Integration & Dashboard** - Cross-linking between all systems, SPC keybindings, startup dashboard
 
 ## Phase Details
 
@@ -143,12 +143,14 @@ Plans:
   2. User can link journal entries to tasks and projects (journal entry references a project, visible in backlinks)
   3. All OrgLife workflows are accessible via SPC-based keybindings within 2 keystrokes (SPC o for org-life prefix, then single key for action)
   4. Emacs startup shows a custom dashboard with today's agenda items, pending inbox count, upcoming deadlines, and quick-access links to common actions
-**Plans**: 3 plans in 3 waves (sequential)
+**Plans**: 5 plans (3 implementation + 2 gap-closure)
 
 Plans:
-- [ ] 08-01-PLAN.md — Cross-link primitives and hybrid capture/manual linking for GTD↔roam and journal↔heading workflows
-- [ ] 08-02-PLAN.md — Canonical SPC o org-life keymap with mnemonic grouping and legacy alias preservation
-- [ ] 08-03-PLAN.md — Doom dashboard widgets, startup/refresh lifecycle, quick actions, and runtime UX verification gate
+- [x] 08-01-PLAN.md — Cross-link primitives and hybrid capture/manual linking for GTD↔roam and journal↔heading workflows
+- [x] 08-02-PLAN.md — Canonical SPC o org-life keymap with mnemonic grouping and legacy alias preservation
+- [x] 08-03-PLAN.md — Doom dashboard widgets, startup/refresh lifecycle, quick actions, and runtime UX verification gate
+- [x] 08-04-PLAN.md — Gap closure: bidirectional backlink persistence/retrieval for GTD↔roam and journal↔heading links
+- [x] 08-05-PLAN.md — Gap closure: strict two-keystroke SPC o contract + dashboard inbox pending count
 
 ## Progress
 
@@ -164,8 +166,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 5. Knowledge Base | 4/4 | Verified ✓ | 2026-02-28 |
 | 6. Journaling & Denote | 2/2 | Verified ✓ | 2026-03-03 |
 | 7. Visual Polish | 2/2 | Verified ✓ | 2026-03-08 |
-| 8. Integration & Dashboard | 0/3 | Not started | - |
+| 8. Integration & Dashboard | 5/5 | Verified ✓ | 2026-03-08 |
 
 ---
 *Roadmap created: 2026-02-24*
-*Last updated: 2026-03-08 — Phase 7 verified complete (Visual Polish: 2 of 2 plans done)*
+*Last updated: 2026-03-08 — Phase 8 verified complete (Integration & Dashboard: 5 of 5 plans done)*
