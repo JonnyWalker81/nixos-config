@@ -326,14 +326,79 @@ Each entry includes marker, title, todo, file, scheduled, and deadline keys."
 (defun org-life-dashboard-widget-quick-actions ()
   "Render quick action buttons for core workflows."
   (org-life-dashboard--insert-header "Quick Actions")
-  (insert-text-button "Capture" 'follow-link t 'action (lambda (_button) (call-interactively #'my/org-capture-dwim)))
+  (insert-text-button "Capture" 'follow-link t 'action (lambda (_button) (call-interactively #'org-life-dashboard-action-capture)))
   (insert "  ")
-  (insert-text-button "Daily Review" 'follow-link t 'action (lambda (_button) (org-agenda nil "r")))
+  (insert-text-button "Daily Review" 'follow-link t 'action (lambda (_button) (call-interactively #'org-life-dashboard-action-daily-review)))
   (insert "  ")
-  (insert-text-button "Weekly Review" 'follow-link t 'action (lambda (_button) (org-agenda nil "R")))
+  (insert-text-button "Weekly Review" 'follow-link t 'action (lambda (_button) (call-interactively #'org-life-dashboard-action-weekly-review)))
   (insert "  ")
-  (insert-text-button "Roam Find" 'follow-link t 'action (lambda (_button) (call-interactively #'org-life-roam-node-find)))
+  (insert-text-button "Roam Find" 'follow-link t 'action (lambda (_button) (call-interactively #'org-life-dashboard-action-roam-find)))
   (insert "\n"))
+
+(defun org-life-dashboard--with-display-policy (policy fn)
+  "Call FN with deterministic `display-buffer' POLICY for quick actions."
+  (let ((display-buffer-overriding-action
+         (pcase policy
+           ('agenda
+            '((display-buffer-reuse-window display-buffer-same-window)
+              (inhibit-same-window . nil)))
+           ('capture
+            '((display-buffer-reuse-window display-buffer-same-window)
+              (inhibit-same-window . nil)))
+           ('roam
+            '((display-buffer-reuse-window
+               display-buffer-pop-up-window)
+              (inhibit-same-window . t)
+              (reusable-frames . visible)
+              (window-height . 0.45)))
+           (_ nil))))
+    (funcall fn)))
+
+(defun org-life-dashboard-action-capture ()
+  "Run capture quick action with dashboard display policy."
+  (interactive)
+  (org-life-dashboard--with-display-policy
+   'capture
+   (lambda ()
+     (call-interactively #'my/org-capture-dwim))))
+
+(defun org-life-dashboard-action-daily-review ()
+  "Run daily review quick action with deterministic window behavior."
+  (interactive)
+  (org-life-dashboard--with-display-policy
+   'agenda
+   (lambda ()
+     (org-agenda nil "r"))))
+
+(defun org-life-dashboard-action-weekly-review ()
+  "Run weekly review quick action with deterministic window behavior."
+  (interactive)
+  (org-life-dashboard--with-display-policy
+   'agenda
+   (lambda ()
+     (org-agenda nil "R"))))
+
+(defun org-life-dashboard-action-roam-find ()
+  "Run roam find quick action with split/reuse display policy."
+  (interactive)
+  (org-life-dashboard--with-display-policy
+   'roam
+   (lambda ()
+     (call-interactively #'org-life-roam-node-find))))
+
+(defun org-life-dashboard-reload ()
+  "Refresh Doom dashboard data and widgets."
+  (interactive)
+  (cond
+   ((fboundp '+doom-dashboard-reload) (+doom-dashboard-reload))
+   ((fboundp '+doom-dashboard/reload) (+doom-dashboard/reload))
+   (t (user-error "No Doom dashboard reload command is available"))))
+
+(defun org-life-dashboard--refresh-after-open (&rest _)
+  "Refresh dashboard after any supported dashboard open command runs."
+  (when (or (fboundp '+doom-dashboard-reload)
+            (fboundp '+doom-dashboard/reload))
+    (org-life-dashboard-reload)))
 
 (after! doom-dashboard
   (dolist (fn '(org-life-dashboard-widget-today
@@ -341,23 +406,29 @@ Each entry includes marker, title, todo, file, scheduled, and deadline keys."
                 org-life-dashboard-widget-deadlines
                 org-life-dashboard-widget-quick-actions))
     (setq +doom-dashboard-functions (remove fn +doom-dashboard-functions))
-    (add-to-list '+doom-dashboard-functions fn t)))
+    (add-to-list '+doom-dashboard-functions fn t))
+  (dolist (open-fn '(+doom-dashboard/open doom/open-dashboard))
+    (when (fboundp open-fn)
+      (advice-remove open-fn #'org-life-dashboard--refresh-after-open)
+      (advice-add open-fn :after #'org-life-dashboard--refresh-after-open)))
+  (setq initial-buffer-choice #'org-life-dashboard-open))
 
 (defun org-life-dashboard-open ()
   "Open Doom dashboard using the best available entrypoint."
   (interactive)
   (cond
-   ((fboundp '+doom-dashboard/open) (+doom-dashboard/open))
-   ((fboundp 'doom/open-dashboard) (doom/open-dashboard))
+   ((fboundp '+doom-dashboard/open)
+    (+doom-dashboard/open)
+    (org-life-dashboard-reload))
+   ((fboundp 'doom/open-dashboard)
+    (doom/open-dashboard)
+    (org-life-dashboard-reload))
    (t (user-error "No Doom dashboard open command is available"))))
 
 (defun org-life-dashboard-refresh ()
   "Refresh Doom dashboard using the best available entrypoint."
   (interactive)
-  (cond
-   ((fboundp '+doom-dashboard/reload) (+doom-dashboard/reload))
-   ((fboundp '+doom-dashboard/open) (+doom-dashboard/open))
-   (t (user-error "No Doom dashboard refresh command is available"))))
+  (org-life-dashboard-reload))
 
 (defun org-life-agenda-daily-planning ()
   "Open the canonical daily planning agenda command."
@@ -468,8 +539,8 @@ Signals a user error when any required workflow command lacks an SPC o keypath."
         :desc "Show denote backlinks" "b" #'denote-backlinks
         :desc "Rename denote file" "r" #'denote-rename-file)
        (:prefix ("d" . "dashboard")
-        :desc "Open OrgLife dashboard" "o" #'org-life-dashboard-open
-        :desc "Refresh OrgLife dashboard" "r" #'org-life-dashboard-refresh)))
+         :desc "Open OrgLife dashboard" "o" #'org-life-dashboard-open
+         :desc "Refresh OrgLife dashboard" "r" #'org-life-dashboard-reload)))
 
 (provide 'config-org-integration)
 ;;; config-org-integration.el ends here
