@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-24)
 ## Current Position
 
 Phase: 8 of 8 (Integration & Dashboard)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-03-08 - Completed 08-01-PLAN.md
+Last activity: 2026-03-08 - Completed 08-02-PLAN.md
 
-Progress: [██████████████████░░] 90%
+Progress: [███████████████████░] 95%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: 14 min
-- Total execution time: 4.31 hours
+- Total execution time: 4.51 hours
 
 **By Phase:**
 
@@ -34,8 +34,8 @@ Progress: [██████████████████░░] 90%
 | 5. Knowledge Base | 4/4 | 9 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 4m, 3m, 2m, 0m, 3m
-- Trend: stable with light verification overhead
+- Last 5 plans: 3m, 2m, 0m, 3m, 12m
+- Trend: stable with moderate verification overhead
 
 *Updated after each plan completion*
 
@@ -96,6 +96,9 @@ Recent decisions affecting current work:
 - [08-01]: Cross-link ownership is centralized in `users/doom.d/config-org-integration.el`, loaded after denote and before visual module initialization
 - [08-01]: Link data uses dual representation (inline `[[id:...][...]]` + ORGLIFE_LINK_* metadata via org-entry APIs) for stable move-safe querying
 - [08-01]: Journal link targets are concrete GTD TODO headings with target IDs created before insertion (never day-file-only journal links)
+- [08-02]: Canonical OrgLife discoverability is centralized in one integration-owned `SPC o` hierarchy with domain-first mnemonic branches.
+- [08-02]: Legacy paths remain first-class aliases by dispatching to the same command symbols used in canonical branches (`SPC o r`, `SPC o j t`, and direct shortcuts).
+- [08-02]: UX-03 keymap coverage is verified by a dedicated helper command (`org-life-verify-spc-o-coverage`) that checks `where-is-internal` reachability.
 
 ### Pending Todos
 
@@ -107,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-08 04:59 UTC
-Stopped at: Completed 08-01-PLAN.md
+Last session: 2026-03-08 05:15 UTC
+Stopped at: Completed 08-02-PLAN.md
 Resume file: None
