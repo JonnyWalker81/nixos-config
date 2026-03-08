@@ -143,12 +143,12 @@ Plans:
   2. User can link journal entries to tasks and projects (journal entry references a project, visible in backlinks)
   3. All OrgLife workflows are accessible via SPC-based keybindings within 2 keystrokes (SPC o for org-life prefix, then single key for action)
   4. Emacs startup shows a custom dashboard with today's agenda items, pending inbox count, upcoming deadlines, and quick-access links to common actions
-**Plans**: TBD
+**Plans**: 3 plans in 3 waves (sequential)
 
 Plans:
-- [ ] 08-01: Cross-linking setup (org-id for GTD↔roam, journal↔project linking)
-- [ ] 08-02: SPC keybinding tree for all OrgLife workflows (map! with org-life prefix)
-- [ ] 08-03: Startup dashboard configuration and final validation gate
+- [ ] 08-01-PLAN.md — Cross-link primitives and hybrid capture/manual linking for GTD↔roam and journal↔heading workflows
+- [ ] 08-02-PLAN.md — Canonical SPC o org-life keymap with mnemonic grouping and legacy alias preservation
+- [ ] 08-03-PLAN.md — Doom dashboard widgets, startup/refresh lifecycle, quick actions, and runtime UX verification gate
 
 ## Progress
 
