@@ -170,6 +170,10 @@ CONTEXT should be "task" or "journal"."
       (:prefix ("o" . "org-life")
        :desc "Capture (DWIM)" "c" #'my/org-capture-dwim
        :desc "Capture menu" "C" #'org-capture
+       :desc "Legacy alias: Inbox dashboard (SPC o a i)" "i" (cmd! (org-agenda nil "I"))
+       :desc "Legacy alias: Daily review (SPC o a r)" "v" (cmd! (org-agenda nil "r"))
+       :desc "Legacy alias: Roam find (SPC o r f)" "f" #'org-life-roam-node-find
+       :desc "Legacy alias: Journal today (SPC o j t)" "t" #'org-life-journal-open-today
        (:prefix ("a" . "agenda/review")
         :desc "Daily planning" "d" (cmd! (org-agenda nil "d"))
         :desc "Weekly planning" "w" (cmd! (org-agenda nil "w"))
