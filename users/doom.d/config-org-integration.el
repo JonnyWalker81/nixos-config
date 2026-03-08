@@ -561,7 +561,8 @@ Each entry includes marker, title, todo, file, scheduled, and deadline keys."
 
 (defun org-life-verify-spc-o-coverage ()
   "Verify UX-03 command reachability under SPC o and return evidence.
-Signals a user error when any required workflow command lacks an SPC o keypath."
+Signals a user error when required commands are missing an SPC o keypath
+or are only reachable via nested SPC o sequences deeper than one key."
   (interactive)
   (let* ((required `((capture . ,#'my/org-capture-dwim)
                      (daily-review . ,#'org-life-agenda-daily-review)
@@ -571,31 +572,53 @@ Signals a user error when any required workflow command lacks an SPC o keypath."
                      (inbox . ,#'org-life-agenda-inbox-dashboard)
                      (dashboard-open . ,#'org-life-dashboard-open)
                      (dashboard-refresh . ,#'org-life-dashboard-refresh)))
-         (results
-          (mapcar
-           (lambda (entry)
-             (let* ((name (car entry))
-                    (command (cdr entry))
-                    (keys (mapcar #'key-description (where-is-internal command)))
-                    (spc-keys (seq-filter (lambda (key)
-                                            (string-prefix-p "SPC o" key))
-                                          keys)))
-               (list :name name
-                     :command command
-                     :spc-o-keys spc-keys
-                     :all-keys keys)))
-           required))
-         (missing
-          (seq-filter
-           (lambda (row)
-             (null (plist-get row :spc-o-keys)))
-           results)))
-    (if missing
-        (user-error "Missing SPC o bindings: %s"
-                    (mapconcat
-                     (lambda (row)
-                       (symbol-name (plist-get row :name)))
-                     missing ", "))
+          (results
+           (mapcar
+            (lambda (entry)
+              (let* ((name (car entry))
+                     (command (cdr entry))
+                     (keys (mapcar #'key-description (where-is-internal command)))
+                     (spc-keys (seq-filter (lambda (key)
+                                             (string-prefix-p "SPC o" key))
+                                           keys))
+                     (direct-spc-keys (seq-filter (lambda (key)
+                                                    (string-match-p "^SPC o [^ ]+$" key))
+                                                  spc-keys)))
+                (list :name name
+                      :command command
+                      :direct-spc-o-keys direct-spc-keys
+                      :spc-o-keys spc-keys
+                      :all-keys keys)))
+            required))
+          (missing-prefix
+           (seq-filter
+            (lambda (row)
+              (null (plist-get row :spc-o-keys)))
+            results))
+          (too-deep
+           (seq-filter
+            (lambda (row)
+              (and (plist-get row :spc-o-keys)
+                   (null (plist-get row :direct-spc-o-keys))))
+            results)))
+    (if (or missing-prefix too-deep)
+        (let ((problems nil))
+          (dolist (row missing-prefix)
+            (push (format "%s (%s): no SPC o keypath; found keys: %s"
+                          (symbol-name (plist-get row :name))
+                          (symbol-name (plist-get row :command))
+                          (if-let ((keys (plist-get row :all-keys)))
+                              (mapconcat #'identity keys ", ")
+                            "none"))
+                  problems))
+          (dolist (row too-deep)
+            (push (format "%s (%s): only nested SPC o paths (%s); need SPC o <single-key>"
+                          (symbol-name (plist-get row :name))
+                          (symbol-name (plist-get row :command))
+                          (mapconcat #'identity (plist-get row :spc-o-keys) ", "))
+                  problems))
+          (user-error "SPC o coverage failed:\n- %s"
+                      (mapconcat #'identity (nreverse problems) "\n- ")))
       (message "OrgLife SPC o UX-03 coverage verified: %d commands" (length required)))
     results))
 
