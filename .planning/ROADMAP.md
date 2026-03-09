@@ -2,7 +2,7 @@
 
 ## Overview
 
-OrgLife transforms the user's existing Doom Emacs setup into a comprehensive life management system by building incrementally: GTD task foundation first (everything depends on `org-directory` and file structure), then capture workflows, agenda views (basic then advanced), org-roam knowledge base, journaling + denote, visual polish, and finally cross-system integration. Each phase delivers a complete, verifiable capability and includes a `doom sync` + rebuild validation gate before proceeding. The 8-phase structure follows the dependency chain revealed by research — GTD primitives must exist before agenda views, org-roam requires sqlite verification, and visual polish can only be evaluated with real data in the system.
+OrgLife transforms the user's existing Doom Emacs setup into a comprehensive life management system by building incrementally: GTD task foundation first (everything depends on `org-directory` and file structure), then capture workflows, agenda views (basic then advanced), org-roam knowledge base, journaling + denote, visual polish, cross-system integration, and an audit-driven agenda runtime closure phase. Each phase delivers a complete, verifiable capability and includes a `doom sync` + rebuild validation gate before proceeding. The 9-phase structure follows the dependency chain revealed by research and audit findings — GTD primitives must exist before agenda views, org-roam requires sqlite verification, and runtime agenda safety must be hardened before milestone completion.
 
 ## Phases
 
@@ -20,6 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Journaling & Denote** - org-journal daily entries with carry-over, plus denote structured notes
 - [x] **Phase 7: Visual Polish** - org-modern styling, color-coded TODO states, emphasis hiding, inline previews
 - [x] **Phase 8: Integration & Dashboard** - Cross-linking between all systems, SPC keybindings, startup dashboard
+- [ ] **Phase 9: Agenda Runtime Hardening & Flow Recovery** - Close AGN-01/02/03 by hardening org-super-agenda runtime wiring and restoring broken agenda-dependent E2E flows
 
 ## Phase Details
 
@@ -152,10 +153,26 @@ Plans:
 - [x] 08-04-PLAN.md — Gap closure: bidirectional backlink persistence/retrieval for GTD↔roam and journal↔heading links
 - [x] 08-05-PLAN.md — Gap closure: strict two-keystroke SPC o contract + dashboard inbox pending count
 
+### Phase 9: Agenda Runtime Hardening & Flow Recovery
+**Goal**: Eliminate Phase 3 agenda runtime failure so daily/weekly/review agendas execute reliably and downstream dashboard/flow integrations recover end-to-end
+**Depends on**: Phase 3, Phase 4, Phase 8
+**Requirements**: AGN-01, AGN-02, AGN-03
+**Gap Closure**: Closes audit gaps from `.planning/v1-MILESTONE-AUDIT.md` (`gaps.requirements`, `gaps.integration`, `gaps.flows`)
+**Success Criteria** (what must be TRUE):
+  1. Daily agenda (`d`) opens without runtime errors and shows the expected time-grid/schedule behavior (AGN-01)
+  2. Weekly agenda (`w`) and weekly review (`R`) execute without runtime errors and surface week-ahead content (AGN-02)
+  3. org-super-agenda grouping is safely bound at execution time across agenda/review command paths (AGN-03)
+  4. Agenda-dependent E2E flows are restored: capture→agenda review, project/meeting→weekly review, journal→agenda visibility, and dashboard agenda quick actions
+**Plans**: 2 plans in 2 waves (sequential)
+
+Plans:
+- [ ] 09-01-PLAN.md — Runtime-safe org-super-agenda binding and agenda command-path hardening (`d`/`w`/`r`/`R` + dashboard quick actions)
+- [ ] 09-02-PLAN.md — Regression coverage for unbound/load-timing agenda failures and full E2E re-verification gate for restored flows
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -167,7 +184,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 6. Journaling & Denote | 2/2 | Verified ✓ | 2026-03-03 |
 | 7. Visual Polish | 2/2 | Verified ✓ | 2026-03-08 |
 | 8. Integration & Dashboard | 5/5 | Verified ✓ | 2026-03-08 |
+| 9. Agenda Runtime Hardening & Flow Recovery | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-24*
-*Last updated: 2026-03-08 — Phase 8 verified complete (Integration & Dashboard: 5 of 5 plans done)*
+*Last updated: 2026-03-09 — Added Phase 9 gap-closure work for v1 audit blockers (AGN-01/02/03 + agenda runtime integration/flow recovery)*
