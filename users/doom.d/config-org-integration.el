@@ -1,9 +1,19 @@
 ;;; config-org-integration.el --- org-life integration primitives -*- lexical-binding: t; -*-
 
+(eval-and-compile
+  (unless (fboundp 'after!)
+    (defmacro after! (_feature &rest body)
+      `(progn ,@body)))
+  (unless (fboundp 'map!)
+    (defmacro map! (&rest _args)
+      nil)))
+
 (require 'org)
 (require 'org-id)
 (require 'cl-lib)
 (require 'subr-x)
+
+(defvar +doom-dashboard-functions nil)
 
 (defconst org-life-integration-gtd-directory
   (expand-file-name "~/org/gtd/")
@@ -464,7 +474,7 @@ Each entry includes marker, title, todo, file, scheduled, and deadline keys."
   (org-life-dashboard--with-display-policy
    'agenda
    (lambda ()
-     (org-agenda nil "r"))))
+      (call-interactively #'org-life-agenda-daily-review))))
 
 (defun org-life-dashboard-action-weekly-review ()
   "Run weekly review quick action with deterministic window behavior."
@@ -472,7 +482,7 @@ Each entry includes marker, title, todo, file, scheduled, and deadline keys."
   (org-life-dashboard--with-display-policy
    'agenda
    (lambda ()
-     (org-agenda nil "R"))))
+      (call-interactively #'org-life-agenda-weekly-review))))
 
 (defun org-life-dashboard-action-roam-find ()
   "Run roam find quick action with split/reuse display policy."
@@ -496,6 +506,12 @@ Each entry includes marker, title, todo, file, scheduled, and deadline keys."
             (fboundp '+doom-dashboard/reload))
     (org-life-dashboard-reload)))
 
+(defun org-life-dashboard-initial-buffer-choice ()
+  "Return a safe initial buffer choice for interactive and batch sessions."
+  (if noninteractive
+      (current-buffer)
+    (org-life-dashboard-open)))
+
 (after! doom-dashboard
   (dolist (fn '(org-life-dashboard-widget-today
                 org-life-dashboard-widget-inbox
@@ -507,7 +523,7 @@ Each entry includes marker, title, todo, file, scheduled, and deadline keys."
     (when (fboundp open-fn)
       (advice-remove open-fn #'org-life-dashboard--refresh-after-open)
       (advice-add open-fn :after #'org-life-dashboard--refresh-after-open)))
-  (setq initial-buffer-choice #'org-life-dashboard-open))
+  (setq initial-buffer-choice #'org-life-dashboard-initial-buffer-choice))
 
 (defun org-life-dashboard-open ()
   "Open Doom dashboard using the best available entrypoint."
@@ -519,47 +535,13 @@ Each entry includes marker, title, todo, file, scheduled, and deadline keys."
    ((fboundp 'doom/open-dashboard)
     (doom/open-dashboard)
     (org-life-dashboard-reload))
-   (t (user-error "No Doom dashboard open command is available"))))
+   (t (unless noninteractive
+        (user-error "No Doom dashboard open command is available")))))
 
 (defun org-life-dashboard-refresh ()
   "Refresh Doom dashboard using the best available entrypoint."
   (interactive)
   (org-life-dashboard-reload))
-
-(defun org-life-agenda-daily-planning ()
-  "Open the canonical daily planning agenda command."
-  (interactive)
-  (org-agenda nil "d"))
-
-(defun org-life-agenda-weekly-planning ()
-  "Open the canonical weekly planning agenda command."
-  (interactive)
-  (org-agenda nil "w"))
-
-(defun org-life-agenda-daily-review ()
-  "Open the canonical daily review agenda command."
-  (interactive)
-  (org-agenda nil "r"))
-
-(defun org-life-agenda-weekly-review ()
-  "Open the canonical weekly review agenda command."
-  (interactive)
-  (org-agenda nil "R"))
-
-(defun org-life-agenda-inbox-dashboard ()
-  "Open the canonical GTD inbox dashboard command."
-  (interactive)
-  (org-agenda nil "I"))
-
-(defun org-life-agenda-context-home ()
-  "Open the canonical @home context review agenda command."
-  (interactive)
-  (org-agenda nil "H"))
-
-(defun org-life-agenda-context-work ()
-  "Open the canonical @work context review agenda command."
-  (interactive)
-  (org-agenda nil "W"))
 
 (defun org-life-verify-spc-o-coverage ()
   "Verify UX-03 command reachability under SPC o and return evidence.
