@@ -1,6 +1,14 @@
 ;;; config-org-agenda.el --- Org agenda views -*- lexical-binding: t; -*-
 
-(after! org
+(eval-and-compile
+  (unless (fboundp 'after!)
+    (defmacro after! (_feature &rest body)
+      `(progn ,@body)))
+  (unless (fboundp 'map!)
+    (defmacro map! (&rest _args)
+      nil)))
+
+(after! org-agenda
   ;; Phase 3 owns agenda command definitions in one place.
   (setq org-agenda-start-on-weekday 1)
 
@@ -21,6 +29,54 @@
       (todo . " %-12:c %?-12t %10e ")
       (tags . " %-12:c %?-12t %10e "))
     "Metadata-rich agenda prefix format used by review commands.")
+
+  (defvar org-life-agenda-default-super-groups
+    '((:name "Priority A actionable"
+       :and (:todo ("TODO" "NEXT") :priority "A")
+       :order 0)
+      (:name "Priority B @home"
+       :and (:todo ("TODO" "NEXT") :priority "B" :tag "@home")
+       :order 10)
+      (:name "Priority B @work"
+       :and (:todo ("TODO" "NEXT") :priority "B" :tag "@work")
+       :order 11)
+      (:name "Priority B @computer"
+       :and (:todo ("TODO" "NEXT") :priority "B" :tag "@computer")
+       :order 12)
+      (:name "Priority B @email"
+       :and (:todo ("TODO" "NEXT") :priority "B" :tag "@email")
+       :order 13)
+      (:name "Priority B @phone"
+       :and (:todo ("TODO" "NEXT") :priority "B" :tag "@phone")
+       :order 14)
+      (:name "Priority B @errands"
+       :and (:todo ("TODO" "NEXT") :priority "B" :tag "@errands")
+       :order 15)
+      (:name "Priority C @home"
+       :and (:todo ("TODO" "NEXT") :priority "C" :tag "@home")
+       :order 20)
+      (:name "Priority C @work"
+       :and (:todo ("TODO" "NEXT") :priority "C" :tag "@work")
+       :order 21)
+      (:name "Priority C @computer"
+       :and (:todo ("TODO" "NEXT") :priority "C" :tag "@computer")
+       :order 22)
+      (:name "Priority C @email"
+       :and (:todo ("TODO" "NEXT") :priority "C" :tag "@email")
+       :order 23)
+      (:name "Priority C @phone"
+       :and (:todo ("TODO" "NEXT") :priority "C" :tag "@phone")
+       :order 24)
+      (:name "Priority C @errands"
+       :and (:todo ("TODO" "NEXT") :priority "C" :tag "@errands")
+       :order 25)
+      (:name "Uncategorized"
+       :and (:todo ("TODO" "NEXT")
+             :not (:tag ("@home" "@work" "@computer" "@email" "@phone" "@errands")))
+       :order 90)
+      (:name "WAITING (parked)" :todo "WAITING" :order 98)
+      (:name "SOMEDAY (parked)" :todo "SOMEDAY" :order 99))
+    "Canonical fallback org-super-agenda groups for OrgLife agenda views.")
 
   (defvar my/org-gtd-project-files
     '("~/org/gtd/projects.org")
@@ -64,47 +120,66 @@ A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
        ((my/org-gtd-project-has-next-child-p) subtree-end)
        (t nil))))
 
+  (defun org-life-agenda-super-groups-safe ()
+    "Return runtime-safe org-super-agenda groups or nil fallback."
+    (if (boundp 'org-super-agenda-groups)
+        (or org-super-agenda-groups org-life-agenda-default-super-groups)
+      nil))
+
+  (defun org-life-agenda-prepare-runtime ()
+    "Best-effort prepare org-super-agenda before opening OrgLife agendas."
+    (when (require 'org-super-agenda nil t)
+      (when (fboundp 'org-super-agenda-mode)
+        (org-super-agenda-mode 1))
+      (unless (boundp 'org-super-agenda-groups)
+        (setq org-super-agenda-groups org-life-agenda-default-super-groups))))
+
+  (defun org-life-agenda-dispatch (key)
+    "Prepare agenda runtime, then dispatch org-agenda command KEY."
+    (org-life-agenda-prepare-runtime)
+    (org-agenda nil key))
+
   (setq org-agenda-custom-commands
         `(("d" "Daily planning"
            ((agenda ""
                     ((org-agenda-span 'day)
                      (org-agenda-overriding-header "Today timeline")))
-            (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
-                       ((org-agenda-overriding-header "Unscheduled actionable")
-                        (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))
-                        (org-super-agenda-groups org-super-agenda-groups)))
-            (tags-todo my/org-journal-open-todo-match
-                       ((org-agenda-files org-life-journal-agenda-files)
-                        (org-agenda-overriding-header "Journal (open TODOs, full history)")))
+             (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
+                        ((org-agenda-overriding-header "Unscheduled actionable")
+                         (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))
+                         (org-super-agenda-groups (org-life-agenda-super-groups-safe))))
+             (tags-todo my/org-journal-open-todo-match
+                        ((org-agenda-files org-life-journal-agenda-files)
+                         (org-agenda-overriding-header "Journal (open TODOs, full history)")))
            ((org-agenda-show-log nil)
-            (org-agenda-start-with-log-mode nil)
-            (org-super-agenda-groups org-super-agenda-groups)
-            (org-agenda-prefix-format
-             '((agenda . " %-12:c %?-12t %10e ")
-               (todo . " %-12:c %?-12t %10e ")
-               (tags . " %-12:c %?-12t %10e ")))))
+             (org-agenda-start-with-log-mode nil)
+             (org-super-agenda-groups (org-life-agenda-super-groups-safe))
+             (org-agenda-prefix-format
+              '((agenda . " %-12:c %?-12t %10e ")
+                (todo . " %-12:c %?-12t %10e ")
+                (tags . " %-12:c %?-12t %10e "))))))
           ("w" "Weekly planning"
            ((agenda ""
                     ((org-agenda-span 'week)
                      (org-agenda-start-on-weekday 1)
                      (org-agenda-overriding-header "Week timeline")))
-            (tags-todo "DEADLINE<=\"<+7d>\"/!TODO|NEXT|WAITING|SOMEDAY"
-                       ((org-agenda-overriding-header "Weekly deadline summary")
-                        (org-super-agenda-groups org-super-agenda-groups)))
-            (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
-                       ((org-agenda-overriding-header "Unscheduled actionable")
-                        (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))
-                        (org-super-agenda-groups org-super-agenda-groups)))
-            (tags-todo my/org-journal-open-todo-match
-                       ((org-agenda-files org-life-journal-agenda-files)
-                        (org-agenda-overriding-header "Journal (open TODOs, full history)")))
+             (tags-todo "DEADLINE<=\"<+7d>\"/!TODO|NEXT|WAITING|SOMEDAY"
+                        ((org-agenda-overriding-header "Weekly deadline summary")
+                         (org-super-agenda-groups (org-life-agenda-super-groups-safe))))
+             (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
+                        ((org-agenda-overriding-header "Unscheduled actionable")
+                         (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled 'deadline))
+                         (org-super-agenda-groups (org-life-agenda-super-groups-safe))))
+             (tags-todo my/org-journal-open-todo-match
+                        ((org-agenda-files org-life-journal-agenda-files)
+                         (org-agenda-overriding-header "Journal (open TODOs, full history)")))
            ((org-agenda-show-log nil)
-            (org-agenda-start-with-log-mode nil)
-            (org-super-agenda-groups org-super-agenda-groups)
-            (org-agenda-prefix-format
-             '((agenda . " %-12:c %?-12t %10e ")
-               (todo . " %-12:c %?-12t %10e ")
-               (tags . " %-12:c %?-12t %10e ")))))
+             (org-agenda-start-with-log-mode nil)
+             (org-super-agenda-groups (org-life-agenda-super-groups-safe))
+             (org-agenda-prefix-format
+              '((agenda . " %-12:c %?-12t %10e ")
+                (todo . " %-12:c %?-12t %10e ")
+                (tags . " %-12:c %?-12t %10e "))))))
           ("r" "Daily Review (timeline + triage)"
            ((agenda ""
                     ((org-agenda-span 'day)
@@ -121,11 +196,11 @@ A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
                          ,(format "Inbox triage (%d open items)" (my/org-gtd-inbox-open-count)))))
             (tags-todo my/org-journal-open-todo-match
                        ((org-agenda-files org-life-journal-agenda-files)
-                        (org-agenda-overriding-header "Journal (open TODOs, full history)"))))
+                         (org-agenda-overriding-header "Journal (open TODOs, full history)"))))
            ((org-agenda-show-log nil)
-            (org-agenda-start-with-log-mode nil)
-            (org-super-agenda-groups org-super-agenda-groups)
-            (org-agenda-prefix-format my/org-review-prefix-format)))
+             (org-agenda-start-with-log-mode nil)
+             (org-super-agenda-groups (org-life-agenda-super-groups-safe))
+             (org-agenda-prefix-format my/org-review-prefix-format)))
           ("R" "Weekly Review (GTD workflow)"
            ((agenda ""
                     ((org-agenda-span 'week)
@@ -147,82 +222,51 @@ A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
                        ((org-agenda-overriding-header "5) SOMEDAY/MAYBE parking")))
             (tags-todo my/org-journal-open-todo-match
                        ((org-agenda-files org-life-journal-agenda-files)
-                        (org-agenda-overriding-header "6) Journal (open TODOs, full history)"))))
+                         (org-agenda-overriding-header "6) Journal (open TODOs, full history)"))))
+           ((org-agenda-show-log nil)
+             (org-agenda-start-with-log-mode nil)
+             (org-super-agenda-groups (org-life-agenda-super-groups-safe))
+             (org-agenda-prefix-format my/org-review-prefix-format)))
+          ("I" "Inbox Dashboard (triage + refile)"
+           ((tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
+                       ((org-agenda-files '("~/org/gtd/inbox.org"))
+                        (org-agenda-overriding-header
+                         ,(format "Inbox triage (%d open items)" (my/org-gtd-inbox-open-count)))))
+            (tags-todo "TODO=\"TODO\"|TODO=\"NEXT\"|TODO=\"WAITING\"|TODO=\"SOMEDAY\""
+                       ((org-agenda-files '("~/org/gtd/projects.org"))
+                        (org-agenda-overriding-header "Project next actions (refile targets)"))))
            ((org-agenda-show-log nil)
             (org-agenda-start-with-log-mode nil)
-            (org-super-agenda-groups org-super-agenda-groups)
+            (org-super-agenda-groups nil)
             (org-agenda-prefix-format my/org-review-prefix-format)))
           ("H" "Context Review: @home"
            ((tags-todo "+@home-@work/TODO|NEXT|WAITING"
                        ((org-agenda-overriding-header "@home actionable + waiting (open)"))))
            ((org-agenda-show-log nil)
-            (org-agenda-start-with-log-mode nil)
-            (org-super-agenda-groups org-super-agenda-groups)
-            (org-agenda-prefix-format my/org-review-prefix-format)))
+             (org-agenda-start-with-log-mode nil)
+             (org-super-agenda-groups (org-life-agenda-super-groups-safe))
+             (org-agenda-prefix-format my/org-review-prefix-format)))
           ("W" "Context Review: @work"
-           ((tags-todo "+@work-@home/TODO|NEXT|WAITING"
-                       ((org-agenda-overriding-header "@work actionable + waiting (open)"))))
+            ((tags-todo "+@work-@home/TODO|NEXT|WAITING"
+                        ((org-agenda-overriding-header "@work actionable + waiting (open)"))))
            ((org-agenda-show-log nil)
-            (org-agenda-start-with-log-mode nil)
-            (org-super-agenda-groups org-super-agenda-groups)
-            (org-agenda-prefix-format my/org-review-prefix-format))))))
+             (org-agenda-start-with-log-mode nil)
+             (org-super-agenda-groups (org-life-agenda-super-groups-safe))
+             (org-agenda-prefix-format my/org-review-prefix-format))))))
 
 (after! org-super-agenda
-  (org-super-agenda-mode)
-  (setq org-super-agenda-groups
-        '((:name "Priority A actionable"
-           :and (:todo ("TODO" "NEXT") :priority "A")
-           :order 0)
-          (:name "Priority B @home"
-           :and (:todo ("TODO" "NEXT") :priority "B" :tag "@home")
-           :order 10)
-          (:name "Priority B @work"
-           :and (:todo ("TODO" "NEXT") :priority "B" :tag "@work")
-           :order 11)
-          (:name "Priority B @computer"
-           :and (:todo ("TODO" "NEXT") :priority "B" :tag "@computer")
-           :order 12)
-          (:name "Priority B @email"
-           :and (:todo ("TODO" "NEXT") :priority "B" :tag "@email")
-           :order 13)
-          (:name "Priority B @phone"
-           :and (:todo ("TODO" "NEXT") :priority "B" :tag "@phone")
-           :order 14)
-          (:name "Priority B @errands"
-           :and (:todo ("TODO" "NEXT") :priority "B" :tag "@errands")
-           :order 15)
-          (:name "Priority C @home"
-           :and (:todo ("TODO" "NEXT") :priority "C" :tag "@home")
-           :order 20)
-          (:name "Priority C @work"
-           :and (:todo ("TODO" "NEXT") :priority "C" :tag "@work")
-           :order 21)
-          (:name "Priority C @computer"
-           :and (:todo ("TODO" "NEXT") :priority "C" :tag "@computer")
-           :order 22)
-          (:name "Priority C @email"
-           :and (:todo ("TODO" "NEXT") :priority "C" :tag "@email")
-           :order 23)
-          (:name "Priority C @phone"
-           :and (:todo ("TODO" "NEXT") :priority "C" :tag "@phone")
-           :order 24)
-          (:name "Priority C @errands"
-           :and (:todo ("TODO" "NEXT") :priority "C" :tag "@errands")
-           :order 25)
-          (:name "Uncategorized"
-           :and (:todo ("TODO" "NEXT")
-                 :not (:tag ("@home" "@work" "@computer" "@email" "@phone" "@errands")))
-           :order 90)
-          (:name "WAITING (parked)" :todo "WAITING" :order 98)
-          (:name "SOMEDAY (parked)" :todo "SOMEDAY" :order 99))))
+  (when (fboundp 'org-super-agenda-mode)
+    (org-super-agenda-mode))
+  (setq org-super-agenda-groups org-life-agenda-default-super-groups))
 
 (map! :leader
-      (:prefix ("o A" . "agenda")
-       :desc "Daily planning agenda" "d" (cmd! (org-agenda nil "d"))
-       :desc "Weekly planning agenda" "w" (cmd! (org-agenda nil "w"))
-       :desc "Daily review (triage)" "r" (cmd! (org-agenda nil "r"))
-       :desc "Weekly review (GTD)" "R" (cmd! (org-agenda nil "R"))
-       :desc "Review @home context" "h" (cmd! (org-agenda nil "H"))
+      (:prefix ("o a" . "agenda")
+        :desc "Daily planning agenda" "d" (cmd! (org-agenda nil "d"))
+        :desc "Inbox dashboard" "i" (cmd! (org-agenda nil "I"))
+        :desc "Weekly planning agenda" "w" (cmd! (org-agenda nil "w"))
+        :desc "Daily review (triage)" "r" (cmd! (org-agenda nil "r"))
+        :desc "Weekly review (GTD)" "R" (cmd! (org-agenda nil "R"))
+        :desc "Review @home context" "h" (cmd! (org-agenda nil "H"))
        :desc "Review @work context" "W" (cmd! (org-agenda nil "W"))))
 
 (provide 'config-org-agenda)
