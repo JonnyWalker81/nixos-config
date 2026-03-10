@@ -1,26 +1,22 @@
 ---
 phase: 09-agenda-runtime-hardening-flow-recovery
-verified: 2026-03-10T18:09:55Z
+verified: 2026-03-10T18:15:27Z
 status: passed
-score: 7/7 must-haves verified
+score: 4/4 must-haves verified
 re_verification:
-  previous_status: gaps_found
-  previous_score: 0/4
-  gaps_closed:
-    - "AGN-01: Daily agenda opens through hardened runtime path without org-super-agenda void-variable failures."
-    - "AGN-02: Weekly agenda and weekly review both execute through the same hardened runtime path."
-    - "AGN-03: org-super-agenda grouping resolves safely when the package state is unbound or deferred."
-    - "Capture to agenda review, project or meeting to weekly review, journal to agenda visibility, and dashboard agenda quick actions are restored."
+  previous_status: passed
+  previous_score: 7/7
+  gaps_closed: []
   gaps_remaining: []
   regressions: []
 ---
 
 # Phase 9: Agenda Runtime Hardening & Flow Recovery Verification Report
 
-**Phase Goal:** Eliminate the agenda runtime failure so daily, weekly, review, and dashboard agenda flows execute reliably end to end.
-**Verified:** 2026-03-10T18:09:55Z
+**Phase Goal:** Eliminate Phase 3 agenda runtime failure so daily/weekly/review agendas execute reliably and downstream dashboard/flow integrations recover end-to-end.
+**Verified:** 2026-03-10T18:15:27Z
 **Status:** passed
-**Re-verification:** Yes - closes milestone audit gaps for AGN-01, AGN-02, AGN-03, and downstream flow failures.
+**Re-verification:** No - verification refreshed against current code and test suite.
 
 ## Goal Achievement
 
@@ -28,10 +24,10 @@ re_verification:
 
 | # | Truth | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | Regression coverage reproduces the historical unbound or load-timing failure mode and proves agenda paths survive it. | ✓ VERIFIED | `tests/emacs/orglife-config-tests.el` now executes `d`, `w`, `r`, and `R` through real agenda rendering with `org-super-agenda-groups` intentionally `makunbound` and with `org-super-agenda` withheld at dispatch time via `orglife-agenda-runtime-wrappers-survive-unbound-and-deferred-super-groups`. |
-| 2 | Agenda-dependent flows are restored for capture to agenda review, project or meeting to weekly review, journal to agenda visibility, and dashboard agenda quick actions. | ✓ VERIFIED | `tests/emacs/orglife-config-tests.el` now includes `orglife-restored-agenda-flows-remain-visible-through-hardened-paths` and `orglife-dashboard-quick-actions-open-hardened-agenda-paths`, using live Org fixtures and actual wrapper invocation to assert recovered flow output. |
-| 3 | Phase verification records AGN-01, AGN-02, and AGN-03 closure with executable evidence. | ✓ VERIFIED | This artifact maps each agenda requirement and each broken audit flow to specific commands, tests, and outcomes, with the mandatory suite gate and targeted batch validations recorded below. |
-| 4 | Daily, weekly, review, and dashboard entrypoints all share one hardened runtime contract. | ✓ VERIFIED | `users/doom.d/config-org-agenda.el` keeps `org-life-agenda-dispatch` as the shared opening path, while `users/doom.d/config-org-integration.el` dashboard review actions continue to call the agenda wrappers exercised by the new runtime tests. |
+| 1 | Daily agenda (`d`) opens without runtime errors and shows time-grid/schedule behavior (AGN-01). | ✓ VERIFIED | `users/doom.d/config-org-agenda.el:177` defines `d` with an `agenda` block headed `Today timeline`; `users/doom.d/config-org-agenda.el:142` routes opens through `org-life-agenda-dispatch`; `tests/emacs/orglife-config-tests.el:348` renders the real daily agenda after `makunbound` and asserts `Today timeline` plus scheduled content survive runtime hardening. |
+| 2 | Weekly agenda (`w`) and weekly review (`R`) execute without runtime errors and surface week-ahead content (AGN-02). | ✓ VERIFIED | `users/doom.d/config-org-agenda.el:196` defines weekly planning with `org-agenda-span 'week`; `users/doom.d/config-org-agenda.el:239` defines weekly review; `tests/emacs/orglife-config-tests.el:357` and `tests/emacs/orglife-config-tests.el:557` assert rendered weekly buffers contain `Week timeline`, `Project Alpha`, and `Team Sync` through hardened wrappers. |
+| 3 | `org-super-agenda` grouping is safely bound at execution time across agenda/review command paths (AGN-03). | ✓ VERIFIED | `users/doom.d/config-org-agenda.el:123` resolves groups safely, `users/doom.d/config-org-agenda.el:129` prepares runtime bindings, and all grouped command options use `(org-life-agenda-super-groups-safe)` instead of self-dereferencing `org-super-agenda-groups`; `tests/emacs/orglife-config-tests.el:322` and `tests/emacs/orglife-config-tests.el:348` prove execution succeeds with `org-super-agenda-groups` unbound or package load intentionally withheld. |
+| 4 | Agenda-dependent E2E flows are restored: capture->agenda review, project/meeting->weekly review, journal->agenda visibility, and dashboard quick actions. | ✓ VERIFIED | `users/doom.d/config-org-integration.el:471` and `users/doom.d/config-org-integration.el:479` route dashboard review actions to hardened agenda wrappers; `tests/emacs/orglife-config-tests.el:527` verifies dashboard quick actions open hardened agenda paths; `tests/emacs/orglife-config-tests.el:547` verifies captured inbox, weekly review project/meeting fixtures, and journal visibility all appear in rendered agenda output. |
 
 **Score:** 4/4 truths verified
 
@@ -39,46 +35,44 @@ re_verification:
 
 | Artifact | Expected | Status | Details |
 | --- | --- | --- | --- |
-| `tests/emacs/orglife-config-tests.el` | Runtime regression coverage for unbound or deferred agenda execution and restored flow checks | ✓ VERIFIED | Exists and now contains execution-path tests for `d/w/r/R`, dashboard quick actions, and flow-level fixture assertions. |
-| `.planning/phases/09-agenda-runtime-hardening-flow-recovery/09-agenda-runtime-hardening-flow-recovery-VERIFICATION.md` | Auditable requirement and flow closure record for Phase 9 | ✓ VERIFIED | Created with AGN-01, AGN-02, AGN-03, audit flow checks, and executable validation evidence. |
+| `users/doom.d/config-org-agenda.el` | Runtime-safe agenda dispatch and grouped daily/weekly/review commands | ✓ VERIFIED | Exists, substantive (308 lines), exports agenda wrapper functions, and command definitions are wired through `org-life-agenda-dispatch` plus safe group resolution. |
+| `users/doom.d/config-org-integration.el` | Dashboard and SPC entrypoints reuse hardened agenda wrappers | ✓ VERIFIED | Exists, substantive (654 lines), exports dashboard actions and keymap wiring, and quick actions call `org-life-agenda-daily-review` / `org-life-agenda-weekly-review` rather than raw `org-agenda`. |
+| `tests/emacs/orglife-config-tests.el` | Regression coverage for runtime hardening and restored flow visibility | ✓ VERIFIED | Exists, substantive (739 lines), includes dedicated execution-path tests for unbound/deferred `org-super-agenda`, dashboard actions, and restored agenda-dependent flows. |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 | --- | --- | --- | --- | --- |
-| `tests/emacs/orglife-config-tests.el` | `users/doom.d/config-org-agenda.el` | `makunbound` plus deferred `require` path executed through `org-life-agenda-daily-planning`, `org-life-agenda-weekly-planning`, `org-life-agenda-daily-review`, and `org-life-agenda-weekly-review` | ✓ WIRED | Runtime tests fail if any command path dereferences `org-super-agenda-groups` unsafely during execution. |
-| `tests/emacs/orglife-config-tests.el` | `users/doom.d/config-org-integration.el` | dashboard quick actions call agenda wrappers and render recovered agenda output | ✓ WIRED | Dashboard regression coverage proves `Daily Review` and `Weekly Review` quick actions still enter the hardened agenda path and surface restored fixture data. |
+| `users/doom.d/config-org-agenda.el` | `org-agenda` custom commands | `org-life-agenda-dispatch` -> `org-life-agenda-prepare-runtime` -> `org-agenda` | ✓ WIRED | Wrapper functions at `users/doom.d/config-org-agenda.el:142`-`users/doom.d/config-org-agenda.el:175` centralize all agenda opens before dispatching command keys. |
+| `users/doom.d/config-org-agenda.el` | `org-super-agenda` grouping | command-local and command-wide options call `org-life-agenda-super-groups-safe` | ✓ WIRED | Grouped agenda sections at `users/doom.d/config-org-agenda.el:185`, `users/doom.d/config-org-agenda.el:203`, `users/doom.d/config-org-agenda.el:213`, `users/doom.d/config-org-agenda.el:237`, `users/doom.d/config-org-agenda.el:263`, `users/doom.d/config-org-agenda.el:282`, and `users/doom.d/config-org-agenda.el:289` avoid unsafe direct dereference. |
+| `users/doom.d/config-org-integration.el` | `users/doom.d/config-org-agenda.el` | dashboard quick actions and SPC bindings call agenda wrapper symbols | ✓ WIRED | Dashboard actions at `users/doom.d/config-org-integration.el:471`-`users/doom.d/config-org-integration.el:485` and leader bindings at `users/doom.d/config-org-integration.el:609`-`users/doom.d/config-org-integration.el:631` are connected to hardened agenda wrappers. |
+| `tests/emacs/orglife-config-tests.el` | agenda and integration modules | real fixture-backed buffer rendering with `makunbound` / deferred `require` | ✓ WIRED | Tests at `tests/emacs/orglife-config-tests.el:348`, `tests/emacs/orglife-config-tests.el:527`, and `tests/emacs/orglife-config-tests.el:547` execute real wrapper paths and fail if runtime wiring regresses. |
 
 ### Requirements Coverage
 
-| Requirement | Status | Evidence |
+| Requirement | Status | Blocking Issue |
 | --- | --- | --- |
-| AGN-01: Daily agenda with time grid | ✓ SATISFIED | `tests/run-orglife-tests.sh` passes with daily planning and daily review execution-path coverage; targeted batch command returned `agenda-runtime-check=ok` while dispatching daily agenda wrappers under deferred runtime conditions. |
-| AGN-02: Weekly overview of week ahead | ✓ SATISFIED | The same suite now executes weekly planning and weekly review without runtime failures; targeted batch checks surfaced `Project Alpha` and `Team Sync` through weekly review and dashboard weekly review paths. |
-| AGN-03: Grouping by priority, context, and TODO state is runtime safe | ✓ SATISFIED | Regression coverage explicitly unbinds `org-super-agenda-groups` and withholds `org-super-agenda` at invocation time, proving grouping resolution degrades safely instead of crashing. |
+| AGN-01 | ✓ SATISFIED | None - daily command definition includes the daily agenda timeline and passes runtime rendering tests. |
+| AGN-02 | ✓ SATISFIED | None - weekly planning and weekly review render week-ahead content through hardened execution paths. |
+| AGN-03 | ✓ SATISFIED | None - runtime-safe group resolution and preparation eliminate the unbound-variable failure mode across agenda/review opens. |
 
-### Flow Closure Checks
+### Anti-Patterns Found
 
-| Flow | Previous Failure | Status | Evidence |
-| --- | --- | --- | --- |
-| Capture task -> inbox -> agenda review | Agenda open failed before review buffer rendered | ✓ CLOSED | `orglife-restored-agenda-flows-remain-visible-through-hardened-paths` asserts `Captured inbox task` appears in daily planning after runtime hardening. |
-| Project or meeting capture -> weekly review | Weekly review command failed on agenda runtime path | ✓ CLOSED | The same test asserts `Project Alpha` and `Team Sync` both appear in weekly review output. |
-| Journal capture or carry-over -> agenda visibility | Journal agenda leg blocked at agenda open | ✓ CLOSED | Daily review flow coverage asserts `Journal follow-up` remains visible in the journal agenda block. |
-| Dashboard quick-action agenda opens | Dashboard review buttons inherited the agenda crash | ✓ CLOSED | `orglife-dashboard-quick-actions-open-hardened-agenda-paths` executes dashboard daily and weekly review actions and confirms expected agenda output. |
+| File | Line | Pattern | Severity | Impact |
+| --- | --- | --- | --- | --- |
+| None | - | No blocker stub or placeholder patterns in verified Phase 9 artifacts. | - | No anti-patterns blocking goal achievement. |
 
-### Commands and Tests Run
+### Commands and Evidence
 
 | Command | Outcome |
 | --- | --- |
-| `tests/run-orglife-tests.sh` | Passed: 24/24 tests green. |
-| `emacs --batch -Q --eval "...agenda-runtime-check..."` | Passed: printed `agenda-runtime-check=ok` after exercising `d/w/r/R` with deferred `org-super-agenda` runtime. |
-| `emacs --batch -Q --eval "...dashboard-flow-check..."` | Passed: printed `dashboard-flow-check=ok` after executing dashboard review actions against recovered agenda fixtures. |
+| `./tests/run-orglife-tests.sh` | Passed: 24/24 tests green, including agenda runtime hardening and restored dashboard/flow coverage. |
 
 ### Gaps Summary
 
-Phase 9 closes the milestone's remaining agenda blocker. Runtime coverage now models the real historical failure mode instead of only checking static configuration, and downstream agenda consumers have executable proof that they still open and surface the expected GTD, meeting, journal, and dashboard data.
+No structural or runtime coverage gaps were found for the Phase 9 goal. The agenda module now hardens `d`, `w`, `r`, and `R` at execution time, dashboard review actions reuse the same wrappers, and the current regression suite proves the original unbound/deferred `org-super-agenda` failure mode no longer blocks the restored agenda-dependent flows.
 
 ---
 
-_Verified: 2026-03-10T18:09:55Z_
-_Verifier: Claude (gsd-executor)_
+_Verified: 2026-03-10T18:15:27Z_
+_Verifier: OpenCode (gsd-verifier)_

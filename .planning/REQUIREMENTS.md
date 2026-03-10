@@ -27,9 +27,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Agenda
 
-- [ ] **AGN-01**: User can view daily agenda with time grid showing today's schedule
-- [ ] **AGN-02**: User can view weekly overview showing the week ahead
-- [ ] **AGN-03**: Agenda items are grouped by org-super-agenda (priority, context, TODO state)
+- [x] **AGN-01**: User can view daily agenda with time grid showing today's schedule
+- [x] **AGN-02**: User can view weekly overview showing the week ahead
+- [x] **AGN-03**: Agenda items are grouped by org-super-agenda (priority, context, TODO state)
 - [x] **AGN-04**: User has a GTD "Daily Review" block agenda (today + high priority + next actions + waiting + inbox count)
 - [x] **AGN-05**: User has a "Weekly Review" block agenda (week + stuck projects + waiting + someday + unprocessed)
 - [x] **AGN-06**: User can view context-filtered views (@home, @work tasks only)
@@ -139,9 +139,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CAP-03 | Phase 2: Capture Workflow | Complete |
 | CAP-04 | Phase 2: Capture Workflow | Complete |
 | CAP-05 | Phase 6: Journaling & Denote | Complete |
-| AGN-01 | Phase 3: Basic Agenda | Pending |
-| AGN-02 | Phase 3: Basic Agenda | Pending |
-| AGN-03 | Phase 3: Basic Agenda | Pending |
+| AGN-01 | Phase 3: Basic Agenda | Complete |
+| AGN-02 | Phase 3: Basic Agenda | Complete |
+| AGN-03 | Phase 3: Basic Agenda | Complete |
 | AGN-04 | Phase 4: Advanced Agenda & GTD Reviews | Complete |
 | AGN-05 | Phase 4: Advanced Agenda & GTD Reviews | Complete |
 | AGN-06 | Phase 4: Advanced Agenda & GTD Reviews | Complete |
@@ -177,4 +177,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2025-02-24*
-*Last updated: 2026-03-08 — Phase 8 requirements (UX-01 through UX-04) marked Complete*
+*Last updated: 2026-03-10 — Agenda requirements AGN-01 through AGN-03 marked Complete after Phase 9 verification*

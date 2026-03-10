@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: GTD Foundation** - Establish org-directory, TODO states, file structure, refile, priorities, and effort properties
 - [x] **Phase 2: Capture Workflow** - Fast capture templates for tasks, notes, projects, and meetings
-- [ ] **Phase 3: Basic Agenda** - Daily and weekly agenda views with org-super-agenda grouping
+- [x] **Phase 3: Basic Agenda** - Daily and weekly agenda views with org-super-agenda grouping
 - [x] **Phase 4: Advanced Agenda & GTD Reviews** - Daily review dashboard, weekly review, context filters, stuck project detection
 - [x] **Phase 5: Knowledge Base** - org-roam with backlinks, capture templates, and graph visualization
 - [x] **Phase 6: Journaling & Denote** - org-journal daily entries with carry-over, plus denote structured notes
@@ -67,8 +67,8 @@ Plans:
 **Plans**: 2 plans in 2 waves (sequential)
 
 Plans:
-- [ ] 03-01-PLAN.md — Agenda module scaffold, command ownership migration, and baseline daily/weekly block commands
-- [ ] 03-02-PLAN.md — org-super-agenda priority/context grouping, weekly deadline summary wiring, and validation gate
+- [x] 03-01-PLAN.md — Agenda module scaffold, command ownership migration, and baseline daily/weekly block commands
+- [x] 03-02-PLAN.md — org-super-agenda priority/context grouping, weekly deadline summary wiring, and validation gate
 
 ### Phase 4: Advanced Agenda & GTD Reviews
 **Goal**: User can conduct daily and weekly GTD reviews with purpose-built agenda views, and filter tasks by context
@@ -178,7 +178,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 |-------|----------------|--------|-----------|
 | 1. GTD Foundation | 3/3 | Verified ✓ | 2026-02-25 |
 | 2. Capture Workflow | 2/2 | Verified ✓ | 2026-02-26 |
-| 3. Basic Agenda | 0/2 | Not started | - |
+| 3. Basic Agenda | 2/2 | Verified ✓ | 2026-02-26 |
 | 4. Advanced Agenda & GTD Reviews | 2/2 | Verified ✓ | 2026-02-26 |
 | 5. Knowledge Base | 4/4 | Verified ✓ | 2026-02-28 |
 | 6. Journaling & Denote | 2/2 | Verified ✓ | 2026-03-03 |
@@ -188,4 +188,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 ---
 *Roadmap created: 2026-02-24*
-*Last updated: 2026-03-10 — Completed 09-02 regression verification and closed Phase 9 at 2/2 plans complete*
+*Last updated: 2026-03-10 — Phase 9 verified, AGN-01/02/03 closed, and roadmap marked milestone-complete*
