@@ -518,11 +518,53 @@
      (should (eq roam-policy 'roam))
      (with-temp-buffer
        (org-life-dashboard-widget-quick-actions)
-        (let ((rendered (buffer-string)))
-          (should (string-match-p "Capture" rendered))
-          (should (string-match-p "Daily Review" rendered))
-           (should (string-match-p "Weekly Review" rendered))
-           (should (string-match-p "Roam Find" rendered)))))))
+         (let ((rendered (buffer-string)))
+           (should (string-match-p "Capture" rendered))
+           (should (string-match-p "Daily Review" rendered))
+            (should (string-match-p "Weekly Review" rendered))
+            (should (string-match-p "Roam Find" rendered)))))))
+
+(ert-deftest orglife-dashboard-quick-actions-open-hardened-agenda-paths ()
+  (orglife-test-with-temp-home
+   (orglife-test-reset-state)
+   (orglife-test-install-stubs)
+   (provide 'org-super-agenda)
+   (orglife-test-load "users/doom.d/config-org-gtd.el")
+   (orglife-test-load "users/doom.d/config-org-journal.el")
+   (orglife-test-load "users/doom.d/config-org-agenda.el")
+   (orglife-test-load "users/doom.d/config-org-integration.el")
+   (orglife-test-seed-agenda-flow-fixtures)
+   (makunbound 'org-super-agenda-groups)
+   (let ((daily (orglife-test-render-agenda #'org-life-dashboard-action-daily-review))
+         (weekly (progn
+                   (makunbound 'org-super-agenda-groups)
+                   (orglife-test-render-agenda #'org-life-dashboard-action-weekly-review 'withhold-super-agenda))))
+     (should (string-match-p "Daily review timeline" daily))
+     (should (string-match-p "Journal follow-up" daily))
+     (should (string-match-p "1) Week timeline" weekly))
+     (should (string-match-p "Project Alpha" weekly)))))
+
+(ert-deftest orglife-restored-agenda-flows-remain-visible-through-hardened-paths ()
+  (orglife-test-with-temp-home
+   (orglife-test-reset-state)
+   (orglife-test-install-stubs)
+   (provide 'org-super-agenda)
+   (orglife-test-load "users/doom.d/config-org-gtd.el")
+   (orglife-test-load "users/doom.d/config-org-journal.el")
+   (orglife-test-load "users/doom.d/config-org-agenda.el")
+   (orglife-test-seed-agenda-flow-fixtures)
+   (makunbound 'org-super-agenda-groups)
+   (let ((daily-planning (orglife-test-render-agenda #'org-life-agenda-daily-planning))
+         (weekly-review (progn
+                          (makunbound 'org-super-agenda-groups)
+                          (orglife-test-render-agenda #'org-life-agenda-weekly-review)))
+         (daily-review (progn
+                         (makunbound 'org-super-agenda-groups)
+                         (orglife-test-render-agenda #'org-life-agenda-daily-review))))
+     (should (string-match-p "Captured inbox task" daily-planning))
+     (should (string-match-p "Project Alpha" weekly-review))
+     (should (string-match-p "Team Sync" weekly-review))
+     (should (string-match-p "Journal follow-up" daily-review)))))
 
 (ert-deftest orglife-dashboard-inbox-widget-renders-pending-count-with-items ()
   (orglife-test-with-temp-home
