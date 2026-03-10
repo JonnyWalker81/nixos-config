@@ -185,14 +185,14 @@ A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
                          (org-super-agenda-groups (org-life-agenda-super-groups-safe))))
              (tags-todo my/org-journal-open-todo-match
                         ((org-agenda-files org-life-journal-agenda-files)
-                         (org-agenda-overriding-header "Journal (open TODOs, full history)")))
+                         (org-agenda-overriding-header "Journal (open TODOs, full history)"))))
            ((org-agenda-show-log nil)
-             (org-agenda-start-with-log-mode nil)
-             (org-super-agenda-groups (org-life-agenda-super-groups-safe))
-             (org-agenda-prefix-format
-              '((agenda . " %-12:c %?-12t %10e ")
-                (todo . " %-12:c %?-12t %10e ")
-                (tags . " %-12:c %?-12t %10e "))))))
+            (org-agenda-start-with-log-mode nil)
+            (org-super-agenda-groups (org-life-agenda-super-groups-safe))
+            (org-agenda-prefix-format
+             '((agenda . " %-12:c %?-12t %10e ")
+               (todo . " %-12:c %?-12t %10e ")
+               (tags . " %-12:c %?-12t %10e ")))))
           ("w" "Weekly planning"
            ((agenda ""
                     ((org-agenda-span 'week)
@@ -207,14 +207,14 @@ A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
                          (org-super-agenda-groups (org-life-agenda-super-groups-safe))))
              (tags-todo my/org-journal-open-todo-match
                         ((org-agenda-files org-life-journal-agenda-files)
-                         (org-agenda-overriding-header "Journal (open TODOs, full history)")))
+                         (org-agenda-overriding-header "Journal (open TODOs, full history)"))))
            ((org-agenda-show-log nil)
-             (org-agenda-start-with-log-mode nil)
-             (org-super-agenda-groups (org-life-agenda-super-groups-safe))
-             (org-agenda-prefix-format
-              '((agenda . " %-12:c %?-12t %10e ")
-                (todo . " %-12:c %?-12t %10e ")
-                (tags . " %-12:c %?-12t %10e "))))))
+            (org-agenda-start-with-log-mode nil)
+            (org-super-agenda-groups (org-life-agenda-super-groups-safe))
+            (org-agenda-prefix-format
+             '((agenda . " %-12:c %?-12t %10e ")
+               (todo . " %-12:c %?-12t %10e ")
+               (tags . " %-12:c %?-12t %10e ")))))
           ("r" "Daily Review (timeline + triage)"
            ((agenda ""
                     ((org-agenda-span 'day)

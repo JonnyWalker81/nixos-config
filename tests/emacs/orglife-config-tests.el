@@ -171,8 +171,10 @@
 
 (defun orglife-test-write-file (path content)
   (make-directory (file-name-directory path) t)
-  (with-temp-file path
-    (insert content)))
+  (with-current-buffer (find-file-noselect path)
+    (erase-buffer)
+    (insert content)
+    (save-buffer)))
 
 (defun orglife-test-heading-id (file)
   (with-current-buffer (find-file-noselect file)
@@ -180,6 +182,44 @@
     (org-back-to-heading t)
     (prog1 (org-id-get-create)
       (save-buffer))))
+
+(defun orglife-test-org-date (&optional day-offset)
+  (format-time-string "%Y-%m-%d %a"
+                      (time-add (current-time)
+                                (days-to-time (or day-offset 0)))))
+
+(defun orglife-test-seed-agenda-flow-fixtures ()
+  (orglife-test-write-file
+   (expand-file-name "~/org/gtd/inbox.org")
+   "* TODO Captured inbox task\n")
+  (orglife-test-write-file
+   (expand-file-name "~/org/gtd/projects.org")
+   "* TODO Project Alpha\n")
+  (orglife-test-write-file
+   (expand-file-name "~/org/gtd/meetings.org")
+   (format "* TODO Team Sync\nSCHEDULED: <%s>\n" (orglife-test-org-date 0)))
+  (orglife-test-write-file
+   (expand-file-name (format "~/org/journal/%s.org" (format-time-string "%Y-%m-%d")) )
+   "* TODO Journal follow-up\n"))
+
+(defun orglife-test-render-agenda (command &optional withhold-super-agenda)
+  (let ((orig-require (symbol-function 'require)))
+    (when-let ((buffer (get-buffer org-agenda-buffer-name)))
+      (kill-buffer buffer))
+    (unwind-protect
+        (cl-letf (((symbol-function 'require)
+                   (lambda (feature &optional filename noerror)
+                     (if (eq feature 'org-super-agenda)
+                         (if withhold-super-agenda
+                             nil
+                           t)
+                       (funcall orig-require feature filename noerror)))))
+          (save-window-excursion
+            (call-interactively command))
+          (with-current-buffer org-agenda-buffer-name
+            (buffer-string)))
+      (when-let ((buffer (get-buffer org-agenda-buffer-name)))
+        (kill-buffer buffer)))))
 
 (ert-deftest orglife-init-enables-roam-and-journal-modules ()
   (let ((content (with-temp-buffer
@@ -262,13 +302,15 @@
    (let ((keys (mapcar #'car org-agenda-custom-commands)))
      (dolist (key '("d" "w" "r" "R" "I" "H" "W"))
        (should (member key keys))))
-    (should (plist-member (car org-super-agenda-groups) :name))
-    (should (seq-find (lambda (group) (equal (plist-get group :name) "WAITING (parked)")) org-super-agenda-groups))
-    (should (seq-find (lambda (group) (equal (plist-get group :name) "SOMEDAY (parked)")) org-super-agenda-groups))
-    (should (equal (org-life-agenda-super-groups-safe) org-super-agenda-groups))
-    (should (fboundp 'my/org-agenda-skip-non-stuck-gtd-projects))
-    (dolist (fn '(org-life-agenda-daily-planning
-                  org-life-agenda-weekly-planning
+     (should (plist-member (car org-super-agenda-groups) :name))
+     (should (seq-find (lambda (group) (equal (plist-get group :name) "WAITING (parked)")) org-super-agenda-groups))
+     (should (seq-find (lambda (group) (equal (plist-get group :name) "SOMEDAY (parked)")) org-super-agenda-groups))
+     (should (equal (org-life-agenda-super-groups-safe) org-super-agenda-groups))
+     (dolist (key '("d" "w" "r" "R"))
+       (should (= (length (assoc key org-agenda-custom-commands)) 4)))
+     (should (fboundp 'my/org-agenda-skip-non-stuck-gtd-projects))
+     (dolist (fn '(org-life-agenda-daily-planning
+                   org-life-agenda-weekly-planning
                   org-life-agenda-daily-review
                   org-life-agenda-weekly-review
                   org-life-agenda-inbox-dashboard
@@ -299,9 +341,37 @@
                   (setq dispatched-key key))))
        (org-life-agenda-daily-planning))
      (should (equal dispatched-key "d"))
-     (should (equal mode-arg 1))
-     (should (equal org-super-agenda-groups org-life-agenda-default-super-groups))
-     (should (equal (org-life-agenda-super-groups-safe) org-life-agenda-default-super-groups)))))
+      (should (equal mode-arg 1))
+      (should (equal org-super-agenda-groups org-life-agenda-default-super-groups))
+      (should (equal (org-life-agenda-super-groups-safe) org-life-agenda-default-super-groups)))))
+
+(ert-deftest orglife-agenda-runtime-wrappers-survive-unbound-and-deferred-super-groups ()
+  (orglife-test-with-temp-home
+   (orglife-test-reset-state)
+   (orglife-test-install-stubs)
+   (provide 'org-super-agenda)
+   (orglife-test-load "users/doom.d/config-org-gtd.el")
+   (orglife-test-load "users/doom.d/config-org-journal.el")
+   (orglife-test-load "users/doom.d/config-org-agenda.el")
+   (orglife-test-seed-agenda-flow-fixtures)
+   (dolist (spec '((org-life-agenda-daily-planning "Today timeline" "Captured inbox task")
+                   (org-life-agenda-weekly-planning "Week timeline" "Team Sync")
+                   (org-life-agenda-daily-review "Daily review timeline" "Journal follow-up")
+                   (org-life-agenda-weekly-review "1) Week timeline" "Project Alpha")))
+     (makunbound 'org-super-agenda-groups)
+     (let ((rendered (orglife-test-render-agenda (nth 0 spec))))
+       (should (string-match-p (regexp-quote (nth 1 spec)) rendered))
+       (should (string-match-p (regexp-quote (nth 2 spec)) rendered))))
+   (should (equal org-super-agenda-groups org-life-agenda-default-super-groups))
+   (dolist (spec '((org-life-agenda-daily-planning "Today timeline")
+                   (org-life-agenda-weekly-planning "Week timeline")
+                   (org-life-agenda-daily-review "Daily review timeline")
+                   (org-life-agenda-weekly-review "1) Week timeline")))
+     (makunbound 'org-super-agenda-groups)
+     (let ((rendered (orglife-test-render-agenda (nth 0 spec) 'withhold-super-agenda)))
+       (should (string-match-p (regexp-quote (nth 1 spec)) rendered))
+       (should-not (string-match-p "void-variable" rendered))
+       (should-not (boundp 'org-super-agenda-groups))))))
 
 (ert-deftest orglife-roam-settings-and-wrappers-are-loaded ()
   (orglife-test-with-temp-home
@@ -448,11 +518,11 @@
      (should (eq roam-policy 'roam))
      (with-temp-buffer
        (org-life-dashboard-widget-quick-actions)
-       (let ((rendered (buffer-string)))
-         (should (string-match-p "Capture" rendered))
-         (should (string-match-p "Daily Review" rendered))
-          (should (string-match-p "Weekly Review" rendered))
-          (should (string-match-p "Roam Find" rendered)))))))
+        (let ((rendered (buffer-string)))
+          (should (string-match-p "Capture" rendered))
+          (should (string-match-p "Daily Review" rendered))
+           (should (string-match-p "Weekly Review" rendered))
+           (should (string-match-p "Roam Find" rendered)))))))
 
 (ert-deftest orglife-dashboard-inbox-widget-renders-pending-count-with-items ()
   (orglife-test-with-temp-home
