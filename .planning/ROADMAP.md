@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Journaling & Denote** - org-journal daily entries with carry-over, plus denote structured notes
 - [x] **Phase 7: Visual Polish** - org-modern styling, color-coded TODO states, emphasis hiding, inline previews
 - [x] **Phase 8: Integration & Dashboard** - Cross-linking between all systems, SPC keybindings, startup dashboard
-- [ ] **Phase 9: Agenda Runtime Hardening & Flow Recovery** - Close AGN-01/02/03 by hardening org-super-agenda runtime wiring and restoring broken agenda-dependent E2E flows
+- [x] **Phase 9: Agenda Runtime Hardening & Flow Recovery** - Close AGN-01/02/03 by hardening org-super-agenda runtime wiring and restoring broken agenda-dependent E2E flows
 
 ## Phase Details
 
@@ -166,8 +166,8 @@ Plans:
 **Plans**: 2 plans in 2 waves (sequential)
 
 Plans:
-- [ ] 09-01-PLAN.md — Runtime-safe org-super-agenda binding and agenda command-path hardening (`d`/`w`/`r`/`R` + dashboard quick actions)
-- [ ] 09-02-PLAN.md — Regression coverage for unbound/load-timing agenda failures and full E2E re-verification gate for restored flows
+- [x] 09-01-PLAN.md — Runtime-safe org-super-agenda binding and agenda command-path hardening (`d`/`w`/`r`/`R` + dashboard quick actions)
+- [x] 09-02-PLAN.md — Regression coverage for unbound/load-timing agenda failures and full E2E re-verification gate for restored flows
 
 ## Progress
 
@@ -184,8 +184,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Journaling & Denote | 2/2 | Verified ✓ | 2026-03-03 |
 | 7. Visual Polish | 2/2 | Verified ✓ | 2026-03-08 |
 | 8. Integration & Dashboard | 5/5 | Verified ✓ | 2026-03-08 |
-| 9. Agenda Runtime Hardening & Flow Recovery | 1/2 | In progress | - |
+| 9. Agenda Runtime Hardening & Flow Recovery | 2/2 | Verified ✓ | 2026-03-10 |
 
 ---
 *Roadmap created: 2026-02-24*
-*Last updated: 2026-03-10 — Completed 09-01 runtime hardening and advanced Phase 9 to 1/2 plans complete*
+*Last updated: 2026-03-10 — Completed 09-02 regression verification and closed Phase 9 at 2/2 plans complete*
