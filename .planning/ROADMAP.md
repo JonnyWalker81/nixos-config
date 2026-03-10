@@ -184,8 +184,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Journaling & Denote | 2/2 | Verified ✓ | 2026-03-03 |
 | 7. Visual Polish | 2/2 | Verified ✓ | 2026-03-08 |
 | 8. Integration & Dashboard | 5/5 | Verified ✓ | 2026-03-08 |
-| 9. Agenda Runtime Hardening & Flow Recovery | 0/2 | Not started | - |
+| 9. Agenda Runtime Hardening & Flow Recovery | 1/2 | In progress | - |
 
 ---
 *Roadmap created: 2026-02-24*
-*Last updated: 2026-03-09 — Added Phase 9 gap-closure work for v1 audit blockers (AGN-01/02/03 + agenda runtime integration/flow recovery)*
+*Last updated: 2026-03-10 — Completed 09-01 runtime hardening and advanced Phase 9 to 1/2 plans complete*
