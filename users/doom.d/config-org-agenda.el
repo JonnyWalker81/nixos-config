@@ -139,6 +139,41 @@ A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
     (org-life-agenda-prepare-runtime)
     (org-agenda nil key))
 
+  (defun org-life-agenda-daily-planning ()
+    "Open the canonical daily planning agenda command."
+    (interactive)
+    (org-life-agenda-dispatch "d"))
+
+  (defun org-life-agenda-weekly-planning ()
+    "Open the canonical weekly planning agenda command."
+    (interactive)
+    (org-life-agenda-dispatch "w"))
+
+  (defun org-life-agenda-daily-review ()
+    "Open the canonical daily review agenda command."
+    (interactive)
+    (org-life-agenda-dispatch "r"))
+
+  (defun org-life-agenda-weekly-review ()
+    "Open the canonical weekly review agenda command."
+    (interactive)
+    (org-life-agenda-dispatch "R"))
+
+  (defun org-life-agenda-inbox-dashboard ()
+    "Open the canonical GTD inbox dashboard command."
+    (interactive)
+    (org-life-agenda-dispatch "I"))
+
+  (defun org-life-agenda-context-home ()
+    "Open the canonical @home context review agenda command."
+    (interactive)
+    (org-life-agenda-dispatch "H"))
+
+  (defun org-life-agenda-context-work ()
+    "Open the canonical @work context review agenda command."
+    (interactive)
+    (org-life-agenda-dispatch "W"))
+
   (setq org-agenda-custom-commands
         `(("d" "Daily planning"
            ((agenda ""
@@ -261,13 +296,13 @@ A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
 
 (map! :leader
       (:prefix ("o a" . "agenda")
-        :desc "Daily planning agenda" "d" (cmd! (org-agenda nil "d"))
-        :desc "Inbox dashboard" "i" (cmd! (org-agenda nil "I"))
-        :desc "Weekly planning agenda" "w" (cmd! (org-agenda nil "w"))
-        :desc "Daily review (triage)" "r" (cmd! (org-agenda nil "r"))
-        :desc "Weekly review (GTD)" "R" (cmd! (org-agenda nil "R"))
-        :desc "Review @home context" "h" (cmd! (org-agenda nil "H"))
-       :desc "Review @work context" "W" (cmd! (org-agenda nil "W"))))
+        :desc "Daily planning agenda" "d" #'org-life-agenda-daily-planning
+        :desc "Inbox dashboard" "i" #'org-life-agenda-inbox-dashboard
+        :desc "Weekly planning agenda" "w" #'org-life-agenda-weekly-planning
+        :desc "Daily review (triage)" "r" #'org-life-agenda-daily-review
+        :desc "Weekly review (GTD)" "R" #'org-life-agenda-weekly-review
+        :desc "Review @home context" "h" #'org-life-agenda-context-home
+       :desc "Review @work context" "W" #'org-life-agenda-context-work))
 
 (provide 'config-org-agenda)
 ;;; config-org-agenda.el ends here

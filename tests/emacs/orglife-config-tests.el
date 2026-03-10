@@ -267,6 +267,14 @@
     (should (seq-find (lambda (group) (equal (plist-get group :name) "SOMEDAY (parked)")) org-super-agenda-groups))
     (should (equal (org-life-agenda-super-groups-safe) org-super-agenda-groups))
     (should (fboundp 'my/org-agenda-skip-non-stuck-gtd-projects))
+    (dolist (fn '(org-life-agenda-daily-planning
+                  org-life-agenda-weekly-planning
+                  org-life-agenda-daily-review
+                  org-life-agenda-weekly-review
+                  org-life-agenda-inbox-dashboard
+                  org-life-agenda-context-home
+                  org-life-agenda-context-work))
+      (should (fboundp fn)))
     (should (equal my/org-gtd-project-files '("~/org/gtd/projects.org")))))
 
 (ert-deftest orglife-agenda-safe-dispatch-recovers-from-unbound-super-groups ()
