@@ -2,7 +2,7 @@
 
 ## Overview
 
-OrgLife transforms the user's existing Doom Emacs setup into a comprehensive life management system by building incrementally: GTD task foundation first (everything depends on `org-directory` and file structure), then capture workflows, agenda views (basic then advanced), org-roam knowledge base, journaling + denote, visual polish, cross-system integration, and an audit-driven agenda runtime closure phase. Each phase delivers a complete, verifiable capability and includes a `doom sync` + rebuild validation gate before proceeding. The 9-phase structure follows the dependency chain revealed by research and audit findings — GTD primitives must exist before agenda views, org-roam requires sqlite verification, and runtime agenda safety must be hardened before milestone completion.
+OrgLife transforms the user's existing Doom Emacs setup into a comprehensive life management system by building incrementally: GTD task foundation first (everything depends on `org-directory` and file structure), then capture workflows, agenda views (basic then advanced), org-roam knowledge base, journaling + denote, visual polish, cross-system integration, and audit-driven closure phases for runtime gaps and post-audit refinements. Each phase delivers a complete, verifiable capability and includes a `doom sync` + rebuild validation gate before proceeding. The roadmap now extends beyond the original 9-phase build with post-audit closure work: milestone blockers are addressed first, then optional debt cleanup follows once the milestone is re-audited cleanly.
 
 ## Phases
 
@@ -21,6 +21,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 7: Visual Polish** - org-modern styling, color-coded TODO states, emphasis hiding, inline previews
 - [x] **Phase 8: Integration & Dashboard** - Cross-linking between all systems, SPC keybindings, startup dashboard
 - [x] **Phase 9: Agenda Runtime Hardening & Flow Recovery** - Close AGN-01/02/03 by hardening org-super-agenda runtime wiring and restoring broken agenda-dependent E2E flows
+- [ ] **Phase 10: Capture Backlink Flow Closure** - Restore bidirectional backlink persistence in capture-time optional link flows for task/roam and journal/task-project capture paths
+- [ ] **Phase 11: Journal Runtime Closure & Milestone Re-Audit** - Close remaining journal runtime verification gaps and re-audit milestone v1 for final definition-of-done confirmation
+- [ ] **Phase 12: Journal Agenda Ownership Consolidation** - Remove duplicate ownership of journal agenda file wiring across agenda and journal modules
+- [ ] **Phase 13: Integration UX Surface Polish** - Surface backlink-capable linking flows more clearly within the strict top-level OrgLife command surface
 
 ## Phase Details
 
@@ -169,10 +173,56 @@ Plans:
 - [x] 09-01-PLAN.md — Runtime-safe org-super-agenda binding and agenda command-path hardening (`d`/`w`/`r`/`R` + dashboard quick actions)
 - [x] 09-02-PLAN.md — Regression coverage for unbound/load-timing agenda failures and full E2E re-verification gate for restored flows
 
+### Phase 10: Capture Backlink Flow Closure
+**Goal**: Make optional-link capture templates persist reverse backlinks through the same idempotent backlink store used by manual integration commands, restoring capture-based cross-link flows end-to-end
+**Depends on**: Phase 8, Phase 9
+**Requirements**: UX-01, UX-02
+**Gap Closure**: Closes gaps from `.planning/v1-v1-MILESTONE-AUDIT.md` (`gaps.integration`, `gaps.flows`)
+**Success Criteria** (what must be TRUE):
+  1. Task capture with an optional org-roam link writes both the forward `[[id:...]]` link and reverse backlink metadata visible from the linked note
+  2. Journal capture with an optional GTD/project link writes both the forward link and reverse backlink metadata visible from the linked target heading
+  3. Capture-time linking reuses the same idempotent backlink persistence path as manual integration commands instead of maintaining a parallel weaker path
+  4. Automated regression coverage proves capture-created links persist and remain queryable from the target side
+**Plans**: 0 yet (plan after phase creation)
+
+### Phase 11: Journal Runtime Closure & Milestone Re-Audit
+**Goal**: Close the remaining Phase 6 runtime-only milestone gaps by proving journal capture is duplicate-free and carry-over executes exactly once, then refresh milestone status
+**Depends on**: Phase 6, Phase 10
+**Requirements**: JRN-02, CAP-05
+**Gap Closure**: Closes gaps from `.planning/v1-v1-MILESTONE-AUDIT.md` (`gaps.requirements` and journal-related flow caveat)
+**Success Criteria** (what must be TRUE):
+  1. Runtime verification proves journal carry-over migrates unfinished TODOs exactly once across a day boundary
+  2. Runtime verification proves `org-capture` inserts into `org-journal` without duplicate heading artifacts
+  3. Phase 6 verification artifacts are updated so JRN-02 and CAP-05 are fully closed at milestone level
+  4. A fresh milestone audit reports v1 at definition-of-done with no remaining blocker-level gaps
+**Plans**: 0 yet (plan after phase creation)
+
+### Phase 12: Journal Agenda Ownership Consolidation
+**Goal**: Remove duplicate ownership of `org-life-journal-agenda-files` so journal agenda wiring has one canonical source of truth and future divergence risk is eliminated
+**Depends on**: Phase 11
+**Requirements**: None (tech debt cleanup supporting JRN-03 maintainability)
+**Gap Closure**: Addresses deferred tech debt from `.planning/v1-v1-MILESTONE-AUDIT.md` (`tech_debt.cross-phase`)
+**Success Criteria** (what must be TRUE):
+  1. `org-life-journal-agenda-files` is defined in one canonical module only, with other modules consuming that source instead of redefining it
+  2. Journal agenda sections still render the same journal file set after the ownership cleanup
+  3. Tests or verification notes cover the canonical ownership path so future regressions are easier to catch
+**Plans**: 0 yet (plan after phase creation)
+
+### Phase 13: Integration UX Surface Polish
+**Goal**: Make backlink-capable linking workflows more discoverable within the top-level OrgLife command surface so the strongest integration path is also the most visible UX path
+**Depends on**: Phase 10, Phase 11
+**Requirements**: UX-03 (polish only; already satisfied)
+**Gap Closure**: Addresses deferred tech debt from `.planning/v1-v1-MILESTONE-AUDIT.md` (`tech_debt.phase 08`)
+**Success Criteria** (what must be TRUE):
+  1. The default OrgLife command surface exposes backlink-capable linking flows without relying on buried/manual-only commands
+  2. User-facing keypaths and command naming clearly distinguish ordinary link insertion from bidirectional link persistence when relevant
+  3. Existing two-keystroke `SPC o` contract remains intact while backlink workflows become easier to discover
+**Plans**: 0 yet (plan after phase creation)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -185,7 +235,11 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Visual Polish | 2/2 | Verified ✓ | 2026-03-08 |
 | 8. Integration & Dashboard | 5/5 | Verified ✓ | 2026-03-08 |
 | 9. Agenda Runtime Hardening & Flow Recovery | 2/2 | Verified ✓ | 2026-03-10 |
+| 10. Capture Backlink Flow Closure | 0/0 | Pending | — |
+| 11. Journal Runtime Closure & Milestone Re-Audit | 0/0 | Pending | — |
+| 12. Journal Agenda Ownership Consolidation | 0/0 | Pending | — |
+| 13. Integration UX Surface Polish | 0/0 | Pending | — |
 
 ---
 *Roadmap created: 2026-02-24*
-*Last updated: 2026-03-10 — Phase 9 verified, AGN-01/02/03 closed, and roadmap marked milestone-complete*
+*Last updated: 2026-03-13 — Added post-audit closure Phases 10-13 for remaining milestone blockers and deferred cleanup work*
