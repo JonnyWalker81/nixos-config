@@ -1,4 +1,12 @@
-{ config, pkgs, lib, currentSystem, currentSystemName, inputs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  currentSystem,
+  currentSystemName,
+  inputs,
+  ...
+}:
 
 {
   imports = [ ../modules/desktop ];
@@ -12,11 +20,19 @@
       keep-derivations = true
     '';
 
+    # Weekly automatic GC of generations older than 30 days
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 30d";
+    };
+
     settings = {
+      # Deduplicate paths (hardlink) automatically as they are added to the store
+      auto-optimise-store = true;
       # Binary caches for faster builds
       substituters = [ "https://cache.nixos.org" ];
-      trusted-public-keys =
-        [ "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=" ];
+      trusted-public-keys = [ "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=" ];
     };
   };
 
@@ -25,11 +41,16 @@
     enable = true;
 
     # For VM environments, ensure software rendering fallback
-    extraPackages = with pkgs; [ mesa libvdpau-va-gl vaapiVdpau ];
+    extraPackages = with pkgs; [
+      mesa
+      libvdpau-va-gl
+      vaapiVdpau
+    ];
   };
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.configurationLimit = 20;
   boot.loader.efi.canTouchEfiVariables = true;
 
   nixpkgs.config.allowUnfree = true;
@@ -44,7 +65,10 @@
   # Set your time zone.
   time.timeZone = "America/Los_Angeles";
 
-  networking.timeServers = [ "pool.ntp.org" "time.nist.gov" ];
+  networking.timeServers = [
+    "pool.ntp.org"
+    "time.nist.gov"
+  ];
   services.timesyncd.enable = true;
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
@@ -113,7 +137,7 @@
 
       displayManager = {
         sessionCommands = ''
-          ${pkgs.xorg.xset}/bin/xset r rate 1000 1000
+          ${pkgs.xorg.xset}/bin/xset r rate 300 60 || true
         '';
       };
     };
@@ -127,15 +151,20 @@
   fonts = {
     fontDir.enable = true;
 
-    packages = with pkgs;
-      [ fira-code fira-code-symbols jetbrains-mono ]
-      ++ builtins.filter lib.attrsets.isDerivation
-      (builtins.attrValues pkgs.nerd-fonts);
+    packages =
+      with pkgs;
+      [
+        fira-code
+        fira-code-symbols
+        jetbrains-mono
+      ]
+      ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
   };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs;
+  environment.systemPackages =
+    with pkgs;
     [
       asciidoc
       cachix
@@ -151,7 +180,8 @@
         # Use the new display profile system for auto-detection
         ${../scripts/display-profiles/display-switcher.sh} auto
       '')
-    ] ++ lib.optionals (currentSystemName == "vm-aarch64") [
+    ]
+    ++ lib.optionals (currentSystemName == "vm-aarch64") [
 
       # This is needed for the vmware user tools clipboard to work.
       # You can test if you don't need this by deleting this and seeing
