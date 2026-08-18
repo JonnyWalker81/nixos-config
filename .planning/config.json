@@ -7,6 +7,9 @@
   "workflow": {
     "research": true,
     "plan_check": true,
-    "verifier": true
+    "verifier": true,
+    "require_tests": true,
+    "enforce_test_updates": true,
+    "phase_test_command": "tests/run-orglife-tests.sh"
   }
 }

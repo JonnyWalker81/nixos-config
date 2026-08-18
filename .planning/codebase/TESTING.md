@@ -5,12 +5,15 @@
 ## Test Framework
 
 **Runner:**
-- No automated test framework (no Jest, pytest, vitest, or similar)
-- Testing is done via NixOS rebuild commands that validate configuration at build time
-- Nix's evaluation and build system serves as the primary "test harness" -- invalid configurations fail at `nixos-rebuild` time
+- Automated Emacs config tests use ERT in batch mode via `tests/run-orglife-tests.sh`
+- Phase quality gate runs this command before any phase can be marked complete
+- NixOS rebuild commands remain required integration validation for system-level Nix changes
 
 **Validation Commands:**
 ```bash
+# OrgLife automated suite (required phase gate)
+tests/run-orglife-tests.sh
+
 # Test a configuration without applying (evaluates and builds, does not switch)
 make test NIXNAME=vm-aarch64-prl
 
@@ -29,10 +32,12 @@ sudo nixos-rebuild switch --flake ".#vm-aarch64-prl"
 ## Test File Organization
 
 **Location:**
-- No dedicated test directory or test files exist
-- Two ad-hoc test scripts exist at the repo root (both are gitignored):
-  - `test_emacs.sh` -- Tests Emacs JavaScript mode detection in batch mode
-  - `test_interactive.sh` -- Creates temp files and guides manual Emacs testing
+- Canonical automated tests live in `tests/`
+  - `tests/emacs/orglife-config-tests.el` — ERT suite for OrgLife phases and keybindings
+  - `tests/run-orglife-tests.sh` — batch runner used by workflow gate
+- Legacy ad-hoc scripts still exist at repo root:
+  - `test_emacs.sh`
+  - `test_interactive.sh`
 
 **Naming:**
 - Test scripts follow `test_*.sh` or `test-*.sh` pattern
@@ -41,8 +46,11 @@ sudo nixos-rebuild switch --flake ".#vm-aarch64-prl"
 **Structure:**
 ```
 /                           # Repo root
-├── test_emacs.sh           # Ad-hoc Emacs test (gitignored)
-├── test_interactive.sh     # Ad-hoc interactive test (gitignored)
+├── tests/
+│   ├── emacs/orglife-config-tests.el
+│   └── run-orglife-tests.sh
+├── test_emacs.sh           # legacy ad-hoc script
+├── test_interactive.sh     # legacy ad-hoc script
 ├── run.sh                  # Docker-based LazyVim test
 └── Makefile                # Primary test/build commands
 ```
@@ -131,7 +139,15 @@ Pattern: Uses Docker for isolated testing of editor configurations.
 
 ## Coverage
 
-**Requirements:** None enforced
+**Requirements:** Enforced for OrgLife phase execution
+
+- `workflow.require_tests=true` in `.planning/config.json`
+- `workflow.enforce_test_updates=true` in `.planning/config.json`
+- `workflow.phase_test_command="tests/run-orglife-tests.sh"` in `.planning/config.json`
+
+This means:
+- Any phase execution must pass `tests/run-orglife-tests.sh` before being marked complete
+- Tasks that change behavior are expected to include test additions/updates
 
 **What IS validated by rebuild:**
 - All Nix expression evaluation (syntax, types, option constraints)
@@ -149,15 +165,16 @@ Pattern: Uses Docker for isolated testing of editor configurations.
 
 ## Common Patterns
 
-**Testing a Configuration Change:**
+**Testing an OrgLife Configuration Change:**
 ```bash
-# 1. Make changes to nix files
-# 2. Test build (does NOT apply)
+# 1. Make changes to orglife config/tests
+tests/run-orglife-tests.sh
+# 2. If nix files changed, also validate Nix build
 make test NIXNAME=vm-aarch64-prl
-# 3. If test passes, apply
+# 3. If both pass, apply locally
 make switch NIXNAME=vm-aarch64-prl
-# 4. Manually verify runtime behavior
-# 5. Commit (after user confirms rebuild success)
+# 4. Manually verify runtime behavior when visual/interactive
+# 5. Commit (after user confirms rebuild success for nix changes)
 ```
 
 **Testing Overlay Hash Updates (DWM example):**

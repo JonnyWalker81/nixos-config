@@ -90,6 +90,8 @@ Everything lives in one integrated system — tasks, schedule, notes, and journa
 - **Deployment**: Changes must be deployable via `sudo nixos-rebuild switch --flake ".#vm-aarch64-prl"`
 - **Compatibility**: Must not break existing org-babel, presentation export, or elfeed configurations
 - **Package Management**: New Emacs packages declared in `users/doom.d/packages.el`, system packages (sqlite for org-roam) in Nix config
+- **Testing Gate**: Automated OrgLife suite `tests/run-orglife-tests.sh` is mandatory for phase completion
+- **Test Maintenance**: Behavioral code changes must include corresponding test additions/updates
 
 ## Key Decisions
 
