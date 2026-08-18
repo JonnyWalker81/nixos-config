@@ -1,17 +1,37 @@
-{ isWSL, isDarwin, inputs, ... }:
+{
+  isWSL,
+  isDarwin,
+  inputs,
+  ...
+}:
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   isLinux = !isDarwin;
 
   common = import ../common {
-    inherit config lib pkgs isWSL inputs;
+    inherit
+      config
+      lib
+      pkgs
+      isWSL
+      inputs
+      ;
     system = pkgs.stdenv.hostPlatform.system;
   };
-in {
+in
+{
   imports = [ common ];
 
-  programs.google-chrome-dev = lib.mkIf isLinux { enable = true; };
+  programs.chromium = lib.mkIf isLinux {
+    enable = true;
+    package = pkgs.google-chrome;
+  };
 
   programs.git.userEmail = "jrothberg@bluebeam.com";
 
@@ -25,9 +45,13 @@ in {
       @theme "${pkgs.rofi-unwrapped}/share/rofi/themes/glue_pro_blue.rasi"
     '';
 
-    ".config/greenclip.toml" = { source = ../greenclip/greenclip.toml; };
+    ".config/greenclip.toml" = {
+      source = ../greenclip/greenclip.toml;
+    };
 
-    ".config/clipcat/clipcatd.toml" = { source = ../clipcat/clipcatd.toml; };
+    ".config/clipcat/clipcatd.toml" = {
+      source = ../clipcat/clipcatd.toml;
+    };
 
     ".config/clipcat/clipcatctl.toml" = {
       source = ../clipcat/clipcatctl.toml;
@@ -39,9 +63,13 @@ in {
 
     # home.file.".config/picom/picom.conf" = { source = ../picom/picom.conf; };
 
-    ".xmonad/xmonad.hs" = { source = ../xmonad/xmonad.hs; };
+    ".xmonad/xmonad.hs" = {
+      source = ../xmonad/xmonad.hs;
+    };
 
-    ".config/xmobar/.xmobarrc" = { source = ../xmobar/.xmobarrc; };
+    ".config/xmobar/.xmobarrc" = {
+      source = ../xmobar/.xmobarrc;
+    };
 
     # DWM autostart and status bar scripts
     ".local/share/dwm/autostart.sh" = {

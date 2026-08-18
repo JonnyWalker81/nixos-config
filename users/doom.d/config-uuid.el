@@ -228,27 +228,26 @@
 ;; Keybindings
 ;; ----------------------------------------------------------------------------
 
-;; Using SPC o u (open → UUID) to avoid conflict with SPC i u (insert unicode)
+;; Use direct SPC o u prefix to avoid clobbering other SPC o subtrees.
 (map! :leader
-      (:prefix ("o" . "open")
-               (:prefix ("u" . "UUID")
-                :desc "Insert UUIDv4" "4" #'jr/insert-uuidv4
-                :desc "Insert UUIDv7" "7" #'jr/insert-uuidv7
-                (:prefix ("R" . "readable")
-                 :desc "Insert readable UUIDv4" "4" #'jr/insert-readable-uuidv4
-                 :desc "Insert readable UUIDv7" "7" #'jr/insert-readable-uuidv7)
-                (:prefix ("y" . "copy/yank")
-                 :desc "Copy UUIDv4" "4" #'jr/copy-uuidv4
-                 :desc "Copy UUIDv7" "7" #'jr/copy-uuidv7
-                 (:prefix ("R" . "readable")
-                  :desc "Copy readable UUIDv4" "4" #'jr/copy-readable-uuidv4
-                  :desc "Copy readable UUIDv7" "7" #'jr/copy-readable-uuidv7))
-                (:prefix ("r" . "replace")
-                 :desc "Replace with UUIDv4" "4" #'jr/replace-uuid-at-point-with-v4
-                 :desc "Replace with UUIDv7" "7" #'jr/replace-uuid-at-point-with-v7
-                 (:prefix ("R" . "readable")
-                  :desc "Replace with readable UUIDv4" "4" #'jr/replace-uuid-at-point-with-readable-v4
-                  :desc "Replace with readable UUIDv7" "7" #'jr/replace-uuid-at-point-with-readable-v7)))))
+      (:prefix ("o u" . "UUID")
+       :desc "Insert UUIDv4" "4" #'jr/insert-uuidv4
+       :desc "Insert UUIDv7" "7" #'jr/insert-uuidv7
+       (:prefix ("R" . "readable")
+        :desc "Insert readable UUIDv4" "4" #'jr/insert-readable-uuidv4
+        :desc "Insert readable UUIDv7" "7" #'jr/insert-readable-uuidv7)
+       (:prefix ("y" . "copy/yank")
+        :desc "Copy UUIDv4" "4" #'jr/copy-uuidv4
+        :desc "Copy UUIDv7" "7" #'jr/copy-uuidv7
+        (:prefix ("R" . "readable")
+         :desc "Copy readable UUIDv4" "4" #'jr/copy-readable-uuidv4
+         :desc "Copy readable UUIDv7" "7" #'jr/copy-readable-uuidv7))
+       (:prefix ("r" . "replace")
+        :desc "Replace with UUIDv4" "4" #'jr/replace-uuid-at-point-with-v4
+        :desc "Replace with UUIDv7" "7" #'jr/replace-uuid-at-point-with-v7
+        (:prefix ("R" . "readable")
+         :desc "Replace with readable UUIDv4" "4" #'jr/replace-uuid-at-point-with-readable-v4
+         :desc "Replace with readable UUIDv7" "7" #'jr/replace-uuid-at-point-with-readable-v7))))
 
 (provide 'config-uuid)
 ;;; config-uuid.el ends here

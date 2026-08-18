@@ -3,12 +3,17 @@
 final: prev:
 let
   # Override function to add our custom prl-tools to any kernel package set
-  extendKernelPackages = kpkgs:
-    kpkgs.extend (lpfinal: lpprev: {
-      prl-tools = lpfinal.callPackage ../pkgs/parallels-tools { };
-    });
-in {
+  extendKernelPackages =
+    kpkgs:
+    kpkgs.extend (
+      lpfinal: lpprev: {
+        prl-tools = lpfinal.callPackage ../pkgs/parallels-tools { };
+      }
+    );
+in
+{
   terraform = final.callPackage ../pkgs/terraform-bin.nix { };
+  pi-coding-agent = final.callPackage ../pkgs/pi-coding-agent.nix { };
 
   # Override all kernel package sets to use our custom prl-tools
   linuxPackages = extendKernelPackages prev.linuxPackages;

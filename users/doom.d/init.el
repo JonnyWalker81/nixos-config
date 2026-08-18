@@ -28,7 +28,7 @@
 
        :ui
        doom              ; what makes DOOM look the way it does
-       doom-dashboard    ; a nifty splash screen for Emacs
+       dashboard         ; a nifty splash screen for Emacs
        modeline     ; a snazzy Atom-inspired mode-line
        doom-quit         ; DOOM quit-message prompts when you quit Emacs
        ;; evil-goggles      ; display visual hints when editing in evil
@@ -189,6 +189,8 @@
         )            ; an objective camel
        (org              ; organize your plain life in plain text
         +pretty
+        +roam            ; org-roam v2 knowledge base (Phase 5)
+        +journal         ; org-journal daily entries (Phase 6)
         +attach          ; custom attachment system
         +babel           ; running code in org
         +capture         ; org-capture in and outside of Emacs

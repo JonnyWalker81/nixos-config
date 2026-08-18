@@ -12,11 +12,12 @@
     # Locks nixpkgs to an older version with an older Kernel that boots
     # on VMware Fusion Tech Preview. This can be swapped to nixpkgs when
     # the TP fixes the bug.
-    nixpkgs-old-kernel.url =
-      "github:nixos/nixpkgs/bacbfd713b4781a4a82c1f390f8fe21ae3b8b95b";
+    nixpkgs-old-kernel.url = "github:nixos/nixpkgs/bacbfd713b4781a4a82c1f390f8fe21ae3b8b95b";
     emacs-overlay.url = "github:nix-community/emacs-overlay";
 
-    ghostty = { url = "github:ghostty-org/ghostty"; };
+    ghostty = {
+      url = "github:ghostty-org/ghostty";
+    };
 
     hyprland.url = "github:hyprwm/Hyprland?ref=v0.50.1";
 
@@ -31,9 +32,7 @@
 
     claude-code.url = "github:sadjow/claude-code-nix";
 
-    opencode.url = "github:anomalyco/opencode";
-    opencode.inputs.nixpkgs.follows = "nixpkgs-unstable";
-
+    opencode.url = "github:anomalyco/opencode?ref=v1.14.22";
     # nix-homebrew for managing Homebrew on macOS
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
     homebrew-core = {
@@ -46,8 +45,19 @@
     };
   };
 
-  outputs = { self, darwin, ghostty, nixpkgs, nixpkgs-unstable, home-manager
-    , nix-homebrew, homebrew-core, homebrew-cask, ... }@inputs:
+  outputs =
+    {
+      self,
+      darwin,
+      ghostty,
+      nixpkgs,
+      nixpkgs-unstable,
+      home-manager,
+      nix-homebrew,
+      homebrew-core,
+      homebrew-cask,
+      ...
+    }@inputs:
     let
       # Overlays applied to all system configurations.
       # Split into three groups:
@@ -64,7 +74,12 @@
         (import ./overlays/fonts.nix { inherit inputs; })
         (import ./overlays/nixvim.nix { inherit inputs; })
         (final: prev: {
-          opencode = inputs.opencode.packages.${prev.system}.default;
+          opencode = inputs.opencode.packages.${prev.system}.default.overrideAttrs (old: {
+            postConfigure = (old.postConfigure or "") + ''
+              mkdir -p packages/opencode/src/cli/cmd/node_modules
+              ln -s ${prev.nodePackages.prettier}/lib/node_modules/prettier packages/opencode/src/cli/cmd/node_modules/prettier
+            '';
+          });
         })
 
         # --- Auto-discovered overlays (no inputs needed) ---
@@ -79,7 +94,8 @@
 
       # Single unified builder for all system configurations (NixOS, Darwin, WSL).
       mkSystem = import ./lib/mksystem.nix { inherit overlays nixpkgs inputs; };
-    in {
+    in
+    {
 
       nixosConfigurations.vm-aarch64-prl = mkSystem "vm-aarch64-prl" {
         system = "aarch64-linux";

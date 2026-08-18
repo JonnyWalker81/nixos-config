@@ -269,6 +269,19 @@ The DWM source code lives in a **separate repository** at `~/Repositories/dwm` (
 
 **Exception:** If changes span multiple unrelated concerns, split them into multiple atomic commits (per the atomic commit rules above).
 
+### Commit Work When It Has Been Worked On
+
+**Do not let completed work sit uncommitted.** This applies to work that does *not* go through the rebuild-validation flow above -- documentation, `.planning/` files, scripts, dotfiles, notes, or any change with no buildable step to validate it. For buildable NixOS/config changes, the "Auto-Commit After Validated Changes" flow still governs (rebuild first, then auto-commit).
+
+Follow these triggers:
+
+1. **When a logical unit of work is finished** -- surface it and ask the user to confirm before committing. Propose the atomic semantic commit message(s) so the user can approve, tweak, or decline in one step. If the work spans unrelated concerns, propose splitting it into multiple atomic commits.
+2. **When it has been a while since the last commit** -- if meaningful uncommitted work has accumulated (multiple edits across a session, or a sizable diff building up), proactively prompt the user to commit rather than waiting to be asked. Do not silently accumulate a large uncommitted diff.
+
+**Always confirm before committing** in this flow -- unlike the rebuild-validated path, ask first. Once the user confirms, create the atomic semantic commit(s) immediately.
+
+**Never commit or push without the user's confirmation** (rebuild-validated auto-commits excepted). Committing is the default expectation for finished work -- the confirmation is about *when* and *how to group*, not *whether* to keep the work.
+
 ## Makefile Default Values
 
 When using Makefile commands without parameters:

@@ -84,7 +84,28 @@
 ;; Theme and Appearance
 ;; ----------------------------------------------------------------------------
 
-(setq doom-theme 'doom-tokyo-night)
+(add-to-list 'custom-theme-load-path
+             (expand-file-name (format "straight/build-%s/compline-theme" emacs-version)
+                               doom-local-dir))
+;; Default theme (compline's load-path entry above is kept so it stays switchable via SPC t T)
+(setq doom-theme 'nordic-midnight)
+
+;; Catppuccin: pick the darkest flavor
+(setq catppuccin-flavor 'mocha)
+
+;; Restrict `consult-theme' (SPC t T) to a curated set of popular dark themes.
+;; `M-x load-theme' / `SPC h t' still expose the full list as an escape hatch.
+(after! consult
+  (setq consult-themes
+        '(doom-one doom-dracula doom-gruvbox doom-nord doom-tokyo-night
+          doom-monokai-pro doom-molokai doom-material doom-challenger-deep
+          doom-vibrant doom-palenight
+          modus-vivendi modus-vivendi-tinted
+          ef-dark ef-night ef-winter
+          catppuccin kaolin-dark kaolin-ocean
+          gruvbox-dark-medium nord nordic-night nordic-midnight zenburn
+          tokyo compline)))
+
 (setq doom-line-numbers-style 'relative)
 (setq display-line-numbers-type 'relative)
 (toggle-frame-maximized)
@@ -208,6 +229,20 @@
 (load! "config-completion")
 (message "Loading config-org...")
 (load! "config-org")
+(message "Loading config-org-gtd...")
+(load! "config-org-gtd")
+(message "Loading config-org-agenda...")
+(load! "config-org-agenda")
+(message "Loading config-org-jira...")
+(load! "config-org-jira")
+(message "Loading config-org-roam...")
+(load! "config-org-roam")
+(load! "config-org-journal")
+(load! "config-org-denote")
+(message "Loading config-org-integration...")
+(load! "config-org-integration")
+(message "Loading config-org-visual...")
+(load! "config-org-visual")
 (message "Loading config-copilot...")
 (load! "config-copilot")
 (message "Loading config-magit...")

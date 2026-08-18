@@ -1,5 +1,7 @@
 ;;; config-git-utils.el --- Git utilities and branch browser -*- lexical-binding: t; -*-
 
+(require 'cl-lib)
+
 ;; ============================================================================
 ;; GIT UTILITY FUNCTIONS
 ;; ============================================================================
@@ -101,6 +103,248 @@
 ;; ============================================================================
 ;; GIT DIFF FUNCTIONS
 ;; ============================================================================
+
+(defvar jr/magit-base-branch-history nil
+  "Minibuffer history for base branch prompts.")
+
+(defcustom jr/magit-default-base-branch "master"
+  "Default base branch used for branch comparison commands."
+  :type 'string
+  :group 'magit)
+
+(defun jr/magit--preferred-base-branch ()
+  "Return the preferred base branch for repository comparisons."
+  (cond
+   ((magit-git-success "rev-parse" "--verify" "--quiet" jr/magit-default-base-branch)
+    jr/magit-default-base-branch)
+   ((magit-git-success "rev-parse" "--verify" "--quiet" "origin/master")
+    "origin/master")
+   ((magit-git-success "rev-parse" "--verify" "--quiet" "main")
+    "main")
+   ((magit-git-success "rev-parse" "--verify" "--quiet" "origin/main")
+    "origin/main")
+   (t jr/magit-default-base-branch)))
+
+(defvar-local jr/magit-branch-changes-base-branch nil
+  "Base branch used by the current branch changes buffer.")
+
+(defface jr/magit-branch-changes-header-face
+  '((t :inherit mode-line-emphasis :weight bold))
+  "Face for the branch changes header line.")
+
+(defface jr/magit-branch-changes-key-face
+  '((t :inherit font-lock-keyword-face :weight bold))
+  "Face for key hints in the branch changes buffer.")
+
+(defface jr/magit-branch-changes-file-face
+  '((t :inherit default))
+  "Face for changed file paths.")
+
+(defface jr/magit-branch-changes-directory-face
+  '((t :inherit shadow))
+  "Face for directory portions of file paths.")
+
+(defface jr/magit-branch-changes-added-face
+  '((t :inherit diff-added :weight bold))
+  "Face for added files.")
+
+(defface jr/magit-branch-changes-modified-face
+  '((t :inherit diff-changed :weight bold))
+  "Face for modified files.")
+
+(defface jr/magit-branch-changes-deleted-face
+  '((t :inherit diff-removed :weight bold))
+  "Face for deleted files.")
+
+(defface jr/magit-branch-changes-renamed-face
+  '((t :inherit font-lock-function-name-face :weight bold))
+  "Face for renamed files.")
+
+(defvar jr/magit-branch-changes-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "RET") #'jr/magit-branch-changes-visit-file)
+    (define-key map (kbd "TAB") #'jr/magit-branch-changes-show-diff)
+    (define-key map (kbd "<tab>") #'jr/magit-branch-changes-show-diff)
+    (define-key map (kbd "g") #'jr/magit-branch-changes-refresh)
+    (define-key map (kbd "q") #'quit-window)
+    map)
+  "Keymap for `jr/magit-branch-changes-mode'.")
+
+(define-derived-mode jr/magit-branch-changes-mode tabulated-list-mode "BranchChanges"
+  "Major mode for browsing files changed on the current branch."
+  (setq tabulated-list-format [("Change" 10 t)
+                                ("File" 0 t)])
+  (setq tabulated-list-padding 2)
+  (setq tabulated-list-sort-key '("File" . nil))
+  (setq-local line-spacing 0.15)
+  (tabulated-list-init-header))
+
+(after! evil
+  (evil-define-key 'normal jr/magit-branch-changes-mode-map
+    (kbd "RET") #'jr/magit-branch-changes-visit-file
+    (kbd "TAB") #'jr/magit-branch-changes-show-diff
+    (kbd "g") #'jr/magit-branch-changes-refresh
+    (kbd "q") #'quit-window))
+
+(defun jr/magit-branch-changes--parse-line (line)
+  "Parse a git diff --name-status LINE."
+  (let* ((parts (split-string line "\t" t))
+         (status (car parts))
+         (file (car (last parts))))
+    (when (and status file)
+      (list :status status :file file))))
+
+(defun jr/magit-branch-changes--status-label (status)
+  "Return a styled label for git STATUS."
+  (pcase (substring status 0 1)
+    ("A" (propertize "+ added" 'face 'jr/magit-branch-changes-added-face))
+    ("M" (propertize "~ edited" 'face 'jr/magit-branch-changes-modified-face))
+    ("D" (propertize "- deleted" 'face 'jr/magit-branch-changes-deleted-face))
+    ("R" (propertize "> renamed" 'face 'jr/magit-branch-changes-renamed-face))
+    (_ (propertize status 'face 'font-lock-doc-face))))
+
+(defun jr/magit-branch-changes--file-label (file)
+  "Return a styled label for FILE."
+  (let ((dir (file-name-directory file))
+        (name (file-name-nondirectory file)))
+    (concat
+     (when dir
+       (propertize dir 'face 'jr/magit-branch-changes-directory-face))
+     (propertize name 'face 'jr/magit-branch-changes-file-face))))
+
+(defun jr/magit-branch-changes--entries (base)
+  "Return tabulated list entries for files changed since BASE."
+  (mapcar
+   (lambda (entry)
+     (let ((status (plist-get entry :status))
+           (file (plist-get entry :file)))
+       (list file (vector (jr/magit-branch-changes--status-label status)
+                          (jr/magit-branch-changes--file-label file)))))
+   (delq nil
+         (mapcar #'jr/magit-branch-changes--parse-line
+                 (magit-git-lines "diff" "--name-status" (format "%s...HEAD" base))))))
+
+(defun jr/magit-branch-changes--current-file ()
+  "Return the file at point in a branch changes buffer."
+  (tabulated-list-get-id))
+
+(defun jr/magit-branch-changes--diff-buffer-name (base file)
+  "Return the buffer name for FILE diffed against BASE."
+  (format "*branch diff: %s...HEAD:%s*" base file))
+
+(defun jr/magit-branch-changes--render-diff (base file)
+  "Return raw git diff output for FILE against BASE...HEAD."
+  (with-temp-buffer
+    (let ((exit-code (process-file magit-git-executable
+                                   nil
+                                   t
+                                   nil
+                                   "diff"
+                                   "--no-ext-diff"
+                                   "--find-renames"
+                                   "--find-copies"
+                                   "--unified=3"
+                                   (format "%s...HEAD" base)
+                                   "--"
+                                   file)))
+      (unless (memq exit-code '(0 1))
+        (error "git diff failed for %s" file))
+      (buffer-string))))
+
+(defun jr/magit-branch-changes--show-diff-buffer (base file)
+  "Show a readable diff buffer for FILE against BASE...HEAD."
+  (let ((buffer (get-buffer-create
+                 (jr/magit-branch-changes--diff-buffer-name base file)))
+        (diff-output (jr/magit-branch-changes--render-diff base file)))
+    (with-current-buffer buffer
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (insert diff-output)
+        (diff-mode)
+        (setq-local default-directory (magit-toplevel))
+        (setq-local mode-line-buffer-identification
+                    (list (format " Branch diff: %s...HEAD %s" base file)))
+        (setq buffer-read-only t)
+        (goto-char (point-min))
+        (font-lock-ensure)))
+    (let ((window (or (get-buffer-window buffer)
+                      (split-window-right))))
+      (set-window-buffer window buffer)
+      (select-window window)
+      (balance-windows)
+      buffer)))
+
+(defun jr/magit-branch-changes-refresh ()
+  "Refresh the branch changes file list." 
+  (interactive)
+  (let ((entries (jr/magit-branch-changes--entries jr/magit-branch-changes-base-branch)))
+    (setq tabulated-list-entries entries)
+    (tabulated-list-print t)
+    (setq header-line-format
+          (concat
+           " "
+           (propertize (format "Changes from %s" jr/magit-branch-changes-base-branch)
+                       'face 'jr/magit-branch-changes-header-face)
+           "   "
+           (propertize "RET" 'face 'jr/magit-branch-changes-key-face)
+           " open"
+           "   "
+           (propertize "TAB" 'face 'jr/magit-branch-changes-key-face)
+           " diff"
+           "   "
+           (propertize "g" 'face 'jr/magit-branch-changes-key-face)
+           " refresh"
+           "   "
+           (propertize (format "%d files" (length entries))
+                       'face 'shadow)))))
+
+(defun jr/magit-branch-changes-visit-file ()
+  "Visit the file at point."
+  (interactive)
+  (when-let ((file (jr/magit-branch-changes--current-file)))
+    (find-file (expand-file-name file default-directory))))
+
+(defun jr/magit-branch-changes-show-diff ()
+  "Show a readable diff for the file at point against the base branch."
+  (interactive)
+  (when-let ((file (jr/magit-branch-changes--current-file)))
+    (jr/magit-branch-changes--show-diff-buffer
+     jr/magit-branch-changes-base-branch
+     file)))
+
+(defun jr/magit-branch-changes (base)
+  "Show a file list for changes on the current branch since BASE."
+  (let ((git-root (magit-toplevel))
+        (buffer-name (format "*branch changes: %s...HEAD*" base)))
+    (with-current-buffer (get-buffer-create buffer-name)
+      (jr/magit-branch-changes-mode)
+      (setq default-directory git-root)
+      (setq jr/magit-branch-changes-base-branch base)
+      (jr/magit-branch-changes-refresh)
+      (switch-to-buffer (current-buffer)))))
+
+(defun jr/magit-diff-current-branch-against-base (&optional base-branch)
+  "Show files changed on the current branch since BASE-BRANCH.
+
+The resulting buffer starts as a file list.  Press `RET' to visit the file or
+`TAB' to open a Magit diff for the file against `BASE-BRANCH...HEAD'."
+  (interactive)
+  (require 'magit)
+  (let ((git-root (magit-toplevel)))
+    (unless git-root
+      (user-error "Not in a git repository"))
+    (let* ((default-base (jr/magit--preferred-base-branch))
+           (base (or base-branch
+                     (read-string (format "Diff current branch against base (default %s): "
+                                          default-base)
+                                  nil
+                                  'jr/magit-base-branch-history
+                                  default-base)))
+           (base (if (string-empty-p base) default-base base)))
+      (unless (magit-git-success "rev-parse" "--verify" "--quiet" base)
+        (user-error "Git revision does not exist: %s" base))
+      (jr/magit-branch-changes base)
+      (message "Showing files changed since %s" base))))
 
 (defun jr/git-diff-file-at-point-vs-master ()
   "Show diff of file at point against origin/master."
@@ -683,13 +927,17 @@ Empty pattern clears the filter."
 ;; KEYBINDINGS
 ;; ============================================================================
 
-;; GitHub link keybindings
+;; GitHub link keybindings.
+;;
+;; Bind these as direct SPC-sequences instead of via `(:prefix ("g" . "git") ...)'.
+;; Passing a (KEY . DESCRIPTION) cons for an already-populated leader prefix makes
+;; general RECREATE the `SPC g' keymap, which wipes Doom's magit bindings set at
+;; module init -- notably `SPC g g' -> `magit-status'. The direct-sequence form
+;; merges into the existing `SPC g' / `SPC g f' prefixes non-destructively.
 (map! :leader
-      (:prefix ("g" . "git")
-       :desc "Copy GitHub file link" "y" #'jr/copy-github-file-link
-       :desc "Copy GitHub file+line link" "Y" #'jr/copy-github-file-line-link
-       (:desc "file" :prefix "f"
-        :desc "Browse files in branch" "b" #'jr/git-branch-files)))
+      :desc "Copy GitHub file link"      "g y"   #'jr/copy-github-file-link
+      :desc "Copy GitHub file+line link" "g Y"   #'jr/copy-github-file-line-link
+      :desc "Browse files in branch"     "g f b" #'jr/git-branch-files)
 
 (provide 'config-git-utils)
 ;;; config-git-utils.el ends here

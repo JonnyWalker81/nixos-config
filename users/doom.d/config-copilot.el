@@ -215,9 +215,12 @@ tab-indent."
 ;; Keybindings
 ;; ----------------------------------------------------------------------------
 
+;; Bind as a direct SPC-sequence, NOT via `(:prefix ("g" . "git") ...)': the
+;; (KEY . DESCRIPTION) cons form makes general recreate the `SPC g' keymap, which
+;; wipes Doom's default git bindings (notably `SPC g g' -> magit-status). A direct
+;; sequence merges into the existing prefix non-destructively.
 (map! :leader
-      (:prefix ("g" . "git")
-       :desc "Generate AI commit message" "m" #'jr/ai-generate-commit-message))
+      :desc "Generate AI commit message" "g m" #'jr/ai-generate-commit-message)
 
 ;; Add magit-specific keybinding
 (after! magit
