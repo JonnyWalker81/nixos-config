@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   programs.firefox = lib.mkIf (!pkgs.stdenv.isDarwin) {
@@ -41,49 +46,69 @@
         search = {
           force = true;
           default = "google";
-          order = [ "google" "Searx" ];
+          order = [
+            "google"
+            "Searx"
+          ];
           engines = {
             "Nix Packages" = {
-              urls = [{
-                template = "https://search.nixos.org/packages";
-                params = [
-                  {
-                    name = "type";
-                    value = "packages";
-                  }
-                  {
-                    name = "query";
-                    value = "{searchTerms}";
-                  }
-                ];
-              }];
-              icon =
-                "''${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+              urls = [
+                {
+                  template = "https://search.nixos.org/packages";
+                  params = [
+                    {
+                      name = "type";
+                      value = "packages";
+                    }
+                    {
+                      name = "query";
+                      value = "{searchTerms}";
+                    }
+                  ];
+                }
+              ];
+              icon = "''${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
               definedAliases = [ "@np" ];
             };
             "NixOS Wiki" = {
-              urls = [{
-                template = "https://nixos.wiki/index.php?search={searchTerms}";
-              }];
+              urls = [
+                {
+                  template = "https://nixos.wiki/index.php?search={searchTerms}";
+                }
+              ];
               icon = "https://nixos.wiki/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
               definedAliases = [ "@nw" ];
             };
             "Searx" = {
-              urls = [{
-                template = "https://searx.aicampground.com/?q={searchTerms}";
-              }];
+              urls = [
+                {
+                  template = "https://searx.aicampground.com/?q={searchTerms}";
+                }
+              ];
               icon = "https://nixos.wiki/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
               definedAliases = [ "@searx" ];
             };
             bing.metaData.hidden = true;
-            "google".metaData.alias =
-              "@g"; # builtin engines only support specifying one additional alias
+            "google".metaData.alias = "@g"; # builtin engines only support specifying one additional alias
           };
         };
       };
     };
+  };
+
+  # Mask the XDG autostart picom to prevent double-launch.
+  # The picom package ships a picom.desktop in xdg/autostart/ which
+  # systemd-xdg-autostart-generator turns into app-picom@autostart.service.
+  # Since home-manager's services.picom already manages picom via its own
+  # systemd user service, the XDG one causes "Another composite manager is
+  # already running" fatal errors that crash the X session.
+  xdg.configFile."autostart/picom.desktop" = lib.mkIf (!pkgs.stdenv.isDarwin) {
+    text = ''
+      [Desktop Entry]
+      Hidden=true
+    '';
   };
 
   services.picom = lib.mkIf (!pkgs.stdenv.isDarwin) {
@@ -95,7 +120,10 @@
 
     # Shadows - matching Hyprland's shadow settings
     shadow = true;
-    shadowOffsets = [ (-8) (-8) ];
+    shadowOffsets = [
+      (-8)
+      (-8)
+    ];
     shadowOpacity = 0.35;
     shadowExclude = [
       "name = 'Notification'"
@@ -107,7 +135,10 @@
 
     # Fading - smooth transitions like Hyprland
     fade = true;
-    fadeSteps = [ 2.5e-2 2.5e-2 ];
+    fadeSteps = [
+      2.5e-2
+      2.5e-2
+    ];
     fadeDelta = 4;
 
     # Opacity - matching Hyprland's 0.85 transparency
@@ -136,13 +167,19 @@
         opacity = 0.95;
         focus = true;
       };
-      dock = { shadow = false; };
-      dnd = { shadow = false; };
+      dock = {
+        shadow = false;
+      };
+      dnd = {
+        shadow = false;
+      };
       popup_menu = {
         opacity = 0.98;
         shadow = true;
       };
-      dropdown_menu = { opacity = 0.98; };
+      dropdown_menu = {
+        opacity = 0.98;
+      };
     };
 
     # Additional settings via extraArgs
