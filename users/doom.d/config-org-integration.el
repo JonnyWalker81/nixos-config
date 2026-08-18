@@ -337,6 +337,27 @@ Each entry includes marker, title, todo, file, scheduled, and deadline keys."
       (lambda (todo-state _scheduled _deadline)
         (org-life-dashboard--open-todo-p todo-state))))))
 
+(defun org-life-dashboard--jira-open-items ()
+  "Return open Jira issues collected from the org-jira working dir."
+  (let ((jira-dir (expand-file-name (or (bound-and-true-p org-jira-working-dir)
+                                        "~/org/jira/"))))
+    (seq-filter
+     (lambda (item)
+       (string-prefix-p jira-dir (expand-file-name (plist-get item :file))))
+     (org-life-dashboard--collect-entries
+      (lambda (todo-state _scheduled _deadline)
+        (and todo-state
+             (not (member todo-state '("DONE" "CANCELLED" "Done" "Closed" "Resolved")))))))))
+
+(defun org-life-dashboard-widget-jira ()
+  "Render assigned Jira issues as rich list items."
+  (let ((items (org-life-dashboard--jira-open-items)))
+    (org-life-dashboard--insert-header "Assigned Jira Issues")
+    (insert (format "Jira: %d open\n" (length items)))
+    (org-life-dashboard--insert-entry-list
+     items
+     "No open Jira issues. Sync with SPC o J s.")))
+
 (defun org-life-dashboard--upcoming-deadline-items ()
   "Return open TODO items with deadlines in the next 14 days."
   (let* ((today (current-time))
@@ -496,13 +517,15 @@ Each entry includes marker, title, todo, file, scheduled, and deadline keys."
   "Refresh Doom dashboard data and widgets."
   (interactive)
   (cond
+   ((fboundp '+dashboard-reload) (+dashboard-reload))
    ((fboundp '+doom-dashboard-reload) (+doom-dashboard-reload))
    ((fboundp '+doom-dashboard/reload) (+doom-dashboard/reload))
    (t (user-error "No Doom dashboard reload command is available"))))
 
 (defun org-life-dashboard--refresh-after-open (&rest _)
   "Refresh dashboard after any supported dashboard open command runs."
-  (when (or (fboundp '+doom-dashboard-reload)
+  (when (or (fboundp '+dashboard-reload)
+            (fboundp '+doom-dashboard-reload)
             (fboundp '+doom-dashboard/reload))
     (org-life-dashboard-reload)))
 
@@ -512,23 +535,40 @@ Each entry includes marker, title, todo, file, scheduled, and deadline keys."
       (current-buffer)
     (org-life-dashboard-open)))
 
-(after! doom-dashboard
-  (dolist (fn '(org-life-dashboard-widget-today
-                org-life-dashboard-widget-inbox
-                org-life-dashboard-widget-deadlines
-                org-life-dashboard-widget-quick-actions))
-    (setq +doom-dashboard-functions (remove fn +doom-dashboard-functions))
-    (add-to-list '+doom-dashboard-functions fn t))
-  (dolist (open-fn '(+doom-dashboard/open doom/open-dashboard))
-    (when (fboundp open-fn)
-      (advice-remove open-fn #'org-life-dashboard--refresh-after-open)
-      (advice-add open-fn :after #'org-life-dashboard--refresh-after-open)))
-  (setq initial-buffer-choice #'org-life-dashboard-initial-buffer-choice))
+;; Register OrgLife dashboard widgets and refresh wiring.
+;;
+;; Doom 2.1 renamed the `:ui doom-dashboard' module to `:ui dashboard', dropping
+;; the old `+doom-dashboard-*' symbols and the `doom-dashboard' feature -- so
+;; `(after! doom-dashboard ...)' no longer fires. Doom loads module config before
+;; this file, so we register directly against whichever names are bound (new
+;; `+dashboard-*' preferred, old `+doom-dashboard-*' kept as a fallback for older
+;; Doom and the batch test harness).
+(let ((fnvar (cond ((boundp '+dashboard-functions) '+dashboard-functions)
+                   ((boundp '+doom-dashboard-functions) '+doom-dashboard-functions))))
+  (when fnvar
+    (dolist (fn '(org-life-dashboard-widget-today
+                  org-life-dashboard-widget-inbox
+                  org-life-dashboard-widget-deadlines
+                  org-life-dashboard-widget-jira
+                  org-life-dashboard-widget-quick-actions))
+      (set fnvar (remove fn (symbol-value fnvar)))
+      (add-to-list fnvar fn t))
+    (dolist (open-fn '(+dashboard/open +doom-dashboard/open doom/open-dashboard))
+      (when (fboundp open-fn)
+        (advice-remove open-fn #'org-life-dashboard--refresh-after-open)
+        (advice-add open-fn :after #'org-life-dashboard--refresh-after-open)))
+    (setq initial-buffer-choice #'org-life-dashboard-initial-buffer-choice)))
 
 (defun org-life-dashboard-open ()
-  "Open Doom dashboard using the best available entrypoint."
+  "Open Doom dashboard using the best available entrypoint.
+Returns a live buffer so this is safe to use as `initial-buffer-choice'."
   (interactive)
   (cond
+   ((fboundp '+dashboard/open)
+    ;; Doom 2.1's `+dashboard/open' requires a FRAME argument (the older
+    ;; `+doom-dashboard/open' took none).
+    (+dashboard/open (selected-frame))
+    (org-life-dashboard-reload))
    ((fboundp '+doom-dashboard/open)
     (+doom-dashboard/open)
     (org-life-dashboard-reload))
@@ -536,7 +576,10 @@ Each entry includes marker, title, todo, file, scheduled, and deadline keys."
     (doom/open-dashboard)
     (org-life-dashboard-reload))
    (t (unless noninteractive
-        (user-error "No Doom dashboard open command is available")))))
+        (user-error "No Doom dashboard open command is available"))))
+  ;; `initial-buffer-choice' expects a buffer back; return the dashboard buffer.
+  (or (and (fboundp 'doom-fallback-buffer) (doom-fallback-buffer))
+      (current-buffer)))
 
 (defun org-life-dashboard-refresh ()
   "Refresh Doom dashboard using the best available entrypoint."
@@ -629,6 +672,16 @@ or are only reachable via nested SPC o sequences deeper than one key."
         :desc "Inbox dashboard" "i" #'org-life-agenda-inbox-dashboard
         :desc "Context review @home" "h" #'org-life-agenda-context-home
         :desc "Context review @work" "W" #'org-life-agenda-context-work)
+       (:prefix ("J" . "jira")
+        :desc "Sync assigned issues" "s" #'org-jira-get-issues
+        :desc "Sync custom JQL (my-open)" "q" #'org-jira-get-issues-from-custom-jql
+        :desc "Open epic + children" "e" #'org-life-jira-open-epic
+        :desc "Jira board (agenda)" "b" #'org-life-agenda-jira-board
+        :desc "Refresh issue at point" "g" #'org-jira-refresh-issue
+        :desc "Change status (transition)" "t" #'org-jira-progress-issue
+        :desc "Progress to next status" "n" #'org-jira-progress-issue-next
+        :desc "Push field edits" "u" #'org-jira-update-issue
+        :desc "Browse issue in browser" "o" #'org-jira-browse-issue)
        (:prefix ("g" . "gtd")
         :desc "Open GTD inbox" "i" #'my/org-gtd-open-inbox)
        (:prefix ("j" . "journal")
