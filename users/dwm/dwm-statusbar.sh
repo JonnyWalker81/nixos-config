@@ -5,6 +5,9 @@
 #
 # Layout: weather | cpu | mem | disk | uptime | date
 
+# Ensure standard utilities are available in all session launch contexts.
+export PATH="/run/current-system/sw/bin:/etc/profiles/per-user/$USER/bin:/nix/var/nix/profiles/default/bin:$PATH"
+
 # Cache weather (refresh every 10 minutes)
 WEATHER_CACHE="/tmp/dwm-weather-cache"
 WEATHER_INTERVAL=600
