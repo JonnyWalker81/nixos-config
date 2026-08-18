@@ -70,6 +70,12 @@
       (:name "Priority C @errands"
        :and (:todo ("TODO" "NEXT") :priority "C" :tag "@errands")
        :order 25)
+      (:name "Jira: In Progress"
+       :and (:file-path "/org/jira/" :todo ("NEXT" "WAITING"))
+       :order 40)
+      (:name "Jira: assigned (open)"
+       :file-path "/org/jira/"
+       :order 41)
       (:name "Uncategorized"
        :and (:todo ("TODO" "NEXT")
              :not (:tag ("@home" "@work" "@computer" "@email" "@phone" "@errands")))
@@ -174,6 +180,16 @@ A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
     (interactive)
     (org-life-agenda-dispatch "W"))
 
+  (defun org-life-agenda-hiring-review ()
+    "Open the canonical hiring tag review agenda command."
+    (interactive)
+    (org-life-agenda-dispatch "h"))
+
+  (defun org-life-agenda-jira-board ()
+    "Open the Jira assigned-issues agenda command."
+    (interactive)
+    (org-life-agenda-dispatch "j"))
+
   (setq org-agenda-custom-commands
         `(("d" "Daily planning"
            ((agenda ""
@@ -276,18 +292,34 @@ A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
             (org-agenda-prefix-format my/org-review-prefix-format)))
           ("H" "Context Review: @home"
            ((tags-todo "+@home-@work/TODO|NEXT|WAITING"
-                       ((org-agenda-overriding-header "@home actionable + waiting (open)"))))
+                        ((org-agenda-overriding-header "@home actionable + waiting (open)"))))
+           ((org-agenda-show-log nil)
+              (org-agenda-start-with-log-mode nil)
+              (org-super-agenda-groups (org-life-agenda-super-groups-safe))
+              (org-agenda-prefix-format my/org-review-prefix-format)))
+          ("h" "Hiring Review"
+           ((tags-todo "+hiring/TODO|NEXT|WAITING|SOMEDAY"
+                       ((org-agenda-overriding-header ":hiring: open tasks"))))
            ((org-agenda-show-log nil)
              (org-agenda-start-with-log-mode nil)
              (org-super-agenda-groups (org-life-agenda-super-groups-safe))
              (org-agenda-prefix-format my/org-review-prefix-format)))
           ("W" "Context Review: @work"
-            ((tags-todo "+@work-@home/TODO|NEXT|WAITING"
-                        ((org-agenda-overriding-header "@work actionable + waiting (open)"))))
-           ((org-agenda-show-log nil)
-             (org-agenda-start-with-log-mode nil)
+             ((tags-todo "+@work-@home/TODO|NEXT|WAITING"
+                         ((org-agenda-overriding-header "@work actionable + waiting (open)"))))
+            ((org-agenda-show-log nil)
+              (org-agenda-start-with-log-mode nil)
              (org-super-agenda-groups (org-life-agenda-super-groups-safe))
-             (org-agenda-prefix-format my/org-review-prefix-format))))))
+             (org-agenda-prefix-format my/org-review-prefix-format)))
+          ("j" "Jira: assigned to me"
+           ((alltodo ""
+                     ((org-agenda-files '("~/org/jira/"))
+                      (org-agenda-overriding-header "Jira issues assigned to me")
+                      (org-super-agenda-groups
+                       '((:name "In Progress" :todo ("NEXT" "WAITING") :order 0)
+                         (:name "To Do" :todo "TODO" :order 1)
+                         (:name "Other" :order 9))))))
+           ((org-agenda-prefix-format my/org-review-prefix-format))))))
 
 (after! org-super-agenda
   (when (fboundp 'org-super-agenda-mode)
@@ -298,11 +330,13 @@ A project is a level-1 TODO/NEXT heading in projects.org with no NEXT child.")
       (:prefix ("o a" . "agenda")
         :desc "Daily planning agenda" "d" #'org-life-agenda-daily-planning
         :desc "Inbox dashboard" "i" #'org-life-agenda-inbox-dashboard
+        :desc "Review :hiring: tasks" "t" #'org-life-agenda-hiring-review
         :desc "Weekly planning agenda" "w" #'org-life-agenda-weekly-planning
         :desc "Daily review (triage)" "r" #'org-life-agenda-daily-review
         :desc "Weekly review (GTD)" "R" #'org-life-agenda-weekly-review
         :desc "Review @home context" "h" #'org-life-agenda-context-home
-       :desc "Review @work context" "W" #'org-life-agenda-context-work))
+        :desc "Review @work context" "W" #'org-life-agenda-context-work
+        :desc "Jira board (assigned)" "j" #'org-life-agenda-jira-board))
 
 (provide 'config-org-agenda)
 ;;; config-org-agenda.el ends here
