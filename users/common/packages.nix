@@ -1,4 +1,10 @@
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
   home.packages = [
@@ -32,27 +38,40 @@
     pkgs.nixpkgs-fmt
     pkgs.nixfmt-rfc-style
     pkgs.shfmt
-    (pkgs.python3.withPackages
-      (p: with p; [ epc orjson sexpdata six setuptools paramiko ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [ rapidfuzz ]))
+    (pkgs.python3.withPackages (
+      p:
+      with p;
+      [
+        epc
+        orjson
+        sexpdata
+        six
+        setuptools
+        paramiko
+      ]
+      ++ lib.optionals (!pkgs.stdenv.isDarwin) [ rapidfuzz ]
+    ))
 
     pkgs.difftastic
     pkgs.nixd
     pkgs.luaformatter
     pkgs.lua-language-server
     pkgs.stylua
-    pkgs.nodePackages.sql-formatter
-    pkgs.nodePackages.typescript-language-server
+    pkgs.sql-formatter
+    pkgs.typescript-language-server
     pkgs.sqls
     pkgs.yazi
 
     pkgs.claude-code
     pkgs.opencode
-  ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
+    pkgs.pi-coding-agent
+  ]
+  ++ lib.optionals (!pkgs.stdenv.isDarwin) [
     # Packages with wayland dependencies (Linux only)
     pkgs.qemu
     pkgs.pgmanage
     pkgs.pgadmin4
-    inputs.nixvim.packages.${pkgs.system}.default # Has wayland clipboard dependencies
+    pkgs.nixvim # Neovim with cipher-nixvim config (has wayland clipboard deps)
     pkgs.libreoffice
     pkgs.chromium
     pkgs.rustup
