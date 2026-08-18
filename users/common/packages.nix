@@ -40,8 +40,8 @@
     pkgs.luaformatter
     pkgs.lua-language-server
     pkgs.stylua
-    pkgs.nodePackages.sql-formatter
-    pkgs.nodePackages.typescript-language-server
+    pkgs.sql-formatter
+    pkgs.typescript-language-server
     pkgs.sqls
     pkgs.yazi
 
