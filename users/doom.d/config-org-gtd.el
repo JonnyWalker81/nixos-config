@@ -138,12 +138,18 @@
     (interactive)
     (find-file (expand-file-name "~/org/gtd/inbox.org")))
 
+  (defun my/org-gtd-open-projects ()
+    "Open the GTD projects file for project review."
+    (interactive)
+    (find-file (expand-file-name "~/org/gtd/projects.org")))
+
   (global-set-key (kbd "C-c c") #'my/org-capture-dwim)
   (global-set-key (kbd "C-c C") #'org-capture)
 
   (map! :leader
         (:prefix ("o g" . "gtd")
-         :desc "Open GTD inbox" "i" #'my/org-gtd-open-inbox))
+         :desc "Open GTD inbox" "i" #'my/org-gtd-open-inbox
+         :desc "Open GTD projects" "p" #'my/org-gtd-open-projects))
 
   ;; --------------------------------------------------------------------------
   ;; Priorities
