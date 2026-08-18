@@ -32,7 +32,6 @@
 
     claude-code.url = "github:sadjow/claude-code-nix";
 
-    opencode.url = "github:anomalyco/opencode?ref=v1.14.22";
     # nix-homebrew for managing Homebrew on macOS
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
     homebrew-core = {
@@ -73,14 +72,6 @@
         (import ./overlays/unstable-packages.nix { inherit inputs; })
         (import ./overlays/fonts.nix { inherit inputs; })
         (import ./overlays/nixvim.nix { inherit inputs; })
-        (final: prev: {
-          opencode = inputs.opencode.packages.${prev.system}.default.overrideAttrs (old: {
-            postConfigure = (old.postConfigure or "") + ''
-              mkdir -p packages/opencode/src/cli/cmd/node_modules
-              ln -s ${prev.nodePackages.prettier}/lib/node_modules/prettier packages/opencode/src/cli/cmd/node_modules/prettier
-            '';
-          });
-        })
 
         # --- Auto-discovered overlays (no inputs needed) ---
         (import ./overlays/default.nix)
