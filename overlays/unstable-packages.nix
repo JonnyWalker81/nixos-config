@@ -31,7 +31,7 @@ in {
     nativeBuildInputs = [ prev.makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/opencode \
-        --prefix PATH : ${prev.lib.makeBinPath [ prev.prettier ]}
+        --prefix PATH : ${prev.lib.makeBinPath [ unstablePkgs.prettier ]}
     '';
     inherit (unstablePkgs.opencode) meta;
   };
