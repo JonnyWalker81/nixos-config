@@ -54,7 +54,7 @@
 ;; (unpin! tree-sitter-indent)
 
 ;; (unpin! tuareg)
-(unpin! magit forge)
+(unpin! magit forge transient)
                                         ; (package! magit :pin "48818355728c48d986d74dde8b1e9fba25f0fd53")
 ;; (package! forge :pin "c498fed98a6df8adca33e87433b4084c0340fb4a")
 
@@ -86,6 +86,21 @@
 (package! modus-themes)
 (package! ef-themes)
 
+;; Popular dark themes (catalog for the SPC t T switcher); all on MELPA, no recipe needed
+(package! catppuccin-theme)   ; Mocha/Macchiato/Frappé dark flavors
+(package! kaolin-themes)      ; kaolin-dark, kaolin-ocean, kaolin-eclipse, ...
+(package! gruvbox-theme)      ; canonical standalone Gruvbox (vs bundled doom-gruvbox)
+(package! nord-theme)         ; canonical standalone Nord
+(package! nordic-night-theme) ; Nord-family: darker, higher-contrast (nordic-night / nordic-midnight)
+(package! zenburn-theme)      ; canonical standalone Zenburn
+
+(package! compline-theme
+  :recipe (:host github
+           :repo "joshuablais/compline"
+           :branch "main"
+           :files ("doom emacs/compline-theme.el"
+                   "doom emacs/lauds-theme.el")))
+
 (package! go-tag)
 (package! exec-path-from-shell)
 
@@ -113,6 +128,7 @@
 (package! eyebrowse)
 
 (package! go-playground)
+(package! gotest)
 ;; (package! go-mode)
 
 (package! tree-sitter)
@@ -183,7 +199,7 @@
 (package! shfmt
   :recipe (:host github
            :repo "purcell/emacs-shfmt"
-           :branch "master"
+           :branch "main"
            :files ("*.el")
            )
   )
@@ -265,7 +281,14 @@
 ;; SQL and multi-mode editing packages
 (package! polymode)         ; Multiple major modes in one buffer
 (package! edit-indirect)    ; Edit regions in separate buffers
-(package! sqlformat)        ; SQL formatting support
+(package! sqlformat         ; SQL formatting support
+  :recipe (:host github
+           :repo "purcell/sqlformat"
+           :branch "main"
+           :files ("*.el")))
 (package! sql-indent)       ; Better SQL indentation
+
+;; Jira integration (OrgLife hybrid) — pure elisp; pulls request/dash/s transitively
+(package! org-jira)
 
 ;;; packages.el ends here
