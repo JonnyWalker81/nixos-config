@@ -442,5 +442,19 @@
   (add-to-list 'load-path "~/Repositories/komodo")
   (load-directory "~/Repositories/komodo"))
 
+(defun jon/fill-template-to-clipboard (start end)
+  "Copy region to clipboard with [Candidate Name] replaced via prompt.
+The buffer is left untouched so the template stays reusable."
+  (interactive "r")
+  (let* ((template (buffer-substring-no-properties start end))
+         (name (read-string "Candidate name: "))
+         (filled (string-replace "[Candidate Name]" name template)))
+    (kill-new filled)
+    (message "Copied filled template for %s" name)))
+
+(map! :leader
+      :desc "Fill candidate template"
+      "j f" #'jon/fill-template-to-clipboard)
+
 (provide 'config-misc)
 ;;; config-misc.el ends here
