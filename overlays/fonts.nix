@@ -30,7 +30,7 @@ final: prev: {
     '';
 
     # Add font configuration for fontconfig (Linux)
-    postInstall = prev.lib.optionalString prev.stdenv.isLinux ''
+    postInstall = prev.lib.optionalString prev.stdenv.hostPlatform.isLinux ''
       # Generate fontconfig cache for Linux
       ${prev.fontconfig}/bin/fc-cache -f $out/share/fonts/
     '';

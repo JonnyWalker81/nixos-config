@@ -3,7 +3,7 @@
 {
   programs.emacs = {
     enable = true;
-    package = if pkgs.stdenv.isDarwin then
+    package = if pkgs.stdenv.hostPlatform.isDarwin then
       pkgs.emacs-unstable # Emacs 31.x with Cocoa GUI and native-comp support
     else
       pkgs.emacs;

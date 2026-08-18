@@ -30,7 +30,7 @@ in stdenv.mkDerivation {
   # Stripping breaks darwin Go binaries
   dontStrip = lib.strings.hasPrefix "darwin" goSystem;
 
-  nativeBuildInputs = [ unzip ] ++ (if stdenv.isLinux then
+  nativeBuildInputs = [ unzip ] ++ (if stdenv.hostPlatform.isLinux then
     [
       # On Linux we need to do this so executables work
       autoPatchelfHook

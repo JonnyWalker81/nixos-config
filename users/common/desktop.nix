@@ -6,7 +6,7 @@
 }:
 
 {
-  programs.firefox = lib.mkIf (!pkgs.stdenv.isDarwin) {
+  programs.firefox = lib.mkIf (!pkgs.stdenv.hostPlatform.isDarwin) {
     package = pkgs.firefox;
     enable = true;
     profiles = {
@@ -104,14 +104,14 @@
   # Since home-manager's services.picom already manages picom via its own
   # systemd user service, the XDG one causes "Another composite manager is
   # already running" fatal errors that crash the X session.
-  xdg.configFile."autostart/picom.desktop" = lib.mkIf (!pkgs.stdenv.isDarwin) {
+  xdg.configFile."autostart/picom.desktop" = lib.mkIf (!pkgs.stdenv.hostPlatform.isDarwin) {
     text = ''
       [Desktop Entry]
       Hidden=true
     '';
   };
 
-  services.picom = lib.mkIf (!pkgs.stdenv.isDarwin) {
+  services.picom = lib.mkIf (!pkgs.stdenv.hostPlatform.isDarwin) {
     enable = true;
 
     # Backend

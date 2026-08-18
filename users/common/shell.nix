@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  isDarwin = pkgs.stdenv.isDarwin;
+  isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
 
   zoxide = pkgs.zoxide;
   zoxideBin = zoxide + "/bin/zoxide";

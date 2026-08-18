@@ -3,5 +3,5 @@
 { inputs }:
 
 final: prev: {
-  nixvim = inputs.nixvim.packages.${prev.system}.default;
+  nixvim = inputs.nixvim.packages.${prev.stdenv.hostPlatform.system}.default;
 }

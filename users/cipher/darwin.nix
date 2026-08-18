@@ -85,7 +85,7 @@
   # System packages that should be available and linked to /Applications
   environment.systemPackages = with pkgs; [
     # Add Emacs to system packages so it appears in /Applications/Nix Apps
-    (if stdenv.isDarwin then emacs-unstable else emacs)
+    (if stdenv.hostPlatform.isDarwin then emacs-unstable else emacs)
     # Add Ghostty to system packages so it appears in /Applications/Nix Apps
     ghostty
   ];

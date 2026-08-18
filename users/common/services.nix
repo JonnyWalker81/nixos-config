@@ -4,10 +4,10 @@
   programs.home-manager.enable = true;
 
   # SSH Agent Service (Linux only - macOS uses native SSH agent)
-  services.ssh-agent = lib.mkIf (!pkgs.stdenv.isDarwin) { enable = true; };
+  services.ssh-agent = lib.mkIf (!pkgs.stdenv.hostPlatform.isDarwin) { enable = true; };
 
   # Systemd service to set SSH_AUTH_SOCK for all user services (Linux only)
-  systemd.user.services.ssh-agent-env = lib.mkIf (!pkgs.stdenv.isDarwin) {
+  systemd.user.services.ssh-agent-env = lib.mkIf (!pkgs.stdenv.hostPlatform.isDarwin) {
     Unit = {
       Description = "Set SSH_AUTH_SOCK environment variable for user services";
       After = [ "ssh-agent.service" ];

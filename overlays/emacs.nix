@@ -12,6 +12,6 @@
 # feature lost is mailutils' extra POP3/IMAP movemail support. Guarded to Darwin
 # so Linux (where mailutils builds fine) is unaffected.
 final: prev:
-prev.lib.optionalAttrs prev.stdenv.isDarwin {
+prev.lib.optionalAttrs prev.stdenv.hostPlatform.isDarwin {
   emacs-unstable = prev.emacs-unstable.override { withMailutils = false; };
 }

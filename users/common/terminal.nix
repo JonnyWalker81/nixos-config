@@ -37,7 +37,7 @@
   home.file.".wezterm.lua" = { source = ../wezterm/wezterm.lua; };
 
   home.file.".config/ghostty/config" = {
-    source = if pkgs.stdenv.isDarwin then
+    source = if pkgs.stdenv.hostPlatform.isDarwin then
       ../ghostty/config-macos
     else
       ../ghostty/config-linux;

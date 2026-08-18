@@ -13,7 +13,7 @@
     pkgs.jetbrains-mono
     pkgs.victor-mono
     pkgs.input-fonts
-    (if pkgs.stdenv.isDarwin then pkgs.iosevka-bin else pkgs.iosevka)
+    (if pkgs.stdenv.hostPlatform.isDarwin then pkgs.iosevka-bin else pkgs.iosevka)
     pkgs.ripgrep
     pkgs.fd
     pkgs.monaspace
@@ -56,7 +56,7 @@
         setuptools
         paramiko
       ]
-      ++ lib.optionals (!pkgs.stdenv.isDarwin) [ rapidfuzz ]
+      ++ lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [ rapidfuzz ]
     ))
 
     pkgs.difftastic
@@ -74,7 +74,7 @@
     pkgs.codex
     pkgs.pi-coding-agent
   ]
-  ++ lib.optionals (!pkgs.stdenv.isDarwin) [
+  ++ lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
     # Packages with wayland dependencies (Linux only)
     pkgs.qemu
     pkgs.pgmanage
