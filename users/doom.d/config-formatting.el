@@ -51,7 +51,15 @@
   (add-to-list 'apheleia-mode-alist '(typescript-ts-mode . prettier-typescript))
   (add-to-list 'apheleia-mode-alist '(tsx-ts-mode . prettier-tsx))
   (add-to-list 'apheleia-mode-alist '(js-ts-mode . prettier-javascript))
-  (add-to-list 'apheleia-mode-alist '(html-ts-mode . prettier-html)))
+  (add-to-list 'apheleia-mode-alist '(html-ts-mode . prettier-html))
+
+  ;; Terraform: use `terraform fmt` (the installed binary), NOT apheleia's
+  ;; default `opentofu`/`tofu fmt` mapping -- tofu is not installed, so the
+  ;; default silently fails on save and leaves the buffer unformatted. The
+  ;; `terraform` formatter is predefined by apheleia; add-to-list prepends and
+  ;; apheleia resolves via assq (first match wins), so this overrides the
+  ;; built-in (terraform-mode . opentofu) default.
+  (add-to-list 'apheleia-mode-alist '(terraform-mode . terraform)))
 
 ;; ----------------------------------------------------------------------------
 ;; Prettier Helper Functions
