@@ -286,22 +286,23 @@
    (orglife-test-install-stubs)
    (orglife-test-load "users/doom.d/config-org-journal.el")
    (orglife-test-load "users/doom.d/config-org-gtd.el")
-   (dolist (key '("t" "i" "p" "m" "j"))
-     (should (orglife-test-template-by-key key)))
-   (should (fboundp 'my/org-capture-dwim))
-   (should (fboundp 'my/org-capture-dwim-key))
-   (should (fboundp 'my/org-gtd-open-inbox))
-   (should (eq (key-binding (kbd "C-c c")) #'my/org-capture-dwim))
-   (should (eq (key-binding (kbd "C-c C")) #'org-capture))))
+    (dolist (key '("t" "i" "p" "m" "j"))
+      (should (orglife-test-template-by-key key)))
+    (should (fboundp 'my/org-capture-dwim))
+    (should (fboundp 'my/org-capture-dwim-key))
+    (should (fboundp 'my/org-gtd-open-inbox))
+    (should (fboundp 'my/org-gtd-open-projects))
+    (should (eq (key-binding (kbd "C-c c")) #'my/org-capture-dwim))
+    (should (eq (key-binding (kbd "C-c C")) #'org-capture))))
 
 (ert-deftest orglife-agenda-commands-and-super-groups-are-configured ()
   (orglife-test-with-temp-home
    (orglife-test-reset-state)
    (orglife-test-install-stubs)
    (orglife-test-load "users/doom.d/config-org-agenda.el")
-   (let ((keys (mapcar #'car org-agenda-custom-commands)))
-     (dolist (key '("d" "w" "r" "R" "I" "H" "W"))
-       (should (member key keys))))
+    (let ((keys (mapcar #'car org-agenda-custom-commands)))
+      (dolist (key '("d" "w" "r" "R" "I" "H" "h" "W"))
+        (should (member key keys))))
      (should (plist-member (car org-super-agenda-groups) :name))
      (should (seq-find (lambda (group) (equal (plist-get group :name) "WAITING (parked)")) org-super-agenda-groups))
      (should (seq-find (lambda (group) (equal (plist-get group :name) "SOMEDAY (parked)")) org-super-agenda-groups))
@@ -312,11 +313,12 @@
      (dolist (fn '(org-life-agenda-daily-planning
                    org-life-agenda-weekly-planning
                   org-life-agenda-daily-review
-                  org-life-agenda-weekly-review
-                  org-life-agenda-inbox-dashboard
-                  org-life-agenda-context-home
-                  org-life-agenda-context-work))
-      (should (fboundp fn)))
+                   org-life-agenda-weekly-review
+                   org-life-agenda-inbox-dashboard
+                   org-life-agenda-context-home
+                   org-life-agenda-hiring-review
+                   org-life-agenda-context-work))
+       (should (fboundp fn)))
     (should (equal my/org-gtd-project-files '("~/org/gtd/projects.org")))))
 
 (ert-deftest orglife-agenda-safe-dispatch-recovers-from-unbound-super-groups ()
