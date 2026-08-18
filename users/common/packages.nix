@@ -36,7 +36,14 @@
     pkgs.file
     pkgs.nil
     pkgs.nixpkgs-fmt
-    pkgs.nixfmt-rfc-style
+    # nixpkgs flipped these names: through 25.05 `nixfmt` is the deprecated
+    # classic formatter and `nixfmt-rfc-style` is the RFC 166 one; from 26.05
+    # `nixfmt` is the RFC 166 formatter and `nixfmt-rfc-style` the alias.
+    # Either way this resolves to the RFC 166 formatter without a warning.
+    (if lib.versionAtLeast lib.version "26.05" then
+      pkgs.nixfmt
+    else
+      pkgs.nixfmt-rfc-style)
     pkgs.shfmt
     (pkgs.python3.withPackages (
       p:

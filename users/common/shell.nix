@@ -73,6 +73,15 @@ in {
 
   programs.zsh = {
     enable = true;
+
+    # home-manager master will move zsh's dotfiles to $XDG_CONFIG_HOME once
+    # stateVersion reaches 26.05. Pin the current home-directory location so the
+    # move is a deliberate choice rather than a side effect of a version bump.
+    # release-25.05 has no such default and treats dotDir as home-relative.
+    dotDir =
+      lib.mkIf (lib.versionAtLeast config.home.version.release "26.05")
+      config.home.homeDirectory;
+
     shellAliases = {
       ll = "eza -l";
       l = "eza -lah";
