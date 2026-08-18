@@ -4,6 +4,10 @@
 let
   isLinux = !isDarwin;
 
+  # Darwin runs home-manager master, which folded git's standalone options into
+  # programs.git.settings; NixOS is still on release-25.05. See users/common/git.nix.
+  hmNew = lib.versionAtLeast config.home.version.release "26.05";
+
   common = import ../common {
     inherit config lib pkgs isWSL inputs;
     system = pkgs.stdenv.hostPlatform.system;
@@ -19,7 +23,22 @@ in {
     "targets/darwin/fonts.nix"
   ];
 
-  programs.git.userEmail = "jon@join.build";
+  # Both the identity and the macOS credential helper land here: Nix attrsets
+  # cannot define `programs.git` twice, so the Darwin override is merged in
+  # rather than living down in the Darwin section.
+  programs.git = lib.mkMerge [
+    (if hmNew then {
+      settings.user.email = "jon@join.build";
+    } else {
+      userEmail = "jon@join.build";
+    })
+
+    (lib.mkIf isDarwin (if hmNew then {
+      settings.credential.helper = lib.mkForce "osxkeychain";
+    } else {
+      extraConfig.credential.helper = lib.mkForce "osxkeychain";
+    }))
+  ];
 
   # --- Linux-only configuration ---
 
@@ -187,11 +206,8 @@ in {
     ];
   };
 
-  # Configure git for macOS
-  programs.git.extraConfig = lib.mkIf isDarwin {
-    # macOS-specific git settings
-    credential.helper = lib.mkForce "osxkeychain";
-  };
+  # macOS git settings (credential.helper = osxkeychain) are merged into the
+  # programs.git definition above.
 
   # SSH configuration for macOS
   programs.ssh.extraConfig = lib.mkIf isDarwin ''

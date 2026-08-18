@@ -14,6 +14,10 @@
 let
   isLinux = !isDarwin;
 
+  # Darwin runs home-manager master, which folded git's standalone options into
+  # programs.git.settings; NixOS is still on release-25.05. See users/common/git.nix.
+  hmNew = lib.versionAtLeast config.home.version.release "26.05";
+
   common = import ../common {
     inherit
       config
@@ -33,7 +37,11 @@ in
     package = pkgs.google-chrome;
   };
 
-  programs.git.userEmail = "jrothberg@bluebeam.com";
+  programs.git = if hmNew then {
+    settings.user.email = "jrothberg@bluebeam.com";
+  } else {
+    userEmail = "jrothberg@bluebeam.com";
+  };
 
   # --- Linux-only configuration ---
 
