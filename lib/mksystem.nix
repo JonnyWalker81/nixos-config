@@ -34,8 +34,10 @@ let
     inputs.darwin.lib.darwinSystem
   else
     resolvedNixpkgs.lib.nixosSystem;
+  # Darwin evaluates against nixpkgs-unstable (via nix-darwin's follows), so it
+  # needs home-manager master; NixOS stays on the release branch matching stable.
   home-manager = if darwin then
-    inputs.home-manager.darwinModules
+    inputs.home-manager-unstable.darwinModules
   else
     inputs.home-manager.nixosModules;
 in systemFunc rec {

@@ -9,6 +9,13 @@
     darwin.inputs.nixpkgs.follows = "nixpkgs-unstable";
     home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    # nix-darwin follows nixpkgs-unstable, so Darwin systems evaluate against
+    # 26.11 pkgs. home-manager release-25.05 modules against that pkgs set emit
+    # deprecation warnings (stdenv.isLinux, xorg.lndir) and risk real breakage,
+    # so Darwin gets the matching home-manager master branch instead.
+    home-manager-unstable.url = "github:nix-community/home-manager";
+    home-manager-unstable.inputs.nixpkgs.follows = "nixpkgs-unstable";
     # Locks nixpkgs to an older version with an older Kernel that boots
     # on VMware Fusion Tech Preview. This can be swapped to nixpkgs when
     # the TP fixes the bug.
