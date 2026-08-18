@@ -70,6 +70,7 @@
         # --- Auto-discovered overlays (no inputs needed) ---
         (import ./overlays/default.nix)
         (import ./overlays/dwm.nix)
+        (import ./overlays/emacs.nix)
         (import ./overlays/firefox-hidpi.nix)
         (import ./overlays/picom.nix)
         (import ./overlays/tree-sitter.nix)
