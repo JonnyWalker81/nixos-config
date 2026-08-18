@@ -191,6 +191,31 @@
       :desc "Forge Menu" "C-c C-e" #'forge-post-menu)
 
 ;; ============================================================================
+;; GHUB / FORGE NETWORKING FIX
+;; ============================================================================
+;; Fixes the intermittent Forge/ghub error when creating PRs (or pulling):
+;;   error in process sentinel: ghub--handle-response-headers:
+;;   BUG: Missing headers in response buffer  *http api.github.com:443*
+;;
+;; Cause: Emacs's built-in `url' library pools TCP/TLS connections to
+;; api.github.com and reuses them based solely on `process-status'
+;; (`url-http-find-free-connection'). After a VM suspend/resume or a
+;; GitHub idle-close, a pooled socket is dead but still reads as `open',
+;; so the next ghub request writes into it, gets EOF, `url-http-end-of-headers'
+;; stays nil, and ghub 5.x signals this (async, unrecoverable, no-retry) error.
+;;
+;; Fix: force "Connection: close" on ghub requests only, so api.github.com
+;; sockets are never pooled and every request opens a fresh connection.
+;; Scoped to ghub via advice so other `url' consumers keep keep-alive.
+;; (Do NOT use ghub-use-workaround-for-emacs-bug* -- removed in ghub 5.x --
+;;  or force gnutls-algorithm-priority to disable TLS1.3 -- stale + harmful.)
+(after! ghub
+  (define-advice ghub--retrieve (:around (fn &rest args) no-keepalive)
+    "Disable url.el HTTP keep-alive for ghub so stale sockets aren't reused."
+    (let ((url-http-attempt-keepalives nil))
+      (apply fn args))))
+
+;; ============================================================================
 ;; MAGIT TODOS CONFIGURATION
 ;; ============================================================================
 
