@@ -17,6 +17,10 @@ in {
   xmobar = unstablePkgs.xmobar;
   awscli2 = unstablePkgs.awscli2;
 
+  # Stable 25.05 still ships the legacy TypeScript codex (0.1.x); use unstable
+  # for the current Rust rewrite.
+  codex = unstablePkgs.codex;
+
   # Use the flake overlay for Linux (optimized build), ghostty-bin from unstable for macOS
   ghostty = if prev.stdenv.isLinux then
     inputs.ghostty.packages.${prev.system}.default

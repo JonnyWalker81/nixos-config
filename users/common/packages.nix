@@ -47,6 +47,7 @@
 
     pkgs.claude-code
     pkgs.opencode
+    pkgs.codex
   ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [
     # Packages with wayland dependencies (Linux only)
     pkgs.qemu
