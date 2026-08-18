@@ -4,7 +4,7 @@
 , fuse, }:
 
 stdenv.mkDerivation rec {
-  version = "26.1.1-57288"; # New driverless version with virtio-vsock
+  version = "26.4.0-57513"; # Driverless version with virtio-vsock (matches host build)
   pname = "prl-tools";
 
   # We download the full distribution to extract prl-tools-lin.iso from
@@ -14,7 +14,7 @@ stdenv.mkDerivation rec {
         lib.versions.major version
       }/${version}/ParallelsDesktop-${version}.dmg";
     sha256 =
-      "sha256-11IyKI2oOffzSPTB65XksZI3PD9W2+0SPZIfpb0RLuU="; # 26.1.1-57288
+      "sha256-Qkul+hZh0J7g8+D+T7RLmfrtK2i90+wlsrfm5tNaYug="; # 26.4.0-57513
   };
 
   patches = [ ./prlfsmountd-nixos.patch ];
@@ -58,19 +58,11 @@ stdenv.mkDerivation rec {
   scriptPath = lib.concatStringsSep ":"
     (lib.optionals (!libsOnly) [ "${util-linux}/bin" "${gawk}/bin" ]);
 
-  preBuild = ''
-        # Fix prlfsmountd.sh for Parallels Tools 26.1+ single-mount behavior
-        # In version 26.1+, prl_fsd mounts all shares at once, not individually
-        substituteInPlace tools/prlfsmountd.sh \
-          --replace-fail 'for sf in $enabled_sfs' 'if false; then for sf in $enabled_sfs' \
-          --replace-fail '	done
-    fi' '	done; fi
-    	# Parallels Tools 26.1+ single-mount: mount all shares at once
-    	if ! is_already_mounted "$MNT_PT"; then
-    		prl_fsd "$MNT_PT" -o nosuid,nodev,noatime,big_writes,x-gvfs-show
-    	fi
-    fi'
-  '';
+  # No preBuild patch needed for 26.4.0-57513: the guest tools rewrote
+  # prlfsmountd.sh (per-share `mount -t fuse.prl_fsd` driven by --sf args),
+  # so the old 26.1.x single-mount-all substitution no longer applies. Shared
+  # folders are mounted by the prl-fsd-mount systemd service; the read-only
+  # /etc/fstab fix is still handled by prlfsmountd-nixos.patch.
 
   buildPhase = ''
     # Version 26+ uses driverless virtio-vsock, no kernel modules to build
