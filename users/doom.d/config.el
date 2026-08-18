@@ -18,6 +18,10 @@
                    (load-file (concat (file-name-as-directory dir) f)))))
     (mapc load-it (directory-files dir nil "\\.el$"))))
 
+;; Compatibility shim: editorconfig-exclude-regexps was removed in Emacs 30+
+(unless (boundp 'editorconfig-exclude-regexps)
+  (defvar editorconfig-exclude-regexps nil))
+
 ;; Add personal doom config directory to load-path
 (add-to-list 'load-path "~/.doom.d")
 (add-to-list 'load-path "~/.elisp")
