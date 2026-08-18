@@ -7,7 +7,7 @@
     pkgs.jetbrains-mono
     pkgs.victor-mono
     pkgs.input-fonts
-    pkgs.iosevka
+    (if pkgs.stdenv.isDarwin then pkgs.iosevka-bin else pkgs.iosevka)
     pkgs.ripgrep
     pkgs.fd
     pkgs.monaspace
