@@ -38,6 +38,10 @@
   :custom
   (treesit-auto-install 'prompt)
   :config
+  ;; Exclude rust from treesit-auto so rustic-mode handles .rs files
+  (setq treesit-auto-recipe-list
+        (cl-remove-if (lambda (r) (eq (treesit-auto-recipe-lang r) 'rust))
+                      treesit-auto-recipe-list))
   ;; Add all *-ts-modes to `auto-mode-alist'
   (global-treesit-auto-mode 1)
   (treesit-auto-add-to-auto-mode-alist 'all))

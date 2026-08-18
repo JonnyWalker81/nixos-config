@@ -184,14 +184,24 @@
   (add-to-list 'yas-snippet-dirs
                (expand-file-name "snippets/rust-mode" doom-private-dir) t))
 
-;; Tree-sitter support for Rust
-(after! tree-sitter
-  (add-to-list 'tree-sitter-major-mode-language-alist '(rustic-mode . rust)))
-
 ;; Additional file associations
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rustic-mode))
 (add-to-list 'auto-mode-alist '("\\Cargo.toml\\'" . toml-mode))
 (add-to-list 'auto-mode-alist '("\\Cargo.lock\\'" . toml-mode))
+
+;; Ensure rustic-mode always has syntax highlighting
+;; (guards against treesit/tree-sitter interference stripping font-lock)
+(add-hook 'rustic-mode-hook
+          (lambda ()
+            (unless font-lock-mode
+              (font-lock-mode 1))
+            (setq-local font-lock-defaults
+                        '(rust-font-lock-keywords
+                          nil nil nil nil
+                          (font-lock-syntactic-face-function
+                           . rust-mode-syntactic-face-function)))
+            (font-lock-ensure))
+          90) ;; run late, after other hooks
 
 ;; Performance optimizations for large Rust projects
 (defun rust-optimize-lsp-performance ()
