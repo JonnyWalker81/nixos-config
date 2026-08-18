@@ -45,9 +45,10 @@
 (map! :leader
       (:desc "git" :prefix "g"
        (:desc "diff" :prefix "d"
+        :desc "Diff branch vs base" :n "b" #'jr/magit-diff-current-branch-against-base
         :desc "Diff file at point vs origin/master" :n "f" #'jr/git-diff-file-at-point-vs-master)
        (:desc "file" :prefix "f"
-        :desc "Browse files in branch" :n "b" #'jr/git-branch-files)
+         :desc "Browse files in branch" :n "b" #'jr/git-branch-files)
        :desc "Copy GitHub file link"      :n "y" #'jr/copy-github-file-link
        :desc "Copy GitHub file+line link" :n "Y" #'jr/copy-github-file-line-link
        :desc "Generate AI commit message" :n "m" #'jr/ai-generate-commit-message))
@@ -70,7 +71,8 @@
 
 (map! :leader
       (:desc "toggle" :prefix "t"
-       :desc "Toggle LSP doc" :n "d" #'lsp-ui-doc-toggle))
+       :desc "Toggle LSP doc" :n "d" #'lsp-ui-doc-toggle
+       :desc "Switch theme"   :n "T" #'consult-theme))
 
 ;; ----------------------------------------------------------------------------
 ;; LSP Prefix
