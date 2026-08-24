@@ -43,12 +43,18 @@ in {
   # --- Linux-only configuration ---
 
   home.file = lib.mkIf isLinux {
+    # rofi default theme -> Omarchy Tokyo Night (drun/run/window/clipboard all match)
     ".config/rofi/config.rasi".text = ''
-      // Write your configuration
-
-      // String interpolation to get the store path
-      @theme "${pkgs.rofi-unwrapped}/share/rofi/themes/glue_pro_blue.rasi"
+      @theme "/home/cipher/.config/rofi/omarchy.rasi"
     '';
+    ".config/rofi/omarchy.rasi" = { source = ../rofi/omarchy.rasi; };
+
+    # Omarchy Super-key hotkey layer + keybinding cheatsheet data
+    ".config/sxhkd/sxhkdrc" = { source = ../sxhkd/sxhkdrc; };
+    ".config/omarchy/keybindings.list" = { source = ../sxhkd/keybindings.list; };
+
+    # greenclip clipboard-history config (full v4.1 schema; validated)
+    ".config/greenclip.toml" = { source = ../greenclip/greenclip.toml; };
 
     # picom config is now managed via services.picom in common.nix
 

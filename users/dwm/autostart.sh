@@ -15,6 +15,11 @@ pkill -f "wallpaper-rotate.sh" 2>/dev/null
 # Start greenclip clipboard daemon (only if installed)
 command -v greenclip >/dev/null 2>&1 && greenclip daemon &
 
+# Start sxhkd: Super-key hotkey daemon for the Omarchy layer.
+# DWM keeps Mod1/Alt; sxhkd only binds Super, so there is no key-grab conflict.
+pkill -f 'sxhkd' 2>/dev/null
+command -v sxhkd >/dev/null 2>&1 && sxhkd &
+
 # Start emacs daemon
 emacs --daemon &
 

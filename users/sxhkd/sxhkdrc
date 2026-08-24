@@ -1,0 +1,29 @@
+# ~/.config/sxhkd/sxhkdrc
+#
+# Omarchy-style additions for DWM/X11, folded into the Alt (Mod1) layer.
+# DWM owns Alt and ALL of its existing bindings are unchanged; these are NEW Alt
+# combos on keys DWM does not use, so there is no key-grab conflict.
+#
+# Why Alt and not Super: this NixOS guest runs in Parallels on macOS, which grabs
+# Cmd/Super combos (e.g. Cmd+Space = Spotlight) before the VM ever sees them. Alt
+# (the Mac Option key) passes through to the guest, which is why DWM already uses it.
+#
+# The 'run' launcher (Alt+p) and clipboard history (Alt+r) are existing DWM binds,
+# handled by DWM itself. Reload after edits: pkill -USR1 -x sxhkd
+
+# Alt + d : application launcher (rofi drun — icon grid of installed apps)
+alt + d
+	rofi -show drun -theme ~/.config/rofi/omarchy.rasi
+
+# Alt + c : Omarchy command menu (Apps / Capture / Style / Toggle / System / Power)
+alt + c
+	omarchy-menu
+
+# Alt + slash : keybinding cheatsheet
+alt + slash
+	omarchy-keys
+
+# Alt + x : power / session menu
+# (avoid Escape here — rofi uses Escape to cancel, so it would close instantly)
+alt + x
+	omarchy-menu power

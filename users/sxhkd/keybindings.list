@@ -1,0 +1,38 @@
+# Keybinding cheatsheet data for omarchy-keys (Super+K).
+# Curated mirror of DWM's Alt binds (config.h) + the Super binds (sxhkdrc).
+# Lines starting with # are ignored. Keep in sync when either source changes.
+
+──────── DWM · Alt (Mod1) ────────
+Alt + Shift + Return       Terminal (ghostty)
+Alt + p                    Run launcher (rofi run)
+Alt + w                    Window switcher (rofi)
+Alt + Shift + p            Run dialog (gmrun)
+Alt + r                    Clipboard history (greenclip)
+Alt + Shift + c            Close focused window
+Alt + Return               Zoom / promote to master
+Alt + Tab                  Focus next window
+Alt + j / Alt + k          Focus next / previous
+Alt + v                    Focus master
+Alt + Shift + j / k        Move window down / up the stack
+Alt + h / Alt + l          Shrink / grow master area
+Alt + , / Alt + .          Focus monitor left / right
+Alt + Shift + , / .        Send window to monitor left / right
+Alt + space                Cycle layout
+Alt + Shift + space        Toggle floating
+Alt + t                    Push window back into tiling
+Alt + m                    Toggle fullscreen
+Alt + b                    Toggle bar
+Alt + Shift + g            Toggle gaps
+Alt + s                    Screenshot (full)
+Alt + Shift + s            Screenshot (selection)
+Alt + 1..9                 View tag / workspace
+Alt + Shift + 1..9         Send window to tag
+Alt + 0                    View all tags
+Alt + Shift + q            Quit DWM
+
+──────── Omarchy additions · Alt (Mod1) ────────
+Alt + d                    App launcher (rofi drun, icon grid)
+Alt + c                    Command menu (Apps/Capture/Style/Toggle/System/Power)
+Alt + /                    This keybinding cheatsheet
+Alt + x                    Power / session menu
+# (Alt+p run launcher and Alt+r clipboard are existing DWM binds, listed above)
