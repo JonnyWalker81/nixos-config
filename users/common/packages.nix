@@ -129,6 +129,15 @@
     pkgs.warp-terminal
     pkgs.neofetch
 
+    # Omarchy-style DWM/X11 desktop tools
+    pkgs.sxhkd # Super-key hotkey daemon (Omarchy binds; DWM keeps Alt/Mod1)
+    pkgs.xdotool # command menu fires DWM Alt-chords (togglegaps/togglebar)
+    pkgs.libnotify
+    pkgs.haskellPackages.greenclip # clipboard history (browsed via rofi)
+    pkgs.papirus-icon-theme # icon theme for rofi drun
+    pkgs.omarchy-menu # command palette + power menu (pkgs/omarchy-menu.nix)
+    pkgs.omarchy-keys # keybinding cheatsheet (pkgs/omarchy-keys.nix)
+
     # Wayland/Hyprland tools (Linux only)
     pkgs.waybar
     pkgs.wl-clipboard # Essential for Wayland clipboard
