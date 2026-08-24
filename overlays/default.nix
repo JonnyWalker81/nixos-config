@@ -15,6 +15,10 @@ in
   terraform = final.callPackage ../pkgs/terraform-bin.nix { };
   pi-coding-agent = final.callPackage ../pkgs/pi-coding-agent.nix { };
 
+  # Omarchy-style DWM/X11 helper scripts (rofi-driven command menu + cheatsheet)
+  omarchy-menu = final.callPackage ../pkgs/omarchy-menu.nix { };
+  omarchy-keys = final.callPackage ../pkgs/omarchy-keys.nix { };
+
   # Override all kernel package sets to use our custom prl-tools
   linuxPackages = extendKernelPackages prev.linuxPackages;
   linuxPackages_6_6 = extendKernelPackages prev.linuxPackages_6_6;
