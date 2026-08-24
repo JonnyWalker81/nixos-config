@@ -156,6 +156,8 @@
       "100:class_g = 'mpv'"
       "100:class_g = 'xmobar'"
       "100:class_g = 'dwm'"
+      # rofi is not a dock; let its own theme alpha drive translucency (no double-dim)
+      "100:class_g = 'Rofi'"
       "100:_NET_WM_WINDOW_TYPE@[0]:a = '_NET_WM_WINDOW_TYPE_DOCK'"
     ];
 
