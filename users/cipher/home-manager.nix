@@ -56,6 +56,13 @@ in {
     # greenclip clipboard-history config (full v4.1 schema; validated)
     ".config/greenclip.toml" = { source = ../greenclip/greenclip.toml; };
 
+    # Omarchy polybar top bar (config + launcher script)
+    ".config/polybar/config.ini" = { source = ../polybar/config.ini; };
+    ".config/polybar/launch.sh" = {
+      source = ../polybar/launch.sh;
+      executable = true;
+    };
+
     # picom config is now managed via services.picom in common.nix
 
     ".xmonad/xmonad.hs" = { source = ../xmonad/xmonad.hs; };

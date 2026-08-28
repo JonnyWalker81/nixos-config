@@ -129,6 +129,7 @@
       "name = 'Notification'"
       "class_g = 'xmobar'"
       "class_g = 'dwm'"
+      "class_g = 'Polybar'"
       "window_type = 'dock'"
       "window_type = 'desktop'"
     ];
@@ -158,6 +159,7 @@
       "100:class_g = 'dwm'"
       # rofi is not a dock; let its own theme alpha drive translucency (no double-dim)
       "100:class_g = 'Rofi'"
+      "100:class_g = 'Polybar'"
       "100:_NET_WM_WINDOW_TYPE@[0]:a = '_NET_WM_WINDOW_TYPE_DOCK'"
     ];
 

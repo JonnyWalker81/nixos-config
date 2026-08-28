@@ -137,6 +137,7 @@
     pkgs.papirus-icon-theme # icon theme for rofi drun
     pkgs.omarchy-menu # command palette + power menu (pkgs/omarchy-menu.nix)
     pkgs.omarchy-keys # keybinding cheatsheet (pkgs/omarchy-keys.nix)
+    (pkgs.polybar.override { pulseSupport = true; }) # Omarchy single top bar
 
     # Wayland/Hyprland tools (Linux only)
     pkgs.waybar

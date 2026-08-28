@@ -15,8 +15,8 @@ pkill -f "wallpaper-rotate.sh" 2>/dev/null
 # Start greenclip clipboard daemon (only if installed)
 command -v greenclip >/dev/null 2>&1 && greenclip daemon &
 
-# Start sxhkd: Super-key hotkey daemon for the Omarchy layer.
-# DWM keeps Mod1/Alt; sxhkd only binds Super, so there is no key-grab conflict.
+# Start sxhkd: hotkey daemon for the Omarchy Alt-layer (Alt+d/c/slash/x).
+# These are NEW Alt combos on keys DWM doesn't use; DWM's own binds are unchanged.
 pkill -f 'sxhkd' 2>/dev/null
 command -v sxhkd >/dev/null 2>&1 && sxhkd &
 
@@ -27,9 +27,7 @@ emacs --daemon &
 # Do NOT start picom here -- it causes a compositor conflict that crashes the
 # X session (FATAL ERROR: Another composite manager is already running).
 
-# Kill any existing status bar processes before starting a new one
+# Start polybar (the single Omarchy top bar). DWM's own bar is off (showbar=0) and
+# reserves altbarpx px at the top for polybar. The old xsetroot statusbar is retired.
 pkill -f "dwm-statusbar.sh" 2>/dev/null
-sleep 0.2
-
-# Start the DWM status bar (xsetroot loop replicating xmobar info)
-~/.local/share/dwm/dwm-statusbar.sh &
+~/.config/polybar/launch.sh &
