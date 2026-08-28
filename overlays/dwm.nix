@@ -9,8 +9,8 @@ final: prev: {
     src = prev.fetchFromGitHub {
       owner = "JonnyWalker81";
       repo = "dwm";
-      rev = "552206f5086a6f25fc5bbbfb3e5abb49484dba27";
-      sha256 = "sha256-cDqnUHQbxjLNkD2VI/kTXsRNUKfolpuL/h9knO/ocDk=";
+      rev = "e6c8344986bfa6f50e615c9480dae3d15d3f79bb";
+      sha256 = "sha256-Ty1USKsyNZgDZhlQCw1YRjzrQCVEXMDAetLcdwMyOlo=";
     };
 
     # config.mk uses pkg-config for NixOS compatibility
