@@ -17,6 +17,9 @@ in {
   xmobar = unstablePkgs.xmobar;
   awscli2 = unstablePkgs.awscli2;
 
+  # herdr: terminal workspace manager for AI coding agents (not in stable 25.05)
+  herdr = unstablePkgs.herdr;
+
   # Stable 25.05 still ships the legacy TypeScript codex (0.1.x); use unstable
   # for the current Rust rewrite.
   codex = unstablePkgs.codex;

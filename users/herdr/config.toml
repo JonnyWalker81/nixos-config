@@ -1,0 +1,26 @@
+# herdr configuration — managed by NixOS (users/herdr/config.toml).
+# Full option list: `herdr --default-config`.
+
+# Skip the first-run onboarding prompt (we configure declaratively).
+onboarding = false
+
+[theme]
+# Matches the rest of the desktop (Tokyo Night).
+name = "tokyo-night"
+
+[terminal]
+# New panes/tabs inherit the cwd of the pane they were spawned from.
+new_cwd = "follow"
+
+[update]
+# The herdr binary is managed by Nix — never self-update or nag about versions.
+version_check = false
+manifest_check = false
+
+[keys]
+# Cycle the agent list in the left sidebar. Both are unset by default, so
+# there is no way to walk the agents without the mouse or the picker.
+# Uses the literal "[" / "]" characters -- the named forms "bracketleft" /
+# "bracketright" are rejected by herdr's keybinding parser.
+previous_agent = "prefix+["
+next_agent = "prefix+]"

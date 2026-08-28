@@ -63,6 +63,9 @@ in {
       executable = true;
     };
 
+    # herdr (terminal workspace manager for AI coding agents)
+    ".config/herdr/config.toml" = { source = ../herdr/config.toml; };
+
     # picom config is now managed via services.picom in common.nix
 
     ".xmonad/xmonad.hs" = { source = ../xmonad/xmonad.hs; };

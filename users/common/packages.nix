@@ -73,6 +73,11 @@
     pkgs.opencode
     pkgs.codex
     pkgs.pi-coding-agent
+
+    # herdr: terminal workspace manager for AI coding agents,
+    # plus the herd-claude launcher (spawn many Claude instances at once)
+    pkgs.herdr
+    pkgs.herd-claude
   ]
   ++ lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
     # Packages with wayland dependencies (Linux only)

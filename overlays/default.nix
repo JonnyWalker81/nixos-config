@@ -19,6 +19,9 @@ in
   omarchy-menu = final.callPackage ../pkgs/omarchy-menu.nix { };
   omarchy-keys = final.callPackage ../pkgs/omarchy-keys.nix { };
 
+  # Launch several Claude Code instances at once inside a herdr session
+  herd-claude = final.callPackage ../pkgs/herd-claude.nix { };
+
   # Override all kernel package sets to use our custom prl-tools
   linuxPackages = extendKernelPackages prev.linuxPackages;
   linuxPackages_6_6 = extendKernelPackages prev.linuxPackages_6_6;
