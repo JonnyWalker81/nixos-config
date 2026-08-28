@@ -1,6 +1,6 @@
 # This function creates a derivation for installing binaries directly
 # from releases.hashicorp.com.
-{ name, version, sha256, system ? builtins.currentSystem, pname ? "${name}-bin"
+{ name, version, sha256, pname ? "${name}-bin"
 
 , lib, stdenv, fetchurl, unzip, autoPatchelfHook }:
 
@@ -15,7 +15,8 @@ let
   };
 
   # Get our system
-  goSystem = systemMap.${system} or (throw "unsupported system: ${system}");
+  hostSystem = stdenv.hostPlatform.system;
+  goSystem = systemMap.${hostSystem} or (throw "unsupported system: ${hostSystem}");
 
   # url for downloading composed of all the other stuff we built up.
   url =
