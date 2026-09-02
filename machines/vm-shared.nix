@@ -4,6 +4,7 @@
   lib,
   currentSystem,
   currentSystemName,
+  currentSystemUser,
   inputs,
   ...
 }:
@@ -14,27 +15,82 @@
   services.journald.extraConfig = "SystemMaxUse=100M";
   nix = {
     package = pkgs.nixVersions.latest;
-    extraOptions = ''
-      experimental-features = nix-command flakes
-      keep-outputs = true
-      keep-derivations = true
-    '';
-
-    # Weekly automatic GC of generations older than 30 days
-    gc = {
-      automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 30d";
-    };
 
     settings = {
-      # Deduplicate paths (hardlink) automatically as they are added to the store
+      # Moved here from nix.extraOptions: nix.settings is type-checked and merges
+      # with other modules, whereas extraOptions is appended to nix.conf verbatim.
+      experimental-features = [ "nix-command" "flakes" ];
+
+      # Nix's default is false; this was previously turned on. With direnv
+      # gcroots present, keep-outputs revives build-only closures (compilers,
+      # rustc-bootstrap, fetched source tarballs) on top of every pinned dev
+      # shell -- measured at 3.83 GiB on a single shell, and the reason 51,575
+      # of 68,857 store entries were .drv files.
+      keep-outputs = false;
+
+      # keep-derivations is deliberately absent: `true` is already Nix's default,
+      # so the old line was a no-op. It is the cheap half (~18 MB per shell) and
+      # must NOT be inverted -- keep-derivations=false + keep-outputs=true is
+      # exactly backwards.
+
+      # Deduplicate (hardlink) paths as they enter the store. Currently saving
+      # ~36.9 GiB. Reassess when nix moves past 2.31.3.
       auto-optimise-store = true;
+
       # Binary caches for faster builds
       substituters = [ "https://cache.nixos.org" ];
       trusted-public-keys = [ "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=" ];
+
+      # Emergency valve for the real failure mode: when free space in the store
+      # drops below min-free DURING A BUILD, Nix collects until max-free is
+      # available. Build-time only -- complements the timer, does not replace it.
+      min-free = 20 * 1024 * 1024 * 1024; # 20 GiB
+      max-free = 60 * 1024 * 1024 * 1024; # 60 GiB
+    };
+
+    # Daily GC of generations older than 14 days. The timer already carries
+    # Persistent=true, so triggers missed while the VM was suspended catch up.
+    # Do NOT add --max-freed: removeOldGenerations() runs unconditionally before
+    # collectGarbage(), so --max-freed can only make this free less.
+    gc = {
+      automatic = true;
+      dates = "daily";
+      randomizedDelaySec = "45min";
+      options = "--delete-older-than 14d";
     };
   };
+
+  # nix-collect-garbage has no age heuristic for indirect gcroots, and Nix only
+  # auto-prunes dangling links under gcroots/auto -- never gcroots/per-user.
+  # Measured: 633 store paths / 8.40 GiB pinned EXCLUSIVELY by direnv roots
+  # (~16 GiB once the processes holding the shared half exit), across 16 .direnv
+  # dirs untouched for over a year, plus 32 permanently-dangling legacy roots.
+  # Unpin BEFORE collecting -- the ordering is load-bearing.
+  systemd.services.nix-direnv-prune = {
+    description = "Unpin dormant direnv dev-shell gcroots before nix-gc";
+    before = [ "nix-gc.service" ];
+    wantedBy = [ "nix-gc.service" ]; # Wants, not Requires: never block the GC
+    serviceConfig.Type = "oneshot";
+    path = with pkgs; [ coreutils findutils ];
+    script = ''
+      # Scan the whole home, not just Repositories -- dormant layout dirs turn
+      # up under ~/scratch too. Do NOT add -L to find: `-L ... -xtype l` matches
+      # LIVE symlinks and would defeat the -mtime gate entirely.
+      home=${lib.escapeShellArg "/home/${currentSystemUser}"}
+      if [ -d "$home" ]; then
+        find "$home" -xdev -maxdepth 6 -type d -name .direnv -mtime +365 \
+          -prune -print -exec rm -rf {} + || true
+      fi
+      # Every root under gcroots/per-user points into a .direnv path, so this
+      # cannot collateral-damage a profile or channel root.
+      find /nix/var/nix/gcroots/per-user -maxdepth 2 -xtype l -print -delete || true
+    '';
+  };
+
+  # A systemd *user* timer (the home-manager nix.gc in users/common/services.nix)
+  # only fires while the user has a running systemd instance. Linger was already
+  # on at runtime but set imperatively; declaring it makes that reproducible.
+  users.users.${currentSystemUser}.linger = true;
 
   # We expect to run the VM on hidpi machines.
   hardware.graphics = {
