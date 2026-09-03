@@ -61,4 +61,13 @@
     source = ../nyxt;
     recursive = true;
   };
+
+  # Claude Code skills. Scoped to the individual skill directory, NOT to
+  # ~/.claude/skills -- that directory holds ~100 plugin- and marketplace-managed
+  # skills that home-manager must not take ownership of. recursive = true so
+  # each file is linked individually rather than replacing the directory.
+  home.file.".claude/skills/reclaim-disk-space" = {
+    source = ../claude-skills/reclaim-disk-space;
+    recursive = true;
+  };
 }
